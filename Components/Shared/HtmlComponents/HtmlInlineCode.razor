@@ -1,0 +1,8 @@
+@using MudBlazor
+<MudText Inline="true" Class="px-1 py-0.5 rounded mx-1" Style="background-color: var(--mud-palette-action-hover); color: var(--mud-palette-secondary); font-family: monospace; font-size: 0.9em;">
+    @ChildContent
+</MudText>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

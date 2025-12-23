@@ -1,0 +1,19 @@
+@using MudBlazor
+
+@if (Ordered)
+{
+    <ol class="mud-typography-body1 my-4 pl-8" style="list-style-type: decimal;">
+        @ChildContent
+    </ol>
+}
+else
+{
+    <ul class="mud-typography-body1 my-4 pl-8" style="list-style-type: disc;">
+        @ChildContent
+    </ul>
+}
+
+@code {
+    [Parameter] public bool Ordered { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

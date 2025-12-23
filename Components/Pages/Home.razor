@@ -5,7 +5,7 @@
 
 <MudStack Spacing="4" Class="mb-12">
     <MudText Typo="Typo.h3" Style="font-weight: 700;">Hi, I'm Samet.</MudText>
-    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Software Engineer. I write about things I learn and projects I work on.</MudText>
+    <MudText Typo="Typo.subtitle1" >Software Engineer. I write about things I learn and projects I work on.</MudText>
 </MudStack>
 
 <MudStack Spacing="8">
@@ -27,9 +27,9 @@
                                 <MudStack Spacing="1">
                                     <div class="d-flex justify-space-between align-center">
                                          <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@post.Title</MudText>
-                                         <MudText Typo="Typo.caption" Color="Color.Secondary">@post.PublishDate?.ToString("MMM yyyy")</MudText>
+                                         <MudText Typo="Typo.caption" >@post.PublishDate?.ToString("MMM yyyy")</MudText>
                                     </div>
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@post.Description</MudText>
+                                    <MudText Typo="Typo.body2" >@post.Description</MudText>
                                 </MudStack>
                             </MudLink>
                         </MudPaper>
@@ -54,7 +54,7 @@
                         <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg d-flex flex-column h-100" Style="background-color: transparent; border-color: #222;" Outlined="true">
                             <MudLink Href="@($"/project/{project.Slug}")" Underline="Underline.None" Color="Color.Inherit" Class="d-flex flex-column flex-grow-1">
                                 <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@project.Title</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2 flex-grow-1">@project.Description</MudText>
+                                <MudText Typo="Typo.body2"  Class="mt-2 flex-grow-1">@project.Description</MudText>
                             </MudLink>
                         </MudPaper>
                     </MudItem>
@@ -77,8 +77,8 @@
                      <MudItem xs="12">
                          <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg" Style="background-color: transparent; border-color: #222;" Outlined="true">
                             <MudLink Href="@($"/gist/{gist.Slug}")" Underline="Underline.None" Color="Color.Inherit">
-                                <MudText Typo="Typo.h6" Class="mud-secondary-text" Style="font-family: monospace;">@gist.Title</MudText>
-                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">@gist.Description</MudText>
+                                <MudText Typo="Typo.h6" Class="mud-secondary-text" Style="font-family: monospace;" Color="Color.Default">@gist.Title</MudText>
+                                <MudText Typo="Typo.body2"  Class="mt-1">@gist.Description</MudText>
                             </MudLink>
                         </MudPaper>
                     </MudItem>

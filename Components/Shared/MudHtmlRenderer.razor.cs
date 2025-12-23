@@ -1,7 +1,8 @@
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using HtmlAgilityPack;
 using MudBlazor;
+using personal_website_blazor.Components.Shared.HtmlComponents;
 
 namespace personal_website_blazor.Components.Shared
 {
@@ -43,37 +44,52 @@ namespace personal_website_blazor.Components.Shared
             switch (node.Name.ToLowerInvariant())
             {
                 case "h1":
-                    RenderMudText(builder, node, Typo.h1);
+                    RenderHtmlTypography(builder, node, Typo.h1);
                     break;
                 case "h2":
-                    RenderMudText(builder, node, Typo.h2);
+                    RenderHtmlTypography(builder, node, Typo.h2);
                     break;
                 case "h3":
-                    RenderMudText(builder, node, Typo.h3);
+                    RenderHtmlTypography(builder, node, Typo.h3);
                     break;
                 case "h4":
-                    RenderMudText(builder, node, Typo.h4);
+                    RenderHtmlTypography(builder, node, Typo.h4);
                     break;
                 case "h5":
-                    RenderMudText(builder, node, Typo.h5);
+                    RenderHtmlTypography(builder, node, Typo.h5);
                     break;
                 case "h6":
-                    RenderMudText(builder, node, Typo.h6);
+                    RenderHtmlTypography(builder, node, Typo.h6);
                     break;
                 case "p":
-                    RenderMudText(builder, node, Typo.body1);
+                    RenderHtmlTypography(builder, node, Typo.body1);
+                    break;
+                case "ul":
+                    RenderHtmlList(builder, node, false);
+                    break;
+                case "ol":
+                    RenderHtmlList(builder, node, true);
+                    break;
+                case "li":
+                    RenderHtmlListItem(builder, node);
+                    break;
+                case "blockquote":
+                    RenderHtmlBlockquote(builder, node);
                     break;
                 case "a":
-                    RenderMudLink(builder, node);
+                    RenderHtmlLink(builder, node);
                     break;
                 case "img":
-                    RenderMudImage(builder, node);
+                    RenderHtmlImage(builder, node);
                     break;
                 case "pre":
-                    RenderMudPre(builder, node);
+                    RenderHtmlPre(builder, node);
                     break;
                 case "code":
-                    RenderMudCode(builder, node);
+                    RenderHtmlCode(builder, node);
+                    break;
+                case "table":
+                    RenderHtmlTable(builder, node);
                     break;
                 default:
                     // Fallback for known containers or just pass through
@@ -88,68 +104,127 @@ namespace personal_website_blazor.Components.Shared
             }
         }
 
-        private void RenderMudText(RenderTreeBuilder builder, HtmlNode node, Typo typo)
+        private void RenderHtmlTypography(RenderTreeBuilder builder, HtmlNode node, Typo typo)
         {
-            builder.OpenComponent<MudText>(0);
-            builder.AddAttribute(1, nameof(MudText.Typo), typo);
-
-            // Map common classes or styles if needed, or pass child content
-            // For Text, we want to render the inner content
-            builder.AddAttribute(2, nameof(MudText.ChildContent), (RenderFragment)((b) =>
-            {
-                RenderNode(b, node);
-            }));
-
+            builder.OpenComponent<HtmlTypography>(0);
+            builder.AddAttribute(1, nameof(HtmlTypography.Typo), typo);
+            builder.AddAttribute(
+                2,
+                nameof(HtmlTypography.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
             builder.CloseComponent();
         }
 
-        private void RenderMudLink(RenderTreeBuilder builder, HtmlNode node)
+        private void RenderHtmlList(RenderTreeBuilder builder, HtmlNode node, bool ordered)
         {
-            builder.OpenComponent<MudLink>(0);
+            builder.OpenComponent<HtmlList>(0);
+            builder.AddAttribute(1, nameof(HtmlList.Ordered), ordered);
+            builder.AddAttribute(
+                2,
+                nameof(HtmlList.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
+            builder.CloseComponent();
+        }
 
+        private void RenderHtmlListItem(RenderTreeBuilder builder, HtmlNode node)
+        {
+            builder.OpenComponent<HtmlListItem>(0);
+            builder.AddAttribute(
+                1,
+                nameof(HtmlListItem.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
+            builder.CloseComponent();
+        }
+
+        private void RenderHtmlBlockquote(RenderTreeBuilder builder, HtmlNode node)
+        {
+            builder.OpenComponent<HtmlBlockquote>(0);
+            builder.AddAttribute(
+                1,
+                nameof(HtmlBlockquote.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
+            builder.CloseComponent();
+        }
+
+        private void RenderHtmlTable(RenderTreeBuilder builder, HtmlNode node)
+        {
+            builder.OpenComponent<HtmlTable>(0);
+            builder.AddAttribute(
+                1,
+                nameof(HtmlTable.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
+            builder.CloseComponent();
+        }
+
+        private void RenderHtmlLink(RenderTreeBuilder builder, HtmlNode node)
+        {
+            builder.OpenComponent<HtmlLink>(0);
             var href = node.GetAttributeValue("href", string.Empty);
-            builder.AddAttribute(1, nameof(MudLink.Href), href);
-
+            builder.AddAttribute(1, nameof(HtmlLink.Href), href);
             var target = node.GetAttributeValue("target", string.Empty);
             if (!string.IsNullOrEmpty(target))
             {
-                builder.AddAttribute(2, nameof(MudLink.Target), target);
+                builder.AddAttribute(2, nameof(HtmlLink.Target), target);
             }
-
-            builder.AddAttribute(3, nameof(MudLink.ChildContent), (RenderFragment)((b) =>
-            {
-                RenderNode(b, node);
-            }));
-
+            builder.AddAttribute(
+                3,
+                nameof(HtmlLink.ChildContent),
+                (RenderFragment)(
+                    (b) =>
+                    {
+                        RenderNode(b, node);
+                    }
+                )
+            );
             builder.CloseComponent();
         }
 
-        private void RenderMudImage(RenderTreeBuilder builder, HtmlNode node)
+        private void RenderHtmlImage(RenderTreeBuilder builder, HtmlNode node)
         {
-            builder.OpenComponent<MudImage>(0);
-
+            builder.OpenComponent<HtmlImage>(0);
             var src = node.GetAttributeValue("src", string.Empty);
-            builder.AddAttribute(1, nameof(MudImage.Src), src);
-
+            builder.AddAttribute(1, nameof(HtmlImage.Src), src);
             var alt = node.GetAttributeValue("alt", string.Empty);
-            builder.AddAttribute(2, nameof(MudImage.Alt), alt);
-
-            // Optional: Make it responsive
-            builder.AddAttribute(3, nameof(MudImage.Fluid), true);
-            builder.AddAttribute(4, nameof(MudImage.Elevation), 25);
-            builder.AddAttribute(5, nameof(MudImage.Class), "rounded-lg my-4");
-
+            builder.AddAttribute(2, nameof(HtmlImage.Alt), alt);
             builder.CloseComponent();
         }
 
-        private void RenderMudPre(RenderTreeBuilder builder, HtmlNode node)
+        private void RenderHtmlPre(RenderTreeBuilder builder, HtmlNode node)
         {
-            // Check if there's a code element inside
             var codeNode = node.SelectSingleNode(".//code");
 
             if (codeNode != null)
             {
-                // Extract language from class attribute (e.g., "language-csharp")
                 string language = string.Empty;
                 var classAttr = codeNode.GetAttributeValue("class", string.Empty);
 
@@ -166,10 +241,8 @@ namespace personal_website_blazor.Components.Shared
                     }
                 }
 
-                // Get the code content
                 string code = codeNode.InnerText;
 
-                // Render CodeComponent
                 builder.OpenComponent<CodeComponent>(0);
                 builder.AddAttribute(1, nameof(CodeComponent.Code), code);
                 builder.AddAttribute(2, nameof(CodeComponent.Language), language);
@@ -177,45 +250,45 @@ namespace personal_website_blazor.Components.Shared
             }
             else
             {
-                // Fallback: render as basic MudPaper if no code element found
-                builder.OpenComponent<MudPaper>(0);
-                builder.AddAttribute(1, nameof(MudPaper.Elevation), 0);
-                builder.AddAttribute(2, nameof(MudPaper.Outlined), true);
-                builder.AddAttribute(3, nameof(MudPaper.Class), "pa-4 my-4 overflow-x-auto");
-                builder.AddAttribute(4, nameof(MudPaper.Style), "background-color: #272727; color: #f8f8f2;");
-
-                builder.AddAttribute(5, nameof(MudPaper.ChildContent), (RenderFragment)((b) =>
-                {
-                    b.OpenElement(0, "pre");
-                    RenderNode(b, node);
-                    b.CloseElement();
-                }));
-
+                builder.OpenComponent<HtmlPre>(0);
+                builder.AddAttribute(
+                    1,
+                    nameof(HtmlPre.ChildContent),
+                    (RenderFragment)(
+                        (b) =>
+                        {
+                            RenderNode(b, node);
+                        }
+                    )
+                );
                 builder.CloseComponent();
             }
         }
 
-        private void RenderMudCode(RenderTreeBuilder builder, HtmlNode node)
+        private void RenderHtmlCode(RenderTreeBuilder builder, HtmlNode node)
         {
-            // If parent is PRE, it is a block code, usually handled by RenderMudPre wrapping.
-            // But we still render the code element itself here.
             bool isBlock = node.ParentNode.Name.Equals("pre", StringComparison.OrdinalIgnoreCase);
 
             if (isBlock)
             {
                 builder.OpenElement(0, "code");
-                // Block code styling if needed, otherwise inherit from pre/paper
                 RenderNode(builder, node);
                 builder.CloseElement();
             }
             else
             {
-                // Inline code
-                builder.OpenElement(0, "code");
-                builder.AddAttribute(1, "class", "px-1 py-0.5 rounded mud-typography-body2");
-                builder.AddAttribute(2, "style", "background-color: rgba(255,255,255,0.1); color: var(--mud-palette-primary); font-family: monospace;");
-                RenderNode(builder, node);
-                builder.CloseElement();
+                builder.OpenComponent<HtmlInlineCode>(0);
+                builder.AddAttribute(
+                    1,
+                    nameof(HtmlInlineCode.ChildContent),
+                    (RenderFragment)(
+                        (b) =>
+                        {
+                            RenderNode(b, node);
+                        }
+                    )
+                );
+                builder.CloseComponent();
             }
         }
     }

@@ -1,0 +1,10 @@
+@using MudBlazor
+<MudPaper Elevation="0" Class="my-4 pl-4 py-4 border-l-4 border-primary" Style="background-color: var(--mud-palette-background-grey); border-left: 4px solid var(--mud-palette-primary);">
+    <MudText Class="italic" Typo="Typo.body1" Style="font-style: italic; color: var(--mud-palette-text-secondary);">
+        @ChildContent
+    </MudText>
+</MudPaper>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

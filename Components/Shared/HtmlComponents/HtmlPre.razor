@@ -1,0 +1,8 @@
+@using MudBlazor
+<MudPaper Elevation="2" Class="pa-4 my-4 overflow-x-auto rounded-lg" Style="background-color: #1e1e1e; color: #d4d4d4;">
+    <pre style="font-family: 'Consolas', 'Monaco', 'Courier New', monospace;">@ChildContent</pre>
+</MudPaper>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

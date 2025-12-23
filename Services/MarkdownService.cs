@@ -1,6 +1,6 @@
 using Markdig;
-using Markdig.Syntax;
 using Markdig.Extensions.Yaml;
+using Markdig.Syntax;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -50,7 +50,8 @@ public class MarkdownService : IMarkdownService
         {
             // Try .md extension as fallback
             path = Path.Combine(_env.ContentRootPath, "content", section, $"{slug}.md");
-            if (!File.Exists(path)) return null;
+            if (!File.Exists(path))
+                return null;
         }
 
         var content = await File.ReadAllTextAsync(path);
@@ -69,9 +70,15 @@ public class MarkdownService : IMarkdownService
             try
             {
                 var metadata = _yamlDeserializer.Deserialize<Dictionary<string, object>>(yaml);
-                if (metadata.ContainsKey("title")) post.Title = metadata["title"].ToString()!;
-                if (metadata.ContainsKey("description")) post.Description = metadata["description"].ToString()!;
-                if (metadata.ContainsKey("publishDate") && DateTime.TryParse(metadata["publishDate"].ToString(), out var date)) post.PublishDate = date;
+                if (metadata.ContainsKey("title"))
+                    post.Title = metadata["title"].ToString()!;
+                if (metadata.ContainsKey("description"))
+                    post.Description = metadata["description"].ToString()!;
+                if (
+                    metadata.ContainsKey("publishDate")
+                    && DateTime.TryParse(metadata["publishDate"].ToString(), out var date)
+                )
+                    post.PublishDate = date;
                 if (metadata.ContainsKey("tags"))
                 {
                     // Handle tags which could be a list
@@ -98,7 +105,8 @@ public class MarkdownService : IMarkdownService
     public async Task<List<PostModel>> GetPostsAsync(string section)
     {
         var dirPath = Path.Combine(_env.ContentRootPath, "content", section);
-        if (!Directory.Exists(dirPath)) return new List<PostModel>();
+        if (!Directory.Exists(dirPath))
+            return new List<PostModel>();
 
         var files = Directory.GetFiles(dirPath, "*.md*"); // mdx or md
         var posts = new List<PostModel>();

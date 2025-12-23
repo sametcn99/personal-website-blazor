@@ -1,0 +1,10 @@
+@using MudBlazor
+<MudLink Href="@Href" Target="@Target" Underline="Underline.Hover" Color="Color.Secondary" Class="font-weight-bold">
+    @ChildContent
+</MudLink>
+
+@code {
+    [Parameter] public string? Href { get; set; }
+    [Parameter] public string? Target { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

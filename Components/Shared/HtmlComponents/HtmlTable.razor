@@ -1,0 +1,10 @@
+@using MudBlazor
+<MudPaper Elevation="1" Class="pa-4 my-6 table-wrapper overflow-x-auto rounded-lg">
+    <MudSimpleTable Hover="true" Striped="true" Bordered="false" Dense="true" Style="overflow-x: auto;">
+        @ChildContent
+    </MudSimpleTable>
+</MudPaper>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
