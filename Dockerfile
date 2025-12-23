@@ -23,6 +23,8 @@ COPY --from=build /app/publish .
 # Set environment variables for production
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ENV ASPNETCORE_hostBuilder__reloadConfigOnChange=false
 
 # Run the application
 ENTRYPOINT ["dotnet", "personal-website-blazor.dll"]
