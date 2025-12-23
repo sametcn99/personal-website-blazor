@@ -1,4 +1,4 @@
-# Build stage
+# Build and publish stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
@@ -6,12 +6,8 @@ WORKDIR /src
 COPY ["personal-website-blazor.csproj", "./"]
 RUN dotnet restore "personal-website-blazor.csproj"
 
-# Copy everything else and build
+# Copy everything else and publish directly
 COPY . .
-RUN dotnet build "personal-website-blazor.csproj" -c Release -o /app/build
-
-# Publish stage
-FROM build AS publish
 RUN dotnet publish "personal-website-blazor.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
@@ -22,7 +18,7 @@ WORKDIR /app
 EXPOSE 8080
 
 # Copy published app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
 # Set environment variables for production
 ENV ASPNETCORE_URLS=http://+:8080
