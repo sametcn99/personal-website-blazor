@@ -1,0 +1,60 @@
+---
+title: "Modern CSS Techniques for 2024"
+description: "Explore the latest CSS features and techniques to create stunning web designs"
+publishDate: "2024-02-20"
+tags: ["css", "web-design", "frontend", "styling"]
+author: "Samet"
+---
+
+# Modern CSS Techniques for 2024
+
+CSS has evolved tremendously over the years. Let's explore some modern techniques that will help you create beautiful and responsive web designs.
+
+## Container Queries
+
+Container queries allow you to style elements based on the size of their container, not just the viewport:
+
+```css
+.card-container {
+  container-type: inline-size;
+}
+
+@container (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+  }
+}
+```
+
+## CSS Grid and Flexbox
+
+Modern layout systems make it easier than ever to create complex layouts:
+
+```css
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+```
+
+## Custom Properties (CSS Variables)
+
+CSS variables enable dynamic theming and easier maintenance:
+
+```css
+:root {
+  --primary-color: #3b82f6;
+  --spacing-unit: 8px;
+}
+
+.button {
+  background-color: var(--primary-color);
+  padding: calc(var(--spacing-unit) * 2);
+}
+```
+
+## Conclusion
+
+These modern CSS techniques empower developers to create more maintainable, responsive, and beautiful web applications. Start incorporating them into your projects today!

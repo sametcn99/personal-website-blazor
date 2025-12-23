@@ -1,0 +1,84 @@
+---
+title: "Personal Portfolio Website"
+description: "A modern, responsive portfolio website built with Blazor WebAssembly and MudBlazor"
+publishDate: "2024-01-20"
+tags: ["blazor", "webassembly", "mudblazor", "portfolio"]
+author: "Samet"
+repository: "https://github.com/username/portfolio"
+demo: "https://portfolio.example.com"
+---
+
+# Personal Portfolio Website
+
+A sleek and modern portfolio website showcasing my projects, blog posts, and professional experience.
+
+## Overview
+
+This project is a fully responsive personal portfolio website built using Blazor WebAssembly and styled with MudBlazor components. It features a clean, professional design with smooth animations and an intuitive user interface.
+
+## Features
+
+- **Responsive Design**: Fully responsive layout that works on all devices
+- **Dark Mode**: Toggle between light and dark themes
+- **Blog Integration**: Markdown-based blog with syntax highlighting
+- **Project Showcase**: Display projects with images, descriptions, and links
+- **Contact Form**: Integrated contact form with email functionality
+- **SEO Optimized**: Meta tags and structured data for better search visibility
+
+## Tech Stack
+
+- **Frontend**: Blazor WebAssembly
+- **UI Framework**: MudBlazor
+- **Styling**: CSS with custom properties
+- **Deployment**: GitHub Pages / Netlify
+- **Content**: Markdown files
+
+## Key Components
+
+```csharp
+// Hero section component
+@page "/"
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid>
+        <MudItem xs="12" md="6">
+            <MudText Typo="Typo.h2">Hi, I'm Samet</MudText>
+            <MudText Typo="Typo.h5">Full Stack Developer</MudText>
+            <MudText Class="mt-4">
+                I build modern web applications with .NET and Blazor
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+```
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/username/portfolio.git
+
+# Navigate to project directory
+cd portfolio
+
+# Restore dependencies
+dotnet restore
+
+# Run the application
+dotnet run
+```
+
+## Deployment
+
+The site is automatically deployed to GitHub Pages using GitHub Actions whenever changes are pushed to the main branch.
+
+## Future Enhancements
+
+- Add animations using CSS transitions
+- Implement a CMS for easier content management
+- Add analytics integration
+- Create an admin panel for content editing
+
+## License
+
+MIT License - feel free to use this project as a template for your own portfolio!

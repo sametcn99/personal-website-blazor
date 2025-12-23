@@ -1,0 +1,161 @@
+---
+title: "Weather Dashboard"
+description: "Real-time weather dashboard with forecasts and interactive maps using Blazor"
+publishDate: "2024-03-05"
+tags: ["blazor", "weather-api", "charts", "real-time"]
+author: "Samet"
+repository: "https://github.com/username/weather-dashboard"
+demo: "https://weather.example.com"
+---
+
+# Weather Dashboard
+
+An interactive weather dashboard providing real-time weather data, forecasts, and visualizations.
+
+## Overview
+
+This Blazor WebAssembly application displays current weather conditions, hourly and daily forecasts, and interactive weather maps. It integrates with the OpenWeatherMap API to provide accurate and up-to-date weather information.
+
+## Features
+
+- **Current Weather**: Real-time weather conditions for any location
+- **Hourly Forecast**: 48-hour detailed forecast
+- **Daily Forecast**: 7-day weather outlook
+- **Interactive Maps**: Temperature, precipitation, and wind maps
+- **Location Search**: Search weather by city name or coordinates
+- **Favorite Locations**: Save and quickly access favorite cities
+- **Weather Alerts**: Severe weather warnings and notifications
+- **Responsive Charts**: Beautiful visualizations using Chart.js
+
+## Tech Stack
+
+- **Frontend**: Blazor WebAssembly
+- **UI Components**: MudBlazor
+- **Charts**: Blazor.Charts / Chart.js
+- **API**: OpenWeatherMap API
+- **State Management**: Fluxor
+- **HTTP Client**: HttpClient with Polly for resilience
+
+## Key Features Implementation
+
+### Weather Service
+
+```csharp
+public class WeatherService : IWeatherService
+{
+    private readonly HttpClient _httpClient;
+    private readonly string _apiKey;
+
+    public async Task<WeatherData> GetCurrentWeatherAsync(string city)
+    {
+        var response = await _httpClient.GetAsync(
+            $"weather?q={city}&appid={_apiKey}&units=metric"
+        );
+        
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<WeatherData>();
+    }
+
+    public async Task<ForecastData> GetForecastAsync(string city)
+    {
+        var response = await _httpClient.GetAsync(
+            $"forecast?q={city}&appid={_apiKey}&units=metric"
+        );
+        
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<ForecastData>();
+    }
+}
+```
+
+### Weather Component
+
+```razor
+@page "/weather/{city?}"
+@inject IWeatherService WeatherService
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    @if (weatherData != null)
+    {
+        <MudCard>
+            <MudCardContent>
+                <MudText Typo="Typo.h4">@weatherData.Name</MudText>
+                <MudText Typo="Typo.h2">@weatherData.Main.Temp°C</MudText>
+                <MudText>@weatherData.Weather[0].Description</MudText>
+            </MudCardContent>
+        </MudCard>
+        
+        <MudChart ChartType="ChartType.Line" 
+                  ChartData="@chartData" 
+                  XAxisLabels="@xLabels"/>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public string? City { get; set; }
+    private WeatherData? weatherData;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(City))
+        {
+            weatherData = await WeatherService.GetCurrentWeatherAsync(City);
+        }
+    }
+}
+```
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/username/weather-dashboard.git
+
+# Navigate to project
+cd weather-dashboard
+
+# Add your API key to appsettings.json
+# "WeatherApi": { "ApiKey": "your-api-key-here" }
+
+# Run the application
+dotnet run
+```
+
+## Configuration
+
+Get a free API key from [OpenWeatherMap](https://openweathermap.org/api) and add it to your `appsettings.json`:
+
+```json
+{
+  "WeatherApi": {
+    "BaseUrl": "https://api.openweathermap.org/data/2.5/",
+    "ApiKey": "your-api-key-here"
+  }
+}
+```
+
+## Screenshots
+
+The dashboard includes:
+- Current weather card with temperature and conditions
+- Hourly forecast chart
+- 7-day forecast cards
+- Interactive weather map
+- Location search with autocomplete
+
+## Future Enhancements
+
+- Add weather radar animations
+- Implement push notifications for weather alerts
+- Add air quality index data
+- Create weather comparison between cities
+- Add historical weather data visualization
+- Implement PWA features for offline access
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.

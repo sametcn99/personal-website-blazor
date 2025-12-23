@@ -1,0 +1,103 @@
+﻿@page "/"
+@inject personal_website_blazor.Services.IMarkdownService MarkdownService
+
+<PageTitle>Samet Can Cıncık</PageTitle>
+
+<MudStack Spacing="4" Class="mb-12">
+    <MudText Typo="Typo.h3" Style="font-weight: 700;">Hi, I'm Samet.</MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Software Engineer. I write about things I learn and projects I work on.</MudText>
+</MudStack>
+
+<MudStack Spacing="8">
+    
+    <section>
+        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Blog Posts</MudText>
+        @if (Posts == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudGrid>
+                @foreach (var post in Posts)
+                {
+                    <MudItem xs="12">
+                        <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg hover:mud-primary-text transition-colors" Style="background-color: transparent; border-color: #222;" Outlined="true"> 
+                            <MudLink Href="@($"/blog/{post.Slug}")" Underline="Underline.None" Color="Color.Inherit">
+                                <MudStack Spacing="1">
+                                    <div class="d-flex justify-space-between align-center">
+                                         <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@post.Title</MudText>
+                                         <MudText Typo="Typo.caption" Color="Color.Secondary">@post.PublishDate?.ToString("MMM yyyy")</MudText>
+                                    </div>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@post.Description</MudText>
+                                </MudStack>
+                            </MudLink>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+    </section>
+
+    <section>
+        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Projects</MudText>
+        @if (Projects == null)
+        {
+             <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudGrid>
+                @foreach (var project in Projects)
+                {
+                     <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg d-flex flex-column h-100" Style="background-color: transparent; border-color: #222;" Outlined="true">
+                            <MudLink Href="@($"/project/{project.Slug}")" Underline="Underline.None" Color="Color.Inherit" Class="d-flex flex-column flex-grow-1">
+                                <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@project.Title</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-2 flex-grow-1">@project.Description</MudText>
+                            </MudLink>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+    </section>
+
+    <section>
+        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Technical Gists</MudText>
+        @if (Gists == null)
+        {
+             <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        }
+        else
+        {
+            <MudGrid>
+                 @foreach (var gist in Gists)
+                {
+                     <MudItem xs="12">
+                         <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg" Style="background-color: transparent; border-color: #222;" Outlined="true">
+                            <MudLink Href="@($"/gist/{gist.Slug}")" Underline="Underline.None" Color="Color.Inherit">
+                                <MudText Typo="Typo.h6" Class="mud-secondary-text" Style="font-family: monospace;">@gist.Title</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mt-1">@gist.Description</MudText>
+                            </MudLink>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        }
+    </section>
+
+</MudStack>
+
+@code {
+    private List<personal_website_blazor.Services.PostModel>? Posts;
+    private List<personal_website_blazor.Services.PostModel>? Projects;
+    private List<personal_website_blazor.Services.PostModel>? Gists;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Posts = await MarkdownService.GetPostsAsync("posts");
+        Projects = await MarkdownService.GetPostsAsync("projects");
+        Gists = await MarkdownService.GetPostsAsync("gists");
+    }
+}

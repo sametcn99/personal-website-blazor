@@ -1,0 +1,66 @@
+@inject IJSRuntime JSRuntime
+
+<MudPaper Class="code-component-container" Style="position: relative; margin: 1rem 0; background-color: #1e1e1e; border-radius: 8px; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background-color: #2d2d2d; border-bottom: 1px solid #3e3e3e;">
+        @if (!string.IsNullOrEmpty(Language))
+        {
+            <MudText Typo="Typo.caption" Style="color: #858585; text-transform: uppercase; font-weight: 600;">@Language</MudText>
+        }
+        else
+        {
+            <div></div>
+        }
+        <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" 
+                       Size="Size.Small" 
+                       Color="Color.Default"
+                       OnClick="CopyToClipboard"
+                       Style="color: #858585;"
+                       title="Copy code" />
+    </div>
+    <pre style="margin: 0; padding: 1rem; overflow-x: auto;"><code id="@codeElementId" class="@GetLanguageClass()">@Code</code></pre>
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string Code { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Language { get; set; } = string.Empty;
+
+    private string codeElementId = Guid.NewGuid().ToString();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrEmpty(Code))
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("highlightCode", codeElementId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error highlighting code: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task CopyToClipboard()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error copying to clipboard: {ex.Message}");
+        }
+    }
+
+    private string GetLanguageClass()
+    {
+        if (string.IsNullOrEmpty(Language))
+            return "language-plaintext";
+        
+        return $"language-{Language.ToLowerInvariant()}";
+    }
+}

@@ -1,0 +1,49 @@
+---
+title: "Getting Started with Blazor WebAssembly"
+description: "A comprehensive guide to building modern web applications with Blazor WebAssembly and .NET"
+publishDate: "2024-01-15"
+tags: ["blazor", "webassembly", "dotnet", "csharp"]
+author: "Samet"
+---
+
+# Getting Started with Blazor WebAssembly
+
+Blazor WebAssembly is a powerful framework for building interactive web applications using C# instead of JavaScript. In this guide, we'll explore the fundamentals of Blazor and how to get started with your first application.
+
+## What is Blazor?
+
+Blazor is a free and open-source web framework that enables developers to create web apps using C# and HTML. It's part of the ASP.NET Core ecosystem and allows you to run C# code directly in the browser using WebAssembly.
+
+## Key Features
+
+- **Component-based architecture**: Build reusable UI components
+- **Full-stack development with .NET**: Use the same language for client and server
+- **Rich ecosystem**: Access to the entire .NET ecosystem and NuGet packages
+- **Modern tooling**: Excellent support in Visual Studio and VS Code
+
+## Creating Your First Component
+
+Here's a simple example of a Blazor component:
+
+```csharp
+@page "/counter"
+
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}
+```
+
+## Conclusion
+
+Blazor WebAssembly opens up exciting possibilities for .NET developers to build modern web applications. With its component-based architecture and the power of C#, you can create rich, interactive user experiences.

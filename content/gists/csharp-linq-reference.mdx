@@ -1,0 +1,125 @@
+---
+title: "C# LINQ Quick Reference"
+description: "Essential LINQ methods and examples for data manipulation in C#"
+publishDate: "2024-02-12"
+tags: ["csharp", "linq", "dotnet", "programming"]
+author: "Samet"
+---
+
+# C# LINQ Quick Reference
+
+A comprehensive guide to LINQ (Language Integrated Query) methods in C#.
+
+## Filtering
+
+```csharp
+// Where - Filter elements
+var adults = people.Where(p => p.Age >= 18);
+
+// OfType - Filter by type
+var strings = mixedList.OfType<string>();
+
+// Distinct - Remove duplicates
+var uniqueNames = names.Distinct();
+```
+
+## Projection
+
+```csharp
+// Select - Transform elements
+var names = people.Select(p => p.Name);
+
+// SelectMany - Flatten collections
+var allOrders = customers.SelectMany(c => c.Orders);
+
+// Anonymous types
+var summary = people.Select(p => new { p.Name, p.Age });
+```
+
+## Sorting
+
+```csharp
+// OrderBy - Sort ascending
+var sorted = people.OrderBy(p => p.Name);
+
+// OrderByDescending - Sort descending
+var sorted = people.OrderByDescending(p => p.Age);
+
+// ThenBy - Secondary sort
+var sorted = people.OrderBy(p => p.LastName)
+                   .ThenBy(p => p.FirstName);
+```
+
+## Aggregation
+
+```csharp
+// Count
+var count = people.Count();
+var adultCount = people.Count(p => p.Age >= 18);
+
+// Sum
+var totalAge = people.Sum(p => p.Age);
+
+// Average
+var avgAge = people.Average(p => p.Age);
+
+// Min/Max
+var youngest = people.Min(p => p.Age);
+var oldest = people.Max(p => p.Age);
+```
+
+## Element Operations
+
+```csharp
+// First - Get first element (throws if empty)
+var first = people.First();
+var firstAdult = people.First(p => p.Age >= 18);
+
+// FirstOrDefault - Get first or default
+var first = people.FirstOrDefault();
+
+// Single - Get single element (throws if 0 or >1)
+var person = people.Single(p => p.Id == 1);
+
+// Any - Check if any match
+var hasAdults = people.Any(p => p.Age >= 18);
+
+// All - Check if all match
+var allAdults = people.All(p => p.Age >= 18);
+```
+
+## Grouping
+
+```csharp
+// GroupBy
+var grouped = people.GroupBy(p => p.City);
+
+foreach (var group in grouped)
+{
+    Console.WriteLine($"City: {group.Key}");
+    foreach (var person in group)
+    {
+        Console.WriteLine($"  - {person.Name}");
+    }
+}
+```
+
+## Joining
+
+```csharp
+// Join
+var result = customers.Join(
+    orders,
+    c => c.Id,
+    o => o.CustomerId,
+    (c, o) => new { c.Name, o.OrderDate }
+);
+
+// GroupJoin
+var result = customers.GroupJoin(
+    orders,
+    c => c.Id,
+    o => o.CustomerId,
+    (c, orders) => new { c.Name, Orders = orders }
+);
+```
