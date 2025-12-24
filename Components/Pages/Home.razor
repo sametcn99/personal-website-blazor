@@ -1,5 +1,5 @@
 ﻿@page "/"
-@inject personal_website_blazor.Services.IMarkdownService MarkdownService
+@inject personal_website_blazor.Services.IContentService ContentService
 
 <PageTitle>Samet Can Cıncık</PageTitle>
 
@@ -96,8 +96,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Posts = await MarkdownService.GetPostsAsync("posts");
-        Projects = await MarkdownService.GetPostsAsync("projects");
-        Gists = await MarkdownService.GetPostsAsync("gists");
+        Posts = await ContentService.GetPostsAsync("posts");
+        Projects = await ContentService.GetPostsAsync("projects");
+        Gists = await ContentService.GetPostsAsync("gists");
     }
 }

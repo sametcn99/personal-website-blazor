@@ -30,7 +30,7 @@ The main goals of this project are:
 - [x] **Responsive Design** - Mobile-friendly layout using MudBlazor's grid system
 - [x] **Docker Support** - Containerized deployment with optimized Dockerfile
 - [ ] **Fullscreen Image Viewer** - Modal-based fullscreen image viewing with zoom and pan capabilities
-- [ ] **Dynamic Sitemap Generation** - Automatic XML sitemap generation based on content structure for improved SEO
+- [x] **Dynamic Sitemap Generation** - Automatic XML sitemap generation based on content structure for improved SEO
 - [ ] **Custom Code Components** - Enhanced code block components with advanced features and better syntax highlighting
 - [x] **RSS Feed** - RSS/Atom feed generation for blog posts and content updates
 - [ ] **Site-wide Search** - Search functionality across posts, gists, and projects

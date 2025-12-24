@@ -9,16 +9,16 @@ public interface IRssFeedService
 
 public class RssFeedService : IRssFeedService
 {
-    private readonly IMarkdownService _markdownService;
+    private readonly IContentService _contentService;
 
-    public RssFeedService(IMarkdownService markdownService)
+    public RssFeedService(IContentService contentService)
     {
-        _markdownService = markdownService;
+        _contentService = contentService;
     }
 
     public async Task<string> BuildFeedAsync(Uri baseUri)
     {
-        var posts = await _markdownService.GetPostsAsync("posts");
+        var posts = await _contentService.GetPostsAsync("posts");
 
         var now = DateTimeOffset.UtcNow;
         var channelTitle = "Samet Can Cıncık - Blog";

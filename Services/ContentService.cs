@@ -17,19 +17,19 @@ public class PostModel
     public string Section { get; set; } = string.Empty; // posts, projects, gists
 }
 
-public interface IMarkdownService
+public interface IContentService
 {
     Task<PostModel?> GetPostAsync(string section, string slug);
     Task<List<PostModel>> GetPostsAsync(string section);
 }
 
-public class MarkdownService : IMarkdownService
+public class ContentService : IContentService
 {
     private readonly IWebHostEnvironment _env;
     private readonly MarkdownPipeline _pipeline;
     private readonly IDeserializer _yamlDeserializer;
 
-    public MarkdownService(IWebHostEnvironment env)
+    public ContentService(IWebHostEnvironment env)
     {
         _env = env;
         _pipeline = new MarkdownPipelineBuilder()
@@ -95,8 +95,7 @@ public class MarkdownService : IMarkdownService
             }
         }
 
-        // Render HTML (excluding frontmatter? Markdig usually handles this but we might want to strip it if it shows up)
-        // Note: Markdig's UseYamlFrontMatter hides the frontmatter from HTML output automatically.
+        // Render HTML
         post.Content = Markdown.ToHtml(content, _pipeline);
 
         return post;

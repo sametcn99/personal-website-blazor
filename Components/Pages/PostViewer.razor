@@ -1,5 +1,5 @@
 @page "/{Section}/{Slug}"
-@inject personal_website_blazor.Services.IMarkdownService MarkdownService
+@inject personal_website_blazor.Services.IContentService ContentService
 @inject IJSRuntime Runtime
 
 <PageTitle>@(Post?.Title ?? "Loading...") | Samet Can Cıncık</PageTitle>
@@ -9,28 +9,30 @@
     {
         @if (IsLoading)
         {
-             <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
-                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-             </MudStack>
+            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </MudStack>
         }
         else
         {
-             <MudAlert Severity="Severity.Error">Post not found.</MudAlert>
+            <MudAlert Severity="Severity.Error">Post not found.</MudAlert>
         }
     }
     else
     {
         <article class="prose dark:prose-invert">
             <MudText Typo="Typo.h2" Class="mb-2" Style="font-weight: 800;">@Post.Title</MudText>
-            
+
             <div class="d-flex align-center mb-8 flex-wrap">
-                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-4">@Post.PublishDate?.ToString("MMMM dd, yyyy")</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-4">@Post.PublishDate?.ToString("MMMM dd, yyyy")
+                </MudText>
                 @foreach (var tag in Post.Tags)
                 {
-                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="mr-2 mb-2" Variant="Variant.Text">#@tag</MudChip>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="mr-2 mb-2" Variant="Variant.Text">#@tag
+                    </MudChip>
                 }
             </div>
-            
+
             <div class="content">
                 <MudHtmlRenderer HtmlContent="@Post.Content" />
             </div>
@@ -51,13 +53,13 @@
     protected override async Task OnParametersSetAsync()
     {
         IsLoading = true;
-        
+
         string fsSection = Section;
         if (Section == "blog") fsSection = "posts";
         if (Section == "project") fsSection = "projects";
         if (Section == "gist") fsSection = "gists";
 
-        Post = await MarkdownService.GetPostAsync(fsSection, Slug);
+        Post = await ContentService.GetPostAsync(fsSection, Slug);
         IsLoading = false;
     }
 

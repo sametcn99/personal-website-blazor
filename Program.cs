@@ -18,12 +18,17 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
 builder.Services.AddScoped<
-    personal_website_blazor.Services.IMarkdownService,
-    personal_website_blazor.Services.MarkdownService
+    personal_website_blazor.Services.IContentService,
+    personal_website_blazor.Services.ContentService
 >();
 builder.Services.AddScoped<
     personal_website_blazor.Services.IRssFeedService,
     personal_website_blazor.Services.RssFeedService
+>();
+
+builder.Services.AddScoped<
+    personal_website_blazor.Services.ISitemapService,
+    personal_website_blazor.Services.SitemapService
 >();
 
 var app = builder.Build();
@@ -54,6 +59,20 @@ app.MapGet(
 
         context.Response.Headers.CacheControl = "public, max-age=1800";
         return Results.Content(xml, "application/rss+xml");
+    }
+);
+
+app.MapGet(
+    "/sitemap.xml",
+    async (HttpContext context, personal_website_blazor.Services.ISitemapService sitemapService) =>
+    {
+        var request = context.Request;
+        var baseUri = new Uri($"{request.Scheme}://{request.Host}");
+
+        var xml = await sitemapService.GenerateSitemapXmlAsync(baseUri);
+
+        context.Response.Headers.CacheControl = "public, max-age=86400";
+        return Results.Content(xml, "application/xml");
     }
 );
 
