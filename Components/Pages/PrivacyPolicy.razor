@@ -1,0 +1,74 @@
+@page "/privacy-policy"
+
+<PageTitle>Privacy Policy | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <MudText Typo="Typo.h3" Style="font-weight: 700;" Color="Color.Primary" GutterBottom>
+        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Style="vertical-align: middle; margin-right: 8px;" />
+        Privacy Policy
+    </MudText>
+    <MudText Typo="Typo.subtitle1" Color="Color.Secondary" GutterBottom>
+        Last Updated: January 2026
+    </MudText>
+
+    <MudDivider Class="my-4" />
+
+    <section>
+        <MudText Typo="Typo.h5" Style="font-weight: 500;" GutterBottom>1. My Commitment to Privacy and Open Source</MudText>
+        <MudText Typo="Typo.body1" GutterBottom>
+            This Privacy Policy explains how I handle data. My primary goal is to
+            enhance user experience and service reliability while maintaining
+            absolute transparency and user anonymity.
+        </MudText>
+
+        <MudPaper Elevation="0" Class="pa-3 my-3 rounded" Style="background: rgba(255,255,255,0.03);">
+            <MudStack Row AlignItems="AlignItems.Center" Spacing="1" Class="mb-2">
+                <MudIcon Icon="@Icons.Material.Filled.Code" Color="Color.Primary" />
+                <MudText Typo="Typo.h6">Open Source &amp; Trust</MudText>
+            </MudStack>
+            <MudText Typo="Typo.body1" GutterBottom>
+                <b>This Website</b> is an <b>Open-Source Project</b>. My entire codebase, including
+                the server-side logic and all tracking mechanisms, is publicly available for audit
+                and inspection on GitHub.
+            </MudText>
+            <MudText Typo="Typo.body1">
+                <b>GitHub Repository:</b>
+                <MudLink Href="https://github.com/sametcn99/personal-website" Target="_blank" Style="font-weight: 600; margin-left: 4px;" data-umami-event="privacy-github-repo-click">
+                    https://github.com/sametcn99/personal-website
+                </MudLink>
+            </MudText>
+        </MudPaper>
+    </section>
+
+    <MudDivider Class="my-4" />
+
+    <section>
+        <MudText Typo="Typo.h5" Style="font-weight: 500;" GutterBottom>2. The Data I Collect</MudText>
+        <MudText Typo="Typo.body1" GutterBottom>
+            My data collection philosophy is built on transparency and privacy. I primarily use a
+            <b>Self-Hosted Umami Analytics</b> instance, which gives me <b>complete ownership and control</b>
+            over the data, ensuring it is never shared with third-party commercial providers. All data
+            collected through this method is fully <b>anonymized</b>.
+        </MudText>
+        <MudText Typo="Typo.body1" GutterBottom>
+            In addition, I sometimes experiment with <b>Microsoft Clarity</b> and <b>Cloudflare Analytics</b>.
+            These tools are used <b>exclusively for learning purposes</b> — to understand their integration
+            and functionality — rather than for tracking individual users.
+        </MudText>
+    </section>
+
+    <MudDivider Class="my-4" />
+
+    <section>
+        <MudText Typo="Typo.h5" Style="font-weight: 500;" GutterBottom>4. Contact and Questions</MudText>
+        <MudText Typo="Typo.body1" GutterBottom>
+            Due to the nature of my anonymous data collection, I generally cannot isolate and delete
+            a specific individual's data set. However, I value transparency. If you have any questions
+            or concerns about my privacy practices, please contact me:
+        </MudText>
+        <MudText Typo="Typo.body1" Style="font-weight: 600;">
+            Support Email:
+            <MudLink Href="mailto:sametcn99@gmail.com" data-umami-event="privacy-contact-email-click">sametcn99@gmail.com</MudLink>
+        </MudText>
+    </section>
+</MudContainer>

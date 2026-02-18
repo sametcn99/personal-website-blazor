@@ -1,0 +1,53 @@
+@page "/readme"
+@using Markdig
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>README | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <BackToHome />
+
+    @if (_loading)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+    }
+    else if (_error != null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_error</MudAlert>
+    }
+    else
+    {
+        <article class="mt-4">
+            <MudHtmlRenderer HtmlContent="@_htmlContent" />
+        </article>
+    }
+</MudContainer>
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private string _htmlContent = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("GitHub");
+            var markdown = await client.GetStringAsync(
+                "https://raw.githubusercontent.com/sametcn99/sametcn99/refs/heads/main/README.md");
+
+            var pipeline = new Markdig.MarkdownPipelineBuilder()
+                .UseAdvancedExtensions()
+                .Build();
+            _htmlContent = Markdig.Markdown.ToHtml(markdown, pipeline);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to fetch README: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

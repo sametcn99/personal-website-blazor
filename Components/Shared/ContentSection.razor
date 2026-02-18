@@ -1,0 +1,23 @@
+@* ContentSection.razor - Section with title, description, posts, and "See All" button *@
+
+<MudStack Class="mb-6" Spacing="2">
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4" Style="font-weight: 600;">@Title</MudText>
+        @if (Total > Posts.Count)
+        {
+            <MudButton Href="@ViewAllHref" Variant="Variant.Outlined" Size="Size.Small" Style="text-transform: none;" data-umami-event="content-section-see-all-click">
+                See All (@Total)
+            </MudButton>
+        }
+    </MudStack>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">@Description</MudText>
+    <PostsList Posts="Posts" />
+</MudStack>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public List<ContentMetadata> Posts { get; set; } = new();
+    [Parameter] public int Total { get; set; }
+    [Parameter] public string ViewAllHref { get; set; } = string.Empty;
+}

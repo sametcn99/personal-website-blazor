@@ -1,0 +1,172 @@
+---
+title: Running Calibre-Web on Coolify
+summary:
+  A comprehensive guide to deploying Calibre-Web on Coolify with Docker Compose
+  and persistent storage
+publishedAt: 2025-10-15
+tags:
+  [coolify, docker, docker-compose, linuxserver, calibre-web, guide, tutorial]
+---
+
+# Deploying Calibre-Web on Coolify with Docker Compose
+
+This guide walks you through setting up and running **Calibre-Web** on
+**Coolify** using **Docker Compose**. It focuses on building a stable,
+persistent deployment with proper permissions and fully working upload
+functionality.
+
+---
+
+## Step 1 — Preparing the Docker Compose File
+
+The first step is to prepare a reliable Docker Compose configuration. This
+defines the container, environment variables, and how data will be stored
+persistently.
+
+```yaml
+version: "3"
+services:
+  calibre-web:
+    image: linuxserver/calibre-web:latest
+    container_name: calibre-web
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Istanbul
+    volumes:
+      - calibre_library_data:/books
+      - calibre_config_data:/config
+    restart: unless-stopped
+volumes:
+  calibre_library_data:
+  calibre_config_data:
+```
+
+**Key points:**
+
+- `PUID` and `PGID` ensure the container has proper file ownership.
+- `TZ` sets your time zone.
+- `/books` and `/config` are stored on named volumes, keeping data safe through
+  container updates or restarts.
+- `restart: unless-stopped` ensures the service restarts automatically if the
+  server reboots.
+
+---
+
+## Step 2 — Creating the Docker Compose Resource and Preparing for Deployment
+
+1. Go to **Projects** in Coolify and click **New Resource**.
+2. Select **“Docker Compose Empty”** as the resource type. This option expects a
+   Docker Compose file to be provided manually.
+3. Paste the Docker Compose content from Step 1 into the editor.
+4. Click **Save**. A new **Docker Compose service** is now created for your
+   project, representing the Calibre-Web container.
+5. In the **Services** section, locate the **“Calibre Web”** service and open
+   its **Settings** page. Register your domain name here.
+6. Return to the service list. At this point, the service is ready to deploy.
+   Click **“Deploy”** to start the container.
+
+---
+
+## Step 3 — First Login
+
+Once the container is running, open Calibre-Web in your browser using the domain
+or IP you configured.
+
+Default login credentials:
+
+- **Username:** `admin`
+- **Password:** `admin123`
+
+After logging in, immediately change the password in **Admin Settings** for
+security purposes.
+
+---
+
+## Step 4 — Initializing the Database
+
+Calibre-Web requires a valid database in the `/books` directory. If the
+directory is empty, you’ll see:
+
+> "New db location is invalid."
+
+To create a minimal database:
+
+1. Open the **Terminal** tab for the Calibre-Web service in Coolify.
+2. Navigate to the `/books` directory:
+
+   ```bash
+   cd /books
+   ```
+
+3. Download a minimal `metadata.db` file to initialize the database:
+
+   ```bash
+   curl -LJO https://github.com/janeczku/calibre-web/raw/refs/heads/master/library/metadata.db
+   ```
+
+4. In the Calibre-Web interface, set the database path to:
+
+   ```text
+   /books
+   ```
+
+The application now has the basic database structure it needs to run.
+
+---
+
+## Step 5 — Enabling File Uploads
+
+Uploads are disabled by default. To enable:
+
+1. Open **Admin Settings** → **Edit Basic Configuration** → **Feature
+   Configuration**.
+2. Check **Allow Upload** and save.
+3. Go to **Manage Users**, edit the `admin` account, and enable **Allow
+   upload**.
+4. Set an upload directory, e.g., `/books` or `/books/uploads`.
+
+At this stage, attempting to upload a book may result in a `readonly database`
+or `permission denied` error. This occurs because the container still lacks
+proper write access to the mounted volumes.
+
+→ Continue to **Step 6** to fix permissions.
+
+---
+
+## Step 6 — Adjusting Permissions
+
+To fix permission issues:
+
+1. Open the **Terminal** tab for the Calibre-Web service in Coolify.
+2. Navigate to the `/books` and `/config` directories and update ownership to
+   match the container user:
+
+   ```bash
+   chown -R 1000:1000 /books
+   chown -R 1000:1000 /config
+   ```
+
+3. Return to the Coolify service page and **restart the container** to apply the
+   changes.
+
+After this, Calibre-Web will have full write access. Uploads, database updates,
+and configuration changes should now work without errors.
+
+---
+
+## Final Notes
+
+Following these steps gives you a Calibre-Web instance that:
+
+- Uses persistent storage so your data survives container restarts.
+- Has correct file permissions to prevent “readonly” errors.
+- Supports uploading new books through the web interface.
+
+From here, you can enhance your setup by adding HTTPS, scheduling backups,
+creating additional users, and customizing the interface to match your library
+preferences.
+
+For any help, feel free to reach out — my contact links are on the home page.
+
+Enjoy your new Calibre-Web deployment on Coolify!

@@ -1,33 +1,35 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudDialogProvider />
+<MudPopoverProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="0" Style="background-color: transparent; border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-        <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex align-center">
-            <MudText Typo="Typo.h6" Class="mr-4">
-                <MudLink Href="/" Underline="Underline.None" Color="Color.Inherit">sametcc.me</MudLink>
-            </MudText>
-            <MudSpacer />
-            <MudLink Href="/" Color="Color.Inherit" Class="mx-2" Underline="Underline.Hover">Home</MudLink>
-             <!-- Add more links if needed -->
-            <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@((e) => _isDarkMode = !_isDarkMode)" />
-        </MudContainer>
-    </MudAppBar>
-
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8 px-4">
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="px-4">
             @Body
         </MudContainer>
-        
-        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-16 mb-8">
-            <MudDivider Class="mb-4" />
-            <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">
-                &copy; @DateTime.Now.Year Samet Can Cıncık.
-            </MudText>
-        </MudContainer>
+
+        @if (!ShouldHideFooter())
+        {
+            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-16 mb-8">
+                <MudDivider Class="mb-4" />
+                <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
+                    <MudLink Href="/privacy-policy" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-privacy-click">
+                        <MudText Typo="Typo.caption">Privacy Policy</MudText>
+                    </MudLink>
+                    <MudLink Href="/rss" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-rss-click">
+                        <MudText Typo="Typo.caption">RSS</MudText>
+                    </MudLink>
+                    <MudLink Href="/readme" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-readme-click">
+                        <MudText Typo="Typo.caption">README</MudText>
+                    </MudLink>
+                </MudStack>
+            </MudContainer>
+        }
     </MudMainContent>
 </MudLayout>
 
@@ -35,28 +37,32 @@
     private bool _isDarkMode = true;
     private MudTheme _theme = new MudTheme()
     {
-        PaletteLight = new PaletteLight()
-        {
-            Primary = "#3b82f6",
-            AppbarBackground = "#ffffff",
-            Background = "#f5f5f5",
-            TextPrimary = "#111111"
-        },
         PaletteDark = new PaletteDark()
         {
-            Primary = "#3b82f6",
-            AppbarBackground = "#000000",
-            Background = "#000000",
-            Surface = "#111111",
-            TextPrimary = "#e5e5e5",
-            TextSecondary = "#a3a3a3",
-            Divider = "#222222"
+            Primary = "#90caf9",
+            Secondary = "#a8a8a8",
+            Background = "#0e0e0e",
+            Surface = "#0e0e0e",
+            TextPrimary = "#b0b0b0",
+            TextSecondary = "#a8a8a8",
+            Divider = "#5f5f5f",
+            ActionDefault = "#90caf9",
+            Error = "#f44336",
+            Warning = "#ff9800",
+            Info = "#2196f3",
+            Success = "#4caf50"
         }
     };
+
+    private bool ShouldHideFooter()
+    {
+        var uri = Navigation.ToBaseRelativePath(Navigation.Uri).ToLowerInvariant();
+        return uri.StartsWith("link") || uri.StartsWith("repo") || uri.StartsWith("privacy");
+    }
 }
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+    <a href="" class="reload" data-umami-event="blazor-error-reload-click">Reload</a>
+    <a class="dismiss" data-umami-event="blazor-error-dismiss-click">🗙</a>
 </div>

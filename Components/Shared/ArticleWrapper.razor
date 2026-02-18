@@ -1,0 +1,68 @@
+@* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
+@inject IJSRuntime JS
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <BackToHome />
+
+    @if (Post != null)
+    {
+        <MudStack Spacing="0" Class="mt-2">
+            <MudStack Row Class="flex-wrap" Spacing="1">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @PublishedLabel: @Post.PublishDate?.ToString("ddd MMM dd yyyy")
+                </MudText>
+                @if (!string.IsNullOrEmpty(Post.Language))
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        @Post.Language.ToUpperInvariant()
+                    </MudText>
+                }
+            </MudStack>
+
+            @if (Post.Tags.Length > 0)
+            {
+                <MudStack Row Class="flex-wrap" Spacing="1">
+                    @foreach (var tag in Post.Tags)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">#@tag</MudText>
+                    }
+                </MudStack>
+            }
+        </MudStack>
+
+        <MudDivider Class="my-4" />
+
+        <article>
+            @ChildContent
+        </article>
+
+        <ArticleNavigation 
+            PrevArticle="@PrevArticleRef"
+            NextArticle="@NextArticleRef"
+            PrevLabel="@PrevLabel"
+            NextLabel="@NextLabel" />
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public PostModel? Post { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string ContentType { get; set; } = "blog";
+    [Parameter] public string PublishedLabel { get; set; } = "Published";
+    [Parameter] public string PrevLabel { get; set; } = "Previous";
+    [Parameter] public string NextLabel { get; set; } = "Next";
+    [Parameter] public PostModel? PrevPost { get; set; }
+    [Parameter] public PostModel? NextPost { get; set; }
+
+    private ArticleNavigation.ArticleRef? PrevArticleRef => PrevPost == null ? null : new()
+    {
+        Href = $"/{ContentType}/{PrevPost.Slug}",
+        Title = PrevPost.Title,
+    };
+
+    private ArticleNavigation.ArticleRef? NextArticleRef => NextPost == null ? null : new()
+    {
+        Href = $"/{ContentType}/{NextPost.Slug}",
+        Title = NextPost.Title,
+    };
+}

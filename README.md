@@ -1,6 +1,6 @@
 # Personal Website - Blazor
 
-This project is a Blazor clone of my Next.js-based personal website live at [sametcc.me](https://sametcc.me/).
+This project is a Blazor clone of my Next.js-based personal website [github.com/sametcn99/personal-website](https://github.com/sametcn99/personal-website).
 
 ## Project Purpose
 
@@ -20,6 +20,36 @@ The main goals of this project are:
 - **HTML Processing:** HtmlAgilityPack
 - **YAML Processing:** YamlDotNet
 
+## Architecture
+
+The project is organized with Clean Architecture principles to separate responsibilities clearly:
+
+- **Core/Domain**: Enterprise entities and core business models (`PostModel`, `ContentMetadata`, `SocialMediaLink`)
+- **Core/Application**: Use-case contracts and application-level configuration (`IContentService`, `IRssFeedService`, `ISitemapService`, `SocialData`)
+- **Infrastructure**: External concerns and concrete implementations (content parsing, RSS generation, sitemap generation)
+- **Components**: Blazor presentation layer (pages, layout, shared UI components)
+- **wwwroot/content**: Static assets and MD/MDX content
+
+Current folder layout:
+
+```text
+Core/
+   Application/
+      Abstractions/
+      Configuration/
+   Domain/
+      Entities/
+Infrastructure/
+   Content/
+   Feeds/
+   Seo/
+Components/
+content/
+wwwroot/
+Program.cs
+personal-website-blazor.csproj
+```
+
 ## Features
 
 - [x] **Markdown Content Processing** - Full support for MDX/MD files with YAML frontmatter parsing
@@ -29,15 +59,16 @@ The main goals of this project are:
 - [x] **Syntax Highlighting** - Code block rendering with language-specific highlighting
 - [x] **Responsive Design** - Mobile-friendly layout using MudBlazor's grid system
 - [x] **Docker Support** - Containerized deployment with optimized Dockerfile
-- [ ] **Fullscreen Image Viewer** - Modal-based fullscreen image viewing with zoom and pan capabilities
 - [x] **Dynamic Sitemap Generation** - Automatic XML sitemap generation based on content structure for improved SEO
-- [ ] **Custom Code Components** - Enhanced code block components with advanced features and better syntax highlighting
+- [x] **Custom Code Components** - Enhanced code block components with advanced features and better syntax highlighting
 - [x] **RSS Feed** - RSS/Atom feed generation for blog posts and content updates
-- [ ] **Site-wide Search** - Search functionality across posts, gists, and projects
-- [ ] **Content Filtering** - Filter posts, gists, and projects by tags, categories, and dates
-- [ ] **Dynamic Link Redirect Structure** - Flexible URL redirection system for managing content links
-- [ ] **Full SEO Optimization** - Comprehensive meta tags, Open Graph, Twitter Cards, and structured data implementation
-- [ ] **Semantic HTML Structure** - Proper semantic HTML5 elements for improved accessibility and SEO
+- [x] **Site-wide Search** - Search functionality across posts, gists, and projects
+- [x] **Content Filtering** - Filter posts, gists, and projects by tags, categories, and dates
+- [x] **Dynamic Link Redirect Structure** - Flexible URL redirection system for managing content links
+- [x] **Full SEO Optimization** - Comprehensive meta tags, Open Graph, Twitter Cards, and structured data implementation
+- [x] **Semantic HTML Structure** - Proper semantic HTML5 elements for improved accessibility and SEO
+- [x] **Fullscreen Image Viewer** - Modal-based fullscreen image viewing with zoom and pan capabilities
+- [x] **Mermaid.js Diagrams** - Support for Mermaid.js diagrams in markdown content for enhanced visualizations
 
 ## Setup
 
@@ -57,7 +88,14 @@ The main goals of this project are:
 3. Start the development server:
 
    ```bash
-   dotnet watch
+   dotnet watch --project personal-website-blazor.csproj
+   ```
+
+   Alternative commands from the repository root:
+
+   ```bash
+   dotnet run --project personal-website-blazor.csproj
+   dotnet build personal-website-blazor.sln
    ```
 
 4. Open `https://localhost:5001` in your browser

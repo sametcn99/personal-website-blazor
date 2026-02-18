@@ -1,0 +1,380 @@
+@using MudBlazor
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<MudPaper Elevation="1" Class="mermaid-wrapper my-4">
+    <div class="mermaid-toolbar">
+        <MudText Typo="Typo.caption" Class="mermaid-toolbar-title">@(ShowCode ? "Code" : "Mermaid Diagram")</MudText>
+        <MudStack Row Spacing="0">
+            <MudIconButton Icon="@Icons.Material.Filled.Code"
+                           Size="Size.Small"
+                           OnClick="ToggleCode"
+                           title="@(ShowCode ? "Show diagram" : "Show code")"
+                           data-umami-event="mermaid-toggle-code-click" />
+            <MudIconButton Icon="@(Copied ? Icons.Material.Filled.Check : Icons.Material.Filled.ContentCopy)"
+                           Size="Size.Small"
+                           Color="@(Copied ? Color.Success : Color.Default)"
+                           OnClick="CopyDefinition"
+                           title="@(Copied ? "Copied" : "Copy")"
+                           data-umami-event="mermaid-copy-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.Download"
+                           Size="Size.Small"
+                           Color="@(Downloading ? Color.Success : Color.Default)"
+                           Disabled="@(!HasSvg || Downloading)"
+                           OnClick="DownloadSvg"
+                           title="@(Downloading ? "Downloading..." : "Download SVG")"
+                           data-umami-event="mermaid-download-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.Fullscreen"
+                           Size="Size.Small"
+                           Disabled="@(!HasSvg)"
+                           OnClick="OpenFullscreen"
+                           title="Fullscreen"
+                           data-umami-event="mermaid-fullscreen-click" />
+        </MudStack>
+    </div>
+
+    <div class="mermaid-content">
+        @if (ShowCode)
+        {
+            <pre class="mermaid-code"><code>@Definition</code></pre>
+        }
+        else if (IsLoading)
+        {
+            <div class="mermaid-loading">Loading diagram...</div>
+        }
+        else if (HasSvg)
+        {
+            <div class="mermaid-diagram-host">@((MarkupString)SvgMarkup)</div>
+        }
+        else
+        {
+            <div class="mermaid-loading">Diagram could not be rendered.</div>
+        }
+    </div>
+</MudPaper>
+
+@if (IsFullscreen)
+{
+    <div id="@_fullscreenId"
+         class="mermaid-fullscreen-backdrop"
+         tabindex="0"
+         @onkeydown="HandleFullscreenKeyDown"
+         @onwheel="HandleFullscreenWheel"
+         @onwheel:preventDefault="true"
+         @onwheel:stopPropagation="true"
+         @onmousedown="StartDrag"
+         @onmousemove="Drag"
+         @onmouseup="EndDrag"
+         @onmouseleave="EndDrag"
+         @onclick="CloseFullscreen">
+        <div class="mermaid-fullscreen-toolbar" @onclick:stopPropagation="true">
+            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                           Size="Size.Small"
+                           OnClick="ZoomIn"
+                           title="Zoom in (+/=)"
+                           data-umami-event="mermaid-fullscreen-zoom-in-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                           Size="Size.Small"
+                           OnClick="ZoomOut"
+                           title="Zoom out (-)"
+                           data-umami-event="mermaid-fullscreen-zoom-out-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.CenterFocusStrong"
+                           Size="Size.Small"
+                           OnClick="ResetView"
+                           title="Reset (0)"
+                           data-umami-event="mermaid-fullscreen-reset-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.Download"
+                           Size="Size.Small"
+                           Color="@(Downloading ? Color.Success : Color.Default)"
+                           Disabled="@(!HasSvg || Downloading)"
+                           OnClick="DownloadSvg"
+                           title="Download SVG"
+                           data-umami-event="mermaid-fullscreen-download-click" />
+            <MudIconButton Icon="@Icons.Material.Filled.FullscreenExit"
+                           Size="Size.Small"
+                           OnClick="CloseFullscreen"
+                           title="Exit Fullscreen (Esc)"
+                           data-umami-event="mermaid-fullscreen-exit-click" />
+        </div>
+
+        <div class="mermaid-scale-chip" @onclick:stopPropagation="true">@GetScaleText()</div>
+
+        <div class="mermaid-fullscreen-stage" @onclick:stopPropagation="true">
+            <div class="mermaid-fullscreen-diagram"
+                 style="@GetFullscreenTransform()"
+                 @ondblclick="ResetView">
+                @((MarkupString)SvgMarkup)
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Definition { get; set; } = string.Empty;
+
+    private bool IsLoading = true;
+    private bool ShowCode;
+    private bool Copied;
+    private bool Downloading;
+    private bool IsFullscreen;
+    private bool HasSvg;
+    private string SvgMarkup = string.Empty;
+    private string _lastDefinition = string.Empty;
+    private bool _renderRequested = true;
+    private readonly string _diagramId = $"mermaid-{Guid.NewGuid():N}";
+    private readonly string _fullscreenId = $"mermaid-fullscreen-{Guid.NewGuid():N}";
+    private bool _focusFullscreenRequested;
+
+    private double _scale = 1;
+    private double _panX;
+    private double _panY;
+    private bool _isDragging;
+    private double _dragStartX;
+    private double _dragStartY;
+
+    private bool _scrollLocked;
+
+    protected override void OnParametersSet()
+    {
+        if (string.Equals(_lastDefinition, Definition, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _lastDefinition = Definition;
+        _renderRequested = true;
+        IsLoading = true;
+        SvgMarkup = string.Empty;
+        HasSvg = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_renderRequested && !string.IsNullOrWhiteSpace(Definition))
+        {
+            _renderRequested = false;
+            await RenderMermaid();
+        }
+
+        if (_focusFullscreenRequested)
+        {
+            _focusFullscreenRequested = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("focusElementById", _fullscreenId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Fullscreen focus failed: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task RenderMermaid()
+    {
+        try
+        {
+            var svg = await JSRuntime.InvokeAsync<string>("renderMermaidToSvg", Definition, _diagramId);
+            SvgMarkup = svg;
+            HasSvg = !string.IsNullOrWhiteSpace(svg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Mermaid render failed: {ex.Message}");
+            SvgMarkup = "";
+            HasSvg = false;
+        }
+        finally
+        {
+            IsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ToggleCode()
+    {
+        ShowCode = !ShowCode;
+    }
+
+    private async Task CopyDefinition()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Definition.Trim());
+            Copied = true;
+            await InvokeAsync(StateHasChanged);
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(1800);
+                Copied = false;
+                await InvokeAsync(StateHasChanged);
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Mermaid copy failed: {ex.Message}");
+        }
+    }
+
+    private async Task DownloadSvg()
+    {
+        if (!HasSvg)
+        {
+            return;
+        }
+
+        try
+        {
+            Downloading = true;
+            await InvokeAsync(StateHasChanged);
+            await JSRuntime.InvokeVoidAsync("downloadSvgMarkup", SvgMarkup, "mermaid-diagram");
+
+            await Task.Delay(800);
+            Downloading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Downloading = false;
+            await InvokeAsync(StateHasChanged);
+            Console.WriteLine($"Mermaid download failed: {ex.Message}");
+        }
+    }
+
+    private async Task OpenFullscreen()
+    {
+        if (!HasSvg)
+        {
+            return;
+        }
+
+        IsFullscreen = true;
+        ResetView();
+        _focusFullscreenRequested = true;
+        await ToggleBodyScrollLock(true);
+    }
+
+    private async Task CloseFullscreen()
+    {
+        IsFullscreen = false;
+        EndDrag();
+        await ToggleBodyScrollLock(false);
+    }
+
+    private void ZoomIn()
+    {
+        _scale = Math.Min(_scale * 1.2, 5);
+    }
+
+    private void ZoomOut()
+    {
+        _scale = Math.Max(_scale / 1.2, 0.1);
+    }
+
+    private void ResetView()
+    {
+        _scale = 1;
+        _panX = 0;
+        _panY = 0;
+    }
+
+    private void HandleFullscreenWheel(WheelEventArgs args)
+    {
+        if (args.DeltaY > 0)
+        {
+            ZoomOut();
+            return;
+        }
+
+        ZoomIn();
+    }
+
+    private async Task HandleFullscreenKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            await CloseFullscreen();
+            return;
+        }
+
+        if (args.Key is "+" or "=")
+        {
+            ZoomIn();
+            return;
+        }
+
+        if (args.Key == "-")
+        {
+            ZoomOut();
+            return;
+        }
+
+        if (args.Key == "0")
+        {
+            ResetView();
+        }
+    }
+
+    private void StartDrag(MouseEventArgs args)
+    {
+        _isDragging = true;
+        _dragStartX = args.ClientX - _panX;
+        _dragStartY = args.ClientY - _panY;
+    }
+
+    private void Drag(MouseEventArgs args)
+    {
+        if (!_isDragging)
+        {
+            return;
+        }
+
+        _panX = args.ClientX - _dragStartX;
+        _panY = args.ClientY - _dragStartY;
+    }
+
+    private void EndDrag()
+    {
+        _isDragging = false;
+    }
+
+    private string GetScaleText() => $"{Math.Round(_scale * 100)}%";
+
+    private string GetFullscreenTransform() =>
+        $"transform: translate({_panX}px, {_panY}px) scale({_scale.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}); cursor: {(_isDragging ? "grabbing" : "grab")};";
+
+    private async Task ToggleBodyScrollLock(bool shouldLock)
+    {
+        if (shouldLock && !_scrollLocked)
+        {
+            await JSRuntime.InvokeVoidAsync("lockBodyScroll");
+            _scrollLocked = true;
+            return;
+        }
+
+        if (!shouldLock && _scrollLocked)
+        {
+            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            _scrollLocked = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_scrollLocked)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            _scrollLocked = false;
+        }
+        catch
+        {
+            _scrollLocked = false;
+        }
+    }
+}

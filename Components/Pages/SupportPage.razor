@@ -1,0 +1,59 @@
+@page "/support"
+
+<PageTitle>Support Me | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <BackToHome />
+    <MudText Typo="Typo.h3" Style="font-weight: 700;" GutterBottom>Support My Work</MudText>
+
+    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+        Creating open-source projects, writing technical articles, and sharing
+        knowledge takes a lot of time and effort. If you find my content helpful
+        or have used my projects in your work, consider supporting me. Your
+        support helps me keep doing what I love and sharing it with the community.
+    </MudText>
+
+    <MudStack Spacing="3">
+        @* Buy Me a Coffee *@
+        <MudPaper Outlined Class="pa-4 rounded-lg">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="flex-wrap">
+                <MudAvatar Size="Size.Large" Style="background: #FFDD00; color: black; width: 60px; height: 60px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Coffee" Size="Size.Large" />
+                </MudAvatar>
+                <MudStack Spacing="1" Class="flex-grow-1">
+                    <MudText Typo="Typo.h6" Style="font-weight: 700;">Buy Me a Coffee</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                        A simple way to say thanks. You can buy me a coffee to fuel my next coding session.
+                    </MudText>
+                    <MudButton Href="https://buymeacoffee.com/sametcn99" Target="_blank"
+                               Variant="Variant.Filled" Style="background: #FFDD00; color: black; font-weight: 600; text-transform: none;"
+                               data-umami-event="support-buymeacoffee-click">
+                        Support on Buy Me a Coffee
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        @* GitHub Sponsors *@
+        <MudPaper Outlined Class="pa-4 rounded-lg">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="flex-wrap">
+                <MudAvatar Size="Size.Large" Style="background: pink; width: 60px; height: 60px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" Size="Size.Large" />
+                </MudAvatar>
+                <MudStack Spacing="1" Class="flex-grow-1">
+                    <MudText Typo="Typo.h6" Style="font-weight: 700;">GitHub Sponsors</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                        Support my open-source work directly on GitHub. Monthly and one-time sponsorships are available.
+                    </MudText>
+                    <MudButton Href="https://github.com/sponsors/sametcn99" Target="_blank"
+                               Variant="Variant.Outlined" Color="Color.Default"
+                               StartIcon="@Icons.Material.Filled.Favorite" IconColor="Color.Error"
+                               Style="text-transform: none;"
+                               data-umami-event="support-github-sponsor-click">
+                        Sponsor on GitHub
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+</MudContainer>

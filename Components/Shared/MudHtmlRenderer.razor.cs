@@ -243,6 +243,14 @@ namespace personal_website_blazor.Components.Shared
 
                 string code = codeNode.InnerText;
 
+                if (language.Equals("mermaid", StringComparison.OrdinalIgnoreCase))
+                {
+                    builder.OpenComponent<MermaidDiagram>(0);
+                    builder.AddAttribute(1, nameof(MermaidDiagram.Definition), code);
+                    builder.CloseComponent();
+                    return;
+                }
+
                 builder.OpenComponent<CodeComponent>(0);
                 builder.AddAttribute(1, nameof(CodeComponent.Code), code);
                 builder.AddAttribute(2, nameof(CodeComponent.Language), language);
@@ -250,6 +258,15 @@ namespace personal_website_blazor.Components.Shared
             }
             else
             {
+                var plainPreContent = HtmlEntity.DeEntitize(node.InnerText).Trim();
+                if (IsLikelyMermaidDefinition(plainPreContent))
+                {
+                    builder.OpenComponent<MermaidDiagram>(0);
+                    builder.AddAttribute(1, nameof(MermaidDiagram.Definition), plainPreContent);
+                    builder.CloseComponent();
+                    return;
+                }
+
                 builder.OpenComponent<HtmlPre>(0);
                 builder.AddAttribute(
                     1,
@@ -263,6 +280,43 @@ namespace personal_website_blazor.Components.Shared
                 );
                 builder.CloseComponent();
             }
+        }
+
+        private static bool IsLikelyMermaidDefinition(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var firstLine = value
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .FirstOrDefault();
+
+            if (string.IsNullOrWhiteSpace(firstLine))
+            {
+                return false;
+            }
+
+            return firstLine.StartsWith("graph ", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("flowchart ", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("sequenceDiagram", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("classDiagram", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("stateDiagram", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("erDiagram", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("journey", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("gantt", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("pie", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("mindmap", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("timeline", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("gitGraph", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("quadrantChart", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("requirementDiagram", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("C4Context", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("C4Container", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("C4Component", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("C4Dynamic", StringComparison.OrdinalIgnoreCase)
+                || firstLine.StartsWith("C4Deployment", StringComparison.OrdinalIgnoreCase);
         }
 
         private void RenderHtmlCode(RenderTreeBuilder builder, HtmlNode node)

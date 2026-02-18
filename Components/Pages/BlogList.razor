@@ -1,0 +1,26 @@
+@page "/blog"
+@rendermode InteractiveServer
+@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
+
+<PageTitle>Blog | Samet Can Cıncık</PageTitle>
+
+@if (_posts == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <ContentListPage Title="Blog Posts"
+                     Description="A collection of my thoughts on development and the passions that keep me inspired."
+                     Posts="_posts"
+                     UrlPrefix="blog" />
+}
+
+@code {
+    private List<PostModel>? _posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _posts = await ContentService.GetPostsAsync("posts");
+    }
+}

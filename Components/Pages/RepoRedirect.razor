@@ -1,0 +1,58 @@
+@page "/repo/{Slug}"
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>@(_repoName ?? "Redirecting") | Samet Can Cıncık</PageTitle>
+
+@if (_notFound)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+        <BackToHome />
+        <MudAlert Severity="Severity.Warning" Class="mt-4">Repository not found.</MudAlert>
+    </MudContainer>
+}
+else if (_repoUrl != null)
+{
+    <RedirectPage TargetUrl="@_repoUrl" />
+}
+else
+{
+    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </MudStack>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private string? _repoUrl;
+    private string? _repoName;
+    private bool _notFound;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("GitHub");
+            var response = await client.GetAsync($"https://api.github.com/repos/sametcn99/{Slug}");
+            if (response.IsSuccessStatusCode)
+            {
+                var repo = await response.Content.ReadFromJsonAsync<RepoData>();
+                if (repo != null)
+                {
+                    _repoUrl = repo.Html_url;
+                    _repoName = repo.Full_name;
+                    return;
+                }
+            }
+        }
+        catch { }
+
+        _notFound = true;
+    }
+
+    private class RepoData
+    {
+        public string Html_url { get; set; } = string.Empty;
+        public string Full_name { get; set; } = string.Empty;
+    }
+}

@@ -1,8 +1,184 @@
 @using MudBlazor
-<MudImage Src="@Src" Alt="@Alt" Fluid="true" Elevation="4" Class="rounded-lg my-6 d-block mx-auto"
-    ObjectFit="ObjectFit.Cover" />
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<MudImage Src="@Src"
+          Alt="@Alt"
+          Fluid="true"
+          Elevation="4"
+          Class="rounded-lg my-6 d-block mx-auto html-content-image"
+          ObjectFit="ObjectFit.Cover"
+          Style="cursor: zoom-in;"
+          @onclick="OpenViewer" />
+
+@if (_isViewerOpen)
+{
+    <div class="image-viewer-backdrop" @onclick="CloseViewer" @onwheel:preventDefault="true" @onwheel:stopPropagation="true">
+        <div class="image-viewer-modal" @onclick:stopPropagation="true">
+            <div class="image-viewer-toolbar">
+                <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                               Variant="Variant.Text"
+                               Color="Color.Default"
+                               Size="Size.Medium"
+                               OnClick="ZoomOut"
+                               data-umami-event="image-viewer-zoom-out-click"
+                               title="Zoom out" />
+                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                               Variant="Variant.Text"
+                               Color="Color.Default"
+                               Size="Size.Medium"
+                               OnClick="ZoomIn"
+                               data-umami-event="image-viewer-zoom-in-click"
+                               title="Zoom in" />
+                <MudIconButton Icon="@Icons.Material.Filled.CenterFocusStrong"
+                               Variant="Variant.Text"
+                               Color="Color.Default"
+                               Size="Size.Medium"
+                               OnClick="ResetTransform"
+                               data-umami-event="image-viewer-reset-click"
+                               title="Reset" />
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                               Variant="Variant.Text"
+                               Color="Color.Default"
+                               Size="Size.Medium"
+                               OnClick="CloseViewer"
+                               data-umami-event="image-viewer-close-click"
+                               title="Close" />
+            </div>
+
+            <div class="image-viewer-stage"
+                 @onwheel="HandleWheel"
+                  @onwheel:preventDefault="true"
+                  @onwheel:stopPropagation="true"
+                 @onmousedown="StartDrag"
+                 @onmousemove="Drag"
+                 @onmouseup="EndDrag"
+                 @onmouseleave="EndDrag">
+                <img src="@Src"
+                     alt="@Alt"
+                     class="image-viewer-image"
+                     draggable="false"
+                     style="@GetTransformStyle()" />
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public string? Src { get; set; }
     [Parameter] public string? Alt { get; set; }
+
+    private bool _isViewerOpen;
+    private double _zoom = 1.0;
+    private double _panX;
+    private double _panY;
+    private bool _isDragging;
+    private double _dragStartX;
+    private double _dragStartY;
+    private bool _scrollLocked;
+
+    private async Task OpenViewer()
+    {
+        _isViewerOpen = true;
+        ResetTransform();
+
+        await ToggleBodyScrollLock(true);
+    }
+
+    private async Task CloseViewer()
+    {
+        _isViewerOpen = false;
+        EndDrag();
+
+        await ToggleBodyScrollLock(false);
+    }
+
+    private void ZoomIn()
+    {
+        _zoom = Math.Min(6, _zoom + 0.2);
+    }
+
+    private void ZoomOut()
+    {
+        _zoom = Math.Max(0.5, _zoom - 0.2);
+    }
+
+    private void ResetTransform()
+    {
+        _zoom = 1.0;
+        _panX = 0;
+        _panY = 0;
+    }
+
+    private void HandleWheel(WheelEventArgs args)
+    {
+        if (args.DeltaY < 0)
+        {
+            ZoomIn();
+            return;
+        }
+
+        ZoomOut();
+    }
+
+    private void StartDrag(MouseEventArgs args)
+    {
+        _isDragging = true;
+        _dragStartX = args.ClientX - _panX;
+        _dragStartY = args.ClientY - _panY;
+    }
+
+    private void Drag(MouseEventArgs args)
+    {
+        if (!_isDragging)
+        {
+            return;
+        }
+
+        _panX = args.ClientX - _dragStartX;
+        _panY = args.ClientY - _dragStartY;
+    }
+
+    private void EndDrag()
+    {
+        _isDragging = false;
+    }
+
+    private async Task ToggleBodyScrollLock(bool shouldLock)
+    {
+        if (shouldLock && !_scrollLocked)
+        {
+            await JSRuntime.InvokeVoidAsync("lockBodyScroll");
+            _scrollLocked = true;
+            return;
+        }
+
+        if (!shouldLock && _scrollLocked)
+        {
+            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            _scrollLocked = false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_scrollLocked)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            _scrollLocked = false;
+        }
+        catch
+        {
+            _scrollLocked = false;
+        }
+    }
+
+    private string GetTransformStyle() =>
+        $"transform: translate({_panX}px, {_panY}px) scale({_zoom.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)}); cursor: {(_isDragging ? "grabbing" : "grab")};";
 }

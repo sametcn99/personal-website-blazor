@@ -1,0 +1,491 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Personal Website API",
+    "version": "1.0.0",
+    "description": "Public API endpoints for blog, gist, project, and repository content."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Same-origin server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Blog",
+      "description": "Endpoints for blog post listings"
+    },
+    {
+      "name": "Gists",
+      "description": "Endpoints for technical gist listings"
+    },
+    {
+      "name": "Projects",
+      "description": "Endpoints for project listings"
+    },
+    {
+      "name": "Repos",
+      "description": "Endpoints for GitHub repository listings"
+    }
+  ],
+  "paths": {
+    "/api/blog": {
+      "get": {
+        "tags": ["Blog"],
+        "operationId": "getBlogPosts",
+        "summary": "List blog posts",
+        "description": "Returns blog posts with optional pagination and filtering by search query or tag.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of posts to return.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "example": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of posts to skip before returning data.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive text search over title and summary.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "next.js"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Case-insensitive tag filter.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "typescript"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blog posts fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/gists": {
+      "get": {
+        "tags": ["Gists"],
+        "operationId": "getGistPosts",
+        "summary": "List gist posts",
+        "description": "Returns gist posts with optional pagination and filtering by search query or tag.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of posts to return.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "example": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of posts to skip before returning data.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive text search over title and summary.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "tutorial"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Case-insensitive tag filter.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "api"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gist posts fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GistListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects": {
+      "get": {
+        "tags": ["Projects"],
+        "operationId": "getProjectPosts",
+        "summary": "List project posts",
+        "description": "Returns project posts with optional pagination and filtering by search query or tag.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of posts to return.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "example": 10
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of posts to skip before returning data.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "example": 0
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive text search over title and summary.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "react"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Case-insensitive tag filter.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "open-source"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project posts fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/repos": {
+      "get": {
+        "tags": ["Repos"],
+        "operationId": "getRepos",
+        "summary": "List repositories",
+        "description": "Returns repository metadata mapped from GitHub.",
+        "responses": {
+          "200": {
+            "description": "Repositories fetched successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepoListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ListContentItem": {
+        "type": "object",
+        "required": [
+          "title",
+          "href",
+          "publishedAt",
+          "summary",
+          "tags",
+          "language"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Building APIs with Next.js"
+          },
+          "href": {
+            "type": "string",
+            "example": "/blog/building-apis-with-nextjs"
+          },
+          "publishedAt": {
+            "type": "string",
+            "description": "Publication date in ISO-8601 format.",
+            "example": "2026-01-10"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A practical guide to building APIs with route handlers."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["nextjs", "api"]
+          },
+          "language": {
+            "type": "string",
+            "example": "en"
+          }
+        }
+      },
+      "RepoContentItem": {
+        "type": "object",
+        "required": [
+          "title",
+          "href",
+          "publishedAt",
+          "summary",
+          "tags",
+          "language"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "personal-website"
+          },
+          "href": {
+            "type": "string",
+            "example": "/repo/personal-website"
+          },
+          "publishedAt": {
+            "type": "string",
+            "description": "Best available activity date derived from pushed_at, updated_at, or created_at.",
+            "example": "2026-02-10T12:00:00Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true,
+            "example": "2025-04-01T09:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-02-10T12:00:00Z"
+          },
+          "summary": {
+            "type": "string",
+            "example": "GitHub repository"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["nextjs", "typescript"]
+          },
+          "language": {
+            "type": "string",
+            "example": "TypeScript"
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "required": ["total", "offset", "hasMore"],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 42
+          },
+          "limit": {
+            "type": "integer",
+            "nullable": true,
+            "example": 10
+          },
+          "offset": {
+            "type": "integer",
+            "example": 0
+          },
+          "hasMore": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "BlogListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "required": ["blogPosts"],
+            "properties": {
+              "blogPosts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ListContentItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GistListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "required": ["gistPosts"],
+            "properties": {
+              "gistPosts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ListContentItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ProjectListResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginationMeta"
+          },
+          {
+            "type": "object",
+            "required": ["projectPosts"],
+            "properties": {
+              "projectPosts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ListContentItem"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RepoListResponse": {
+        "type": "object",
+        "required": ["repos", "total"],
+        "properties": {
+          "repos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RepoContentItem"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "example": 20
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Failed to fetch content"
+          }
+        }
+      }
+    }
+  }
+}

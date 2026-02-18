@@ -1,65 +1,91 @@
 @page "/{Section}/{Slug}"
-@inject personal_website_blazor.Services.IContentService ContentService
+@using personal_website_blazor.Core.Domain.Entities
+@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
 @inject IJSRuntime Runtime
+@inject NavigationManager Navigation
 
 <PageTitle>@(Post?.Title ?? "Loading...") | Samet Can Cıncık</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Medium">
-    @if (Post == null)
+@if (Post == null)
+{
+    @if (IsLoading)
     {
-        @if (IsLoading)
-        {
-            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </MudStack>
-        }
-        else
-        {
-            <MudAlert Severity="Severity.Error">Post not found.</MudAlert>
-        }
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </MudStack>
     }
     else
     {
-        <article class="prose dark:prose-invert">
-            <MudText Typo="Typo.h2" Class="mb-2" Style="font-weight: 800;">@Post.Title</MudText>
-
-            <div class="d-flex align-center mb-8 flex-wrap">
-                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-4">@Post.PublishDate?.ToString("MMMM dd, yyyy")
-                </MudText>
-                @foreach (var tag in Post.Tags)
-                {
-                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="mr-2 mb-2" Variant="Variant.Text">#@tag
-                    </MudChip>
-                }
-            </div>
-
-            <div class="content">
-                <MudHtmlRenderer HtmlContent="@Post.Content" />
-            </div>
-        </article>
+        <MudContainer MaxWidth="MaxWidth.Medium">
+            <BackToHome />
+            <MudAlert Severity="Severity.Error" Class="mt-4">Post not found.</MudAlert>
+        </MudContainer>
     }
-</MudContainer>
+}
+else
+{
+    <HeadContent>
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="@Post.Title" />
+        <meta property="og:description" content="@Post.Description" />
+        <meta property="og:url" content="@GetCanonicalUrl()" />
+        <meta property="og:image" content="@GetOgImageUrl()" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="@Post.Title" />
+        <meta property="twitter:description" content="@Post.Description" />
+        <meta property="twitter:image" content="@GetOgImageUrl()" />
+    </HeadContent>
+
+    <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost">
+        <MudText Typo="Typo.h4" Style="font-weight: 800;" Class="mb-4">@Post.Title</MudText>
+        <div class="content">
+            <MudHtmlRenderer HtmlContent="@Post.Content" />
+        </div>
+    </ArticleWrapper>
+}
 
 @code {
-    [Parameter]
-    public string Section { get; set; } = string.Empty;
+    [Parameter] public string Section { get; set; } = string.Empty;
+    [Parameter] public string Slug { get; set; } = string.Empty;
 
-    [Parameter]
-    public string Slug { get; set; } = string.Empty;
-
-    private personal_website_blazor.Services.PostModel? Post;
+    private PostModel? Post;
+    private PostModel? PrevPost;
+    private PostModel? NextPost;
     private bool IsLoading = true;
+
+    private string UrlSection => Section switch
+    {
+        "posts" => "blog",
+        "projects" => "project",
+        "gists" => "gist",
+        _ => Section
+    };
+
+    private string FsSection => Section switch
+    {
+        "blog" => "posts",
+        "project" => "projects",
+        "gist" => "gists",
+        _ => Section
+    };
 
     protected override async Task OnParametersSetAsync()
     {
         IsLoading = true;
 
-        string fsSection = Section;
-        if (Section == "blog") fsSection = "posts";
-        if (Section == "project") fsSection = "projects";
-        if (Section == "gist") fsSection = "gists";
+        Post = await ContentService.GetPostAsync(FsSection, Slug);
 
-        Post = await ContentService.GetPostAsync(fsSection, Slug);
+        if (Post != null)
+        {
+            var allPosts = await ContentService.GetPostsAsync(FsSection);
+            var idx = allPosts.FindIndex(p => p.Slug == Slug);
+            if (idx >= 0)
+            {
+                NextPost = idx > 0 ? allPosts[idx - 1] : null;
+                PrevPost = idx < allPosts.Count - 1 ? allPosts[idx + 1] : null;
+            }
+        }
+
         IsLoading = false;
     }
 
@@ -76,5 +102,19 @@
                 Console.WriteLine($"JS Error: {ex.Message}");
             }
         }
+    }
+
+    private string GetCanonicalUrl() => Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
+
+    private string GetOgImageUrl()
+    {
+        if (!string.IsNullOrWhiteSpace(Post?.Image))
+        {
+            return Post.Image!.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? Post.Image!
+                : Navigation.ToAbsoluteUri(Post.Image!).ToString();
+        }
+
+        return Navigation.ToAbsoluteUri("/opengraph-image").ToString();
     }
 }

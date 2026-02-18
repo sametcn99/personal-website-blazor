@@ -1,0 +1,109 @@
+---
+title: "Insta Public Archiver"
+publishedAt: "2025-12-23"
+summary:
+  "A Python script to download all media from public Instagram profiles without
+  login."
+---
+
+# Insta Public Archiver
+
+A Python script designed to download all media (photos and videos) from public
+Instagram profiles without requiring a login. It leverages Instagram's public
+API endpoints to fetch and save media content efficiently.
+
+## Files
+
+````python
+import instaloader
+import time
+import random
+import sys
+import os
+
+def download_posts_anonymous(username):
+    """
+    Downloads posts from a specified profile anonymously.
+    It creates a dedicated sub-folder for EACH post to ensure
+    an organized file structure.
+
+    Directory Structure:
+    Username / YYYY-MM-DD_Shortcode / Files (jpg, mp4, txt)
+    """
+
+    # Initialize Instaloader with specific configurations
+    L = instaloader.Instaloader(
+        download_pictures=True,
+        download_videos=True,
+        download_video_thumbnails=False,
+        download_geotags=False,
+        download_comments=False,
+        compress_json=False,
+        save_metadata=False # Disable metadata JSONs for a cleaner output
+    )
+
+    try:
+        print(f"--- Searching for profile: '{username}' ---")
+
+        # Create profile object (Anonymous access - No login required)
+        profile = instaloader.Profile.from_username(L.context, username)
+
+        print(f"Profile Found: {profile.username}")
+        print(f"Total Media Count: {profile.mediacount}")
+        print("Download starting... (Organized by folders)")
+        print("-" * 40)
+
+        counter = 0
+
+        # Iterate over all posts
+        for post in profile.get_posts():
+            try:
+                # Define folder naming convention: e.g., 2023-10-27_Cy8x...
+                folder_name = f"{post.date:%Y-%m-%d}_{post.shortcode}"
+
+                # Ensure profile directory exists (Username/)
+                profile_dir = profile.username
+                os.makedirs(profile_dir, exist_ok=True)
+
+                # For logging: Username / YYYY-MM-DD_Shortcode
+                target_directory = f"{profile_dir}/{folder_name}"
+
+                print(f"[{counter + 1}] Processing: {folder_name}")
+
+                # Download the post into the profile directory — Instaloader
+                # will create the per-post folder (YYYY-MM-DD_Shortcode) inside it.
+                L.download_post(post, target=profile_dir)
+                print(f"   -> Saved to: {target_directory}")
+
+                counter += 1
+
+                # --- CRITICAL: Rate Limit Protection ---
+                # Since we are not logged in, we must add a random delay
+                # to mimic human behavior and avoid IP bans.
+                # sleep_time = random.randint(12, 25)
+                # print(f"   -> Saved to: {target_directory}")
+                # print(f"   -> Sleeping... ({sleep_time}s)")
+                # time.sleep(sleep_time)
+
+            except Exception as e_inner:
+                print(f"   -> Error with this post, skipping: {e_inner}")
+                # Wait briefly before attempting the next post
+                time.sleep(5)
+
+        print("-" * 40)
+        print(f"Process Completed! Total posts: {counter}")
+        print(f"Check the '{username}' folder for sub-folders.")
+
+    except instaloader.ConnectionException as e:
+        print(f"\nConnection Error: IP restricted. Try again later.")
+        print(f"Error Details: {e}")
+    except instaloader.ProfileNotExistsException:
+        print(f"\nError: Profile '{username}' not found.")
+    except Exception as e:
+        print(f"\nUnexpected Error: {e}")
+
+if __name__ == "__main__":
+    target_username = input("Enter Instagram Username: ")
+    download_posts_anonymous(target_username)
+    ```
+````

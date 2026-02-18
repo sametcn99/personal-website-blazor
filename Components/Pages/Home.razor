@@ -1,103 +1,425 @@
 ﻿@page "/"
-@inject personal_website_blazor.Services.IContentService ContentService
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@using personal_website_blazor.Core.Domain.Entities
+@using personal_website_blazor.Core.Application.Configuration
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
+@inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
 
 <PageTitle>Samet Can Cıncık</PageTitle>
 
-<MudStack Spacing="4" Class="mb-12">
-    <MudText Typo="Typo.h3" Style="font-weight: 700;">Hi, I'm Samet.</MudText>
-    <MudText Typo="Typo.subtitle1" >Software Engineer. I write about things I learn and projects I work on.</MudText>
-</MudStack>
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <MudStack Spacing="6">
+        <MudStack Spacing="2">
+            <MudTextField T="string"
+                          InputId="home-search-input"
+                          Value="_searchQuery"
+                          ValueChanged="OnSearchQueryChanged"
+                          Placeholder="Search posts, links, and repositories..."
+                          Variant="Variant.Text"
+                          Margin="Margin.Dense"
+                          Immediate="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Clearable="true"
+                          data-umami-event="home-search-input-click"
+                          OnClearButtonClick="ClearSearchAsync" />
 
-<MudStack Spacing="8">
-    
-    <section>
-        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Blog Posts</MudText>
-        @if (Posts == null)
-        {
-            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-        }
-        else
-        {
-            <MudGrid>
-                @foreach (var post in Posts)
+            @if (!string.IsNullOrWhiteSpace(_searchQuery))
+            {
+                @if (_isRepoLoading)
                 {
-                    <MudItem xs="12">
-                        <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg hover:mud-primary-text transition-colors" Style="background-color: transparent; border-color: #222;" Outlined="true"> 
-                            <MudLink Href="@($"/blog/{post.Slug}")" Underline="Underline.None" Color="Color.Inherit">
-                                <MudStack Spacing="1">
-                                    <div class="d-flex justify-space-between align-center">
-                                         <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@post.Title</MudText>
-                                         <MudText Typo="Typo.caption" >@post.PublishDate?.ToString("MMM yyyy")</MudText>
-                                    </div>
-                                    <MudText Typo="Typo.body2" >@post.Description</MudText>
-                                </MudStack>
-                            </MudLink>
-                        </MudPaper>
-                    </MudItem>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Loading repositories...</MudText>
+                    </MudStack>
                 }
-            </MudGrid>
-        }
-    </section>
 
-    <section>
-        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Projects</MudText>
-        @if (Projects == null)
-        {
-             <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-        }
-        else
-        {
-            <MudGrid>
-                @foreach (var project in Projects)
+                @if (_filteredResults.Count > 0)
                 {
-                     <MudItem xs="12" md="6">
-                        <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg d-flex flex-column h-100" Style="background-color: transparent; border-color: #222;" Outlined="true">
-                            <MudLink Href="@($"/project/{project.Slug}")" Underline="Underline.None" Color="Color.Inherit" Class="d-flex flex-column flex-grow-1">
-                                <MudText Typo="Typo.h6" Color="Color.Inherit" Style="font-weight: 600;">@project.Title</MudText>
-                                <MudText Typo="Typo.body2"  Class="mt-2 flex-grow-1">@project.Description</MudText>
-                            </MudLink>
-                        </MudPaper>
-                    </MudItem>
+                    <MudStack Spacing="1" Class="mt-1">
+                        @foreach (var item in _filteredResults)
+                        {
+                            <MudStack Spacing="0" Class="py-1">
+                                <MudLink Href="@item.Href"
+                                         Target="@(item.External ? "_blank" : "_self")"
+                                         data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
+                                    @item.Title
+                                </MudLink>
+                                @if (!string.IsNullOrWhiteSpace(item.Summary))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
+                                }
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
+                                </MudText>
+                            </MudStack>
+                        }
+                    </MudStack>
                 }
-            </MudGrid>
-        }
-    </section>
-
-    <section>
-        <MudText Typo="Typo.h4" Class="mb-4" Style="font-weight: 600;">Technical Gists</MudText>
-        @if (Gists == null)
-        {
-             <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-        }
-        else
-        {
-            <MudGrid>
-                 @foreach (var gist in Gists)
+                else
                 {
-                     <MudItem xs="12">
-                         <MudPaper Elevation="0" Class="pa-4 border-solid border rounded-lg" Style="background-color: transparent; border-color: #222;" Outlined="true">
-                            <MudLink Href="@($"/gist/{gist.Slug}")" Underline="Underline.None" Color="Color.Inherit">
-                                <MudText Typo="Typo.h6" Class="mud-secondary-text" Style="font-family: monospace;" Color="Color.Default">@gist.Title</MudText>
-                                <MudText Typo="Typo.body2"  Class="mt-1">@gist.Description</MudText>
-                            </MudLink>
-                        </MudPaper>
-                    </MudItem>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">No results found.</MudText>
                 }
-            </MudGrid>
-        }
-    </section>
+            }
+        </MudStack>
 
-</MudStack>
+        <ReadmeSection />
+
+        <ContentSection Title="Blog Posts"
+                        Description="A collection of my thoughts on development and the passions that keep me inspired."
+                        Posts="_blogPosts"
+                        Total="_blogTotal"
+                        ViewAllHref="/blog" />
+
+        <ContentSection Title="Technical Gists"
+                        Description="Code snippets, tutorials, and technical documentation."
+                        Posts="_gistPosts"
+                        Total="_gistTotal"
+                        ViewAllHref="/gist" />
+
+        <ContentSection Title="Projects"
+                        Description="A showcase of my personal projects and contributions to the developer community."
+                        Posts="_projectPosts"
+                        Total="_projectTotal"
+                        ViewAllHref="/project" />
+
+        <LinksSection />
+    </MudStack>
+}
 
 @code {
-    private List<personal_website_blazor.Services.PostModel>? Posts;
-    private List<personal_website_blazor.Services.PostModel>? Projects;
-    private List<personal_website_blazor.Services.PostModel>? Gists;
+    private const int MaxSearchResults = 10;
+
+    private bool _loading = true;
+    private bool _isRepoLoading;
+    private bool _repoFetchStarted;
+    private bool _hotkeyRegistered;
+    private string _searchQuery = string.Empty;
+    private List<ContentMetadata> _blogPosts = new();
+    private List<ContentMetadata> _gistPosts = new();
+    private List<ContentMetadata> _projectPosts = new();
+    private readonly List<SearchEntry> _searchSource = new();
+    private readonly Dictionary<string, SearchEntry> _searchIndexByHref = new(StringComparer.OrdinalIgnoreCase);
+    private List<SearchEntry> _filteredResults = new();
+    private DotNetObjectReference<Home>? _dotNetRef;
+    private int _blogTotal;
+    private int _gistTotal;
+    private int _projectTotal;
 
     protected override async Task OnInitializedAsync()
     {
-        Posts = await ContentService.GetPostsAsync("posts");
-        Projects = await ContentService.GetPostsAsync("projects");
-        Gists = await ContentService.GetPostsAsync("gists");
+        var blogs = await ContentService.GetPostsAsync("posts");
+        var projects = await ContentService.GetPostsAsync("projects");
+        var gists = await ContentService.GetPostsAsync("gists");
+
+        _blogTotal = blogs.Count;
+        _projectTotal = projects.Count;
+        _gistTotal = gists.Count;
+
+        _blogPosts = blogs.Take(5).Select(ToMeta("blog")).ToList();
+        _gistPosts = gists.Take(5).Select(ToMeta("gist")).ToList();
+        _projectPosts = projects.Take(5).Select(ToMeta("project")).ToList();
+
+        BuildBaseSearchSource(blogs, gists, projects);
+
+        _loading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_hotkeyRegistered)
+        {
+            return;
+        }
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+
+        try
+        {
+            await JS.InvokeVoidAsync("registerHomeSearchKeyHandler", _dotNetRef);
+            _hotkeyRegistered = true;
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    [JSInvokable]
+    public async Task HandleGlobalKeyInput(string key, bool ctrlKey, bool metaKey, bool altKey)
+    {
+        if (ctrlKey || metaKey || altKey)
+        {
+            return;
+        }
+
+        if (key == "Escape")
+        {
+            await ClearSearchAsync();
+            return;
+        }
+
+        if (key == "Backspace")
+        {
+            if (_searchQuery.Length == 0)
+            {
+                return;
+            }
+
+            _searchQuery = _searchQuery[..^1];
+            ApplySearchFilter();
+            await FocusSearchInputAsync();
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        if (key.Length == 1)
+        {
+            _searchQuery += key;
+
+            if (!_repoFetchStarted && _searchQuery.Length > 0)
+            {
+                _ = LoadRepositoriesAsync();
+            }
+
+            ApplySearchFilter();
+            await FocusSearchInputAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private Task OnSearchQueryChanged(string? value)
+    {
+        _searchQuery = value ?? string.Empty;
+
+        if (!_repoFetchStarted && _searchQuery.Length > 0)
+        {
+            _ = LoadRepositoriesAsync();
+        }
+
+        ApplySearchFilter();
+        return Task.CompletedTask;
+    }
+
+    private async Task ClearSearchAsync()
+    {
+        _searchQuery = string.Empty;
+        _filteredResults.Clear();
+        await FocusSearchInputAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task FocusSearchInputAsync()
+    {
+        if (!_hotkeyRegistered)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("focusElementById", "home-search-input");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    private void BuildBaseSearchSource(List<PostModel> blogs, List<PostModel> gists, List<PostModel> projects)
+    {
+        foreach (var post in blogs)
+        {
+            AddSearchEntry(new SearchEntry
+            {
+                Title = post.Title,
+                Summary = post.Description,
+                Href = $"/blog/{post.Slug}",
+                TypeLabel = "Blog",
+                PublishedAt = post.PublishDate?.ToString("yyyy-MM-dd")
+            });
+        }
+
+        foreach (var gist in gists)
+        {
+            AddSearchEntry(new SearchEntry
+            {
+                Title = gist.Title,
+                Summary = gist.Description,
+                Href = $"/gist/{gist.Slug}",
+                TypeLabel = "Gist",
+                PublishedAt = gist.PublishDate?.ToString("yyyy-MM-dd")
+            });
+        }
+
+        foreach (var project in projects)
+        {
+            AddSearchEntry(new SearchEntry
+            {
+                Title = project.Title,
+                Summary = project.Description,
+                Href = $"/project/{project.Slug}",
+                TypeLabel = "Project",
+                PublishedAt = project.PublishDate?.ToString("yyyy-MM-dd")
+            });
+        }
+
+        foreach (var link in SocialData.Links)
+        {
+            AddSearchEntry(new SearchEntry
+            {
+                Title = link.Label,
+                Summary = link.Category,
+                Href = link.Link,
+                TypeLabel = "Link",
+                External = link.External
+            });
+        }
+    }
+
+    private async Task LoadRepositoriesAsync()
+    {
+        if (_repoFetchStarted)
+        {
+            return;
+        }
+
+        _repoFetchStarted = true;
+        _isRepoLoading = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var reposApiUrl = Navigation.ToAbsoluteUri("/api/repos");
+            var repos = await client.GetFromJsonAsync<List<GitHubRepoDto>>(reposApiUrl);
+
+            if (repos is null)
+            {
+                return;
+            }
+
+            foreach (var repo in repos)
+            {
+                if (string.IsNullOrWhiteSpace(repo.HtmlUrl) || string.IsNullOrWhiteSpace(repo.Name))
+                {
+                    continue;
+                }
+
+                AddSearchEntry(new SearchEntry
+                {
+                    Title = repo.Name,
+                    Summary = repo.Description ?? string.Empty,
+                    Href = repo.HtmlUrl,
+                    TypeLabel = "Repository",
+                    PublishedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
+                    External = true
+                });
+            }
+        }
+        catch
+        {
+            _repoFetchStarted = false;
+        }
+        finally
+        {
+            _isRepoLoading = false;
+            ApplySearchFilter();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void AddSearchEntry(SearchEntry entry)
+    {
+        if (string.IsNullOrWhiteSpace(entry.Href))
+        {
+            return;
+        }
+
+        if (_searchIndexByHref.ContainsKey(entry.Href))
+        {
+            return;
+        }
+
+        _searchIndexByHref[entry.Href] = entry;
+        _searchSource.Add(entry);
+    }
+
+    private void ApplySearchFilter()
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            _filteredResults.Clear();
+            return;
+        }
+
+        _filteredResults = _searchSource
+            .Where(item =>
+                item.Title.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                item.Summary.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+            .Take(MaxSearchResults)
+            .ToList();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotkeyRegistered)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("unregisterHomeSearchKeyHandler");
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        _dotNetRef?.Dispose();
+    }
+
+    private static Func<PostModel, ContentMetadata> ToMeta(string prefix) => p => new ContentMetadata
+    {
+        Title = p.Title,
+        Href = $"/{prefix}/{p.Slug}",
+        PublishedAt = p.PublishDate?.ToString("yyyy-MM-dd") ?? "",
+        Summary = p.Description,
+        Tags = p.Tags,
+        Language = p.Language,
+    };
+
+    private sealed class SearchEntry
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+        public string Href { get; set; } = string.Empty;
+        public string TypeLabel { get; set; } = string.Empty;
+        public string? PublishedAt { get; set; }
+        public bool External { get; set; }
+    }
+
+    private sealed class GitHubRepoDto
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("html_url")]
+        public string? HtmlUrl { get; set; }
+
+        [JsonPropertyName("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
     }
 }

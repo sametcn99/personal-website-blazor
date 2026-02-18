@@ -1,0 +1,11 @@
+@* ReadmeSection.razor - Banner linking to /readme *@
+
+<MudPaper Elevation="0" Class="pa-3 mb-6 rounded-lg d-flex align-center gap-3"
+          Style="background: rgba(144,202,249,0.04); border: 1px solid rgba(144,202,249,0.1);">
+    <MudIcon Icon="@Icons.Material.Outlined.Info" Color="Color.Primary" Size="Size.Small" Style="opacity: 0.8;" />
+    <MudText Typo="Typo.body2" Color="Color.Secondary">
+        Check out the
+        <MudLink Href="/readme" Underline="Underline.Always" Color="Color.Default" Style="font-weight: 600;" data-umami-event="readme-section-link-click">README</MudLink>
+        to get to know me better.
+    </MudText>
+</MudPaper>

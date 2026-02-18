@@ -1,0 +1,210 @@
+---
+title: "Migrate from prettier-eslint to Biome"
+publishedAt: "2025-12-24"
+summary:
+  "A fully automated Bash script to migrate from ESLint + Prettier to Biome. It
+  initializes Biome, migrates ESLint and Prettier configurations, removes old
+  config files, and updates package.json scripts. Designed for Bun environments
+  with full Next.js ESLint compatibility. "
+---
+
+# Migrate from prettier-eslint to Biome
+
+A fully automated Bash script to migrate from ESLint + Prettier to Biome. It
+initializes Biome, migrates ESLint and Prettier configurations, removes old
+config files, and updates package.json scripts. Designed for Bun environments
+with full Next.js ESLint compatibility.
+
+## Files
+
+- `migrate-to-biome.sh`: A Bash script that automates the migration process from
+  ESLint and Prettier to Biome.
+
+```bash
+#!/usr/bin/env bash
+#
+# migrate-to-biome.sh
+# ---------------------------------------------------------------------------------------------------
+# 🔧 Purpose:
+#   Fully automate the migration from ESLint + Prettier → Biome using Bun.
+#
+# 🧠 What it does:
+#   1. Initializes Biome (if missing)
+#   2. Migrates ESLint & Prettier configurations safely (handles Next.js)
+#   3. Removes all ESLint/Prettier config files (including eslint.config.mjs)
+#   4. Detects and removes old lint/format scripts
+#   5. Removes all ESLint & Prettier dependencies
+#   6. Installs Biome as devDependency
+#   7. Adds Biome lint & format scripts with --write flag
+#
+# 🧩 Requirements:
+#   - Bun installed and accessible (`bunx`, `bun add`, `bun remove`)
+#   - jq installed (for JSON editing)
+#
+# ---------------------------------------------------------------------------------------------------
+# © 2025 Samet • MIT License
+# ---------------------------------------------------------------------------------------------------
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# ----------------------------- #
+# 🌈 Helper functions
+# ----------------------------- #
+log() { echo -e "\033[36m[INFO]\033[0m $*"; }
+warn() { echo -e "\033[33m[WARN]\033[0m $*"; }
+error() { echo -e "\033[31m[ERROR]\033[0m $*" >&2; }
+success() { echo -e "\033[32m[SUCCESS]\033[0m $*"; }
+
+require() {
+  if ! command -v "$1" &>/dev/null; then
+    error "Missing required command: $1"
+    exit 1
+  fi
+}
+
+# ----------------------------- #
+# 🧭 Pre-flight checks
+# ----------------------------- #
+require bunx
+require jq
+
+if [[ ! -f package.json ]]; then
+  error "package.json not found in current directory."
+  exit 1
+fi
+
+# ----------------------------- #
+# ⚙️  Run Biome migrations
+# ----------------------------- #
+log "Running Biome migration commands..."
+
+# 1. Initialize Biome if not found
+if [[ ! -f biome.json && ! -f biome.config.json ]]; then
+  log "No Biome config found. Initializing Biome..."
+  bunx @biomejs/biome init || true
+  success "Biome initialized."
+fi
+
+# 2. Handle Next.js ESLint configs safely
+TEMP_ESLINT_DIR=".tmp_eslint_migrate"
+mkdir -p "$TEMP_ESLINT_DIR"
+RESTORE_ESLINT=false
+
+if [[ -f "eslint.config.mjs" ]]; then
+  log "Temporarily patching Next.js ESLint config to avoid @rushstack crashes..."
+  cp eslint.config.mjs "$TEMP_ESLINT_DIR/eslint.config.mjs"
+  echo "export default {};" > eslint.config.mjs
+  RESTORE_ESLINT=true
+elif [[ -f "eslint.config.js" ]]; then
+  log "Temporarily patching eslint.config.js..."
+  cp eslint.config.js "$TEMP_ESLINT_DIR/eslint.config.js"
+  echo "module.exports = {};" > eslint.config.js
+  RESTORE_ESLINT=true
+fi
+
+# 3. Run migration commands
+bunx @biomejs/biome migrate eslint --write || warn "ESLint migration encountered non-critical issues."
+bunx @biomejs/biome migrate prettier --write || warn "Prettier migration encountered non-critical issues."
+success "Biome migration steps completed."
+
+# 4. Restore ESLint config temporarily, then remove permanently
+if [[ "$RESTORE_ESLINT" == true ]]; then
+  log "Restoring original eslint.config.* for cleanup..."
+  mv "$TEMP_ESLINT_DIR"/* . || true
+  rm -rf "$TEMP_ESLINT_DIR"
+fi
+
+# ----------------------------- #
+# 🧹 Clean up old config files
+# ----------------------------- #
+log "Cleaning up old ESLint/Prettier config files..."
+FILES_TO_DELETE=(
+  "eslint.config.js" "eslint.config.mjs"
+  ".eslintrc.js" ".eslintrc.cjs" ".eslintrc.json" ".eslintrc.yaml" ".eslintrc.yml"
+  ".eslintignore"
+  ".prettierrc" ".prettierrc.js" ".prettierrc.json" ".prettierrc.yaml" ".prettierrc.yml"
+  "prettier.config.js" "prettier.config.cjs" "prettier.config.mjs"
+  ".prettierignore"
+)
+
+for file in "${FILES_TO_DELETE[@]}"; do
+  if [[ -f "$file" ]]; then
+    rm -f "$file"
+    echo "🗑️  Deleted $file"
+  fi
+done
+success "Old config files cleaned (including eslint.config.*)."
+
+# ----------------------------- #
+# 📦 Remove ESLint & Prettier dependencies
+# ----------------------------- #
+log "Scanning for ESLint/Prettier dependencies to remove..."
+
+REMOVE_PACKAGES=$(jq -r '
+  (.devDependencies // {} + .dependencies // {})
+  | keys
+  | map(select(test("eslint|prettier"; "i")))
+  | join(" ")
+' package.json)
+
+if [[ -n "$REMOVE_PACKAGES" ]]; then
+  log "Removing old linting packages: $REMOVE_PACKAGES"
+  bun remove $REMOVE_PACKAGES || warn "Some packages could not be removed."
+else
+  log "No ESLint/Prettier dependencies found."
+fi
+
+# ----------------------------- #
+# 📥 Install Biome
+# ----------------------------- #
+log "Installing Biome as devDependency..."
+bun add -d @biomejs/biome
+success "Biome installed successfully."
+
+# ----------------------------- #
+# 🧩 Update package.json scripts
+# ----------------------------- #
+log "Scanning package.json for ESLint / Prettier scripts..."
+mapfile -t MATCHES < <(jq -r '.scripts | to_entries[] | select(.value | test("eslint|prettier"; "i")) | "\(.key): \(.value)"' package.json)
+
+if [[ ${#MATCHES[@]} -eq 0 ]]; then
+  log "No ESLint/Prettier scripts found."
+else
+  echo -e "\n🧹 Possible ESLint/Prettier scripts found:\n"
+  for i in "${!MATCHES[@]}"; do
+    printf "  [%d] %s\n" $((i + 1)) "${MATCHES[$i]}"
+  done
+
+  echo -e "\nEnter numbers (comma-separated) of scripts to delete, or press Enter to skip:"
+  read -r -p "> " SELECTION
+
+  if [[ -n "$SELECTION" ]]; then
+    for index in $(echo "$SELECTION" | tr ',' ' '); do
+      if [[ "$index" =~ ^[0-9]+$ ]] && (( index >= 1 && index <= ${#MATCHES[@]} )); then
+        NAME=$(echo "${MATCHES[$((index-1))]}" | cut -d: -f1 | xargs)
+        jq "del(.scripts.\"$NAME\")" package.json > package.tmp.json && mv package.tmp.json package.json
+        echo "🗑️  Removed script: $NAME"
+      fi
+    done
+  else
+    warn "Skipped script removal."
+  fi
+fi
+
+# 5. Add Biome scripts with --write flag
+log "Adding Biome lint & format scripts..."
+jq '.scripts.lint = "biome lint --write" | .scripts.format = "biome format --write"' package.json > package.tmp.json && mv package.tmp.json package.json
+success "Updated package.json with biome scripts (with --write)."
+
+# ----------------------------- #
+# 🎯 Final Notes
+# ----------------------------- #
+echo -e "\n🎉 \033[1mMigration complete!\033[0m"
+echo "✅ ESLint & Prettier fully removed (including eslint.config.* files)."
+echo "✅ Biome installed and configured with auto-fix scripts."
+echo "➡️  Review biome.json for final rule adjustments."
+echo "➡️  You can now run:"
+echo "   bun run lint"
+echo "   bun run format"
+```

@@ -1,0 +1,91 @@
+@page "/repo"
+@rendermode InteractiveServer
+@inject IGitHubService GitHubService
+
+<PageTitle>Repositories | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-6">
+    <BackToHome />
+    <MudText Typo="Typo.h3" Style="font-weight: 700;" GutterBottom>Repositories</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-3">
+        A live list of my GitHub repositories.
+    </MudText>
+
+    @if (_loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="2">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">Loading repositories...</MudText>
+        </MudStack>
+    }
+    else if (_error != null)
+    {
+        <MudAlert Severity="Severity.Error">@_error</MudAlert>
+    }
+    else
+    {
+        <MudTextField T="string" @bind-Value="_search" Immediate="true"
+                      Placeholder="Search repositories..."
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                      Variant="Variant.Text" Margin="Margin.Dense" Class="mb-3"
+                      data-umami-event="repo-search-input-click" />
+
+        @if (!string.IsNullOrWhiteSpace(_search))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+                @FilteredRepos.Count result@(FilteredRepos.Count != 1 ? "s" : "") found
+            </MudText>
+        }
+
+        @foreach (var repo in FilteredRepos)
+        {
+            <MudLink Href="@($"/repo/{repo.Name}")" Underline="Underline.None" Color="Color.Inherit"
+                     data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
+                <MudStack Spacing="1" Class="mb-3">
+                    <MudText Typo="Typo.h6" Style="font-weight: 600;">@repo.Name</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@repo.Description</MudText>
+                    @if (!string.IsNullOrEmpty(repo.Language))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@repo.Language</MudText>
+                    }
+                </MudStack>
+            </MudLink>
+        }
+    }
+</MudContainer>
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private string _search = string.Empty;
+    private List<GitHubRepository> _repos = new();
+
+    private List<GitHubRepository> FilteredRepos
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(_search)) return _repos;
+            var q = _search.ToLowerInvariant();
+            return _repos.Where(r =>
+                (r.Name?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (r.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99", 100);
+            _repos = repos.Where(r => !r.Fork).OrderByDescending(r => r.UpdatedAt).ToList();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load repositories: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

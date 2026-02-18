@@ -1,0 +1,556 @@
+---
+title: "Docker Command Documentation"
+publishedAt: "2024-08-25"
+summary:
+  "Comprehensive guide to Docker commands for containerization, image
+  management, and container orchestration with practical examples and best
+  practices."
+---
+
+# Docker Command Documentation
+
+Docker is a platform for developing, shipping, and running applications in
+containers. Containers package an application’s code, libraries, and
+dependencies together in an isolated environment. The Docker CLI (command-line
+interface) provides a rich set of commands for managing images, containers,
+networks, and volumes. The sections below detail the basic Docker commands along
+with their syntax, description, and usage examples.
+
+## 1. Getting Started
+
+### 1.1. Checking Docker Installation
+
+- **`docker version`**  
+  Displays detailed version information for both the Docker client and daemon.
+
+  ```bash
+  docker version
+  ```
+
+- **`docker info`**  
+  Provides system-wide information about Docker (such as number of images,
+  containers, storage driver, and more).
+
+  ```bash
+  docker info
+  ```
+
+These commands are often the first step to verify that Docker is properly
+installed and running on your system.
+
+---
+
+## 2. Working with Docker Images
+
+Docker images are the blueprints used to create containers.
+
+### 2.1. Pulling an Image
+
+- **`docker pull`**  
+  Downloads an image from a Docker registry (default is Docker Hub).  
+  **Syntax:**
+
+  ```bash
+  docker pull [OPTIONS] IMAGE[:TAG]
+  ```
+
+  **Example:**
+
+  ```bash
+  docker pull ubuntu:latest
+  ```
+
+  This command downloads the latest Ubuntu image.
+
+### 2.2. Building an Image
+
+- **`docker build`**  
+  Creates an image from a Dockerfile and context (the set of files at a
+  specified location). **Syntax:**
+
+  ```bash
+  docker build [OPTIONS] PATH | URL | -
+  ```
+
+  **Example:**
+
+  ```bash
+  docker build -t myapp:1.0 .
+  ```
+
+  Here, Docker reads the Dockerfile in the current directory (.) and tags the
+  resulting image as `myapp:1.0`.
+
+### 2.3. Listing and Removing Images
+
+- **`docker images`**  
+  Lists all images on your local system.
+
+  ```bash
+  docker images
+  ```
+
+- **`docker rmi`**  
+  Removes one or more images from your local repository. **Syntax:**
+
+  ```bash
+  docker rmi [OPTIONS] IMAGE [IMAGE...]
+  ```
+
+  **Example:**
+
+  ```bash
+  docker rmi myapp:1.0
+  ```
+
+- **`docker tag`**  
+  Creates a new tag for an image. **Syntax:**
+
+  ```bash
+  docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+  ```
+
+  **Example:**
+
+  ```bash
+  docker tag myapp:1.0 myusername/myapp:latest
+  ```
+
+---
+
+## 3. Managing Docker Containers
+
+Containers are running instances of Docker images.
+
+### 3.1. Running a Container
+
+- **`docker run`**  
+  Creates and starts a container from a specified image. **Syntax:**
+
+  ```bash
+  docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+  ```
+
+  **Key Options:**
+  - `-d`: Run container in detached (background) mode.
+  - `-it`: Allocate a pseudo-TTY and keep STDIN open (interactive mode).
+  - `--name`: Assign a custom name to the container.
+  - `-p`: Publish a container’s port(s) to the host.
+
+  **Example:**
+
+  ```bash
+  docker run -d -p 8080:80 --name webserver nginx:latest
+  ```
+
+  This command runs the NGINX container in the background, maps port 80 in the
+  container to port 8080 on the host, and names it “webserver”.
+
+### 3.2. Listing Containers
+
+- **`docker ps`**  
+  Lists all currently running containers.
+
+  ```bash
+  docker ps
+  ```
+
+- **`docker ps -a`**  
+  Lists all containers (including stopped ones).
+
+  ```bash
+  docker ps -a
+  ```
+
+### 3.3. Stopping, Restarting, and Removing Containers
+
+- **`docker stop`**  
+  Gracefully stops a running container. **Syntax:**
+
+  ```bash
+  docker stop CONTAINER [CONTAINER...]
+  ```
+
+  **Example:**
+
+  ```bash
+  docker stop webserver
+  ```
+
+- **`docker restart`**  
+  Restarts one or more containers.
+
+  ```bash
+  docker restart webserver
+  ```
+
+- **`docker kill`**  
+  Immediately kills a running container without a graceful shutdown.
+
+  ```bash
+  docker kill webserver
+  ```
+
+- **`docker rm`**  
+  Removes one or more containers. (Use `-f` to force remove a running
+  container.)
+
+  ```bash
+  docker rm webserver
+  ```
+
+### 3.4. Executing Commands Inside Containers
+
+- **`docker exec`**  
+  Runs a command inside a running container. **Syntax:**
+
+  ```bash
+  docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+  ```
+
+  **Example (interactive shell):**
+
+  ```bash
+  docker exec -it webserver bash
+  ```
+
+  This opens an interactive Bash shell inside the container named “webserver”.
+
+### 3.5. Viewing Container Logs
+
+- **`docker logs`**  
+  Fetches and displays the logs from a container. **Syntax:**
+
+  ```bash
+  docker logs [OPTIONS] CONTAINER
+  ```
+
+  **Example:**
+
+  ```bash
+  docker logs webserver
+  ```
+
+  You can add the `-f` flag to follow log output in real time.
+
+### 3.6. Inspecting Containers
+
+- **`docker inspect`**  
+  Returns low-level information about a container (or other Docker objects) in
+  JSON format.
+
+  ```bash
+  docker inspect webserver
+  ```
+
+---
+
+## 4. Managing Docker Volumes and Networks
+
+Persistent data and networking are essential for containerized applications.
+
+### 4.1. Docker Volumes
+
+- **`docker volume create`**  
+  Creates a new volume.
+
+  ```bash
+  docker volume create my-volume
+  ```
+
+- **`docker volume ls`**  
+  Lists all volumes.
+
+  ```bash
+  docker volume ls
+  ```
+
+- **`docker volume rm`**  
+  Removes a volume.
+
+  ```bash
+  docker volume rm my-volume
+  ```
+
+Volumes allow you to persist data independently from the container lifecycle.
+
+### 4.2. Docker Networks
+
+- **`docker network create`**  
+  Creates a new network.
+
+  ```bash
+  docker network create my-network
+  ```
+
+- **`docker network ls`**  
+  Lists all networks.
+
+  ```bash
+  docker network ls
+  ```
+
+- **`docker network rm`**  
+  Removes a network.
+
+  ```bash
+  docker network rm my-network
+  ```
+
+Using custom networks helps containers communicate securely.
+
+---
+
+## 5. System Cleanup and Advanced Commands
+
+### 5.1. Cleaning Up Unused Resources
+
+Over time, unused images, containers, networks, and volumes can accumulate.
+
+- **`docker system prune`**  
+  Removes all stopped containers, dangling images, unused networks, and
+  optionally, volumes.
+
+  ```bash
+  docker system prune -a --volumes
+  ```
+
+  This command helps free up disk space.
+
+- **`docker image prune`**  
+  Removes dangling images (images not tagged or referenced by any container).
+
+### 5.2. Other Useful Commands
+
+- **`docker tag`** – Retag an existing image.
+- **`docker commit`** – Create a new image from changes made to a container’s
+  filesystem.
+
+  ```bash
+  docker commit CONTAINER newimage:tag
+  ```
+
+- **`docker login` and `docker logout`** – Authenticate with and sign out from a
+  Docker registry.
+
+  ```bash
+  docker login
+  docker logout
+  ```
+
+These commands round out the basic functionality needed to work effectively with
+Docker.
+
+---
+
+## 6. Conclusion
+
+This documentation covers the core Docker commands required to manage images,
+containers, networks, and volumes. Mastery of these commands is essential for
+developers and DevOps professionals to build, run, and maintain containerized
+applications efficiently.
+
+For further details, always refer to the official Docker documentation and CLI
+reference:
+
+- Official Docker CLI Reference:
+- Docker container management documentation:
+
+By understanding and practicing these commands, you will have a strong
+foundation in Docker’s capabilities and be well on your way to containerizing
+your applications successfully.
+
+Below is an updated section of the Docker command documentation that not only
+covers the basic commands but also provides detailed, step‐by‐step instructions
+on how to start a containerized application using Docker. This guide explains
+the process, the flags used, and best practices, so that you can easily run your
+containerized application and understand what is happening behind the scenes.
+
+---
+
+## 7. Starting a Containerized Application
+
+When your application is containerized—that is, packaged into one or more Docker
+images—you use Docker to start (or “run”) containers based on those images. This
+section explains in detail how to launch a containerized application, along with
+explanations of the commonly used options.
+
+### 7.1. The Basic `docker run` Command
+
+The fundamental command to create and start a container is:
+
+```bash
+docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+```
+
+- **IMAGE**: This is the name (and optionally the tag) of the Docker image that
+  contains your application.
+- **COMMAND** (optional): You can override the default command defined in the
+  Dockerfile by specifying your own command here.
+- **ARG** (optional): Any arguments you wish to pass to the command.
+
+### 7.2. Example: Running a Web Application
+
+Imagine you have containerized a web application using an image named
+`myapp:latest`. To start this container so that the web service is accessible,
+you might use:
+
+```bash
+docker run -d -p 8080:80 --name my-webapp myapp:latest
+```
+
+Let’s break down what each flag means:
+
+- **`-d` (Detached mode)**:  
+  Runs the container in the background. This is ideal for long-running services
+  (e.g., web servers) since you aren’t tying up your terminal.
+
+- **`-p 8080:80` (Port mapping)**:  
+  Maps port 80 of the container (the port on which the application listens) to
+  port 8080 on your host.  
+  This means when you open your browser and navigate to `http://localhost:8080`,
+  you are accessing the application running inside the container.
+
+- **`--name my-webapp` (Container name)**:  
+  Assigns a custom name (“my-webapp”) to the container, making it easier to
+  reference in subsequent commands (e.g., for stopping, inspecting, or removing
+  the container).
+
+- **`myapp:latest` (Image name and tag)**:  
+  Specifies the Docker image that the container will be created from. The tag
+  “latest” denotes that the most recent version of the image is used.
+
+### 7.3. Starting a Container Interactively
+
+Sometimes you may want to interact directly with the container’s shell for
+debugging or manual configuration. To do so, you use interactive mode along with
+a pseudo-TTY:
+
+```bash
+docker run -it --name debug-container myapp:latest bash
+```
+
+- **`-it`**:  
+  Combines `-i` (interactive – keeps STDIN open) and `-t` (allocates a
+  pseudo-TTY) to give you an interactive shell session inside the container.
+
+- **`bash`**:  
+  Overrides the default command and starts a Bash shell so that you can manually
+  inspect or change configurations within the container.
+
+### 7.4. Using Environment Variables
+
+Many containerized applications require configuration via environment variables
+(for example, setting a database connection string or an API key). You can pass
+these variables using the `--env` (or `-e`) flag:
+
+```bash
+docker run -d -p 8080:80 --name my-webapp -e APP_ENV=production -e API_KEY=abcdef123456 myapp:latest
+```
+
+- **`-e APP_ENV=production`** and **`-e API_KEY=abcdef123456`**:  
+  These flags set environment variables inside the container. The application
+  can then read these variables at runtime to adjust its behavior accordingly.
+
+### 7.5. Persisting Data with Volumes
+
+If your application writes data that you don’t want to lose when the container
+stops or is removed, you can use volumes. For example, if your web application
+stores uploaded files, you might run:
+
+```bash
+docker run -d -p 8080:80 --name my-webapp -v /host/path/uploads:/app/uploads myapp:latest
+```
+
+- **`-v /host/path/uploads:/app/uploads`**:  
+  Maps the host directory `/host/path/uploads` to the container’s `/app/uploads`
+  directory. Any files written by the container to `/app/uploads` will be stored
+  on your host machine.
+
+### 7.6. Networking Considerations
+
+If your application is part of a larger system (e.g., a multi-container setup
+with a separate database), you might need to attach the container to a custom
+Docker network:
+
+```bash
+docker network create my-app-network
+docker run -d --name my-webapp --network my-app-network -p 8080:80 myapp:latest
+```
+
+- **`docker network create my-app-network`**:  
+  Creates a new user-defined bridge network.
+- **`--network my-app-network`**:  
+  Connects your container to this network so it can easily communicate with
+  other containers attached to the same network (such as a database container).
+
+### 7.7. Running Multi-Container Applications with Docker Compose
+
+For applications that require multiple services (e.g., a web server, a database,
+a cache), Docker Compose is a powerful tool that allows you to define and run
+multi-container Docker applications. A typical `docker-compose.yml` file might
+look like this:
+
+```yaml
+version: "3.8"
+services:
+  web:
+    image: myapp:latest
+    container_name: my-webapp
+    ports:
+      - "8080:80"
+    environment:
+      - APP_ENV=production
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    container_name: my-database
+    environment:
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
+```
+
+To start the multi-container application defined in the file, simply run:
+
+```bash
+docker-compose up -d
+```
+
+- **`docker-compose up -d`**:  
+  This command reads the `docker-compose.yml` file, builds (if necessary) and
+  starts all the defined services in detached mode.
+
+Docker Compose simplifies the orchestration of multiple containers, ensuring
+that they are all configured correctly and can communicate with each other.
+
+---
+
+## 8. Recap and Best Practices
+
+- **Verify Docker is Running**: Always check your installation with
+  `docker version` and `docker info`.
+- **Use Meaningful Names**: The `--name` flag helps in managing containers.
+- **Map Ports Thoughtfully**: Ensure the host-to-container port mapping (with
+  `-p`) does not conflict with other services.
+- **Leverage Environment Variables**: Use `-e` to pass configuration parameters
+  securely.
+- **Persist Data with Volumes**: Use `-v` to keep data safe even if containers
+  are recreated.
+- **Use Networks for Multi-Container Apps**: Custom networks ensure secure and
+  efficient inter-container communication.
+- **Consider Docker Compose for Complex Setups**: It simplifies the management
+  of multi-container applications.

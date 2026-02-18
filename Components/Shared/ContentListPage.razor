@@ -1,0 +1,101 @@
+@* ContentListPage.razor - Reusable content listing with search and sort *@
+@rendermode InteractiveServer
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <BackToHome />
+
+    <MudStack Class="mt-4" Spacing="2">
+        <MudText Typo="Typo.h3" Style="font-weight: 700;">@Title</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@Description</MudText>
+
+        @* Search and sort controls *@
+        <MudStack Row Class="flex-wrap" Spacing="2">
+            <MudTextField T="string" @bind-Value="_searchQuery" @bind-Value:after="OnSearchChanged"
+                          Placeholder="@($"Search {Title.ToLowerInvariant()}...")"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Text" Margin="Margin.Dense" Class="flex-grow-1"
+                          Immediate="true"
+                          data-umami-event='@UmamiEvent.Click("content-list-search", Title)' />
+            <MudSelect T="string" @bind-Value="_sortBy" Variant="Variant.Text" Margin="Margin.Dense" Style="min-width: 120px;"
+                       data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)'>
+                <MudSelectItem Value="@("date")">Date</MudSelectItem>
+                <MudSelectItem Value="@("title")">Title</MudSelectItem>
+            </MudSelect>
+            <MudSelect T="string" @bind-Value="_sortOrder" Variant="Variant.Text" Margin="Margin.Dense" Style="min-width: 140px;"
+                       data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)'>
+                <MudSelectItem Value="@("desc")">@(_sortBy == "date" ? "Newest First" : "Z → A")</MudSelectItem>
+                <MudSelectItem Value="@("asc")">@(_sortBy == "date" ? "Oldest First" : "A → Z")</MudSelectItem>
+            </MudSelect>
+        </MudStack>
+
+        @if (!string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @FilteredPosts.Count result@(FilteredPosts.Count != 1 ? "s" : "") found
+            </MudText>
+        }
+
+        @if (FilteredPosts.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">
+                No posts found@(!string.IsNullOrWhiteSpace(_searchQuery) ? $" for \"{_searchQuery}\"" : "").
+            </MudText>
+        }
+        else
+        {
+            @foreach (var post in FilteredPosts)
+            {
+                <MudLink Href="@($"/{UrlPrefix}/{post.Slug}")" Underline="Underline.None" Color="Color.Inherit"
+                        data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
+                    <MudStack Spacing="1" Class="mb-3">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">@post.Title</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@post.Description</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @post.PublishDate?.ToString("ddd MMM dd yyyy")
+                        </MudText>
+                    </MudStack>
+                </MudLink>
+            }
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public List<PostModel> Posts { get; set; } = new();
+    [Parameter] public string UrlPrefix { get; set; } = "blog";
+
+    private string _searchQuery = string.Empty;
+    private string _sortBy = "date";
+    private string _sortOrder = "desc";
+
+    private List<PostModel> FilteredPosts => GetFilteredAndSorted();
+
+    private void OnSearchChanged() => StateHasChanged();
+
+    private List<PostModel> GetFilteredAndSorted()
+    {
+        var filtered = Posts.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            var q = _searchQuery.ToLowerInvariant();
+            filtered = filtered.Where(p =>
+                p.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        filtered = _sortBy switch
+        {
+            "title" => _sortOrder == "asc"
+                ? filtered.OrderBy(p => p.Title)
+                : filtered.OrderByDescending(p => p.Title),
+            _ => _sortOrder == "asc"
+                ? filtered.OrderBy(p => p.PublishDate)
+                : filtered.OrderByDescending(p => p.PublishDate),
+        };
+
+        return filtered.ToList();
+    }
+}

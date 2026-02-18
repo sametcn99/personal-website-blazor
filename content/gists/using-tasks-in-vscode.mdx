@@ -1,0 +1,1012 @@
+---
+title: "A Comprehensive Guide to Creating and Using Tasks in Visual Studio Code"
+publishedAt: "2024-08-25"
+summary:
+  "Complete guide to VS Code tasks configuration including custom tasks,
+  automation, debugging, and integration with build systems."
+---
+
+# A Comprehensive Guide to Creating and Using Tasks in Visual Studio Code
+
+## Table of Contents
+
+1. [Introduction to Tasks](#introduction-to-tasks-in-vs-code)
+2. [Why Use Tasks?](#why-use-tasks)
+3. [Understanding tasks.json](#understanding-tasksjson)
+4. [Task Configuration in Detail](#task-configuration-in-detail)
+5. [Practical Examples](#practical-examples)
+6. [Advanced Task Features](#advanced-task-features)
+7. [Problem Matchers](#problem-matchers)
+8. [Variables and Inputs](#variables-and-inputs)
+9. [Task Groups and Organization](#task-groups-and-organization)
+10. [Best Practices and Tips](#best-practices-and-tips)
+
+## Introduction to Tasks in VS Code
+
+Visual Studio Code's task system is a powerful automation feature that
+transforms your editor into a complete development environment. Tasks allow you
+to:
+
+- Execute build scripts
+- Run test suites
+- Deploy applications
+- Perform code analysis
+- And automate any command-line operation
+
+Think of tasks as your personal development assistant that can execute commands
+with a single keystroke, ensuring consistency and saving valuable development
+time.
+
+## Why Use Tasks?
+
+### Automation Benefits
+
+1. **Development Workflow Automation**
+   - Compile code automatically
+   - Run tests on file save
+   - Generate documentation
+   - Package applications for distribution
+
+2. **Error Prevention**
+   - Consistent execution of commands
+   - Standardized build processes
+   - Automated validation steps
+
+3. **Time Savings**
+   - Reduce manual command typing
+   - Quick access to common operations
+   - Parallel task execution
+
+4. **Team Collaboration**
+   - Share common development tasks
+   - Standardize project workflows
+   - Onboard new team members easily
+
+### Real-world Scenarios
+
+- Frontend developer running webpack in watch mode
+- Java developer compiling and running JUnit tests
+- Python developer running linting and type checking
+- Full-stack developer managing multiple services
+
+## Understanding tasks.json
+
+### Basic Structure Deep Dive
+
+Here's a comprehensive example of a tasks.json file structure:
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "My Task",
+      "type": "shell",
+      "command": "echo",
+      "args": ["Hello World"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$eslint-compact"]
+    }
+  ]
+}
+```
+
+### Location and Creation
+
+1. Workspace-level tasks:
+
+   ```plaintext
+   your-project/
+   ├── .vscode/
+   │   └── tasks.json
+   ├── src/
+   └── ...
+   ```
+
+2. User-level tasks:
+   - Windows: %APPDATA%\Code\User\tasks.json
+   - macOS: $HOME/Library/Application Support/Code/User/tasks.json
+   - Linux: $HOME/.config/Code/User/tasks.json
+
+## Task Configuration in Detail
+
+### 1. Basic Properties
+
+#### Label (Required)
+
+```json
+{
+  "label": "Build TypeScript",
+  "type": "shell",
+  "command": "tsc"
+}
+```
+
+#### Type (Required)
+
+Supported types with examples:
+
+- Shell Type
+
+```json
+{
+  "label": "List Files",
+  "type": "shell",
+  "command": "ls",
+  "windows": {
+    "command": "dir"
+  }
+}
+```
+
+- Process Type
+
+```json
+{
+  "label": "Run Node Script",
+  "type": "process",
+  "command": "node",
+  "args": ["app.js"]
+}
+```
+
+- npm Type
+
+```json
+{
+  "label": "Install Dependencies",
+  "type": "npm",
+  "script": "install"
+}
+```
+
+### 2. Command and Arguments
+
+#### Simple Command
+
+```json
+{
+  "label": "Echo Text",
+  "type": "shell",
+  "command": "echo",
+  "args": ["Hello", "World"]
+}
+```
+
+#### Complex Command with Arguments
+
+```json
+{
+  "label": "Compile TypeScript",
+  "type": "shell",
+  "command": "tsc",
+  "args": ["--project", "tsconfig.json", "--watch", "--pretty"]
+}
+```
+
+### 3. Advanced Configuration
+
+#### Working Directory
+
+```json
+{
+  "label": "Build Project",
+  "type": "shell",
+  "command": "make",
+  "options": {
+    "cwd": "${workspaceFolder}/build"
+  }
+}
+```
+
+#### Environment Variables
+
+```json
+{
+  "label": "Deploy to Staging",
+  "type": "shell",
+  "command": "deploy.sh",
+  "options": {
+    "env": {
+      "NODE_ENV": "staging",
+      "API_KEY": "secret-key",
+      "DEBUG": "true"
+    }
+  }
+}
+```
+
+## Practical Examples
+
+### 1. Full-Stack Development Setup
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Full Stack",
+      "dependsOn": ["Start Frontend", "Start Backend"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Start Frontend",
+      "type": "npm",
+      "script": "start",
+      "path": "frontend/",
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "group": "dev-servers"
+      },
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "^\\[.*\\] (.*):(\\d+):(\\d+): (.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting development server",
+          "endsPattern": "Compiled successfully"
+        }
+      }
+    },
+    {
+      "label": "Start Backend",
+      "type": "shell",
+      "command": "python",
+      "args": ["manage.py", "runserver"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "isBackground": true,
+      "presentation": {
+        "panel": "dedicated",
+        "group": "dev-servers"
+      }
+    }
+  ]
+}
+```
+
+### 2. Multi-Environment Docker Deployment
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker: Build & Deploy",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": [
+        "-f",
+        "docker-compose.${input:environment}.yml",
+        "up",
+        "-d",
+        "--build"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "environment",
+      "type": "pickString",
+      "description": "Select deployment environment",
+      "options": ["dev", "staging", "prod"],
+      "default": "dev"
+    }
+  ]
+}
+```
+
+### 3. Advanced Build Pipeline
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Full Build Pipeline",
+      "dependsOn": ["Clean", "Lint", "Test", "Build", "Package"],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "rm -rf dist/*",
+      "windows": {
+        "command": "if exist dist rd /s /q dist"
+      }
+    },
+    {
+      "label": "Lint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": "$eslint-stylish"
+    },
+    {
+      "label": "Test",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "problemMatcher": "$jest"
+    },
+    {
+      "label": "Build",
+      "type": "npm",
+      "script": "build",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Package",
+      "type": "shell",
+      "command": "zip -r dist/app.zip dist/*",
+      "windows": {
+        "command": "powershell Compress-Archive -Path dist/* -DestinationPath dist/app.zip -Force"
+      }
+    }
+  ]
+}
+```
+
+## Advanced Task Features
+
+- **inputs**: The `inputs` section in `tasks.json` allows you to prompt the user
+  for input when a task is run. This input can then be used as variables in the
+  task's command and args. You can define different types of inputs (text input,
+  pick list, etc.).
+- **isBackground**: Setting `isBackground: true` in a task definition marks the
+  task as a background task. Background tasks typically run continuously or for
+  a long time (e.g., a watcher task that monitors file changes). Background
+  tasks have special behavior in VS Code – they don't block other operations,
+  and you can keep working in the editor while they are running. You can use the
+  "Terminate Task" command to stop a background task.
+- **Composite Tasks**: You can create tasks that are composed of other tasks
+  using the `dependsOn` property. This allows you to chain multiple tasks
+  together into a single workflow. A composite task doesn't have its own command
+  or args – it only specifies the tasks it depends on.
+
+## Problem Matchers
+
+Problem matchers are essential for making tasks useful for build and linting
+processes. They allow VS Code to understand the output of your tools and display
+errors and warnings in the Problems panel and in the editor itself.
+
+VS Code provides many predefined problem matchers for common tools like GCC,
+TypeScript compiler (`tsc`), ESLint, JSHint, and more. These are identified by
+names like `$gcc`, `$tsc`, `$eslint-compact`, etc.
+
+When you specify a `problemMatcher` in your task, VS Code scans the output of
+the task for patterns that match the problem matcher's definition. When a match
+is found, VS Code extracts information like file path, line number, column
+number, severity (error/warning/info), and message, and then displays this as a
+problem in the Problems panel. Clicking on a problem in the Problems panel will
+often take you directly to the offending line in your code.
+
+### Predefined Problem Matchers
+
+To use a predefined problem matcher, simply put its name (e.g., `$gcc`, `$tsc`)
+in the `problemMatcher` array of your task definition.
+
+### Custom Problem Matchers (Brief Overview)
+
+For tools where there isn't a predefined problem matcher, or if you need more
+control, you can define custom problem matchers. Custom problem matchers are
+more complex and involve defining regular expressions to parse the output of
+your tool. They are typically defined as objects within the `problemMatcher`
+array, instead of just strings.
+
+A custom problem matcher generally consists of:
+
+- **name**: A name for your problem matcher.
+- **owner**: Typically "external" for tasks.
+- **fileLocation**: How file paths are represented in the output ("absolute",
+  "relative" to workspace folder).
+- **pattern**: An object or array of objects that define the regular expression
+  patterns to match against the task output. Each pattern can have groups to
+  capture different parts of the error/warning information (file path, line
+  number, column number, message, etc.).
+- **severity, code, loop, message**: Optional properties to customize the
+  problem reporting.
+
+Creating custom problem matchers can be advanced and requires understanding
+regular expressions and the output format of your tool. Refer to the VS Code
+documentation for detailed information on custom problem matchers.
+
+## Problem Matchers in Detail
+
+### Custom Problem Matcher Examples
+
+#### 1. Python unittest Problem Matcher
+
+```json
+{
+  "problemMatcher": {
+    "owner": "python",
+    "fileLocation": ["relative", "${workspaceFolder}"],
+    "pattern": {
+      "regexp": "^\\s*File \"(.*?)\", line (\\d+).*$",
+      "file": 1,
+      "line": 2,
+      "message": 0
+    }
+  }
+}
+```
+
+#### 2. Custom Compiler Output Matcher
+
+```json
+{
+  "problemMatcher": {
+    "owner": "custom-compiler",
+    "pattern": [
+      {
+        "regexp": "^\\s*(?:ERROR|WARNING)\\s+in\\s+(.*?):(\\d+):\\s*$",
+        "file": 1,
+        "line": 2
+      },
+      {
+        "regexp": "^\\s*(.*)$",
+        "message": 1
+      }
+    ]
+  }
+}
+```
+
+#### 3. Multi-line Error Pattern
+
+```json
+{
+  "problemMatcher": {
+    "owner": "multiline-error",
+    "pattern": [
+      {
+        "regexp": "^Error in file: (.*)$",
+        "file": 1
+      },
+      {
+        "regexp": "^On line: (\\d+)$",
+        "line": 1
+      },
+      {
+        "regexp": "^Message: (.*)$",
+        "message": 1,
+        "loop": true
+      }
+    ]
+  }
+}
+```
+
+## Variables and Inputs
+
+VS Code provides a rich set of predefined variables that you can use in your
+task configurations. These variables are replaced with their actual values when
+the task is executed. Some commonly used variables:
+
+- `${workspaceFolder}`: The path to the workspace folder opened in VS Code.
+- `${workspaceFolderBasename}`: The name of the workspace folder.
+- `${file}`: The full path to the currently opened file in the editor.
+- `${fileWorkspaceFolder}`: The workspace folder path of the currently opened
+  file.
+- `${relativeFile}`: The path to the currently opened file relative to the
+  workspace folder.
+- `${relativeFileDirname}`: The directory name of the currently opened file
+  relative to the workspace folder.
+- `${fileBasename}`: The filename of the currently opened file.
+- `${fileBasenameNoExtension}`: The filename of the currently opened file
+  without its extension.
+- `${fileDirname}`: The directory of the currently opened file.
+- `${cwd}`: The current working directory of VS Code when the task is started
+  (usually the workspace folder).
+- `${lineNumber}`: The current line number in the active file.
+- `${selectedText}`: The currently selected text in the active file.
+- `${execPath}`: The path to the VS Code executable.
+- `${defaultBuildTask}`, `${defaultTestTask}`: Labels of the default build/test
+  tasks, if set.
+
+You can see a full list of predefined variables in the VS Code documentation.
+
+## Variables and Inputs Deep Dive
+
+### 1. Predefined Variables with Examples
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Current File",
+      "type": "shell",
+      "command": "gcc",
+      "args": ["-g", "${file}", "-o", "${fileBasenameNoExtension}"],
+      "options": {
+        "cwd": "${fileDirname}"
+      }
+    },
+    {
+      "label": "Process Workspace Files",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/scripts/process.py",
+        "--input",
+        "${workspaceFolder}/data",
+        "--output",
+        "${workspaceFolder}/output/${command:CurrentDateTime}"
+      ]
+    }
+  ]
+}
+```
+
+### 2. Custom Input Variables
+
+#### Input Types Example
+
+```json
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "buildType",
+      "type": "pickString",
+      "description": "Select build configuration",
+      "options": ["debug", "release", "profile"],
+      "default": "debug"
+    },
+    {
+      "id": "serverPort",
+      "type": "promptString",
+      "description": "Enter server port",
+      "default": "3000"
+    },
+    {
+      "id": "deployTarget",
+      "type": "command",
+      "command": "extension.getDeploymentTargets",
+      "args": { "type": "production" }
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Deploy Application",
+      "type": "shell",
+      "command": "./deploy.sh",
+      "args": [
+        "--type",
+        "${input:buildType}",
+        "--port",
+        "${input:serverPort}",
+        "--target",
+        "${input:deployTarget}"
+      ]
+    }
+  ]
+}
+```
+
+## Real-World Task Configurations
+
+### 1. Full-Stack Development Environment
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev Environment",
+      "dependsOn": [
+        "Frontend Dev Server",
+        "Backend API",
+        "Database",
+        "Watch TypeScript",
+        "Watch Tests"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Frontend Dev Server",
+      "type": "npm",
+      "script": "start",
+      "path": "client/",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "webpack",
+        "pattern": {
+          "regexp": "ERROR in (.*)",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting development server",
+          "endsPattern": "Compiled successfully"
+        }
+      }
+    },
+    {
+      "label": "Backend API",
+      "type": "shell",
+      "command": "poetry",
+      "args": ["run", "uvicorn", "api.main:app", "--reload"],
+      "options": {
+        "cwd": "${workspaceFolder}/server",
+        "env": {
+          "DATABASE_URL": "postgresql://user:pass@localhost:5432/devdb",
+          "DEBUG": "1"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^.*Error in.*$",
+          "message": 0
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^INFO:.*Application startup complete.*$"
+        }
+      }
+    },
+    {
+      "label": "Database",
+      "type": "shell",
+      "command": "docker-compose",
+      "args": ["-f", "docker-compose.dev.yml", "up", "database"],
+      "isBackground": true
+    },
+    {
+      "label": "Watch TypeScript",
+      "type": "typescript",
+      "tsconfig": "client/tsconfig.json",
+      "option": "watch",
+      "problemMatcher": ["$tsc-watch"],
+      "isBackground": true
+    },
+    {
+      "label": "Watch Tests",
+      "type": "npm",
+      "script": "test:watch",
+      "path": "client/",
+      "isBackground": true,
+      "problemMatcher": "$jest-watch"
+    }
+  ]
+}
+```
+
+### 2. CI/CD Pipeline Tasks
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CI Pipeline",
+      "dependsOn": [
+        "Install Dependencies",
+        "Type Check",
+        "Lint",
+        "Unit Tests",
+        "Integration Tests",
+        "Build",
+        "Docker Build"
+      ],
+      "dependsOrder": "sequence",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "npm ci && cd server && poetry install",
+      "problemMatcher": []
+    },
+    {
+      "label": "Type Check",
+      "type": "npm",
+      "script": "type-check",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "npm run lint && cd server && poetry run flake8",
+      "problemMatcher": ["$eslint-stylish", "$flake8"]
+    },
+    {
+      "label": "Unit Tests",
+      "type": "shell",
+      "command": "npm test -- --coverage && cd server && poetry run pytest tests/unit",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": ["$jest", "$pytest"]
+    },
+    {
+      "label": "Integration Tests",
+      "dependsOn": ["Start Test DB"],
+      "type": "shell",
+      "command": "cd server && poetry run pytest tests/integration",
+      "problemMatcher": ["$pytest"]
+    },
+    {
+      "label": "Start Test DB",
+      "type": "shell",
+      "command": "docker-compose -f docker-compose.test.yml up -d db",
+      "isBackground": true
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "npm run build && cd server && poetry run python setup.py bdist_wheel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker Build",
+      "type": "shell",
+      "command": "docker-compose -f docker-compose.prod.yml build",
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+## Debugging Tasks
+
+### 1. Task with Integrated Debugging
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Debug Python Tests",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "--pdb", "tests/"],
+      "options": {
+        "env": {
+          "PYTHONBREAKPOINT": "0"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    }
+  ]
+}
+```
+
+### 2. Pre-launch Task Configuration
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Debug",
+      "type": "shell",
+      "command": "gcc",
+      "args": ["-g", "${file}", "-o", "${fileBasenameNoExtension}"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Debug C++ Program",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+      "preLaunchTask": "Build Debug"
+    }
+  ]
+}
+```
+
+## Task Groups and Organization
+
+Task groups help organize your tasks and provide convenient ways to run related
+tasks together. The predefined groups "build", "test", "clean", and "rebuild"
+are special as VS Code provides dedicated commands for running tasks in these
+groups ("Run Build Task", "Run Test Task", etc.).
+
+To associate a task with a group, use the `group` property in the task
+definition. You can specify just the group name as a string (e.g.,
+`"group": "test"`), or you can use an object for more control:
+
+```json
+"group": {
+    "kind": "build", // or "test", "clean", "rebuild" or a custom name
+    "isDefault": true // Optional: make this the default task for this group
+}
+```
+
+Setting `isDefault: true` for a task in a group makes it the task that will be
+run when you use the "Run Build Task" (Ctrl+Shift+B or Cmd+Shift+B), "Run Test
+Task", or "Run Clean Task" command. You can have one default task per group.
+
+## Best Practices and Tips
+
+- Keep tasks project-specific in `tasks.json`
+- Use descriptive labels
+- Leverage problem matchers
+- Group related tasks
+- Use variables for flexibility
+- Document your tasks
+- Start simple, iterate
+
+### 1. Task Organization
+
+- Group related tasks using task dependencies
+- Use meaningful labels that describe the task's purpose
+- Keep task configurations in version control
+- Document complex task configurations
+
+### 2. Performance Optimization
+
+- Use `isBackground` for long-running tasks
+- Implement proper problem matchers
+- Configure appropriate presentation options
+- Use task groups effectively
+
+### 3. Maintainability
+
+- Use variables instead of hardcoded paths
+- Implement cross-platform compatibility
+- Document environment requirements
+- Use task inputs for flexibility
+
+### 4. Common Pitfalls to Avoid
+
+- Not handling cross-platform differences
+- Incorrect working directory configuration
+- Missing error handling
+- Incomplete problem matcher patterns
+
+## Conclusion
+
+VS Code tasks are a remarkably versatile tool for automating development
+workflows. By mastering `tasks.json` and understanding the different task
+properties and features, you can significantly enhance your productivity and
+streamline your development process within VS Code. Experiment with different
+task types, problem matchers, and configurations to find the task setup that
+best suits your projects and workflows.
+
+VS Code's task system is a powerful tool that can significantly enhance your
+development workflow. By understanding and implementing these advanced concepts
+and examples, you can create sophisticated automation solutions that improve
+your productivity and code quality. Remember to start simple and gradually add
+complexity as needed, always keeping maintainability and team collaboration in
+mind.
+
+The examples provided in this guide serve as a foundation for building your own
+task configurations. Feel free to modify and combine them to match your specific
+development needs. As you become more comfortable with tasks, you'll discover
+new ways to automate and streamline your development process.
+
+## Azure Tasks
+
+### 1. Deploy to Azure App Service
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Deploy to Azure App Service",
+      "type": "shell",
+      "command": "az webapp deploy",
+      "args": [
+        "--resource-group",
+        "myResourceGroup",
+        "--name",
+        "myAppService",
+        "--src-path",
+        "${workspaceFolder}/dist"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+### 2. Run Azure CLI Command
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Azure CLI Command",
+      "type": "shell",
+      "command": "az vm list",
+      "args": ["--resource-group", "myResourceGroup", "--output", "table"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+### 3. Deploy Azure Functions
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Deploy Azure Functions",
+      "type": "shell",
+      "command": "func azure functionapp publish myfunctionapp",
+      "args": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
+```
+
+These examples provide a starting point for automating Azure-related tasks
+within VS Code, helping to streamline your development and deployment workflows.

@@ -1,0 +1,39 @@
+@* LinksSection.razor - "Connect With Me" social links section *@
+
+@{
+    var visible = SocialData.Links
+        .Where(l => l.Visible)
+        .OrderBy(l => SocialData.CategoryOrder.GetValueOrDefault(l.Category, 5))
+        .ThenBy(l => l.Label)
+        .ToList();
+}
+
+@if (visible.Count > 0)
+{
+    <MudStack Class="mb-6" Spacing="2">
+        <MudText Typo="Typo.h4" Style="font-weight: 600;">Connect With Me</MudText>
+        <MudStack Row Class="flex-wrap gap-1">
+            @foreach (var link in visible)
+            {
+                @if (link.External)
+                {
+                    <MudLink Href="@link.Link" Target="_blank"
+                             Underline="Underline.Hover" Color="Color.Secondary"
+                             data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>
+                        <MudText Typo="Typo.body2">@link.Label</MudText>
+                    </MudLink>
+                }
+                else
+                {
+                    <MudLink Href="@link.Link" Underline="Underline.Hover" Color="Color.Secondary"
+                             data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>
+                        <MudText Typo="Typo.body2">@link.Label</MudText>
+                    </MudLink>
+                }
+            }
+            <MudLink Href="/link" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="home-all-links-click">
+                <MudText Typo="Typo.body2">All Links</MudText>
+            </MudLink>
+        </MudStack>
+    </MudStack>
+}

@@ -1,0 +1,117 @@
+---
+title: "Payload Docker Config: PostgreSQL + BunJS"
+publishedAt: "2025-12-25"
+summary:
+  "Docker configuration files to run PayloadCMS using the Bun runtime and
+  PostgreSQL database. "
+---
+
+# Payload Docker Config: PostgreSQL + BunJS
+
+This gist provides Docker configuration files to run
+[PayloadCMS](https://payloadcms.com/) using the [Bun](https://bun.sh/) runtime
+and a PostgreSQL database.
+
+## Files
+
+- `Dockerfile`: Defines the Docker image for the PayloadCMS application using
+  Bun.
+- `docker-compose.yml`: Sets up the Docker services for PayloadCMS and
+  PostgreSQL.
+
+## Dockerfile
+
+```yaml
+# To use this Dockerfile, you have to set `output: 'standalone'` in your next.config.js file.
+
+FROM oven/bun:alpine AS base
+WORKDIR /app
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies with Bun, respecting existing lockfiles when present
+COPY package.json bun.lockb* yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f bun.lockb ] || [ -f yarn.lock ] || [ -f package-lock.json ] || [ -f pnpm-lock.yaml ]; then \
+    bun install --frozen-lockfile; \
+  else \
+    bun install; \
+  fi
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Next.js collects completely anonymous telemetry data about general usage.
+# Learn more here: https://nextjs.org/telemetry
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN bun run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV PORT 3000
+
+RUN addgroup -S bunuser && adduser -S bun -G bunuser
+
+COPY --from=builder /app/public ./public
+
+# Prepare prerender cache with correct permissions
+RUN mkdir -p .next && chown bun:bunuser .next
+
+COPY --from=builder --chown=bun:bunuser /app/.next/standalone ./
+COPY --from=builder --chown=bun:bunuser /app/.next/static ./.next/static
+
+USER bun
+
+EXPOSE 3000
+
+# server.js is created by next build from the standalone output
+CMD HOSTNAME="0.0.0.0" bun --bun server.js
+```
+
+## docker-compose.yml
+
+```yaml
+version: "3"
+
+services:
+  payload:
+    image: oven/bun:1.1.14-alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/home/bun/app
+      - node_modules:/home/bun/app/node_modules
+    working_dir: /home/bun/app/
+    command: sh -c "bun install --frozen-lockfile && bun run dev"
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://payload:payload@postgres:5432/payload
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: payload
+      POSTGRES_USER: payload
+      POSTGRES_PASSWORD: payload
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  node_modules:
+  postgres_data:
+```

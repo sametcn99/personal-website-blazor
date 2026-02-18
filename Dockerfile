@@ -25,6 +25,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 ENV ASPNETCORE_hostBuilder__reloadConfigOnChange=false
+ENV GITHUB_TOKEN=change_me
 
 # Run the application
 ENTRYPOINT ["dotnet", "personal-website-blazor.dll"]

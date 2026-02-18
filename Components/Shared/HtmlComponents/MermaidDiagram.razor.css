@@ -1,0 +1,123 @@
+.mermaid-diagram-host {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow-x: auto;
+    min-height: 200px;
+}
+
+.mermaid-diagram-host :global(svg) {
+    display: block;
+    margin: 0 auto;
+    height: auto;
+    max-width: 100%;
+}
+
+.mermaid-wrapper {
+    overflow: hidden;
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 12px;
+}
+
+.mermaid-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.mermaid-toolbar-title {
+    font-family: monospace;
+}
+
+.mermaid-content {
+    min-height: 200px;
+}
+
+.mermaid-loading {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mud-palette-text-secondary);
+    font-size: 0.85rem;
+}
+
+.mermaid-code {
+    margin: 0;
+    padding: 1rem;
+    min-height: 200px;
+    overflow: auto;
+    line-height: 1.5;
+    font-size: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.mermaid-fullscreen-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    background: #111827;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: none;
+}
+
+.mermaid-fullscreen-toolbar {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 8px;
+    border: 1px solid var(--mud-palette-divider);
+    background: color-mix(in srgb, var(--mud-palette-surface) 88%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.mermaid-scale-chip {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+    z-index: 10;
+    border-radius: 999px;
+    border: 1px solid var(--mud-palette-divider);
+    background: color-mix(in srgb, var(--mud-palette-surface) 88%, transparent);
+    padding: 0.2rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--mud-palette-text-primary);
+}
+
+.mermaid-fullscreen-stage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.mermaid-fullscreen-diagram {
+    transform-origin: center center;
+    transition: transform 120ms ease-out;
+}
+
+.mermaid-fullscreen-diagram :global(svg) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+}

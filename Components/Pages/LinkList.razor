@@ -1,0 +1,132 @@
+@page "/link"
+@rendermode InteractiveServer
+
+<PageTitle>Links | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-6">
+    <BackToHome />
+    <MudText Typo="Typo.h3" Style="font-weight: 700;" GutterBottom>All Links</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-3">
+        You can open every available short link from this page.
+    </MudText>
+
+    @* Search *@
+    <MudTextField T="string" @bind-Value="_search" Immediate="true"
+                  Placeholder="Search links..."
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                  Variant="Variant.Text" Margin="Margin.Dense" Class="mb-2"
+                  data-umami-event="links-search-input-click" />
+
+    @* Category filter chips *@
+    <MudStack Row Class="flex-wrap gap-1 mb-2">
+        <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = null"
+                 data-umami-event="links-category-all-click"
+                 Color="@(_selectedCategory == null ? Color.Primary : Color.Default)"
+                 Variant="@(_selectedCategory == null ? Variant.Filled : Variant.Outlined)">All</MudChip>
+        @foreach (var cat in _categories)
+        {
+            var c = cat;
+            <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = c"
+                     data-umami-event='@UmamiEvent.Click("links-category", c)'
+                     data-umami-event-category="@c"
+                     Color="@(_selectedCategory == c ? Color.Primary : Color.Default)"
+                     Variant="@(_selectedCategory == c ? Variant.Filled : Variant.Outlined)">@c</MudChip>
+        }
+    </MudStack>
+
+    @* Sort chips *@
+    <MudStack Row Class="flex-wrap gap-1 mb-2">
+        <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "category"'
+                 data-umami-event="links-sort-category-click"
+                 Color="@(_sort == "category" ? Color.Primary : Color.Default)"
+                 Variant="@(_sort == "category" ? Variant.Filled : Variant.Outlined)">Category</MudChip>
+        <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "asc"'
+                 data-umami-event="links-sort-az-click"
+                 Color="@(_sort == "asc" ? Color.Primary : Color.Default)"
+                 Variant="@(_sort == "asc" ? Variant.Filled : Variant.Outlined)">A → Z</MudChip>
+        <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "desc"'
+                 data-umami-event="links-sort-za-click"
+                 Color="@(_sort == "desc" ? Color.Primary : Color.Default)"
+                 Variant="@(_sort == "desc" ? Variant.Filled : Variant.Outlined)">Z → A</MudChip>
+    </MudStack>
+
+    @if (!string.IsNullOrWhiteSpace(_search) || _selectedCategory != null)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+            @FilteredLinks.Count result@(FilteredLinks.Count != 1 ? "s" : "") found
+        </MudText>
+    }
+
+    <MudPaper Outlined Class="rounded-lg" Style="border-color: var(--mud-palette-divider);">
+        <MudList T="string" Dense>
+            @foreach (var link in FilteredLinks)
+            {
+                var slug = link.Type[0];
+                var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
+                <MudListItem T="string" Href="@($"/link/{slug}")" Dense="true"
+                             data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
+                    <MudStack Spacing="0">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudText Typo="Typo.body1" Style="font-weight: 600;">@link.Label</MudText>
+                            @if (link.External)
+                            {
+                                <MudChip T="string" Size="Size.Small" Icon="@Icons.Material.Filled.OpenInNew"
+                                         Style="background: transparent;" Variant="Variant.Text">External</MudChip>
+                            }
+                        </MudStack>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">/link/@slug</MudText>
+                        @if (aliases != null)
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">aliases: @aliases</MudText>
+                        }
+                    </MudStack>
+                </MudListItem>
+                <MudDivider />
+            }
+        </MudList>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string _search = string.Empty;
+    private string? _selectedCategory;
+    private string _sort = "category";
+
+    private List<string> _categories = SocialData.Links
+        .Select(l => l.Category)
+        .Distinct()
+        .OrderBy(c => SocialData.CategoryOrder.GetValueOrDefault(c, 5))
+        .ToList();
+
+    private List<SocialMediaLink> FilteredLinks
+    {
+        get
+        {
+            var links = SocialData.Links.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                var q = _search.ToLowerInvariant();
+                links = links.Where(l =>
+                    l.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    l.Category.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    l.Link.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    l.Type.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            if (_selectedCategory != null)
+                links = links.Where(l => l.Category == _selectedCategory);
+
+            links = _sort switch
+            {
+                "asc" => links.OrderBy(l => l.Label),
+                "desc" => links.OrderByDescending(l => l.Label),
+                _ => links
+                    .OrderBy(l => SocialData.CategoryOrder.GetValueOrDefault(l.Category, 5))
+                    .ThenBy(l => l.Label),
+            };
+
+            return links.ToList();
+        }
+    }
+}

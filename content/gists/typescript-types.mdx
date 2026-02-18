@@ -1,0 +1,410 @@
+---
+title: "TypeScript Types and Utility Types"
+publishedAt: "2024-08-25"
+summary:
+  "Complete guide to TypeScript's built-in utility types, advanced type
+  transformations, and custom type definitions for robust type safety."
+---
+
+# **Built-in Utility Types**
+
+TypeScript provides several built-in utility types to facilitate common type
+transformations. These utilities help manipulate types without needing to write
+complex type logic from scratch, improving code readability and maintainability.
+
+| Utility Type               | Description                                                                                                                                                       | Example Usage                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Partial<T>`               | Constructs a type with all properties of `T` set to optional. Useful for update operations or default values.                                                     | `interface User { id: number; name: string; } type UpdateUserDto = Partial<User>; // { id?: number; name?: string; }`                               |
+| `Required<T>`              | Constructs a type consisting of all properties of `T` set to required. Useful when you need to ensure all properties are present.                                 | `interface Props { a?: number; b?: string; } type RequiredProps = Required<Props>; // { a: number; b: string; }`                                    |
+| `Readonly<T>`              | Constructs a type with all properties of `T` set to `readonly`. Useful for representing immutable data structures.                                                | `interface Config { apiKey: string; } const config: Readonly<Config> = { apiKey: "..." }; // config.apiKey = "new"; // Error`                       |
+| `Record<K, T>`             | Constructs an object type whose property keys are `K` and whose property values are `T`. Useful for dictionaries or maps.                                         | `type PageInfo = { title: string; }; type Pages = Record<'home' \| 'about', PageInfo>; // { home: PageInfo; about: PageInfo; }`                     |
+| `Pick<T, K>`               | Constructs a type by picking the set of properties `K` (string literal or union of string literals) from `T`. Useful for creating smaller types from larger ones. | `interface User { id: number; name: string; email: string; } type UserPreview = Pick<User, 'id' \| 'name'>; // { id: number; name: string; }`       |
+| `Omit<T, K>`               | Constructs a type by picking all properties from `T` and then removing `K`. Useful for excluding sensitive or unnecessary fields.                                 | `interface User { id: number; name: string; password?: string; } type PublicUser = Omit<User, 'password'>; // { id: number; name: string; }`        |
+| `Exclude<T, U>`            | Constructs a type by excluding from `T` all union members that are assignable to `U`. Useful for filtering union types.                                           | `type Status = 'success' \| 'error' \| 'loading'; type NonLoadingStatus = Exclude<Status, 'loading'>; // 'success' \| 'error'`                      |
+| `Extract<T, U>`            | Constructs a type by extracting from `T` all union members that are assignable to `U`. Useful for selecting specific members from a union.                        | `type Shape = { kind: 'circle'; radius: number; } \| { kind: 'square'; size: number; }; type Circle = Extract<Shape, { kind: 'circle' }>;`          |
+| `NonNullable<T>`           | Constructs a type by excluding `null` and `undefined` from `T`. Useful when you know a value cannot be nullish.                                                   | `type MaybeString = string \| null \| undefined; type DefiniteString = NonNullable<MaybeString>; // string`                                         |
+| `ReturnType<T>`            | Constructs a type consisting of the return type of function `T`. Useful for typing variables based on function results.                                           | `declare function f(): { a: number; b: string }; type FuncReturn = ReturnType<typeof f>; // { a: number; b: string }`                               |
+| `InstanceType<T>`          | Constructs a type consisting of the instance type of a constructor function type `T`. Useful for working with class instances.                                    | `class C { x = 0; } type CInstance = InstanceType<typeof C>; // C`                                                                                  |
+| `Parameters<T>`            | Constructs a tuple type from the types used in the parameters of a function type `T`. Useful for manipulating function arguments.                                 | `declare function greet(name: string, age: number): void; type GreetParams = Parameters<typeof greet>; // [name: string, age: number]`              |
+| `ConstructorParameters<T>` | Constructs a tuple or array type from the types of a constructor function's parameters. Useful for factory functions.                                             | `class Person { constructor(name: string, age: number) {} } type PersonArgs = ConstructorParameters<typeof Person>; // [name: string, age: number]` |
+| `ThisParameterType<T>`     | Extracts the type of the `this` parameter for a function type, or `unknown` if the function type has no `this` parameter.                                         | `function fn(this: Date, x: number) {} type ThisType = ThisParameterType<typeof fn>; // Date`                                                       |
+| `OmitThisParameter<T>`     | Removes the `this` parameter from a function type `T`. Useful for callbacks or detaching methods.                                                                 | `function fn(this: Date, x: number): string { return ''; } const fnNoThis: OmitThisParameter<typeof fn> = (x) => ''; // (x: number) => string`      |
+| `ThisType<T>`              | This utility does not return a transformed type. Instead, it serves as a marker for a contextual `this` type. Use with `noImplicitThis`.                          | `interface HelperThis { log: (msg: string) => void; } function f(this: HelperThis) {} // Advanced use, often in library design.`                    |
+| `Awaited<T>`               | Recursively unwraps the `Awaited` type of a `Promise`. Useful for getting the resolved value type of nested promises (TS 4.5+).                                   | `type NestedPromise = Promise<Promise<string>>; type ResolvedValue = Awaited<NestedPromise>; // string`                                             |
+
+---
+
+### Custom Utility Types (Commonly used custom combinations)
+
+While TypeScript's built-in utilities cover many cases, sometimes you need more
+specialized type transformations. Here are some commonly implemented custom
+utility types.
+
+#### `DeepPartial<T>`
+
+Recursively makes all properties in an object type optional, including nested
+objects and arrays. This is useful for scenarios like applying partial updates
+to deeply nested configuration objects.
+
+```typescript
+// T extends object checks if T is an object type (excluding null).
+// If true, it maps over the keys [P in keyof T] and applies DeepPartial recursively to each property T[P].
+// The '?' makes the property optional.
+// If T is not an object (e.g., primitive, array), it returns T as is.
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;
+
+// Example usage:
+interface NestedUser {
+  id: number;
+  name: string;
+  address: {
+    street: string;
+    city: string;
+    zip: number;
+  };
+  preferences: {
+    theme: {
+      dark: boolean;
+      fontSize: number;
+    };
+    notifications: string[];
+  };
+}
+
+// With DeepPartial, even nested properties can be omitted or partially provided.
+const deepPartialUser: DeepPartial<NestedUser> = {
+  id: 1, // Provide id
+  address: {
+    // Partially provide address
+    city: "New York"
+  },
+  preferences: {
+    // Partially provide preferences
+    theme: {
+      // Partially provide theme
+      fontSize: 14
+    }
+    // notifications can be omitted entirely
+  }
+};
+```
+
+#### `DeepReadonly<T>`
+
+Recursively makes all properties in an object type `readonly`, including nested
+objects and arrays. This ensures deep immutability, preventing accidental
+modifications anywhere in the structure.
+
+```typescript
+// Handles arrays: If T is an array (infer R captures the element type), return ReadonlyArray<DeepReadonly<R>>.
+// Handles functions: If T is a function, return it as is (functions are typically not made readonly).
+// Handles objects: If T is an object, map over keys [P in keyof T] and apply DeepReadonly recursively. Add 'readonly' modifier.
+// Handles primitives: If T is none of the above, return T.
+type DeepReadonly<T> = T extends (infer R)[]
+  ? ReadonlyArray<DeepReadonly<R>>
+  : T extends Function
+    ? T
+    : T extends object
+      ? {
+          readonly [P in keyof T]: DeepReadonly<T[P]>;
+        }
+      : T;
+
+// Example:
+interface Config {
+  apiKey: string;
+  settings: {
+    timeout: number;
+    retries: number;
+    advanced: {
+      logging: boolean;
+    };
+    features: string[];
+  };
+}
+
+const config: DeepReadonly<Config> = {
+  apiKey: "abc123",
+  settings: {
+    timeout: 3000,
+    retries: 3,
+    advanced: {
+      logging: true
+    },
+    features: ["featureA", "featureB"]
+  }
+};
+
+// All attempts to modify will cause TypeScript errors:
+// config.apiKey = "xyz"; // Error
+// config.settings.timeout = 5000; // Error
+// config.settings.advanced.logging = false; // Error
+// config.settings.features.push("featureC"); // Error (ReadonlyArray has no push method)
+```
+
+#### `Mutable<T>`
+
+Removes the `readonly` modifier from all properties in a type `T`. This is the
+inverse of `Readonly<T>` and can be useful when you need to create a mutable
+copy of a readonly object.
+
+```typescript
+// Uses a mapped type with '-readonly' modifier.
+// This special syntax removes the readonly flag from each property P in T.
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
+// Example:
+interface ReadonlyUser {
+  readonly id: number;
+  readonly name: string;
+  readonly roles: readonly string[];
+}
+
+const readonlyUser: ReadonlyUser = { id: 1, name: "John", roles: ["admin"] };
+
+// Create a mutable version
+const mutableUser: Mutable<ReadonlyUser> = { ...readonlyUser };
+
+// Now modifications are allowed:
+mutableUser.id = 2;
+mutableUser.name = "Jane";
+// Note: Deep immutability is not removed by Mutable<T> alone.
+// mutableUser.roles.push("editor"); // Error if roles was ReadonlyArray<string>
+// To make roles mutable too, you'd need a DeepMutable type.
+```
+
+#### `Nullable<T>`
+
+Constructs a type that allows `T` or `null`. Useful for representing values that
+might be absent or explicitly set to null.
+
+```typescript
+// Simple union type definition.
+type Nullable<T> = T | null;
+
+// Example:
+interface User {
+  id: number;
+  profileImageUrl: Nullable<string>; // Profile image might not exist
+}
+
+function getUserProfile(userId: number): Nullable<User> {
+  // Simulating data fetching
+  if (userId === 1) {
+    return { id: 1, profileImageUrl: "http://example.com/img.jpg" };
+  } else if (userId === 2) {
+    return { id: 2, profileImageUrl: null }; // User exists, but no image
+  }
+  return null; // User not found
+}
+
+const user1 = getUserProfile(1);
+const user2 = getUserProfile(2);
+const user3 = getUserProfile(3);
+
+// Need null checks
+if (user1) {
+  console.log(user1.profileImageUrl?.toUpperCase()); // Optional chaining needed for profileImageUrl
+}
+if (user2) {
+  console.log(user2.profileImageUrl); // null
+}
+if (user3 === null) {
+  console.log("User 3 not found");
+}
+```
+
+#### `OptionalKeys<T>`
+
+Extracts the keys of `T` whose properties are optional (can be `undefined`).
+
+```typescript
+// Complex conditional mapped type:
+// 1. `[K in keyof T]-?`: Iterate over all keys K of T, removing the optional modifier ('-?') temporarily.
+// 2. `{} extends Pick<T, K>`: This is a trick. `Pick<T, K>` creates a type `{ K: T[K] }`.
+//    If the original property K in T was optional (e.g., `K?: type`), then `T[K]` includes `undefined`.
+//    `{}` (the empty object type) is assignable to `{ K: type | undefined }` only if the property K is optional (because `{}` has no properties, satisfying the optional requirement).
+//    If K was required (`K: type`), then `{}` is NOT assignable to `{ K: type }`.
+// 3. `? K : never`: If the condition is true (K is optional), keep the key `K`. Otherwise, discard it (`never`).
+// 4. `[keyof T]`: Finally, look up the resulting type using `keyof T` to get a union of the keys that were kept (the optional ones).
+type OptionalKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? K : never;
+}[keyof T];
+
+// Example:
+interface UserConfig {
+  id: number; // Required
+  theme: string; // Required
+  notifications?: boolean; // Optional
+  language?: string; // Optional
+}
+
+// Results in: "notifications" | "language"
+type ConfigOptionalKeys = OptionalKeys<UserConfig>;
+
+// Usage example: Setting default values for optional keys
+function applyDefaults(config: UserConfig): Required<UserConfig> {
+  const defaults: Pick<UserConfig, OptionalKeys<UserConfig>> = {
+    notifications: true,
+    language: "en"
+  };
+  // Spread defaults first, then the provided config to override
+  return { ...defaults, ...config } as Required<UserConfig>; // Asserting Required for simplicity here
+}
+
+const userConf: UserConfig = { id: 1, theme: "dark" };
+const fullConfig = applyDefaults(userConf);
+// fullConfig = { id: 1, theme: 'dark', notifications: true, language: 'en' }
+```
+
+#### `RequiredKeys<T>`
+
+Extracts the keys of `T` whose properties are required (must be present and
+cannot be `undefined`).
+
+```typescript
+// Similar logic to OptionalKeys, but the condition is reversed.
+// 1. `[K in keyof T]-?`: Iterate over all keys K of T, removing the optional modifier.
+// 2. `{} extends Pick<T, K>`: Check if K was optional.
+// 3. `? never : K`: If the condition is true (K is optional), discard the key (`never`). Otherwise (K is required), keep the key `K`.
+// 4. `[keyof T]`: Look up the resulting type to get a union of the required keys.
+type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K;
+}[keyof T];
+
+// Example:
+interface UserConfig {
+  id: number; // Required
+  theme: string; // Required
+  notifications?: boolean; // Optional
+  language?: string; // Optional
+}
+
+// Results in: "id" | "theme"
+type ConfigRequiredKeys = RequiredKeys<UserConfig>;
+
+// Usage example: Validating required fields
+function validateConfig(config: Partial<UserConfig>): boolean {
+  const requiredKeys: ConfigRequiredKeys[] = ["id", "theme"];
+  return requiredKeys.every(
+    (key) => config[key] !== undefined && config[key] !== null
+  );
+}
+
+console.log(validateConfig({ id: 1, theme: "light" })); // true
+console.log(validateConfig({ id: 1 })); // false (missing theme)
+console.log(validateConfig({ theme: "dark" })); // false (missing id)
+console.log(validateConfig({ id: 1, theme: "dark", notifications: false })); // true
+```
+
+#### `UnionToIntersection<T>`
+
+Converts a union type `U` into an intersection type. This is often used in
+advanced scenarios involving function overloads or combining multiple type
+definitions.
+
+```typescript
+// This uses conditional type inference and function type contravariance.
+// 1. `U extends any ? (k: U) => void : never`: This distributes the union U. For each member type X in U, it creates a function type `(k: X) => void`.
+//    Example: If U = A | B, this becomes `((k: A) => void) | ((k: B) => void)`.
+// 2. `extends (k: infer I) => void`: This attempts to infer a single type `I` for the parameter `k` such that the distributed function union is assignable to `(k: I) => void`.
+//    Due to contravariance of function parameters, `I` must be assignable *from* every member of the original union U. The only type that satisfies this is the intersection of all members of U.
+//    Example: `((k: A) => void) | ((k: B) => void)` is assignable to `(k: I) => void` only if `I` is `A & B`.
+// 3. `? I : never`: If the inference succeeds, return the inferred intersection type `I`. Otherwise, return `never`.
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
+  k: infer I
+) => void
+  ? I
+  : never;
+
+// Example 1: Simple object union
+type UnionObjects = { a: string } | { b: number };
+
+// Results in: { a: string } & { b: number }
+type IntersectionObjects = UnionToIntersection<UnionObjects>;
+const obj: IntersectionObjects = { a: "hello", b: 123 };
+
+// Example 2: Function overload union
+type Overloads = ((a: string) => number) | ((a: number) => string);
+
+// Results in an intersection of function signatures, representing an overloaded function
+type CombinedOverload = UnionToIntersection<Overloads>;
+// const combinedFunc: CombinedOverload = ...; // Can be called with string or number
+
+// Example 3: Union of primitives (less common, results in 'never' as primitives can't intersect meaningfully)
+type Primitives = string | number;
+type IntersectionPrimitives = UnionToIntersection<Primitives>; // Type is 'never'
+```
+
+#### `DeepNonNullable<T>`
+
+Recursively removes `null` and `undefined` from all properties in a type `T`,
+including nested objects.
+
+```typescript
+// Similar structure to DeepPartial/DeepReadonly.
+// T extends object checks if T is an object.
+// If true, maps over keys [P in keyof T] and applies DeepNonNullable recursively.
+// If false (primitive or array), applies the built-in NonNullable<T> to remove null/undefined from the value itself.
+type DeepNonNullable<T> = T extends object
+  ? { [P in keyof T]: DeepNonNullable<T[P]> }
+  : NonNullable<T>; // Use built-in NonNullable for non-object types
+
+// Example:
+interface UserProfile {
+  id: number | null;
+  name: string | undefined;
+  contact: {
+    email: string | null;
+    phone?: string | null; // Optional and potentially null
+  } | null;
+}
+
+// All nullable/undefinable properties must be provided with non-nullish values.
+// Optional properties must also be provided if they exist in the original type.
+const profile: DeepNonNullable<UserProfile> = {
+  id: 1, // Must be number
+  name: "John", // Must be string
+  contact: {
+    // contact object cannot be null
+    email: "john@example.com", // Must be string
+    phone: "123-456-7890" // Must be string (since phone exists in the mapped type)
+  }
+};
+
+// This would be invalid:
+// const invalidProfile: DeepNonNullable<UserProfile> = {
+//   id: null, // Error: Type 'null' is not assignable to type 'number'.
+//   name: 'Jane',
+//   contact: null // Error: Type 'null' is not assignable to type '{ email: string; phone: string; }'.
+// };
+```
+
+---
+
+### Summary Table
+
+This table categorizes the utility types based on their primary function:
+
+| Category                         | Utility Types                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| **Property Modifiers**           | `Partial`, `Required`, `Readonly`, `Mutable`, `DeepPartial`, `DeepReadonly`    |
+| **Property Selection**           | `Pick`, `Omit`                                                                 |
+| **Union/Intersection**           | `Exclude`, `Extract`, `UnionToIntersection`                                    |
+| **Nullability**                  | `NonNullable`, `Nullable`, `DeepNonNullable`                                   |
+| **Function/Class Introspection** | `ReturnType`, `Parameters`, `InstanceType`, `ConstructorParameters`, `Awaited` |
+| **`this` Parameter**             | `ThisParameterType`, `OmitThisParameter`, `ThisType`                           |
+| **Key Manipulation**             | `Record`, `OptionalKeys`, `RequiredKeys`                                       |
+
+---
+
+Understanding and utilizing these built-in and custom utility types can
+significantly streamline your TypeScript development, leading to more robust,
+readable, and maintainable code. Feel free to experiment with them in your
+projects!

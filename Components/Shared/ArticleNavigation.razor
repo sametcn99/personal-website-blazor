@@ -1,0 +1,51 @@
+@* ArticleNavigation.razor - Previous/Next article navigation *@
+
+@if (PrevArticle != null || NextArticle != null)
+{
+    <MudStack Row Class="mt-4 flex-wrap" Spacing="2">
+        @if (PrevArticle != null)
+        {
+            <MudPaper Elevation="0" Class="flex-grow-1 pa-3" Style="min-width: 200px; background: transparent;">
+                <MudLink Href="@PrevArticle.Href" Underline="Underline.None" Color="Color.Inherit"
+                         data-umami-event='@UmamiEvent.Click("article-nav-prev", PrevArticle.Title)'>
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Material.Filled.NavigateBefore" Color="Color.Primary" />
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@PrevLabel</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 500;">@PrevArticle.Title</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudLink>
+            </MudPaper>
+        }
+
+        @if (NextArticle != null)
+        {
+            <MudPaper Elevation="0" Class="flex-grow-1 pa-3" Style="min-width: 200px; background: transparent;">
+                <MudLink Href="@NextArticle.Href" Underline="Underline.None" Color="Color.Inherit"
+                         data-umami-event='@UmamiEvent.Click("article-nav-next", NextArticle.Title)'>
+                    <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Spacing="1">
+                        <MudStack Spacing="0" Style="text-align: right;">
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@NextLabel</MudText>
+                            <MudText Typo="Typo.body1" Style="font-weight: 500;">@NextArticle.Title</MudText>
+                        </MudStack>
+                        <MudIcon Icon="@Icons.Material.Filled.NavigateNext" Color="Color.Primary" />
+                    </MudStack>
+                </MudLink>
+            </MudPaper>
+        }
+    </MudStack>
+}
+
+@code {
+    [Parameter] public ArticleRef? PrevArticle { get; set; }
+    [Parameter] public ArticleRef? NextArticle { get; set; }
+    [Parameter] public string PrevLabel { get; set; } = "Previous";
+    [Parameter] public string NextLabel { get; set; } = "Next";
+
+    public class ArticleRef
+    {
+        public string Href { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+    }
+}

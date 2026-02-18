@@ -1,0 +1,1309 @@
+---
+title: "PowerShell Scripting"
+publishedAt: "2024-08-25"
+summary:
+  "Complete PowerShell scripting guide covering automation, DevOps practices,
+  Azure integration, and advanced techniques for cross-platform environments."
+---
+
+# PowerShell Scripting
+
+## Introduction
+
+PowerShell is a powerful task automation and configuration management framework
+from Microsoft, consisting of a command-line shell and associated scripting
+language. Initially built on .NET Framework, and now cross-platform with
+PowerShell Core (built on .NET Core), it provides robust capabilities for system
+administrators and developers to automate tasks across Windows, macOS, and Linux
+environments.
+
+This guide covers PowerShell fundamentals, advanced techniques, best practices,
+and real-world applications to help you leverage its full potential in your
+DevOps workflows.
+
+## Table of Contents
+
+1. [PowerShell Basics](#powershell-basics)
+2. [Script Structure and Syntax](#script-structure-and-syntax)
+3. [Variables and Data Types](#variables-and-data-types)
+4. [Flow Control](#flow-control)
+5. [Functions and Modules](#functions-and-modules)
+6. [Error Handling](#error-handling)
+7. [Working with Files and Folders](#working-with-files-and-folders)
+8. [Network Operations](#network-operations)
+9. [Working with APIs](#working-with-apis)
+10. [PowerShell and Azure](#powershell-and-azure)
+11. [PowerShell in DevOps](#powershell-in-devops)
+12. [Security Best Practices](#security-best-practices)
+13. [Performance Optimization](#performance-optimization)
+14. [Common Use Cases](#common-use-cases)
+15. [Resources](#resources)
+
+## PowerShell Basics
+
+### PowerShell Versions
+
+PowerShell has evolved significantly over time:
+
+- **Windows PowerShell 1.0-5.1**: Built on .NET Framework, Windows-only
+- **PowerShell Core 6.x+**: Cross-platform, built on .NET Core
+- **PowerShell 7+**: Modern, cross-platform version (current recommendation)
+
+Check your PowerShell version with:
+
+```powershell
+$PSVersionTable
+```
+
+Example output:
+
+```txt
+Name                           Value
+----                           -----
+PSVersion                      7.3.0
+PSEdition                      Core
+GitCommitId                    7.3.0
+OS                             Microsoft Windows 10.0.19045
+Platform                       Win32NT
+PSCompatibleVersions           {1.0, 2.0, 3.0, 4.0…}
+PSRemotingProtocolVersion      2.3
+SerializationVersion           1.1.0.1
+WSManStackVersion              3.0
+```
+
+To install the latest PowerShell version:
+
+```powershell
+# On Windows using winget
+winget install Microsoft.PowerShell
+
+# On Windows using chocolatey
+choco install powershell-core
+
+# On macOS using Homebrew
+brew install --cask powershell
+
+# On Ubuntu Linux
+sudo apt-get update
+sudo apt-get install -y wget apt-transport-https software-properties-common
+wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y powershell
+```
+
+### Command Types
+
+PowerShell has several command types:
+
+1. **Cmdlets**: Native PowerShell commands following verb-noun format (e.g.,
+   `Get-Process`)
+2. **Functions**: Custom reusable code blocks
+3. **Scripts**: Collections of commands saved as .ps1 files
+4. **Aliases**: Shortcuts for commands (e.g., `dir` is an alias for
+   `Get-ChildItem`)
+
+Discovering commands:
+
+```powershell
+# List all commands
+Get-Command
+
+# Find commands with specific noun
+Get-Command -Noun Process
+
+# Find commands with specific verb
+Get-Command -Verb Get
+
+# Get all aliases
+Get-Alias
+
+# Find help on how to use a command
+Get-Help Get-Process -Detailed
+Get-Help Get-Process -Examples
+Get-Help Get-Process -Online  # Opens browser documentation
+```
+
+### Basic Command Structure
+
+PowerShell cmdlets follow a verb-noun naming convention:
+
+```powershell
+Verb-Noun -Parameter Value
+```
+
+Common verbs include `Get`, `Set`, `New`, `Remove`, `Start`, `Stop`, etc.
+
+Examples of common cmdlets:
+
+```powershell
+# List running processes
+Get-Process
+
+# List specific processes
+Get-Process -Name chrome, firefox
+
+# Get process by ID
+Get-Process -Id 1234
+
+# Get services
+Get-Service
+
+# Start/stop a service
+Start-Service -Name Spooler
+Stop-Service -Name Spooler
+
+# Get event logs
+Get-EventLog -LogName System -Newest 10
+
+# Get system information
+Get-ComputerInfo
+
+# List environment variables
+Get-ChildItem Env:
+$env:USERNAME  # Access specific environment variable
+```
+
+### Execution Policy
+
+PowerShell's execution policy determines which scripts can run:
+
+```powershell
+# View the current execution policy
+Get-ExecutionPolicy
+
+# View execution policy for all scopes
+Get-ExecutionPolicy -List
+
+# Set execution policy (run as administrator)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+
+# Set execution policy for current user only
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Bypass execution policy for a single script execution
+PowerShell -ExecutionPolicy Bypass -File "C:\Scripts\MyScript.ps1"
+```
+
+Common policies:
+
+- **Restricted**: No scripts can run (default)
+- **AllSigned**: Only signed scripts can run
+- **RemoteSigned**: Local scripts can run; downloaded scripts need signing
+- **Unrestricted**: All scripts can run (not recommended for production)
+- **Bypass**: No restrictions; nothing is blocked and no warnings (use with
+  caution)
+
+### PowerShell Profiles
+
+PowerShell profiles allow you to customize your PowerShell environment by
+loading settings, functions, and aliases whenever you start PowerShell:
+
+```powershell
+# Check if you have a profile
+Test-Path $PROFILE
+
+# Create a profile if it doesn't exist
+if (!(Test-Path $PROFILE)) {
+    New-Item -Type File -Path $PROFILE -Force
+}
+
+# Edit your profile
+notepad $PROFILE
+# or
+code $PROFILE  # With VS Code
+
+# Example profile content
+# Add this to your profile file:
+function prompt {
+    $currentDir = $executionContext.SessionState.Path.CurrentLocation.Path
+    "PS [$env:COMPUTERNAME] $currentDir> "
+}
+
+# Create custom aliases
+Set-Alias -Name np -Value notepad
+```
+
+Profile locations:
+
+- Current user, current host: `$PROFILE`
+- Current user, all hosts: `$PROFILE.CurrentUserAllHosts`
+- All users, current host: `$PROFILE.AllUsersCurrentHost`
+- All users, all hosts: `$PROFILE.AllUsersAllHosts`
+
+## Script Structure and Syntax
+
+### Basic Script Structure
+
+PowerShell scripts use the `.ps1` extension. Here's a more comprehensive example
+of a well-structured script:
+
+```powershell
+<#
+.SYNOPSIS
+    Brief description of what the script does.
+.DESCRIPTION
+    Detailed description of the script's functionality.
+.PARAMETER ComputerName
+    The name of the computer to query.
+.PARAMETER OutputPath
+    The path where the report will be saved.
+.EXAMPLE
+    .\Get-SystemReport.ps1 -ComputerName "Server01" -OutputPath "C:\Reports"
+.NOTES
+    Author: Your Name
+    Date: April 13, 2025
+    Version: 1.0
+#>
+
+#Requires -Version 7.0
+#Requires -Modules ActiveDirectory, SqlServer
+#Requires -RunAsAdministrator
+
+param (
+    [Parameter(Mandatory=$true, Position=0)]
+    [string]$ComputerName,
+
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath = ".\Reports",
+
+    [switch]$IncludeServices
+)
+
+# Script initialization
+$ErrorActionPreference = "Stop"
+$VerbosePreference = "Continue"
+
+# Import required modules
+Import-Module ActiveDirectory -ErrorAction Stop
+
+# Define functions
+function Get-ComputerInfo {
+    [CmdletBinding()]
+    param (
+        [string]$Name
+    )
+
+    Write-Verbose "Querying system information for $Name"
+    return Get-CimInstance -ComputerName $Name -ClassName Win32_ComputerSystem
+}
+
+function Write-Report {
+    [CmdletBinding()]
+    param (
+        [object]$Data,
+        [string]$Path
+    )
+
+    if (!(Test-Path -Path $Path)) {
+        New-Item -Path $Path -ItemType Directory -Force | Out-Null
+    }
+
+    $reportPath = Join-Path -Path $Path -ChildPath "$($Data.Name)_Report.json"
+    $Data | ConvertTo-Json -Depth 5 | Out-File -FilePath $reportPath
+    return $reportPath
+}
+
+# Main script execution
+try {
+    Write-Verbose "Script started at $(Get-Date)"
+
+    # Verify computer is reachable
+    if (!(Test-Connection -ComputerName $ComputerName -Count 1 -Quiet)) {
+        throw "Computer $ComputerName is not reachable."
+    }
+
+    # Get computer information
+    $systemInfo = Get-ComputerInfo -Name $ComputerName
+
+    # Add services if requested
+    if ($IncludeServices) {
+        Write-Verbose "Including services information"
+        $services = Get-Service -ComputerName $ComputerName
+        $systemInfo | Add-Member -MemberType NoteProperty -Name Services -Value $services
+    }
+
+    # Generate report
+    $reportFile = Write-Report -Data $systemInfo -Path $OutputPath
+    Write-Output "Report generated successfully at $reportFile"
+}
+catch {
+    Write-Error "An error occurred: $_"
+    exit 1
+}
+finally {
+    Write-Verbose "Script completed at $(Get-Date)"
+}
+```
+
+### Advanced Script Header Comments
+
+PowerShell supports special comment-based help that VS Code and PowerShell ISE
+can recognize:
+
+```powershell
+<#
+.SYNOPSIS
+    Short description of the script's purpose.
+.DESCRIPTION
+    Detailed explanation of what the script does and how it works.
+.PARAMETER ParameterName
+    Description of a parameter.
+.EXAMPLE
+    PS> .\MyScript.ps1 -Parameter1 "Value"
+    Example description of what happens.
+.EXAMPLE
+    PS> .\MyScript.ps1 -Parameter1 "Value" -Switch
+    Another example with different parameters.
+.INPUTS
+    Description of input objects if your script accepts pipeline input.
+.OUTPUTS
+    Description of objects that the script returns.
+.NOTES
+    Additional information about the script.
+.LINK
+    https://related-documentation-url.com
+#>
+```
+
+### Parameter Declarations with Validation
+
+PowerShell allows for sophisticated parameter validation:
+
+```powershell
+param (
+    [Parameter(Mandatory=$true,
+               Position=0,
+               HelpMessage="Enter the server name:")]
+    [ValidateNotNullOrEmpty()]
+    [string]$ServerName,
+
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("Development", "Testing", "Production")]
+    [string]$Environment = "Development",
+
+    [Parameter(Mandatory=$false)]
+    [ValidateRange(1, 100)]
+    [int]$MaxItems = 25,
+
+    [Parameter(Mandatory=$false)]
+    [ValidatePattern("[a-zA-Z][a-zA-Z0-9]{5,10}")]
+    [string]$UserName,
+
+    [Parameter(Mandatory=$false)]
+    [ValidateScript({Test-Path $_ -PathType Container})]
+    [string]$OutputFolder = ".\Output",
+
+    [switch]$Force
+)
+```
+
+### Here-Strings for Multi-line Text
+
+PowerShell provides "here-strings" for multi-line text content:
+
+```powershell
+# Basic here-string with variable substitution
+$name = "John"
+$message = @"
+Hello, $name!
+This is a multi-line message
+that preserves all whitespace and line breaks.
+Today is $(Get-Date -Format "yyyy-MM-dd").
+"@
+
+# Single-quoted here-string without variable substitution
+$sql = @'
+SELECT *
+FROM Customers
+WHERE Region = 'North'
+  AND Status = 'Active';
+'@
+```
+
+### Pipeline Techniques and Examples
+
+The pipeline is one of PowerShell's most powerful features:
+
+```powershell
+# Basic pipeline example
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 | Format-Table Name, CPU, WorkingSet
+
+# Pipeline with calculated properties
+Get-ChildItem -Path C:\Windows -Filter *.exe -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -Property Name,
+                           @{Name="SizeKB"; Expression={[math]::Round($_.Length/1KB, 2)}},
+                           LastWriteTime |
+    Sort-Object -Property SizeKB -Descending |
+    Select-Object -First 10
+
+# Pipeline with filtering and grouping
+Get-Service |
+    Where-Object {$_.Status -eq "Running"} |
+    Group-Object -Property StartType |
+    Select-Object Name, Count
+
+# Processing each item in the pipeline
+Get-ChildItem -Path C:\Logs -Filter *.log |
+    ForEach-Object {
+        $content = Get-Content -Path $_.FullName
+        $errorCount = ($content | Select-String -Pattern "ERROR" -SimpleMatch).Count
+        $warningCount = ($content | Select-String -Pattern "WARNING" -SimpleMatch).Count
+
+        [PSCustomObject]@{
+            LogFile = $_.Name
+            ErrorCount = $errorCount
+            WarningCount = $warningCount
+            TotalLines = $content.Count
+        }
+    } |
+    Sort-Object -Property ErrorCount -Descending
+```
+
+### Using the Splatting Technique
+
+Splatting is a technique for passing parameters to a command using a hashtable:
+
+```powershell
+# Traditional approach - long command line
+Send-MailMessage -From "sender@example.com" -To "recipient@example.com" -Subject "Report" -Body "See attached report." -SmtpServer "smtp.example.com" -Port 587 -UseSsl -Credential $credential -Attachments "C:\Reports\Report.pdf"
+
+# Using splatting - cleaner and more maintainable
+$emailParams = @{
+    From = "sender@example.com"
+    To = "recipient@example.com"
+    Subject = "Report"
+    Body = "See attached report."
+    SmtpServer = "smtp.example.com"
+    Port = 587
+    UseSsl = $true
+    Credential = $credential
+    Attachments = "C:\Reports\Report.pdf"
+}
+Send-MailMessage @emailParams  # Note the @ instead of $
+```
+
+### Script Flow Control with Break, Continue, and Return
+
+```powershell
+# Break and Continue example
+foreach ($server in $servers) {
+    if ($server.Status -eq "Maintenance") {
+        Write-Warning "Server $($server.Name) is in maintenance mode. Skipping..."
+        continue  # Skip to the next iteration
+    }
+
+    if ($server.Status -eq "Offline") {
+        Write-Error "Server $($server.Name) is offline. Stopping script."
+        break  # Exit the loop completely
+    }
+
+    # Process server
+    Write-Output "Processing server $($server.Name)"
+}
+
+# Return example in a function
+function Test-ServerConnection {
+    param (
+        [string]$ServerName
+    )
+
+    if (!(Test-Connection -ComputerName $ServerName -Count 1 -Quiet)) {
+        return $false  # Exit the function with a false value
+    }
+
+    # Continue with other tests
+    $portTest = Test-NetConnection -ComputerName $ServerName -Port 3389 -WarningAction SilentlyContinue
+
+    return $portTest.TcpTestSucceeded  # Return the result of the port test
+}
+```
+
+### Using Requires Statements
+
+Require statements help ensure script prerequisites are met:
+
+```powershell
+#Requires -Version 7.0                  # Minimum PowerShell version
+#Requires -Modules ActiveDirectory, Az  # Required modules
+#Requires -RunAsAdministrator           # Must run as admin
+#Requires -PSEdition Core               # Must be PowerShell Core
+```
+
+## Variables and Data Types
+
+### Variable Declaration
+
+Variables in PowerShell start with `$`:
+
+```powershell
+$name = "PowerShell"
+$age = 15
+$isAwesome = $true
+```
+
+### Common Data Types
+
+PowerShell variables can hold different data types:
+
+```powershell
+$string = "Hello"                   # String
+$int = 42                          # Integer
+$double = 3.14                     # Double
+$bool = $true                      # Boolean
+$array = 1, 2, 3, "four"           # Array
+$hash = @{Key1 = "Value1"; Key2 = 2} # Hashtable
+$null = $null                      # Null value
+```
+
+### Arrays
+
+```powershell
+# Array creation
+$array = @(1, 2, 3, 4, 5)
+$array = 1..5  # Range operator
+
+# Accessing elements
+$firstElement = $array[0]
+$lastElement = $array[-1]
+
+# Adding elements
+$array += 6
+
+# Filtering arrays
+$filtered = $array | Where-Object { $_ -gt 3 }
+```
+
+### Hashtables (Dictionaries)
+
+```powershell
+# Creating a hashtable
+$user = @{
+    Name = "John Doe"
+    Age = 30
+    Role = "Developer"
+}
+
+# Accessing elements
+$userName = $user["Name"]
+$userAge = $user.Age
+
+# Adding or updating elements
+$user["Department"] = "IT"
+$user.Location = "New York"
+
+# Removing an element
+$user.Remove("Age")
+```
+
+## Flow Control
+
+### Conditional Statements
+
+```powershell
+# If-ElseIf-Else
+if ($condition1) {
+    # Code block
+}
+elseif ($condition2) {
+    # Code block
+}
+else {
+    # Code block
+}
+
+# Switch statement
+$value = "apple"
+switch ($value) {
+    "apple" { "It's an apple" }
+    "orange" { "It's an orange" }
+    default { "Unknown fruit" }
+}
+
+# Switch with wildcards
+switch -Wildcard ($filename) {
+    "*.txt" { "Text file" }
+    "*.jpg" { "Image file" }
+    default { "Other file type" }
+}
+```
+
+### Loops
+
+```powershell
+# For loop
+for ($i = 0; $i -lt 10; $i++) {
+    # Code block
+}
+
+# ForEach loop
+foreach ($item in $collection) {
+    # Code block
+}
+
+# ForEach-Object in pipeline
+$collection | ForEach-Object {
+    # Process $_ (current item)
+}
+
+# While loop
+while ($condition) {
+    # Code block
+}
+
+# Do-While loop (executes at least once)
+do {
+    # Code block
+} while ($condition)
+
+# Do-Until loop
+do {
+    # Code block
+} until ($condition)
+```
+
+## Functions and Modules
+
+### Basic Functions
+
+```powershell
+function Get-FullName {
+    param (
+        [string]$FirstName,
+        [string]$LastName
+    )
+
+    return "$FirstName $LastName"
+}
+
+$fullName = Get-FullName -FirstName "John" -LastName "Doe"
+```
+
+### Advanced Functions
+
+```powershell
+function Get-SystemInfo {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$ComputerName,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$IncludeServices,
+
+        [ValidateSet("Basic", "Detailed", "Full")]
+        [string]$Level = "Basic"
+    )
+
+    begin {
+        # Initialization code
+    }
+
+    process {
+        # Main processing
+        $systemInfo = Get-CimInstance -ComputerName $ComputerName -ClassName Win32_OperatingSystem
+
+        if ($IncludeServices) {
+            $services = Get-Service -ComputerName $ComputerName
+        }
+
+        # Return based on level
+        switch ($Level) {
+            "Basic" { return $systemInfo | Select-Object Caption, Version }
+            "Detailed" { return $systemInfo }
+            "Full" { return @{ OS = $systemInfo; Services = $services } }
+        }
+    }
+
+    end {
+        # Cleanup code
+    }
+}
+```
+
+### Modules
+
+Modules are collections of related functions, cmdlets, variables, etc.:
+
+```powershell
+# Module structure (MyModule.psm1)
+function Get-Something {
+    # Function code
+}
+
+function Set-Something {
+    # Function code
+}
+
+# Export only specific functions
+Export-ModuleMember -Function Get-Something, Set-Something
+```
+
+Using modules:
+
+```powershell
+# Import a module
+Import-Module -Name MyModule
+
+# List available modules
+Get-Module -ListAvailable
+
+# Find commands in a module
+Get-Command -Module MyModule
+```
+
+## Error Handling
+
+### Try-Catch-Finally
+
+```powershell
+try {
+    # Code that might cause an error
+    $result = 10 / 0
+}
+catch [System.DivideByZeroException] {
+    # Handle specific exception
+    Write-Error "Division by zero error"
+}
+catch {
+    # Handle any other exception
+    Write-Error "An error occurred: $_"
+}
+finally {
+    # Code that always runs
+    Write-Output "Cleanup operations"
+}
+```
+
+### Error Preference Variables
+
+```powershell
+# Set behavior for non-terminating errors
+$ErrorActionPreference = "Stop"  # Options: Continue, SilentlyContinue, Stop, Inquire
+
+# Use -ErrorAction parameter for individual commands
+Get-Content -Path "NonExistentFile.txt" -ErrorAction SilentlyContinue
+```
+
+## Working with Files and Folders
+
+### File Operations
+
+```powershell
+# Read file content
+$content = Get-Content -Path "C:\path\to\file.txt"
+
+# Write to a file
+"Content" | Out-File -FilePath "C:\path\to\output.txt"
+"Appended content" | Add-Content -FilePath "C:\path\to\output.txt"
+
+# Test if file exists
+if (Test-Path -Path "C:\path\to\file.txt") {
+    # File exists
+}
+
+# Copy files
+Copy-Item -Path "C:\source\file.txt" -Destination "C:\destination\"
+
+# Move files
+Move-Item -Path "C:\source\file.txt" -Destination "C:\destination\"
+
+# Delete files
+Remove-Item -Path "C:\path\to\file.txt"
+```
+
+### Folder Operations
+
+```powershell
+# Create a new directory
+New-Item -Path "C:\path\to\new\folder" -ItemType Directory
+
+# List directory contents
+Get-ChildItem -Path "C:\path" -Recurse
+
+# Filter files by extension
+Get-ChildItem -Path "C:\path" -Filter "*.txt"
+```
+
+### Working with CSV/JSON/XML
+
+```powershell
+# CSV
+$csvData = Import-Csv -Path "data.csv"
+$objects | Export-Csv -Path "output.csv" -NoTypeInformation
+
+# JSON
+$jsonData = Get-Content -Path "data.json" | ConvertFrom-Json
+$objects | ConvertTo-Json | Out-File -FilePath "output.json"
+
+# XML
+[xml]$xmlData = Get-Content -Path "data.xml"
+$objects | Export-Clixml -Path "output.xml"
+```
+
+## Network Operations
+
+### Basic Network Commands
+
+```powershell
+# Test network connectivity
+Test-NetConnection -ComputerName "www.example.com" -Port 443
+
+# Get IP configuration
+Get-NetIPConfiguration
+
+# DNS resolution
+Resolve-DnsName -Name "www.example.com"
+
+# TCP port test
+Test-NetConnection -ComputerName "server" -Port 80 -InformationLevel Detailed
+```
+
+### Web Requests
+
+```powershell
+# GET request
+$response = Invoke-WebRequest -Uri "https://api.example.com/data"
+$responseContent = $response.Content
+
+# POST request with JSON body
+$body = @{
+    name = "John Doe"
+    email = "john@example.com"
+} | ConvertTo-Json
+
+$response = Invoke-WebRequest -Uri "https://api.example.com/users" -Method Post -Body $body -ContentType "application/json"
+
+# REST API calls
+$params = @{
+    Uri         = "https://api.example.com/users"
+    Method      = "POST"
+    Headers     = @{ Authorization = "Bearer $token" }
+    ContentType = "application/json"
+    Body        = $body
+}
+$response = Invoke-RestMethod @params
+```
+
+## Working with APIs
+
+### REST API Example
+
+```powershell
+# Function to interact with REST API
+function Invoke-ApiRequest {
+    [CmdletBinding()]
+    param (
+        [string]$Endpoint,
+        [string]$Method = "GET",
+        [hashtable]$Headers = @{},
+        [object]$Body = $null
+    )
+
+    $baseUrl = "https://api.example.com/v1"
+    $uri = "$baseUrl/$Endpoint"
+
+    $params = @{
+        Uri = $uri
+        Method = $Method
+        Headers = $Headers
+        ContentType = "application/json"
+    }
+
+    if ($Body -and $Method -ne "GET") {
+        $params.Body = ($Body | ConvertTo-Json -Depth 10)
+    }
+
+    try {
+        $response = Invoke-RestMethod @params
+        return $response
+    }
+    catch {
+        Write-Error "API error: $_"
+        throw
+    }
+}
+
+# Usage
+$token = "YOUR_API_TOKEN"
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+# Get users
+$users = Invoke-ApiRequest -Endpoint "users" -Headers $headers
+
+# Create user
+$newUser = @{
+    name = "Jane Smith"
+    email = "jane@example.com"
+    role = "admin"
+}
+$createdUser = Invoke-ApiRequest -Endpoint "users" -Method "POST" -Headers $headers -Body $newUser
+```
+
+## PowerShell and Azure
+
+### Azure PowerShell Module
+
+```powershell
+# Install Azure PowerShell module
+Install-Module -Name Az -AllowClobber -Force
+
+# Connect to Azure
+Connect-AzAccount
+
+# Select subscription
+Set-AzContext -SubscriptionId "subscription-id"
+
+# Common Azure operations
+$resourceGroup = "MyResourceGroup"
+$location = "eastus"
+
+# Create a resource group
+New-AzResourceGroup -Name $resourceGroup -Location $location
+
+# Deploy a virtual machine
+New-AzVM -ResourceGroupName $resourceGroup -Name "myVM" -Location $location -Image "UbuntuLTS"
+
+# List resources
+Get-AzResource -ResourceGroupName $resourceGroup
+```
+
+### Azure Automation
+
+```powershell
+# Azure Automation runbook example
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$ResourceGroupName
+)
+
+# Connect to Azure with managed identity
+Connect-AzAccount -Identity
+
+# Start all stopped VMs in a resource group
+$vms = Get-AzVM -ResourceGroupName $ResourceGroupName -Status
+foreach ($vm in $vms) {
+    if ($vm.PowerState -eq "VM deallocated") {
+        Write-Output "Starting VM: $($vm.Name)"
+        Start-AzVM -ResourceGroupName $ResourceGroupName -Name $vm.Name
+    }
+}
+```
+
+## PowerShell in DevOps
+
+### CI/CD Integration
+
+```powershell
+# Example: Deployment script for a web application
+param (
+    [string]$Environment = "dev",
+    [string]$Version
+)
+
+# Configuration for different environments
+$config = @{
+    dev = @{
+        ServerPath = "\\devserver\sites\"
+        AppPoolName = "DevAppPool"
+    }
+    staging = @{
+        ServerPath = "\\stagingserver\sites\"
+        AppPoolName = "StagingAppPool"
+    }
+    prod = @{
+        ServerPath = "\\prodserver\sites\"
+        AppPoolName = "ProdAppPool"
+    }
+}
+
+# Environment-specific settings
+$envConfig = $config[$Environment]
+$deployPath = Join-Path -Path $envConfig.ServerPath -ChildPath "MyApp"
+
+# Stop the application pool
+Write-Output "Stopping application pool: $($envConfig.AppPoolName)"
+Invoke-Command -ComputerName "webserver" -ScriptBlock {
+    param($appPoolName)
+    Import-Module WebAdministration
+    Stop-WebAppPool -Name $appPoolName
+} -ArgumentList $envConfig.AppPoolName
+
+# Deploy the application
+Write-Output "Deploying version $Version to $Environment environment"
+$sourcePath = ".\build\$Version\*"
+Copy-Item -Path $sourcePath -Destination $deployPath -Recurse -Force
+
+# Start the application pool
+Write-Output "Starting application pool: $($envConfig.AppPoolName)"
+Invoke-Command -ComputerName "webserver" -ScriptBlock {
+    param($appPoolName)
+    Import-Module WebAdministration
+    Start-WebAppPool -Name $appPoolName
+} -ArgumentList $envConfig.AppPoolName
+
+Write-Output "Deployment complete"
+```
+
+### Infrastructure as Code
+
+```powershell
+# Example: Creating a testing environment with PowerShell
+function New-TestEnvironment {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ProjectName,
+
+        [Parameter(Mandatory=$true)]
+        [string]$BuildNumber
+    )
+
+    # Create resource group
+    $resourceGroupName = "$ProjectName-Test-$BuildNumber"
+    $deploymentName = "Deployment-$BuildNumber"
+    $location = "eastus"
+
+    New-AzResourceGroup -Name $resourceGroupName -Location $location -Force
+
+    # Deploy ARM template
+    $templateFile = ".\infrastructure\template.json"
+    $templateParameters = @{
+        projectName = $ProjectName
+        environment = "test"
+        buildNumber = $BuildNumber
+    }
+
+    $deployment = New-AzResourceGroupDeployment -Name $deploymentName `
+                                              -ResourceGroupName $resourceGroupName `
+                                              -TemplateFile $templateFile `
+                                              -TemplateParameterObject $templateParameters
+
+    # Return environment information
+    return @{
+        ResourceGroup = $resourceGroupName
+        Deployment = $deployment
+        Endpoints = @{
+            WebApp = $deployment.Outputs.webAppUrl.Value
+            API = $deployment.Outputs.apiUrl.Value
+        }
+    }
+}
+
+# Usage
+$env = New-TestEnvironment -ProjectName "MyProject" -BuildNumber "20250413.1"
+```
+
+## Security Best Practices
+
+### Secure Credential Handling
+
+```powershell
+# Never store credentials in plain text in scripts
+
+# Use encrypted credentials
+$securePassword = ConvertTo-SecureString "PlainTextPassword" -AsPlainText -Force
+$credential = New-Object System.Management.Automation.PSCredential("username", $securePassword)
+
+# Better: Store encrypted credentials in a file (Windows only)
+$credential = Get-Credential
+$credential | Export-CliXml -Path "C:\secure\credentials.xml"
+
+# Later, retrieve the credentials
+$credential = Import-CliXml -Path "C:\secure\credentials.xml"
+
+# For automation, use managed identities or key vaults
+```
+
+### Script Signing
+
+```powershell
+# Create a self-signed certificate for testing
+$cert = New-SelfSignedCertificate -Subject "CN=PowerShell Code Signing" -Type CodeSigningCert -CertStoreLocation "Cert:\CurrentUser\My"
+
+# Sign a script
+Set-AuthenticodeSignature -FilePath ".\MyScript.ps1" -Certificate $cert
+
+# In production, use certificates from a trusted certification authority
+```
+
+### Permission Management
+
+```powershell
+# Use Just Enough Administration (JEA)
+# Example: Create a JEA configuration file
+
+# PSSC file (session configuration)
+New-PSSessionConfigurationFile -Path ".\JEAConfig.pssc" `
+                             -SessionType RestrictedRemoteServer `
+                             -VisibleCmdlets "Get-Service", "Restart-Service" `
+                             -VisibleFunctions "Get-SystemInfo" `
+                             -LanguageMode NoLanguage
+
+# Register the configuration
+Register-PSSessionConfiguration -Path ".\JEAConfig.pssc" `
+                              -Name "MaintenanceSession" `
+                              -Force
+```
+
+## Performance Optimization
+
+### Efficient Coding Practices
+
+```powershell
+# Bad: Slow string concatenation in a loop
+$result = ""
+foreach ($item in 1..10000) {
+    $result += $item.ToString() + ","
+}
+
+# Good: Use StringBuilder for string operations
+$sb = New-Object System.Text.StringBuilder
+foreach ($item in 1..10000) {
+    [void]$sb.Append("$item,")
+}
+$result = $sb.ToString()
+
+# Bad: Filtering objects in the pipeline multiple times
+Get-Process | Where-Object { $_.CPU -gt 100 } | Where-Object { $_.Name -like "S*" }
+
+# Good: Use a single Where-Object with compound conditions
+Get-Process | Where-Object { $_.CPU -gt 100 -and $_.Name -like "S*" }
+
+# Use Jobs for parallel processing
+$jobs = 1..10 | ForEach-Object {
+    $server = "Server$_"
+    Start-Job -ScriptBlock {
+        param($serverName)
+        Get-WmiObject Win32_OperatingSystem -ComputerName $serverName
+    } -ArgumentList $server
+}
+Wait-Job $jobs
+$results = Receive-Job $jobs
+
+# PowerShell 7+: Use parallel foreach
+$results = 1..10 | ForEach-Object -Parallel {
+    $server = "Server$_"
+    Get-WmiObject Win32_OperatingSystem -ComputerName $server
+} -ThrottleLimit 5
+```
+
+## Common Use Cases
+
+### System Administration
+
+```powershell
+# Get system information
+function Get-DetailedSystemInfo {
+    [CmdletBinding()]
+    param (
+        [string]$ComputerName = $env:COMPUTERNAME
+    )
+
+    $os = Get-CimInstance -ComputerName $ComputerName -ClassName Win32_OperatingSystem
+    $cs = Get-CimInstance -ComputerName $ComputerName -ClassName Win32_ComputerSystem
+    $proc = Get-CimInstance -ComputerName $ComputerName -ClassName Win32_Processor
+    $disk = Get-CimInstance -ComputerName $ComputerName -ClassName Win32_LogicalDisk -Filter "DriveType=3"
+
+    [PSCustomObject]@{
+        ComputerName = $ComputerName
+        OSName = $os.Caption
+        OSVersion = $os.Version
+        Manufacturer = $cs.Manufacturer
+        Model = $cs.Model
+        Processor = $proc.Name
+        PhysicalMemoryGB = [math]::Round($cs.TotalPhysicalMemory / 1GB, 2)
+        Disks = $disk | ForEach-Object {
+            [PSCustomObject]@{
+                Drive = $_.DeviceID
+                SizeGB = [math]::Round($_.Size / 1GB, 2)
+                FreeSpaceGB = [math]::Round($_.FreeSpace / 1GB, 2)
+                PercentFree = [math]::Round(($_.FreeSpace / $_.Size) * 100, 2)
+            }
+        }
+    }
+}
+```
+
+### Automation Examples
+
+#### User Account Management
+
+```powershell
+# Bulk user creation
+Import-Csv ".\users.csv" | ForEach-Object {
+    $securePassword = ConvertTo-SecureString $_.InitialPassword -AsPlainText -Force
+
+    $params = @{
+        Name = $_.Username
+        GivenName = $_.FirstName
+        Surname = $_.LastName
+        SamAccountName = $_.Username
+        UserPrincipalName = "$($_.Username)@domain.com"
+        AccountPassword = $securePassword
+        Enabled = $true
+        Path = "OU=$($_.Department),DC=domain,DC=com"
+        ChangePasswordAtLogon = $true
+    }
+
+    New-ADUser @params
+}
+```
+
+#### System Monitoring
+
+```powershell
+# Monitor services and restart if necessary
+$servicesToMonitor = @("MSSQLSERVER", "W3SVC", "BITS")
+
+foreach ($service in $servicesToMonitor) {
+    $serviceStatus = Get-Service -Name $service -ErrorAction SilentlyContinue
+
+    if ($serviceStatus -and $serviceStatus.Status -ne "Running") {
+        Write-Output "$(Get-Date) - Service $service is not running. Attempting to start..."
+
+        try {
+            Start-Service -Name $service
+            Write-Output "$(Get-Date) - Service $service started successfully."
+        }
+        catch {
+            Write-Error "$(Get-Date) - Failed to start service $service. Error: $_"
+            Send-MailMessage -To "admin@example.com" -From "monitor@example.com" -Subject "Service Failure: $service" -Body "The service $service failed to start. Error: $_" -SmtpServer "smtp.example.com"
+        }
+    }
+}
+```
+
+## Resources
+
+### Official Documentation and Learning Resources
+
+- [PowerShell Documentation](https://docs.microsoft.com/en-us/powershell/)
+- [PowerShell GitHub Repository](https://github.com/PowerShell/PowerShell)
+- [PowerShell Gallery](https://www.powershellgallery.com/)
+
+### Community Resources
+
+- [PowerShell.org](https://powershell.org/)
+- [r/PowerShell subreddit](https://www.reddit.com/r/PowerShell/)
+- [Stack Overflow PowerShell tag](https://stackoverflow.com/questions/tagged/powershell)
+
+### Books and Courses
+
+- "PowerShell in a Month of Lunches" by Don Jones and Jeffrey Hicks
+- "PowerShell for Sysadmins" by Adam Bertram
+- "Learn PowerShell in Y Minutes" - Quick reference guide
+
+## Conclusion
+
+PowerShell is a versatile and powerful tool for automation, system
+administration, and DevOps workflows. By mastering PowerShell, you can
+significantly improve your productivity, create consistent and reliable
+processes, and effectively manage complex IT environments.
+
+This guide covers the fundamentals, but PowerShell's capabilities extend far
+beyond what's documented here. As you continue to work with PowerShell, you'll
+discover innovative ways to solve problems and automate tasks across your
+infrastructure.

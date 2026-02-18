@@ -1,0 +1,57 @@
+using System.Xml.Linq;
+using personal_website_blazor.Core.Application.Abstractions;
+using personal_website_blazor.Core.Domain.Entities;
+
+namespace personal_website_blazor.Infrastructure.Feeds;
+
+public class RssFeedService : IRssFeedService
+{
+    private readonly IContentService _contentService;
+
+    public RssFeedService(IContentService contentService)
+    {
+        _contentService = contentService;
+    }
+
+    public async Task<string> BuildFeedAsync(Uri baseUri)
+    {
+        var posts = await _contentService.GetPostsAsync("posts");
+
+        var now = DateTimeOffset.UtcNow;
+        var channelTitle = "Samet Can Cıncık - Blog";
+        var channelDescription = "Recent posts and updates";
+
+        var document = new XDocument(
+            new XDeclaration("1.0", "utf-8", "yes"),
+            new XElement(
+                "rss",
+                new XAttribute("version", "2.0"),
+                new XElement(
+                    "channel",
+                    new XElement("title", channelTitle),
+                    new XElement("link", baseUri.ToString().TrimEnd('/')),
+                    new XElement("description", channelDescription),
+                    new XElement("lastBuildDate", now.ToString("r")),
+                    posts.Select(post => BuildItem(post, baseUri, now))
+                )
+            )
+        );
+
+        return document.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static XElement BuildItem(PostModel post, Uri baseUri, DateTimeOffset fallbackDate)
+    {
+        var itemLink = new Uri(baseUri, $"/blog/{post.Slug}").ToString();
+        var publishDate = (post.PublishDate ?? fallbackDate).ToUniversalTime().ToString("r");
+
+        return new XElement(
+            "item",
+            new XElement("title", post.Title),
+            new XElement("link", itemLink),
+            new XElement("guid", itemLink),
+            new XElement("pubDate", publishDate),
+            new XElement("description", new XCData(post.Description))
+        );
+    }
+}

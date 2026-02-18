@@ -1,0 +1,73 @@
+---
+title: Env Protector
+publishedAt: 2024-09-14
+summary:
+  A Visual Studio Code extension that enhances the security of environment files
+  by masking sensitive data, providing confirmation prompts before opening, and
+  allowing users to manage environment variables without exposing their
+  contents.
+tags:
+  [
+    Visual Studio Code,
+    VSCode Extension,
+    Environment Variables,
+    Security,
+    Productivity
+  ]
+---
+
+# Env Protector
+
+![Banner](https://github.com/sametcn99/env-protector/blob/main/assets/banner.png?raw=true)
+[GitHub](https://github.com/sametcn99/env-protector) |
+[Releases](https://github.com/sametcn99/env-protector/releases) |
+[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=sametcn99.env-protector)
+| [Open VSX](https://open-vsx.org/extension/sametcn99/env-protector)
+
+## Why this extension?
+
+In the modern development era, live streaming, screen sharing, and recording are
+part of daily routines. However, most existing VS Code extensions that manage
+environment variables have a critical flaw: they process `.env` files only
+_after_ the file has been opened. This results in a brief millisecond window
+where sensitive keys, API tokens, and passwords might be visible on screen
+before being hidden or masked. For streamers and security-conscious developers,
+this split-second exposure is unacceptable.
+
+**Env Protector** solves this problem essentially by intercepting the file open
+request. Instead of reacting to an opened file, it proactively asks you _how_
+you want to view the file before it is rendered. This "security-first"
+architecture ensures that sensitive data never hits the screen unless you
+explicitly authorize it, providing a robust layer of privacy for your
+development environment.
+
+## Features
+
+- **File Visibility Control**: The extension allows you to toggle the visibility
+  of environment files (e.g., .env) within the VS Code sidebar. It automates the
+  management of `files.exclude` in your workspace settings, hiding sensitive
+  files from the file explorer view to prevent accidental clicks during screen
+  shares.
+  ![Commands](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/commands.png)
+
+- **Proactive Interception Prompt**: Unlike other tools, this extension
+  intercepts the request to open an enviroment file. It presents a confirmation
+  dialog asking how you wish to proceed, ensuring you are always aware before
+  sensitive context is loaded into the editor buffer.
+  ![Confirmation Dialog](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/dialog.png)
+
+- **Secure Masked View**: When you choose to view a file securely, the extension
+  renders a virtual document where all values are replaced with asterisks
+  (masking). This allows you to verify the presence of keys and structure
+  without exposing the actual secrets (values).
+  ![Masked Variables](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/masked.png)
+- **Safe Variable Management**: Manage your environment variables without ever
+  opening the file itself:
+  - **Add Variable**: Insert new key-value pairs via the Command Palette.
+  - **Edit Variable**: Modify existing values safely through input boxes.
+  - **Remove Variable**: Delete keys without exposing the rest of the file
+    content.
+
+  ![Add Environment Value](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/add.gif)
+  ![Edit Environment Value](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/edit.gif)
+  ![Remove Environment Value](https://raw.githubusercontent.com/sametcn99/env-protector/refs/heads/main/assets/remove.gif)

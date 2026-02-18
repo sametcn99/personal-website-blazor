@@ -1,5 +1,6 @@
 @using MudBlazor
-<MudLink Href="@Href" Target="@Target" Underline="Underline.Hover" Color="Color.Secondary" Class="font-weight-bold">
+<MudLink Href="@Href" Target="@Target" Underline="Underline.Hover" Color="Color.Secondary" Class="font-weight-bold"
+         data-umami-event='@UmamiEvent.Click("mdx-link", Href)'>
     @ChildContent
 </MudLink>
 

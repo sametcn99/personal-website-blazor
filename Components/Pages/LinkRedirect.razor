@@ -1,0 +1,27 @@
+@page "/link/{Slug}"
+
+<PageTitle>@(_social?.Label ?? "Redirecting") | Samet Can Cıncık</PageTitle>
+
+@if (_social == null)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+        <BackToHome />
+        <MudAlert Severity="Severity.Warning" Class="mt-4">Link not found.</MudAlert>
+    </MudContainer>
+}
+else
+{
+    <RedirectPage TargetUrl="@_social.Link" />
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private SocialMediaLink? _social;
+
+    protected override void OnParametersSet()
+    {
+        _social = SocialData.Links
+            .FirstOrDefault(l => l.Type.Contains(Slug, StringComparer.OrdinalIgnoreCase));
+    }
+}

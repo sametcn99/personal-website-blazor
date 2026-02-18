@@ -1,0 +1,351 @@
+---
+title: "Rendering HTML Details/Summary in MDX with Custom Components"
+publishedAt: "2026-01-30"
+summary:
+  "A comprehensive guide on how to transform HTML details and summary elements
+  into custom React components in Next.js MDX projects"
+tags: ["mdx", "react", "next.js", "typescript", "html"]
+---
+
+# Rendering HTML Details/Summary in MDX with Custom Components
+
+When working with MDX in Next.js projects, you might encounter a common
+challenge: HTML `<details>` and `<summary>` elements don't render properly. This
+guide explains the problem and provides a complete solution using custom React
+components.
+
+## Table of Contents
+
+- [The Problem](#the-problem)
+- [Why rehype-raw Doesn't Work](#why-rehype-raw-doesnt-work)
+- [The Solution](#the-solution)
+  - [Step 1: Create Custom Components](#step-1-create-custom-components)
+  - [Step 2: Transform HTML Tags Before Compilation](#step-2-transform-html-tags-before-compilation)
+  - [Step 3: Register Components in MDX](#step-3-register-components-in-mdx)
+- [Why First Child as Summary?](#why-first-child-as-summary)
+- [Handling the open Attribute](#handling-the-open-attribute)
+- [Extending the Solution](#extending-the-solution)
+- [Summary](#summary)
+
+## The Problem
+
+MDX compiles content into JSX, but it doesn't natively support raw HTML elements
+like `<details>` and `<summary>`. When you try to use these elements in your MDX
+content:
+
+```html
+<details>
+  <summary>Click to expand</summary>
+  This content is hidden by default.
+</details>
+```
+
+You'll likely encounter one of these issues:
+
+1. **Compilation Error**: MDX throws an error because it can't process raw HTML
+   nodes
+2. **No Rendering**: The elements are ignored or rendered as plain text
+3. **rehype-raw Conflict**: Using `rehype-raw` plugin causes conflicts with MDX
+   JSX nodes
+
+The error message typically looks like:
+
+```
+Cannot compile `mdxJsxTextElement` node. It looks like you are using MDX nodes
+with `hast-util-raw` (or `rehype-raw`).
+```
+
+## Why rehype-raw Doesn't Work
+
+You might think adding `rehype-raw` to your MDX configuration would solve this:
+
+```typescript
+// ❌ This doesn't work with MDX
+import rehypeRaw from "rehype-raw";
+
+const options = {
+  mdxOptions: {
+    rehypePlugins: [rehypeRaw] // Causes compilation errors
+  }
+};
+```
+
+The `rehype-raw` plugin is designed for regular markdown, not MDX. MDX has its
+own JSX handling that conflicts with raw HTML processing.
+
+## The Solution
+
+The solution involves three parts:
+
+1. **Create custom React components** to handle the rendering
+2. **Transform HTML tags to JSX components** before MDX compilation
+3. **Register components** in the MDX component mapping
+
+### Step 1: Create Custom Components
+
+Create `Details` and `Summary` components. Here's a basic implementation:
+
+```tsx
+// components/mdx-components/Details.tsx
+"use client";
+
+import { useState, Children, isValidElement, type ReactNode } from "react";
+
+interface DetailsProps {
+  children?: ReactNode;
+  open?: boolean;
+}
+
+interface SummaryProps {
+  children?: ReactNode;
+}
+
+/**
+ * Renders HTML `<summary>` element.
+ * Content is extracted by DetailsComponent for the header.
+ */
+export function SummaryComponent({ children }: SummaryProps) {
+  return <>{children}</>;
+}
+
+SummaryComponent.displayName = "SummaryComponent";
+
+/**
+ * Renders HTML `<details>` element as a collapsible component.
+ * Automatically extracts the first child (summary) as the header.
+ */
+export function DetailsComponent({ children, open = false }: DetailsProps) {
+  const [isOpen, setIsOpen] = useState(open);
+
+  // Separate summary from content
+  // In HTML spec, the first child of <details> is always <summary>
+  const childArray = Children.toArray(children);
+  let summaryContent: ReactNode = "Details";
+  const contentChildren: ReactNode[] = [];
+
+  childArray.forEach((child, index) => {
+    // First child is always the summary
+    if (index === 0 && isValidElement(child)) {
+      const props = child.props as { children?: ReactNode };
+      summaryContent = props.children;
+    } else {
+      contentChildren.push(child);
+    }
+  });
+
+  return (
+    <div className="details-container">
+      <button
+        type="button"
+        className="details-summary"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+      >
+        <span className="details-icon">{isOpen ? "▼" : "▶"}</span>
+        <span className="details-title">{summaryContent}</span>
+      </button>
+      {isOpen && <div className="details-content">{contentChildren}</div>}
+    </div>
+  );
+}
+
+DetailsComponent.displayName = "DetailsComponent";
+```
+
+Add some basic styles:
+
+```css
+/* styles/details.css */
+.details-container {
+  margin: 1rem 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.details-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  background: #f5f5f5;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.details-summary:hover {
+  background: #ebebeb;
+}
+
+.details-icon {
+  font-size: 0.75rem;
+}
+
+.details-content {
+  padding: 1rem;
+}
+```
+
+### Step 2: Transform HTML Tags Before Compilation
+
+The key insight is that we need to transform HTML tags **before** MDX compiles
+them. We also need to be careful not to transform tags inside code blocks or
+inline code. Create a context-aware transform function:
+
+````tsx
+// components/mdx.tsx
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { useMDXComponents } from "../mdx-components";
+
+/**
+ * Transforms HTML details/summary tags to JSX Details/Summary components
+ * before MDX compilation since MDX doesn't support raw HTML tags.
+ * Skips transformation for content inside code blocks and inline code.
+ */
+function transformHtmlToJsx(source: string): string {
+  // Regex to match code blocks (```...```) and inline code (`...`)
+  const codeRegex = /(```[\s\S]*?```|`[^`\n]*`)/g;
+
+  // Split by code blocks/inline code while keeping the delimiters
+  const parts = source.split(codeRegex);
+
+  return parts
+    .map((part) => {
+      // If this part is a code block or inline code, don't transform it
+      if (part.match(codeRegex)) {
+        return part;
+      }
+
+      // Transform HTML tags to JSX components for non-code parts
+      return part
+        .replace(/<details(\s|>)/gi, "<Details$1")
+        .replace(/<\/details>/gi, "</Details>")
+        .replace(/<summary(\s|>)/gi, "<Summary$1")
+        .replace(/<\/summary>/gi, "</Summary>");
+    })
+    .join("");
+}
+
+export function CustomMDX({ source }: { source: string }) {
+  const components = useMDXComponents({});
+  const transformedSource = transformHtmlToJsx(source);
+
+  return (
+    <MDXRemote
+      source={transformedSource}
+      components={components}
+      options={{
+        mdxOptions: {
+          remarkPlugins: [
+            /* your plugins */
+          ],
+          rehypePlugins: [
+            /* your plugins */
+          ]
+        }
+      }}
+    />
+  );
+}
+````
+
+This refined transformation:
+
+- **Identifies code regions** using regex to prevent accidental transformation
+  within examples.
+- **Converts `<details>` to `<Details>`** only in prose.
+- **Converts `</details>` to `</Details>`** only in prose.
+- **Converts `<summary>` to `<Summary>`** only in prose.
+- **Converts `</summary>` to `</Summary>`** only in prose.
+
+### Step 3: Register Components in MDX
+
+Finally, register the components in your MDX component mapping:
+
+```tsx
+// mdx-components.tsx
+import type { MDXComponents } from "mdx/types";
+import {
+  DetailsComponent,
+  SummaryComponent
+} from "./components/mdx-components/Details";
+
+export function useMDXComponents(components: MDXComponents): MDXComponents {
+  return {
+    ...components,
+    // Map JSX component names (capitalized)
+    Details: DetailsComponent,
+    Summary: SummaryComponent
+    // ... other components
+  };
+}
+```
+
+## Why First Child as Summary?
+
+In the HTML specification, `<details>` element's first child should always be
+`<summary>`. The component leverages this by:
+
+1. Taking the first child's content as the collapsible header
+2. Putting all remaining children in the collapsible body
+
+This approach is more reliable than trying to identify the Summary component by
+type checking, which can fail due to how MDX compiles components.
+
+## Handling the `open` Attribute
+
+HTML `<details>` supports an `open` attribute to show content by default:
+
+```html
+<details open>
+  <summary>Already expanded</summary>
+  This content is visible by default.
+</details>
+```
+
+The component handles this with an initial state:
+
+```tsx
+const [isOpen, setIsOpen] = useState(open);
+```
+
+## Extending the Solution
+
+You can extend this pattern for other HTML elements that MDX doesn't handle well
+by adding more replacements inside the non-code part of your transform function:
+
+```typescript
+// Inside the transformHtmlToJsx .map() callback:
+return (
+  part
+    // Details/Summary
+    .replace(/<details(\s|>)/gi, "<Details$1")
+    .replace(/<\/details>/gi, "</Details>")
+    .replace(/<summary(\s|>)/gi, "<Summary$1")
+    .replace(/<\/summary>/gi, "</Summary>")
+    // Dialog
+    .replace(/<dialog(\s|>)/gi, "<Dialog$1")
+    .replace(/<\/dialog>/gi, "</Dialog>")
+    // Mark
+    .replace(/<mark(\s|>)/gi, "<Mark$1")
+    .replace(/<\/mark>/gi, "</Mark>")
+);
+```
+
+## Summary
+
+When MDX doesn't support certain HTML elements:
+
+1. **Don't use rehype-raw** - it conflicts with MDX's JSX processing
+2. **Transform tags before compilation** - convert HTML tags to JSX component
+   names using string replacement
+3. **Create custom React components** - implement the desired behavior with your
+   preferred UI approach
+4. **Register in component mapping** - make components available to MDX
+
+This pattern maintains compatibility with remote or external MDX content while
+providing full control over how elements render.

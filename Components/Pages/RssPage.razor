@@ -1,0 +1,70 @@
+@page "/rss"
+
+<PageTitle>RSS Feed | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-8">
+    <BackToHome />
+
+    <MudStack AlignItems="AlignItems.Center" Class="mb-6 mt-4" Spacing="2">
+        <MudText Typo="Typo.h3" Style="font-weight: 700; background: linear-gradient(45deg, #2196F3 30%, #21CBF3 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Subscribe to Updates
+        </MudText>
+        <MudText Typo="Typo.h6" Color="Color.Secondary" Align="Align.Center" Style="max-width: 600px;">
+            Stay up-to-date with the latest blog posts, gists, and projects.
+            Choose your preferred feed format below.
+        </MudText>
+    </MudStack>
+
+    <MudGrid Spacing="3" Class="mb-4">
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="0" Outlined Class="pa-4 d-flex flex-column h-100">
+                <MudStack Spacing="2" Class="flex-grow-1">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.RssFeed" Color="Color.Primary" Size="Size.Large" />
+                        <MudText Typo="Typo.h5" Style="font-weight: 700;">RSS Feed</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="flex-grow-1">
+                        Standard RSS 2.0 format. Compatible with Feedly, Inoreader, and most classic feed readers.
+                    </MudText>
+                    <MudStack Row Spacing="2" Class="pt-2">
+                        <MudButton Href="/rss.xml" Target="_blank" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" data-umami-event="feed-open-rss-xml-click">Open</MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="0" Outlined Class="pa-4 d-flex flex-column h-100">
+                <MudStack Spacing="2" Class="flex-grow-1">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-1">
+                        <MudIcon Icon="@Icons.Material.Filled.Code" Color="Color.Secondary" Size="Size.Large" />
+                        <MudText Typo="Typo.h5" Style="font-weight: 700;">JSON Feed</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="flex-grow-1">
+                        Modern JSON format. Ideal for developers and programmatic consumption of the content.
+                    </MudText>
+                    <MudStack Row Spacing="2" Class="pt-2">
+                        <MudButton Href="/feed.json" Target="_blank" Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" data-umami-event="feed-open-feed-json-click">Open</MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Elevation="0" Class="pa-4 rounded-lg" Style="background: rgba(255,255,255,0.03);">
+        <MudText Typo="Typo.h6" GutterBottom Style="font-weight: 700;">Quick Start Guide</MudText>
+        <MudStack Spacing="2">
+            <MudStack Row Spacing="2">
+                <MudAvatar Size="Size.Small" Style="background: var(--mud-palette-text-primary); color: var(--mud-palette-background); width: 24px; height: 24px; font-size: 14px; font-weight: bold;">1</MudAvatar>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Click <b>"Open"</b> to preview the feed in your browser, or copy the URL from the address bar.
+                </MudText>
+            </MudStack>
+            <MudStack Row Spacing="2">
+                <MudAvatar Size="Size.Small" Style="background: var(--mud-palette-text-primary); color: var(--mud-palette-background); width: 24px; height: 24px; font-size: 14px; font-weight: bold;">2</MudAvatar>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Paste the URL into your favorite feed reader (e.g., Feedly, Inoreader, NetNewsWire).
+                </MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+</MudContainer>

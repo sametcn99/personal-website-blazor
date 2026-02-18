@@ -1,0 +1,56 @@
+@page "/cv"
+@using Markdig
+
+<PageTitle>CV | Samet Can Cıncık</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <BackToHome />
+
+    @if (_loading)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+    }
+    else
+    {
+        <article class="mt-4">
+            <MudHtmlRenderer HtmlContent="@_htmlContent" />
+        </article>
+
+        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4 mb-4 d-print-none">
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Print"
+                       OnClick="@(() => PrintPage())"
+                       Style="text-transform: none;"
+                       data-umami-event="cv-print-button-click">
+                Print
+            </MudButton>
+        </MudStack>
+    }
+</MudContainer>
+
+@code {
+    [Inject] private IWebHostEnvironment Env { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    private bool _loading = true;
+    private string _htmlContent = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var path = Path.Combine(Env.ContentRootPath, "content", "cv.mdx");
+        if (File.Exists(path))
+        {
+            var markdown = await File.ReadAllTextAsync(path);
+            var pipeline = new Markdig.MarkdownPipelineBuilder()
+                .UseAdvancedExtensions()
+                .Build();
+            _htmlContent = Markdig.Markdown.ToHtml(markdown, pipeline);
+        }
+        _loading = false;
+    }
+
+    private async Task PrintPage()
+    {
+        await JS.InvokeVoidAsync("print");
+    }
+}

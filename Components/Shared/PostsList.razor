@@ -1,0 +1,25 @@
+@* PostsList.razor - Renders a list of posts in the home page *@
+
+@foreach (var post in Posts)
+{
+    <MudLink Href="@post.Href" Underline="Underline.None" Color="Color.Inherit" data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
+        <MudStack Spacing="1" Class="mb-3">
+            <MudText Typo="Typo.h6" Style="font-weight: 600;">@post.Title</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@post.Summary</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                @FormatDate(post.PublishedAt)
+            </MudText>
+        </MudStack>
+    </MudLink>
+}
+
+@code {
+    [Parameter] public List<ContentMetadata> Posts { get; set; } = new();
+
+    private static string FormatDate(string dateStr)
+    {
+        if (DateTime.TryParse(dateStr, out var d))
+            return d.ToString("ddd MMM dd yyyy");
+        return dateStr;
+    }
+}

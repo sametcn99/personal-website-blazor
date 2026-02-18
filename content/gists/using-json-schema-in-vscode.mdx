@@ -1,0 +1,182 @@
+---
+title: "Using JSON Schema in VS Code"
+publishedAt: "2024-08-25"
+summary:
+  "Step-by-step guide to implementing JSON Schema validation in VS Code for
+  automatic error detection and IntelliSense support."
+---
+
+# **Using JSON Schema in VS Code - Example**
+
+**VS Code can automatically validate JSON files against a schema and show errors
+if the data is incorrect.**  
+Follow these steps to use **JSON Schema validation in VS Code.**
+
+---
+
+## **1. Create a JSON Schema File (orderSchema.json)**
+
+First, **create a schema** and save it as `orderSchema.json`.  
+This schema will validate order data.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Order Schema",
+  "description": "A JSON schema for an order",
+  "type": "object",
+  "properties": {
+    "orderId": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{8}$",
+      "description": "Order ID (8 characters, uppercase letters and numbers)"
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 3 },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string", "pattern": "^\\+?[0-9]{10,15}$" }
+      },
+      "required": ["name", "email"]
+    },
+    "orderDate": { "type": "string", "format": "date-time" },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "integer" },
+          "productName": { "type": "string", "minLength": 3 },
+          "price": { "type": "number", "minimum": 0 },
+          "quantity": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["productId", "productName", "price", "quantity"]
+      }
+    },
+    "paymentMethod": {
+      "type": "string",
+      "enum": ["Credit Card", "PayPal", "Bank Transfer"]
+    }
+  },
+  "required": ["orderId", "customer", "orderDate", "items", "paymentMethod"]
+}
+```
+
+---
+
+## **2. Create a JSON File (order.json)**
+
+Now, **create a JSON file** and save it as `order.json`.  
+By adding `$schema`, **VS Code will automatically validate the data against the
+schema.**
+
+```json
+{
+  "$schema": "./orderSchema.json",
+  "orderId": "A1B2C3D4",
+  "customer": {
+    "name": "Ahmet Yılmaz",
+    "email": "ahmet.yilmaz@example.com",
+    "phone": "+905551234567"
+  },
+  "orderDate": "2025-02-01T14:30:00Z",
+  "items": [
+    {
+      "productId": 101,
+      "productName": "Wireless Headphones",
+      "price": 499.99,
+      "quantity": 2
+    }
+  ],
+  "paymentMethod": "Credit Card"
+}
+```
+
+**Since `"$schema": "./orderSchema.json"` is added:**  
+**VS Code automatically validates the data against the schema.**  
+**If there are errors, VS Code will highlight them immediately.**
+
+---
+
+## **3. Alternative: Define Schema in VS Code Settings**
+
+If you don’t want to add `$schema` in your JSON files,  
+**you can configure VS Code to apply the schema automatically** in
+`settings.json`.
+
+**Steps:**
+
+1. **Open `settings.json` in VS Code**
+
+- Press `Ctrl + Shift + P`
+- Search for **"Preferences: Open Settings (JSON)"** and select it
+
+2. **Add the following setting:**
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["order.json"],
+      "url": "./orderSchema.json"
+    }
+  ]
+}
+```
+
+**What does this do?**
+
+- When you open `order.json`, VS Code **automatically validates it using
+  `orderSchema.json`.**
+- If the JSON is **invalid, VS Code will display errors immediately.**
+
+---
+
+## **4. Invalid JSON Example & VS Code Warnings**
+
+The following JSON **is invalid** because:
+
+- `"orderId"` has an incorrect format
+- `"paymentMethod"` is `"Bitcoin"`, which is not allowed
+
+```json
+{
+  "$schema": "./orderSchema.json",
+  "orderId": "1234",
+  "customer": {
+    "name": "Ahmet Yılmaz",
+    "email": "ahmet.yilmaz@example.com"
+  },
+  "orderDate": "2025-02-01T14:30:00Z",
+  "items": [
+    {
+      "productId": 101,
+      "productName": "Headphones",
+      "price": 499.99,
+      "quantity": 2
+    }
+  ],
+  "paymentMethod": "Bitcoin"
+}
+```
+
+**VS Code will show these errors:**
+
+1. **`"orderId"` does not match the required format (should be 8 characters
+   long).**
+2. **`"paymentMethod"` cannot be `"Bitcoin"` (allowed values: `"Credit Card"`,
+   `"PayPal"`, `"Bank Transfer"`).**
+
+---
+
+## **SUMMARY**
+
+- **Create a JSON schema (`orderSchema.json`).**
+- **Prepare a JSON file (`order.json`).**
+- **Use `$schema` or configure `settings.json` in VS Code to enable
+  validation.**
+- **VS Code will automatically highlight errors and guide you to fix them.**
+
+**Now, you can validate JSON files easily in VS Code!**
