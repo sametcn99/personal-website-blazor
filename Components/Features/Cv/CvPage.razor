@@ -23,11 +23,13 @@
     {
         <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4 mb-4 d-print-none">
             <MudButton Variant="Variant.Outlined" Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Print"
-                       OnClick="@(() => PrintPage())"
+                       StartIcon="@Icons.Material.Filled.Download"
+                       Href="/Samet_Can_Cincik_Ozgecmis.pdf"
+                       Target="_blank"
+                       Download="Samet_Can_Cincik_CV.pdf"
                        Style="text-transform: none;"
-                       data-umami-event="cv-print-button-click">
-                Print
+                       data-umami-event="cv-download-button-click">
+                Download CV
             </MudButton>
         </MudStack>
     }
@@ -35,7 +37,6 @@
 
 @code {
     [Inject] private IWebHostEnvironment Env { get; set; } = default!;
-    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private string _htmlContent = string.Empty;
 
@@ -45,15 +46,10 @@
         if (File.Exists(path))
         {
             var markdown = await File.ReadAllTextAsync(path);
-            var pipeline = new Markdig.MarkdownPipelineBuilder()
+            var pipeline = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
                 .Build();
-            _htmlContent = Markdig.Markdown.ToHtml(markdown, pipeline);
+            _htmlContent = Markdown.ToHtml(markdown, pipeline);
         }
-    }
-
-    private async Task PrintPage()
-    {
-        await JS.InvokeVoidAsync("print");
     }
 }
