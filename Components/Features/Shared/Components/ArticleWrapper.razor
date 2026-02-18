@@ -1,7 +1,7 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
 @inject IJSRuntime JS
 
-<MudContainer MaxWidth="MaxWidth.Medium">
+<MudContainer >
     <BackToHome />
 
     @if (ShowSkeleton)
@@ -12,7 +12,7 @@
     }
     else if (Post != null)
     {
-        <MudStack Spacing="0" Class="">
+        <MudStack Spacing="0">
             <MudStack Row Class="flex-wrap" Spacing="1">
                 <MudText Typo="Typo.body2" Color="Color.Secondary">
                     @PublishedLabel: @Post.PublishDate?.ToString("ddd MMM dd yyyy")
