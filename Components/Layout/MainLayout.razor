@@ -1,37 +1,44 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
-@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudDialogProvider />
 <MudPopoverProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Medium" Class="px-4">
-            @Body
-        </MudContainer>
+<div class="page-shell">
+    <MudLayout>
+        <MudMainContent>
+            <div class="page-content">
+                <div class="content-body">
+                    <MudContainer MaxWidth="MaxWidth.Medium" Class="px-4">
+                        @Body
+                    </MudContainer>
+                </div>
 
-        @if (!ShouldHideFooter())
-        {
-            <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-16 mb-8">
-                <MudDivider Class="mb-4" />
-                <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
-                    <MudLink Href="/privacy-policy" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-privacy-click">
-                        <MudText Typo="Typo.caption">Privacy Policy</MudText>
-                    </MudLink>
-                    <MudLink Href="/rss" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-rss-click">
-                        <MudText Typo="Typo.caption">RSS</MudText>
-                    </MudLink>
-                    <MudLink Href="/readme" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-readme-click">
-                        <MudText Typo="Typo.caption">README</MudText>
-                    </MudLink>
-                </MudStack>
-            </MudContainer>
-        }
-    </MudMainContent>
-</MudLayout>
+                @if (!ShouldHideFooter())
+                {
+                    <div class="footer-area">
+                        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-16 mb-8">
+                            <MudDivider Class="mb-4" />
+                            <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
+                                <MudLink Href="/privacy-policy" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-privacy-click">
+                                    <MudText Typo="Typo.caption">Privacy Policy</MudText>
+                                </MudLink>
+                                <MudLink Href="/rss" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-rss-click">
+                                    <MudText Typo="Typo.caption">RSS</MudText>
+                                </MudLink>
+                                <MudLink Href="/readme" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-readme-click">
+                                    <MudText Typo="Typo.caption">README</MudText>
+                                </MudLink>
+                            </MudStack>
+                        </MudContainer>
+                    </div>
+                }
+            </div>
+        </MudMainContent>
+    </MudLayout>
+</div>
 
 @code {
     private bool _isDarkMode = true;

@@ -1,3 +1,21 @@
+.page-shell {
+    min-height: 93dvh;
+}
+
+.page-content {
+    min-height: 93dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-body {
+    flex: 1;
+}
+
+.footer-area {
+    width: 100%;
+}
+
 #blazor-error-ui {
     color-scheme: dark only;
     background: #0e0e0e;
