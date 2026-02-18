@@ -1,0 +1,441 @@
+---
+title: "GitHub Repo TUI Cloner (PowerShell)"
+publishedAt: "2026-02-19"
+summary:
+  "An interactive PowerShell script to fetch and clone your owned GitHub
+  repositories using a terminal UI (TUI)."
+---
+
+# GitHub Repo TUI Cloner (PowerShell)
+
+This PowerShell script provides an interactive terminal user interface (TUI) to
+manage your GitHub repositories. It allows you to fetch a list of your owned
+repositories and selectively clone them to your local machine.
+
+## Features
+
+- **Interactive TUI**: Easily browse and select repositories using keyboard
+  controls.
+- **GitHub API Integration**: Fetches owned repositories using a personal access
+  token (PAT).
+- **Shallow Cloning**: Defaults to shallow clones (`--depth 1`) for faster
+  downloads, with an option for full history.
+- **Filtering**: Supports toggling archived and forked repositories in the
+  selection.
+- **Batch Operations**: Select all, clear selection, or toggle specific types
+  of repos.
+
+## Requirements
+
+- **PowerShell**: Version 5.1 or 7+.
+- **Git**: Installed and available in your `PATH`.
+- **GitHub Token**: A Personal Access Token (PAT) with `repo` scope.
+- **Network**: Access to `api.github.com` and `github.com`.
+
+## Usage
+
+1.  **Authentication**:
+    - Recommended: Set your token in the environment variable `$env:GITHUB_TOKEN`.
+    - Alternative: Edit the `$HARDCODED_GITHUB_TOKEN` variable inside the script.
+
+2.  **Run the script**:
+
+    ```powershell
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\clone-tui.ps1
+    ```
+
+3.  **Configuration**:
+    The `CONFIG` section in the script allows you to change the destination
+    folder, inclusion of archived repos, and clone depth.
+
+## TUI Controls
+
+| Key | Action |
+| :--- | :--- |
+| **Up/Down** | Move cursor in the list |
+| **Space** | Toggle selection for the current repository |
+| **A** | Select all repositories |
+| **N** | Clear all selections |
+| **R** | Toggle selection for all archived repositories |
+| **F** | Toggle selection for all forked repositories |
+| **Enter** | Start cloning selected repositories |
+| **Q / Esc** | Quit without cloning |
+
+---
+
+## Full Script
+
+Below is the complete PowerShell script. You can save this as `clone-tui.ps1`
+and run it as described above.
+
+```powershell
+Set-StrictMode -Version Latest
+
+# For local-only use, you can hardcode your token here.
+# Safer option: use $env:GITHUB_TOKEN instead.
+$HARDCODED_GITHUB_TOKEN = "REPLACE-TOKEN"
+
+# Internal configuration (parameterless mode).
+$CONFIG = @{
+    Dest            = "."
+    IncludeArchived = $true
+    FullClone       = $false
+    ApiTimeoutSec   = 25
+}
+
+function Show-Help {
+    Write-Host @"
+GitHub Repo TUI Cloner (PowerShell)
+
+Usage:
+    .\clone-tui.ps1
+
+Configuration:
+    Edit the CONFIG hashtable in this script:
+        - Dest
+        - IncludeArchived
+        - FullClone
+
+Controls:
+  Up/Down  Move in list
+  Space    Toggle selection
+  A        Select all
+  N        Clear selection
+    R        Toggle all archived repos
+    F        Toggle all forked repos
+  Enter    Clone selected repositories
+  Q / Esc  Exit
+
+Notes:
+  - Default mode performs shallow clone (latest commit only).
+  - Use -FullClone to clone complete history.
+    - API timeout is controlled by CONFIG.ApiTimeoutSec.
+"@
+}
+
+function Get-Token {
+    if (-not [string]::IsNullOrWhiteSpace($HARDCODED_GITHUB_TOKEN)) {
+        return $HARDCODED_GITHUB_TOKEN
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+        return $env:GITHUB_TOKEN
+    }
+
+    throw "Token not found. Set HARDCODED_GITHUB_TOKEN or GITHUB_TOKEN."
+}
+
+function Get-OwnedRepos {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Token,
+        [switch]$IncludeArchived,
+        [int]$TimeoutSec = 25
+    )
+
+    $headers = @{
+        Accept = "application/vnd.github+json"
+        Authorization = "Bearer $Token"
+        "X-GitHub-Api-Version" = "2022-11-28"
+        "User-Agent" = "powershell-tui-clone"
+    }
+
+    $repos = @()
+    $page = 1
+
+    Write-Host "Fetching repositories from GitHub API..." -ForegroundColor DarkGray
+
+    while ($true) {
+        $url = "https://api.github.com/user/repos?affiliation=owner&per_page=100&page=$page"
+        Write-Host ("  Requesting page {0}..." -f $page) -ForegroundColor DarkGray
+
+        try {
+            $rawData = Invoke-RestMethod -Uri $url -Headers $headers -Method Get -TimeoutSec $TimeoutSec
+        }
+        catch {
+            throw (
+                "GitHub API request failed on page {0}. " +
+                "Check internet/proxy/token. Inner error: {1}"
+            ) -f $page, $_.Exception.Message
+        }
+
+        if ($null -eq $rawData) {
+            break
+        }
+
+        $data = @($rawData)
+
+        # GitHub API errors can arrive as an object (e.g. rate limit), not as repo array.
+        if ($data.Count -gt 0) {
+            $first = $data[0]
+            $messageProp = $first.PSObject.Properties["message"]
+            $nameProp = $first.PSObject.Properties["name"]
+            if ($null -ne $messageProp -and $null -eq $nameProp) {
+                throw ("GitHub API returned an error payload: {0}" -f $messageProp.Value)
+            }
+        }
+
+        if ($data.Count -eq 0) {
+            break
+        }
+
+        if ($IncludeArchived) {
+            $repos += $data
+        }
+        else {
+            $repos += (
+                $data | Where-Object {
+                    $archivedProp = $_.PSObject.Properties["archived"]
+                    if ($null -eq $archivedProp) {
+                        return $true
+                    }
+                    return -not [bool]$archivedProp.Value
+                }
+            )
+        }
+
+        $page += 1
+    }
+
+    return @($repos | Sort-Object -Property name)
+}
+
+function Draw-RepoList {
+    param(
+        [Parameter(Mandatory = $true)]
+        [array]$Repos,
+        [Parameter(Mandatory = $true)]
+        [bool[]]$Selected,
+        [int]$Cursor = 0,
+        [int]$Top = 0
+    )
+
+    Clear-Host
+    Write-Host "GitHub Repository Picker (TUI)"
+    Write-Host "Space: toggle | A: all | N: none | R: archived | F: forks | Enter: clone | Q/Esc: quit"
+    Write-Host ""
+
+    $h = [Math]::Max(5, [Console]::WindowHeight - 6)
+    $end = [Math]::Min($Repos.Count - 1, $Top + $h - 1)
+
+    for ($i = $Top; $i -le $end; $i++) {
+        $mark = if ($Selected[$i]) { "[x]" } else { "[ ]" }
+        $pointer = if ($i -eq $Cursor) { ">" } else { " " }
+        $line = "{0} {1} {2}" -f $pointer, $mark, $Repos[$i].name
+
+        if ($i -eq $Cursor) {
+            Write-Host $line -ForegroundColor Cyan
+        }
+        else {
+            Write-Host $line
+        }
+    }
+
+    Write-Host ""
+    $selectedCount = @($Selected | Where-Object { $_ }).Count
+    Write-Host ("Total: {0} | Selected: {1}" -f $Repos.Count, $selectedCount)
+}
+
+function Toggle-SelectionByFlag {
+    param(
+        [Parameter(Mandatory = $true)]
+        [array]$Repos,
+        [Parameter(Mandatory = $true)]
+        [bool[]]$Selected,
+        [Parameter(Mandatory = $true)]
+        [string]$FlagName
+    )
+
+    $matchingIndexes = @()
+
+    for ($i = 0; $i -lt $Repos.Count; $i++) {
+        $prop = $Repos[$i].PSObject.Properties[$FlagName]
+        if ($null -ne $prop -and [bool]$prop.Value) {
+            $matchingIndexes += $i
+        }
+    }
+
+    if ($matchingIndexes.Count -eq 0) {
+        return
+    }
+
+    $allSelected = $true
+    foreach ($idx in $matchingIndexes) {
+        if (-not $Selected[$idx]) {
+            $allSelected = $false
+            break
+        }
+    }
+
+    $nextValue = -not $allSelected
+    foreach ($idx in $matchingIndexes) {
+        $Selected[$idx] = $nextValue
+    }
+}
+
+function Select-ReposTui {
+    param(
+        [Parameter(Mandatory = $true)]
+        [array]$Repos
+    )
+
+    if ($Repos.Count -eq 0) {
+        return @()
+    }
+
+    $selected = New-Object bool[] $Repos.Count
+    $cursor = 0
+    $top = 0
+
+    while ($true) {
+        $viewHeight = [Math]::Max(5, [Console]::WindowHeight - 6)
+
+        if ($cursor -lt $top) {
+            $top = $cursor
+        }
+
+        if ($cursor -ge ($top + $viewHeight)) {
+            $top = $cursor - $viewHeight + 1
+        }
+
+        Draw-RepoList -Repos $Repos -Selected $selected -Cursor $cursor -Top $top
+
+        $key = [Console]::ReadKey($true)
+
+        if ($key.Key -eq [ConsoleKey]::UpArrow -and $cursor -gt 0) {
+            $cursor -= 1
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::DownArrow -and $cursor -lt ($Repos.Count - 1)) {
+            $cursor += 1
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::Spacebar) {
+            $selected[$cursor] = -not $selected[$cursor]
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::A) {
+            for ($i = 0; $i -lt $selected.Length; $i++) {
+                $selected[$i] = $true
+            }
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::N) {
+            for ($i = 0; $i -lt $selected.Length; $i++) {
+                $selected[$i] = $false
+            }
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::R) {
+            Toggle-SelectionByFlag -Repos $Repos -Selected $selected -FlagName "archived"
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::F) {
+            Toggle-SelectionByFlag -Repos $Repos -Selected $selected -FlagName "fork"
+            continue
+        }
+
+        if ($key.Key -eq [ConsoleKey]::Enter) {
+            $result = @()
+            for ($i = 0; $i -lt $Repos.Count; $i++) {
+                if ($selected[$i]) {
+                    $result += $Repos[$i]
+                }
+            }
+            return $result
+        }
+
+        if ($key.Key -eq [ConsoleKey]::Q -or $key.Key -eq [ConsoleKey]::Escape) {
+            return @()
+        }
+    }
+}
+
+function Clone-Repos {
+    param(
+        [Parameter(Mandatory = $true)]
+        [array]$Repos,
+        [Parameter(Mandatory = $true)]
+        [string]$Dest,
+        [switch]$FullClone
+    )
+
+    if (-not (Test-Path -LiteralPath $Dest)) {
+        New-Item -ItemType Directory -Path $Dest -Force | Out-Null
+    }
+
+    foreach ($repo in $Repos) {
+        $target = Join-Path -Path $Dest -ChildPath $repo.name
+
+        if (Test-Path -LiteralPath $target) {
+            Write-Host ("Skipped (already exists): {0}" -f $repo.name) -ForegroundColor Yellow
+            continue
+        }
+
+        Write-Host ("Cloning: {0}" -f $repo.name) -ForegroundColor Green
+
+        if ($FullClone) {
+            & git clone $repo.clone_url $target
+        }
+        else {
+            $defaultBranchProp = $repo.PSObject.Properties["default_branch"]
+            $defaultBranch = $null
+            if ($null -ne $defaultBranchProp) {
+                $defaultBranch = $defaultBranchProp.Value
+            }
+            if ([string]::IsNullOrWhiteSpace($defaultBranch)) {
+                $defaultBranch = "main"
+            }
+            & git clone --depth 1 --single-branch --branch $defaultBranch $repo.clone_url $target
+        }
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ("Clone failed: {0}" -f $repo.name) -ForegroundColor Red
+        }
+    }
+}
+
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+    Show-Help
+    Write-Host ""
+    Write-Host "Starting with current CONFIG values..." -ForegroundColor DarkGray
+    Write-Host ("  Dest: {0}" -f $CONFIG.Dest) -ForegroundColor DarkGray
+    Write-Host ("  IncludeArchived: {0}" -f $CONFIG.IncludeArchived) -ForegroundColor DarkGray
+    Write-Host ("  FullClone: {0}" -f $CONFIG.FullClone) -ForegroundColor DarkGray
+    Write-Host ("  ApiTimeoutSec: {0}" -f $CONFIG.ApiTimeoutSec) -ForegroundColor DarkGray
+    Write-Host ""
+
+    $token = Get-Token
+    $repos = @(
+        Get-OwnedRepos -Token $token -IncludeArchived:$CONFIG.IncludeArchived -TimeoutSec $CONFIG.ApiTimeoutSec
+    )
+
+    if ($repos.Count -eq 0) {
+        Write-Host "No repositories found."
+        exit 0
+    }
+
+    $selectedRepos = @(Select-ReposTui -Repos $repos)
+
+    if ($selectedRepos.Count -eq 0) {
+        Write-Host "No selection made or operation cancelled."
+        exit 0
+    }
+
+    Write-Host ("Selected repositories: {0}" -f $selectedRepos.Count)
+    Clone-Repos -Repos $selectedRepos -Dest $CONFIG.Dest -FullClone:$CONFIG.FullClone
+    Write-Host "Done."
+}
+catch {
+    Write-Host ("Error: {0}" -f $_.Exception.Message) -ForegroundColor Red
+    exit 1
+}
+```
