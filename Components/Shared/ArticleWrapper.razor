@@ -4,7 +4,13 @@
 <MudContainer MaxWidth="MaxWidth.Medium">
     <BackToHome />
 
-    @if (Post != null)
+    @if (ShowSkeleton)
+    {
+        <div class="mt-4">
+            @ChildContent
+        </div>
+    }
+    else if (Post != null)
     {
         <MudStack Spacing="0" Class="mt-2">
             <MudStack Row Class="flex-wrap" Spacing="1">
@@ -47,6 +53,7 @@
 @code {
     [Parameter] public PostModel? Post { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool ShowSkeleton { get; set; }
     [Parameter] public string ContentType { get; set; } = "blog";
     [Parameter] public string PublishedLabel { get; set; } = "Published";
     [Parameter] public string PrevLabel { get; set; } = "Previous";

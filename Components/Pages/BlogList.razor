@@ -4,23 +4,19 @@
 
 <PageTitle>Blog | Samet Can Cıncık</PageTitle>
 
-@if (_posts == null)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-}
-else
-{
-    <ContentListPage Title="Blog Posts"
-                     Description="A collection of my thoughts on development and the passions that keep me inspired."
-                     Posts="_posts"
-                     UrlPrefix="blog" />
-}
+<ContentListPage Title="Blog Posts"
+                 Description="A collection of my thoughts on development and the passions that keep me inspired."
+                 Posts="_posts"
+                 UrlPrefix="blog"
+                 IsLoading="_loading" />
 
 @code {
-    private List<PostModel>? _posts;
+    private List<PostModel> _posts = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _posts = await ContentService.GetPostsAsync("posts");
+        _loading = false;
     }
 }

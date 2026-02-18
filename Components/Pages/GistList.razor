@@ -1,26 +1,22 @@
 @page "/gist"
 @rendermode InteractiveServer
-@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
+@inject IContentService ContentService
 
 <PageTitle>Gists | Samet Can Cıncık</PageTitle>
 
-@if (_posts == null)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-}
-else
-{
-    <ContentListPage Title="Gists"
-                     Description="Quick notes and useful scripts."
-                     Posts="_posts"
-                     UrlPrefix="gist" />
-}
+<ContentListPage Title="Gists"
+                 Description="Quick notes and useful scripts."
+                 Posts="_posts"
+                 UrlPrefix="gist"
+                 IsLoading="_loading" />
 
 @code {
-    private List<PostModel>? _posts;
+    private List<PostModel> _posts = new();
+    private bool _loading = true;
 
     protected override async Task OnInitializedAsync()
     {
         _posts = await ContentService.GetPostsAsync("gists");
+        _loading = false;
     }
 }

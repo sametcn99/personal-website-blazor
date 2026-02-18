@@ -6,7 +6,7 @@
 
     <MudStack Class="mt-4" Spacing="2">
         <MudText Typo="Typo.h3" Style="font-weight: 700;">@Title</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">@Description</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">@Description</MudText>
 
         @* Search and sort controls *@
         <MudStack Row Class="flex-wrap" Spacing="2">
@@ -28,14 +28,27 @@
             </MudSelect>
         </MudStack>
 
-        @if (!string.IsNullOrWhiteSpace(_searchQuery))
+        @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary">
                 @FilteredPosts.Count result@(FilteredPosts.Count != 1 ? "s" : "") found
             </MudText>
         }
 
-        @if (FilteredPosts.Count == 0)
+        @if (IsLoading)
+        {
+            <MudStack Spacing="1" Class="mt-2">
+                @for (int i = 0; i < 5; i++)
+                {
+                    <MudStack Spacing="1" Class="mb-4">
+                        <MudSkeleton Width="40%" Height="24px" Animation="Animation.Wave" />
+                        <MudSkeleton Width="90%" Height="18px" Animation="Animation.Wave" />
+                        <MudSkeleton Width="20%" Height="14px" Animation="Animation.Wave" />
+                    </MudStack>
+                }
+            </MudStack>
+        }
+        else if (FilteredPosts.Count == 0)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">
                 No posts found@(!string.IsNullOrWhiteSpace(_searchQuery) ? $" for \"{_searchQuery}\"" : "").
@@ -65,6 +78,7 @@
     [Parameter] public string Description { get; set; } = string.Empty;
     [Parameter] public List<PostModel> Posts { get; set; } = new();
     [Parameter] public string UrlPrefix { get; set; } = "blog";
+    [Parameter] public bool IsLoading { get; set; }
 
     private string _searchQuery = string.Empty;
     private string _sortBy = "date";

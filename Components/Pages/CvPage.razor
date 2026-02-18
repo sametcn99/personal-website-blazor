@@ -6,16 +6,21 @@
 <MudContainer MaxWidth="MaxWidth.Medium">
     <BackToHome />
 
-    @if (_loading)
-    {
-        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-    }
-    else
-    {
-        <article class="mt-4">
+    <article class="mt-4">
+        @if (string.IsNullOrWhiteSpace(_htmlContent))
+        {
+            <MudSkeleton Width="100%" Height="60px" Animation="Animation.Wave" Class="mb-6" />
+            <MudSkeleton Width="100%" Height="150px" Animation="Animation.Wave" Class="mb-6" />
+            <MudSkeleton Width="80%" Height="100px" Animation="Animation.Wave" Class="mb-6" />
+        }
+        else
+        {
             <MudHtmlRenderer HtmlContent="@_htmlContent" />
-        </article>
+        }
+    </article>
 
+    @if (!string.IsNullOrWhiteSpace(_htmlContent))
+    {
         <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4 mb-4 d-print-none">
             <MudButton Variant="Variant.Outlined" Color="Color.Primary"
                        StartIcon="@Icons.Material.Filled.Print"
@@ -32,7 +37,6 @@
     [Inject] private IWebHostEnvironment Env { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    private bool _loading = true;
     private string _htmlContent = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -46,7 +50,6 @@
                 .Build();
             _htmlContent = Markdig.Markdown.ToHtml(markdown, pipeline);
         }
-        _loading = false;
     }
 
     private async Task PrintPage()

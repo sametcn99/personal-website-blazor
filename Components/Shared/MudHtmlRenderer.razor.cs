@@ -44,19 +44,19 @@ namespace personal_website_blazor.Components.Shared
             switch (node.Name.ToLowerInvariant())
             {
                 case "h1":
-                    RenderHtmlTypography(builder, node, Typo.h1);
-                    break;
-                case "h2":
-                    RenderHtmlTypography(builder, node, Typo.h2);
-                    break;
-                case "h3":
-                    RenderHtmlTypography(builder, node, Typo.h3);
-                    break;
-                case "h4":
                     RenderHtmlTypography(builder, node, Typo.h4);
                     break;
-                case "h5":
+                case "h2":
                     RenderHtmlTypography(builder, node, Typo.h5);
+                    break;
+                case "h3":
+                    RenderHtmlTypography(builder, node, Typo.h6);
+                    break;
+                case "h4":
+                    RenderHtmlTypography(builder, node, Typo.h6);
+                    break;
+                case "h5":
+                    RenderHtmlTypography(builder, node, Typo.h6);
                     break;
                 case "h6":
                     RenderHtmlTypography(builder, node, Typo.h6);

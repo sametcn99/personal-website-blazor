@@ -11,12 +11,9 @@
     {
         return Typo switch
         {
-            Typo.h1 => "mb-6 mt-12 ",
-            Typo.h2 => "mb-4 mt-10  pb-2",
-            Typo.h3 => "mb-3 mt-8 ",
-            Typo.h4 => "mb-3 mt-6 ",
-            Typo.h5 => "mb-2 mt-4 ",
-            Typo.h6 => "mb-2 mt-4 ",
+            Typo.h4 => "mb-6 mt-12 font-bold",
+            Typo.h5 => "mb-4 mt-10 font-bold pb-2",
+            Typo.h6 => "mb-3 mt-8 font-bold",
             Typo.body1 => "mb-4 text-justify",
             _ => "mb-2"
         };
@@ -27,7 +24,7 @@
     {
         return Typo switch
         {
-            Typo.h2 => "border-bottom: 1px solid;",
+            Typo.h5 => "border-bottom: 1px solid;",
             Typo.body1 => "line-height: 1.8;",
             _ => ""
         };

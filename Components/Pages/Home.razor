@@ -1,101 +1,95 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @implements IAsyncDisposable
-@using personal_website_blazor.Core.Domain.Entities
-@using personal_website_blazor.Core.Application.Configuration
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
-@inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
+@inject IContentService ContentService
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
 <PageTitle>Samet Can Cıncık</PageTitle>
 
-@if (_loading)
-{
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
-}
-else
-{
-    <MudStack Spacing="6">
-        <MudStack Spacing="2">
-            <MudTextField T="string"
-                          InputId="home-search-input"
-                          Value="_searchQuery"
-                          ValueChanged="OnSearchQueryChanged"
-                          Placeholder="Search posts, links, and repositories..."
-                          Variant="Variant.Text"
-                          Margin="Margin.Dense"
-                          Immediate="true"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
-                          Clearable="true"
-                          data-umami-event="home-search-input-click"
-                          OnClearButtonClick="ClearSearchAsync" />
+<MudStack Spacing="6">
+    <MudStack Spacing="2">
+        <MudTextField T="string"
+                      InputId="home-search-input"
+                      Value="_searchQuery"
+                      ValueChanged="OnSearchQueryChanged"
+                      Placeholder="Search posts, links, and repositories..."
+                      Variant="Variant.Text"
+                      Margin="Margin.Dense"
+                      Immediate="true"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Clearable="true"
+                      data-umami-event="home-search-input-click"
+                      OnClearButtonClick="ClearSearchAsync" />
 
-            @if (!string.IsNullOrWhiteSpace(_searchQuery))
+        @if (!string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            @if (_isRepoLoading)
             {
-                @if (_isRepoLoading)
-                {
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                        <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">Loading repositories...</MudText>
-                    </MudStack>
-                }
-
-                @if (_filteredResults.Count > 0)
-                {
-                    <MudStack Spacing="1" Class="mt-1">
-                        @foreach (var item in _filteredResults)
-                        {
-                            <MudStack Spacing="0" Class="py-1">
-                                <MudLink Href="@item.Href"
-                                         Target="@(item.External ? "_blank" : "_self")"
-                                         data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                                    @item.Title
-                                </MudLink>
-                                @if (!string.IsNullOrWhiteSpace(item.Summary))
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
-                                }
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
-                                </MudText>
-                            </MudStack>
-                        }
-                    </MudStack>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">No results found.</MudText>
-                }
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                    <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Loading repositories...</MudText>
+                </MudStack>
             }
-        </MudStack>
 
-        <ReadmeSection />
-
-        <ContentSection Title="Blog Posts"
-                        Description="A collection of my thoughts on development and the passions that keep me inspired."
-                        Posts="_blogPosts"
-                        Total="_blogTotal"
-                        ViewAllHref="/blog" />
-
-        <ContentSection Title="Technical Gists"
-                        Description="Code snippets, tutorials, and technical documentation."
-                        Posts="_gistPosts"
-                        Total="_gistTotal"
-                        ViewAllHref="/gist" />
-
-        <ContentSection Title="Projects"
-                        Description="A showcase of my personal projects and contributions to the developer community."
-                        Posts="_projectPosts"
-                        Total="_projectTotal"
-                        ViewAllHref="/project" />
-
-        <LinksSection />
+            @if (_filteredResults.Count > 0)
+            {
+                <MudStack Spacing="1" Class="mt-1">
+                    @foreach (var item in _filteredResults)
+                    {
+                        <MudStack Spacing="0" Class="py-1">
+                            <MudLink Href="@item.Href"
+                                     Target="@(item.External ? "_blank" : "_self")"
+                                     data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
+                                @item.Title
+                            </MudLink>
+                            @if (!string.IsNullOrWhiteSpace(item.Summary))
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
+                            }
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
+                            </MudText>
+                        </MudStack>
+                    }
+                </MudStack>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No results found.</MudText>
+            }
+        }
     </MudStack>
-}
+
+    <ReadmeSection />
+
+    <ContentSection Title="Blog Posts"
+                    Description="A collection of my thoughts on development and the passions that keep me inspired."
+                    Posts="_blogPosts"
+                    Total="_blogTotal"
+                    IsLoading="_loading"
+                    ViewAllHref="/blog" />
+
+    <ContentSection Title="Technical Gists"
+                    Description="Code snippets, tutorials, and technical documentation."
+                    Posts="_gistPosts"
+                    Total="_gistTotal"
+                    IsLoading="_loading"
+                    ViewAllHref="/gist" />
+
+    <ContentSection Title="Projects"
+                    Description="A showcase of my personal projects and contributions to the developer community."
+                    Posts="_projectPosts"
+                    Total="_projectTotal"
+                    IsLoading="_loading"
+                    ViewAllHref="/project" />
+
+    <LinksSection />
+</MudStack>
 
 @code {
     private const int MaxSearchResults = 10;

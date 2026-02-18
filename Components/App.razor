@@ -9,6 +9,10 @@
     <meta name="description" content="Web Developer passionate about creating compelling and user-friendly web experiences." />
     <meta name="keywords" content="web developer, frontend developer, react, next.js, typescript, blazor, dotnet" />
     <meta name="author" content="Samet Can Cıncık" />
+    <meta name="theme-color" content="#0c0c0c" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Samet Can" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Samet Can Cıncık" />
     <meta property="og:locale" content="en_US" />
@@ -19,18 +23,26 @@
     <meta property="twitter:title" content="Samet Can Cıncık | Web Developer" />
     <meta property="twitter:description" content="Web Developer passionate about creating compelling and user-friendly web experiences." />
     <meta property="twitter:image" content="/opengraph-image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["personal-website-blazor.styles.css"]" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <ImportMap />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
     <link rel="alternate" type="application/feed+json" title="JSON Feed" href="/feed.json" />
-    <script defer src="/stats/script.js" data-host-url="/stats" data-website-id="be8d6d00-6517-4fe6-8a97-e5d0f8434685"></script>
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
     <HeadOutlet />
+    <script defer src="https://umami.sametcc.me/script.js"
+            data-website-id="be8d6d00-6517-4fe6-8a97-e5d0f8434685"></script>
     <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://sametcc.me" />
 </head>
 
 <body>
@@ -56,7 +68,9 @@
     <script src="/js/home-search-hotkey.js"></script>
     <script src="/js/ui-utils.js"></script>
     
-    <Routes />
+    <main id="main-content">
+        <Routes />
+    </main>
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>

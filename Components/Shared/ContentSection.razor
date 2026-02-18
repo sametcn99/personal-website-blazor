@@ -11,7 +11,7 @@
         }
     </MudStack>
     <MudText Typo="Typo.body2" Color="Color.Secondary">@Description</MudText>
-    <PostsList Posts="Posts" />
+    <PostsList Posts="Posts" IsLoading="IsLoading" />
 </MudStack>
 
 @code {
@@ -20,4 +20,5 @@
     [Parameter] public List<ContentMetadata> Posts { get; set; } = new();
     [Parameter] public int Total { get; set; }
     [Parameter] public string ViewAllHref { get; set; } = string.Empty;
+    [Parameter] public bool IsLoading { get; set; }
 }
