@@ -28,18 +28,7 @@ builder.Services.AddMudServices();
 
 builder
     .Services.AddOptions<GitHubOptions>()
-    .Bind(builder.Configuration.GetSection(GitHubOptions.SectionName))
-    .PostConfigure(options =>
-    {
-        if (!string.IsNullOrWhiteSpace(options.Token))
-        {
-            return;
-        }
-
-        options.Token =
-            builder.Configuration["GITHUB_TOKEN"]
-            ?? Environment.GetEnvironmentVariable("GITHUB_TOKEN");
-    });
+    .Bind(builder.Configuration.GetSection(GitHubOptions.SectionName));
 
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();

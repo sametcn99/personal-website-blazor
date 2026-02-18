@@ -85,20 +85,52 @@ personal-website-blazor.csproj
    cd personal-website-blazor
    ```
 
-3. Start the development server:
+3. Start the development server (without Docker):
 
    ```bash
-   dotnet watch --project personal-website-blazor.csproj
+   dotnet restore
+   dotnet run --launch-profile http
    ```
 
    Alternative commands from the repository root:
 
    ```bash
-   dotnet run --project personal-website-blazor.csproj
+   dotnet watch --launch-profile http
+   dotnet run --project personal-website-blazor.csproj --launch-profile http
    dotnet build personal-website-blazor.sln
    ```
 
-4. Open `https://localhost:5001` in your browser
+4. Open `http://localhost:5117` in your browser
+
+### GitHub Token Configuration
+
+The app reads GitHub token from .NET configuration key `GitHub:Token`.
+
+- Environment variable mapping for this key is: `GitHub__Token`
+
+#### Local Development
+
+Use User Secrets (recommended):
+
+```bash
+dotnet user-secrets set "GitHub:Token" "ghp_your_token_here"
+```
+
+Or set shell environment variable for current session:
+
+```bash
+export GitHub__Token="ghp_your_token_here"
+dotnet run --launch-profile http
+```
+
+#### Coolify
+
+In Coolify environment/secrets UI, add:
+
+- Key: `GitHub__Token`
+- Value: your GitHub token
+
+Then redeploy the service.
 
 ## Running with Docker
 
