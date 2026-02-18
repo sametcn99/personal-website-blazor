@@ -12,7 +12,7 @@ The main goals of this project are:
 
 ## Technologies
 
-- **Framework:** Blazor Server (.NET 9.0)
+- **Framework:** Blazor Server (.NET 10.0)
 - **UI Library:** MudBlazor
 - **Markdown Processing:** Markdig
 - **HTML Processing:** HtmlAgilityPack
@@ -72,7 +72,7 @@ personal-website-blazor.csproj
 
 ### Requirements
 
-- .NET 9.0 SDK or higher
+- .NET 10.0 SDK or higher
 
 ### Running the Project
 
