@@ -2,9 +2,9 @@ using HtmlAgilityPack;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using MudBlazor;
-using personal_website_blazor.Components.Shared.HtmlComponents;
+using personal_website_blazor.Components.Features.Shared.HtmlComponents;
 
-namespace personal_website_blazor.Components.Shared
+namespace personal_website_blazor.Components.Features.Shared.Components
 {
     public class MudHtmlRenderer : ComponentBase
     {
@@ -44,19 +44,19 @@ namespace personal_website_blazor.Components.Shared
             switch (node.Name.ToLowerInvariant())
             {
                 case "h1":
-                    RenderHtmlTypography(builder, node, Typo.h4);
+                    RenderHtmlTypography(builder, node, Typo.h1);
                     break;
                 case "h2":
-                    RenderHtmlTypography(builder, node, Typo.h5);
+                    RenderHtmlTypography(builder, node, Typo.h2);
                     break;
                 case "h3":
-                    RenderHtmlTypography(builder, node, Typo.h6);
+                    RenderHtmlTypography(builder, node, Typo.h3);
                     break;
                 case "h4":
-                    RenderHtmlTypography(builder, node, Typo.h6);
+                    RenderHtmlTypography(builder, node, Typo.h4);
                     break;
                 case "h5":
-                    RenderHtmlTypography(builder, node, Typo.h6);
+                    RenderHtmlTypography(builder, node, Typo.h5);
                     break;
                 case "h6":
                     RenderHtmlTypography(builder, node, Typo.h6);

@@ -1,0 +1,40 @@
+@using MudBlazor
+<MudText Typo="@Typo" GutterBottom="true" Class="@GetClass()"  Style="@GetStyle()">
+    @ChildContent
+</MudText>
+
+@code {
+    [Parameter] public Typo Typo { get; set; } = Typo.body1;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string GetClass()
+    {
+        return Typo switch
+        {
+            Typo.h1 => "mb-6 mt-12 font-bold",
+            Typo.h2 => "mb-4 mt-10 font-bold pb-2",
+            Typo.h3 => "mb-3 mt-8 font-bold",
+            Typo.h4 => "mb-3 mt-6 font-bold",
+            Typo.h5 => "mb-2 mt-4 font-bold",
+            Typo.h6 => "mb-2 mt-2 font-bold",
+            Typo.body1 => "mb-4 text-justify",
+            _ => "mb-2"
+        };
+    }
+
+
+    private string GetStyle()
+    {
+        return Typo switch
+        {
+            Typo.h1 => "font-size: 1.6rem !important;",
+            Typo.h2 => "font-size: 1.4rem !important; border-bottom: 1px solid;",
+            Typo.h3 => "font-size: 1.25rem !important;",
+            Typo.h4 => "font-size: 1.15rem !important;",
+            Typo.h5 => "font-size: 1.1rem !important;",
+            Typo.h6 => "font-size: 1.05rem !important;",
+            Typo.body1 => "line-height: 1.8;",
+            _ => ""
+        };
+    }
+}
