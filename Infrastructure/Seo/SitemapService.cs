@@ -33,7 +33,6 @@ public class SitemapService : ISitemapService
             ("support", "yearly", "0.3"),
             ("readme", "weekly", "0.5"),
             ("cv", "monthly", "0.5"),
-            ("writer", "weekly", "0.4"),
             ("link", "weekly", "0.5"),
             ("repo", "weekly", "0.6"),
             ("privacy-policy", "yearly", "0.2"),

@@ -187,22 +187,6 @@ app.MapGet(
                 },
                 new
                 {
-                    name = "Writer",
-                    short_name = "Writer",
-                    description = "Open markdown editor",
-                    url = "/writer",
-                    icons = new[]
-                    {
-                        new
-                        {
-                            src = "/android-chrome-192x192.png",
-                            sizes = "192x192",
-                            type = "image/png",
-                        },
-                    },
-                },
-                new
-                {
                     name = "CV",
                     short_name = "CV",
                     description = "View curriculum vitae",
