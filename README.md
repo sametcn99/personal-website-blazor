@@ -10,8 +10,6 @@ The main goals of this project are:
 - Learn and explore what can be built with Blazor
 - Apply modern web development techniques within the C# and .NET ecosystem
 
-> **Note:** The original Next.js version is kept private as the repository contains sensitive data that needs to remain confidential.
-
 ## Technologies
 
 - **Framework:** Blazor Server (.NET 9.0)
@@ -140,3 +138,4 @@ To run the project in a Docker container:
 docker build -t personal-website-blazor .
 docker run -p 8080:8080 personal-website-blazor
 ```
+
