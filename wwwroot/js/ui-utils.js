@@ -1,26 +1,26 @@
 window.focusElementById = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.focus();
-    }
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.focus();
+  }
 };
 
 window.__bodyScrollLockCount = 0;
 
 window.lockBodyScroll = () => {
-    window.__bodyScrollLockCount += 1;
+  window.__bodyScrollLockCount += 1;
 
-    if (window.__bodyScrollLockCount === 1) {
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-    }
+  if (window.__bodyScrollLockCount === 1) {
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+  }
 };
 
 window.unlockBodyScroll = () => {
-    window.__bodyScrollLockCount = Math.max(0, window.__bodyScrollLockCount - 1);
+  window.__bodyScrollLockCount = Math.max(0, window.__bodyScrollLockCount - 1);
 
-    if (window.__bodyScrollLockCount === 0) {
-        document.body.style.overflow = '';
-        document.documentElement.style.overflow = '';
-    }
+  if (window.__bodyScrollLockCount === 0) {
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+  }
 };

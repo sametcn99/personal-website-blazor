@@ -1,8 +1,7 @@
 ---
 title: "TypeScript Types and Utility Types"
 publishedAt: "2024-08-25"
-summary:
-  "Complete guide to TypeScript's built-in utility types, advanced type
+summary: "Complete guide to TypeScript's built-in utility types, advanced type
   transformations, and custom type definitions for robust type safety."
 ---
 
@@ -80,16 +79,16 @@ const deepPartialUser: DeepPartial<NestedUser> = {
   id: 1, // Provide id
   address: {
     // Partially provide address
-    city: "New York"
+    city: "New York",
   },
   preferences: {
     // Partially provide preferences
     theme: {
       // Partially provide theme
-      fontSize: 14
-    }
+      fontSize: 14,
+    },
     // notifications can be omitted entirely
-  }
+  },
 };
 ```
 
@@ -133,10 +132,10 @@ const config: DeepReadonly<Config> = {
     timeout: 3000,
     retries: 3,
     advanced: {
-      logging: true
+      logging: true,
     },
-    features: ["featureA", "featureB"]
-  }
+    features: ["featureA", "featureB"],
+  },
 };
 
 // All attempts to modify will cause TypeScript errors:
@@ -252,7 +251,7 @@ type ConfigOptionalKeys = OptionalKeys<UserConfig>;
 function applyDefaults(config: UserConfig): Required<UserConfig> {
   const defaults: Pick<UserConfig, OptionalKeys<UserConfig>> = {
     notifications: true,
-    language: "en"
+    language: "en",
   };
   // Spread defaults first, then the provided config to override
   return { ...defaults, ...config } as Required<UserConfig>; // Asserting Required for simplicity here
@@ -293,7 +292,7 @@ type ConfigRequiredKeys = RequiredKeys<UserConfig>;
 function validateConfig(config: Partial<UserConfig>): boolean {
   const requiredKeys: ConfigRequiredKeys[] = ["id", "theme"];
   return requiredKeys.every(
-    (key) => config[key] !== undefined && config[key] !== null
+    (key) => config[key] !== undefined && config[key] !== null,
   );
 }
 
@@ -318,7 +317,7 @@ definitions.
 //    Example: `((k: A) => void) | ((k: B) => void)` is assignable to `(k: I) => void` only if `I` is `A & B`.
 // 3. `? I : never`: If the inference succeeds, return the inferred intersection type `I`. Otherwise, return `never`.
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (
-  k: infer I
+  k: infer I,
 ) => void
   ? I
   : never;
@@ -374,8 +373,8 @@ const profile: DeepNonNullable<UserProfile> = {
   contact: {
     // contact object cannot be null
     email: "john@example.com", // Must be string
-    phone: "123-456-7890" // Must be string (since phone exists in the mapped type)
-  }
+    phone: "123-456-7890", // Must be string (since phone exists in the mapped type)
+  },
 };
 
 // This would be invalid:

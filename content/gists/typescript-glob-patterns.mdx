@@ -195,7 +195,7 @@ async function globExamples() {
 
   // Exclude node_modules and dist directories
   const projectFiles = await globPromise("**/*.ts", {
-    ignore: ["**/node_modules/**", "**/dist/**"]
+    ignore: ["**/node_modules/**", "**/dist/**"],
   });
 
   // Match files in specific directories
@@ -209,7 +209,7 @@ async function globExamples() {
 
   // Match markdown files excluding README
   const docs = await globPromise("docs/**/*.md", {
-    ignore: ["**/README.md"]
+    ignore: ["**/README.md"],
   });
 
   // Match specific file types in multiple directories
@@ -228,7 +228,7 @@ async function globExamples() {
     configFiles,
     docs,
     utilityFiles,
-    versionedFiles
+    versionedFiles,
   };
 }
 

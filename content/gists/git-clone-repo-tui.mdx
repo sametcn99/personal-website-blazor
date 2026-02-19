@@ -1,29 +1,20 @@
 ---
 title: "GitHub Repo TUI Cloner (PowerShell)"
 publishedAt: "2026-02-19"
-summary:
-  "An interactive PowerShell script to fetch and clone your owned GitHub
-  repositories using a terminal UI (TUI)."
+summary: "An interactive PowerShell script to fetch and clone your owned GitHub repositories using a terminal UI (TUI)."
 ---
 
 # GitHub Repo TUI Cloner (PowerShell)
 
-This PowerShell script provides an interactive terminal user interface (TUI) to
-manage your GitHub repositories. It allows you to fetch a list of your owned
-repositories and selectively clone them to your local machine.
+This PowerShell script provides an interactive terminal user interface (TUI) to manage your GitHub repositories. It allows you to fetch a list of your owned repositories and selectively clone them to your local machine.
 
 ## Features
 
-- **Interactive TUI**: Easily browse and select repositories using keyboard
-  controls.
-- **GitHub API Integration**: Fetches owned repositories using a personal access
-  token (PAT).
-- **Shallow Cloning**: Defaults to shallow clones (`--depth 1`) for faster
-  downloads, with an option for full history.
-- **Filtering**: Supports toggling archived and forked repositories in the
-  selection.
-- **Batch Operations**: Select all, clear selection, or toggle specific types
-  of repos.
+- **Interactive TUI**: Easily browse and select repositories using keyboard controls.
+- **GitHub API Integration**: Fetches owned repositories using a personal access token (PAT).
+- **Shallow Cloning**: Defaults to shallow clones (`--depth 1`) for faster downloads, with an option for full history.
+- **Filtering**: Supports toggling archived and forked repositories in the selection.
+- **Batch Operations**: Select all, clear selection, or toggle specific types of repos.
 
 ## Requirements
 
@@ -44,29 +35,26 @@ repositories and selectively clone them to your local machine.
     powershell -NoProfile -ExecutionPolicy Bypass -File .\clone-tui.ps1
     ```
 
-3.  **Configuration**:
-    The `CONFIG` section in the script allows you to change the destination
-    folder, inclusion of archived repos, and clone depth.
+3.  **Configuration**: The `CONFIG` section in the script allows you to change the destination folder, inclusion of archived repos, and clone depth.
 
 ## TUI Controls
 
-| Key | Action |
-| :--- | :--- |
-| **Up/Down** | Move cursor in the list |
-| **Space** | Toggle selection for the current repository |
-| **A** | Select all repositories |
-| **N** | Clear all selections |
-| **R** | Toggle selection for all archived repositories |
-| **F** | Toggle selection for all forked repositories |
-| **Enter** | Start cloning selected repositories |
-| **Q / Esc** | Quit without cloning |
+| Key         | Action                                         |
+| :---------- | :--------------------------------------------- |
+| **Up/Down** | Move cursor in the list                        |
+| **Space**   | Toggle selection for the current repository    |
+| **A**       | Select all repositories                        |
+| **N**       | Clear all selections                           |
+| **R**       | Toggle selection for all archived repositories |
+| **F**       | Toggle selection for all forked repositories   |
+| **Enter**   | Start cloning selected repositories            |
+| **Q / Esc** | Quit without cloning                           |
 
 ---
 
 ## Full Script
 
-Below is the complete PowerShell script. You can save this as `clone-tui.ps1`
-and run it as described above.
+Below is the complete PowerShell script. You can save this as `clone-tui.ps1` and run it as described above.
 
 ```powershell
 Set-StrictMode -Version Latest

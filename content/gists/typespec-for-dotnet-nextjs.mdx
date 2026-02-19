@@ -1,0 +1,514 @@
+---
+title: "TypeSpec for .NET and Next.js Teams"
+publishedAt: "2026-02-19"
+summary: "Practical TypeSpec workflow for contract-first API design with ASP.NET Core and Next.js, including OpenAPI generation and typed client usage."
+---
+
+# TypeSpec for .NET and Next.js Teams
+
+If your stack is `ASP.NET Core` on the backend and `Next.js` on the frontend, TypeSpec gives you a clean contract-first workflow.
+
+Write the API once in TypeSpec, emit OpenAPI, then:
+
+- implement the API in .NET from the same contract
+- generate a typed TypeScript client for Next.js
+- keep backend and frontend aligned with fewer breaking surprises
+
+---
+
+## What TypeSpec really is
+
+TypeSpec is a language for describing APIs, data shapes, and service behavior in a tool-friendly way.
+
+It is not your runtime framework. It does not replace ASP.NET Core or Next.js. It defines the contract those apps should follow.
+
+Think of it as:
+
+- a source language for API contracts
+- a way to generate artifacts (OpenAPI, docs, SDK inputs)
+- a governance layer for cross-team consistency
+
+For .NET + Next.js teams, this separation is useful because backend and frontend can evolve fast without guessing each other's changes.
+
+---
+
+## Why TypeSpec in this stack?
+
+For mixed .NET and TypeScript teams, API drift is usually the real problem:
+
+- backend DTO changes and frontend is not updated
+- endpoints evolve but docs lag behind
+- validation rules are duplicated in many places
+
+TypeSpec solves this by making the API contract the single source of truth.
+
+---
+
+## Core concepts you should understand first
+
+Before writing many files, get these concepts clear:
+
+- `model`: shape of data payloads
+- `interface`/`operation`: callable API actions
+- decorators (`@get`, `@route`, etc.): protocol and metadata
+- emitters: output targets such as OpenAPI 3
+- namespaces: domain boundaries in bigger APIs
+
+If the team understands these five, onboarding becomes much easier.
+
+---
+
+## Contract-first vs code-first in practice
+
+With code-first, the backend implementation is usually the first source. Frontend catches up later through generated or handwritten docs.
+
+With contract-first (TypeSpec), the sequence becomes:
+
+1. Define API behavior in TypeSpec.
+2. Review contract in PR before implementation.
+3. Generate OpenAPI/types.
+4. Implement backend and frontend against generated outputs.
+
+This reduces the classic "it worked on backend but frontend broke" cycle.
+
+---
+
+## Suggested project layout
+
+```text
+repo-root/
+  apps/
+    api-dotnet/
+    web-next/
+  contracts/
+    main.tsp
+    tspconfig.yaml
+  generated/
+    openapi/
+      openapi.json
+    ts-client/
+```
+
+- `contracts/` contains TypeSpec source
+- `generated/openapi/` is consumed by .NET
+- `generated/ts-client/` is consumed by Next.js
+
+Why this layout works:
+
+- keeps generated code out of hand-written app folders
+- makes CI checks straightforward
+- allows independent versioning for `contracts/`
+
+---
+
+## Installation guide (step by step)
+
+If your repo already has `.NET` and `Next.js`, the simplest setup is to add a small Node-based toolchain only for contracts.
+
+### 1. Prerequisites
+
+- Node.js `18+` (prefer `20+`)
+- npm, pnpm, or yarn
+- existing .NET and Next.js projects in your monorepo
+
+Check versions:
+
+```bash
+node -v
+npm -v
+dotnet --version
+```
+
+### 2. Initialize a contracts package
+
+From repo root:
+
+```bash
+mkdir contracts
+cd contracts
+npm init -y
+```
+
+### 3. Install TypeSpec packages
+
+```bash
+npm i -D @typespec/compiler @typespec/http @typespec/rest @typespec/openapi3
+```
+
+### 4. Initialize TypeSpec project files
+
+```bash
+npx tsp init
+```
+
+Pick a minimal template, then keep `main.tsp` and `tspconfig.yaml` under `contracts/`.
+
+### 5. Add scripts for repeatable usage
+
+In `contracts/package.json`:
+
+```json
+{
+  "scripts": {
+    "tsp:compile": "tsp compile main.tsp --output-dir ../generated/openapi",
+    "tsp:watch": "tsp compile main.tsp --watch --output-dir ../generated/openapi"
+  }
+}
+```
+
+Now use:
+
+```bash
+npm run tsp:compile
+npm run tsp:watch
+```
+
+---
+
+## Daily usage workflow
+
+For day-to-day development, keep this flow:
+
+1. Update contract in `contracts/main.tsp`.
+2. Run `npm run tsp:compile`.
+3. Regenerate frontend types from emitted OpenAPI.
+4. Run backend and frontend tests.
+5. Commit both source and generated artifacts (if your repo policy requires).
+
+This workflow avoids stale clients and hidden API mismatches.
+
+---
+
+## Usage in .NET solution
+
+After TypeSpec emits `openapi.json`, integrate it into your API project.
+
+Common approach:
+
+1. Copy `generated/openapi/openapi.json` into API static content during build.
+2. Serve that file via Swagger UI endpoint.
+3. Validate implementation behavior against contract in integration tests.
+
+Optional build copy in `.csproj`:
+
+```xml
+<ItemGroup>
+  <None Include="..\generated\openapi\openapi.json" Link="wwwroot\openapi\openapi.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+```
+
+This makes the emitted spec available at runtime without manual copying.
+
+---
+
+## Usage in Next.js app
+
+After each contract compile, regenerate frontend types:
+
+```bash
+npx openapi-typescript ../generated/openapi/openapi.json -o ../generated/ts-client/schema.d.ts
+```
+
+Then consume those types in a single API layer (`lib/api.ts`) and avoid direct `fetch` spread across many components.
+
+Recommended pattern:
+
+- keep fetch wrappers in one folder
+- export typed methods (`getProjects`, `getProjectBySlug`)
+- keep pages/components focused on UI only
+
+This improves maintainability as your API grows.
+
+---
+
+## Local development commands (example)
+
+You can run contract compile + apps in separate terminals:
+
+```bash
+# terminal 1
+cd contracts
+npm run tsp:watch
+
+# terminal 2
+cd apps/api-dotnet
+dotnet watch
+
+# terminal 3
+cd apps/web-next
+npm run dev
+```
+
+If you use Turborepo/Nx, you can orchestrate these as one dev command.
+
+---
+
+## CI/CD integration checklist
+
+Minimum reliable pipeline:
+
+1. Install Node dependencies for `contracts/`.
+2. Run TypeSpec compile.
+3. Generate frontend type artifacts.
+4. Fail build if generated files changed unexpectedly.
+5. Run `.NET` tests and Next.js checks.
+
+If your team often changes contracts, add OpenAPI diff reporting in pull requests.
+
+---
+
+## Minimal TypeSpec example
+
+Create `contracts/main.tsp`:
+
+```typespec
+import "@typespec/http";
+import "@typespec/rest";
+import "@typespec/openapi3";
+
+using TypeSpec.Http;
+using TypeSpec.Rest;
+
+@service({
+  title: "Portfolio API"
+})
+namespace Portfolio;
+
+model Project {
+  id: string;
+  name: string;
+  slug: string;
+  tags?: string[];
+}
+
+@route("/projects")
+interface Projects {
+  @get list(): Project[];
+
+  @get
+  @route("/{slug}")
+  getBySlug(@path slug: string): Project;
+}
+```
+
+Create `contracts/tspconfig.yaml`:
+
+```yaml
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    output-file: "{output-dir}/openapi.json"
+```
+
+Compile:
+
+```bash
+npx tsp compile contracts/main.tsp --output-dir generated/openapi
+```
+
+---
+
+## Designing good contracts (not just valid contracts)
+
+A contract can be syntactically correct and still painful in production.
+
+Design guidelines that help real teams:
+
+- Prefer stable, explicit field names over abbreviations.
+- Keep response models focused; avoid over-nested payloads.
+- Define error shapes intentionally, not ad-hoc per endpoint.
+- Separate public API models from internal persistence models.
+- Keep pagination, filtering, and sorting conventions consistent.
+
+For .NET teams, this usually means not exposing EF Core entities directly. For Next.js teams, it means predictable payload structure and safer caching logic.
+
+---
+
+## Versioning strategy that avoids pain
+
+Most contract issues appear during versioning, not initial development.
+
+Recommended approach:
+
+- treat breaking changes as explicit version events
+- publish changelog entries for contract updates
+- run backward compatibility checks in CI
+- deprecate first, remove later
+
+Common breaking changes to watch:
+
+- deleting fields used by frontend
+- changing scalar types (`string` to `number`)
+- changing required/optional semantics
+- changing endpoint paths or status code behavior
+
+---
+
+## Use the generated OpenAPI in .NET
+
+In `api-dotnet`, keep your implementation mapped to the generated contract. You can either:
+
+- use OpenAPI for Swagger UI and contract verification
+- generate C# clients for internal consumers
+
+Basic setup in ASP.NET Core:
+
+```csharp
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/openapi/openapi.json", "Portfolio API");
+});
+
+app.MapGet("/projects", () =>
+{
+    return Results.Ok(new[]
+    {
+        new { id = "1", name = "Mermaid Viewer", slug = "mermaid-viewer", tags = new[] { "blazor", "tools" } }
+    });
+});
+```
+
+Tip: copy or serve `generated/openapi/openapi.json` from your API project during build to keep runtime docs synced.
+
+---
+
+## How this helps ASP.NET Core architecture
+
+TypeSpec does not dictate your .NET architecture, but it improves boundaries:
+
+- `Application` layer can align request/response DTOs to contract models
+- `Infrastructure` remains implementation detail
+- contract tests can verify endpoint behavior against generated OpenAPI
+
+If you use Minimal APIs, controllers, or vertical slices, TypeSpec still fits. The key is to map runtime behavior to contract intentionally.
+
+---
+
+## Generate and use a typed client in Next.js
+
+One common option is generating a TypeScript client from `openapi.json`.
+
+Example with `openapi-typescript`:
+
+```bash
+npm i -D openapi-typescript
+npx openapi-typescript generated/openapi/openapi.json -o generated/ts-client/schema.d.ts
+```
+
+Then create a small fetch wrapper in `web-next/lib/api.ts`:
+
+```typescript
+import type { paths } from "../../generated/ts-client/schema";
+
+type GetProjectsResponse =
+  paths["/projects"]["get"]["responses"][200]["content"]["application/json"];
+
+export async function getProjects(): Promise<GetProjectsResponse> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/projects`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch projects");
+  }
+
+  return res.json() as Promise<GetProjectsResponse>;
+}
+```
+
+This keeps your Next.js app strongly typed against the same backend contract.
+
+---
+
+## How this helps Next.js app design
+
+In Next.js, typed contracts improve:
+
+- server components and route handlers that fetch backend data
+- cache key reliability in data-fetching layers
+- safer refactors when endpoint payloads change
+- API integration tests with fewer runtime surprises
+
+A practical pattern is to centralize API calls in `lib/` and keep all pages or components consuming typed helper functions instead of raw `fetch` calls.
+
+---
+
+## Tooling ecosystem around TypeSpec
+
+TypeSpec becomes strongest when paired with automation:
+
+- formatting and linting for `.tsp` files
+- OpenAPI diff checks in pull requests
+- typed client generation on each contract change
+- release notes generated from contract deltas
+
+Even simple automation gives big returns in medium-size teams.
+
+---
+
+## CI flow that works well
+
+Add these checks in CI:
+
+1. Compile TypeSpec and fail on diagnostics.
+2. Regenerate `openapi.json`.
+3. Regenerate TypeScript types/client.
+4. Fail if generated artifacts changed but were not committed.
+
+This prevents silent contract drift across backend and frontend.
+
+---
+
+## Common mistakes and how to avoid them
+
+- Writing TypeSpec after backend code is done: you lose most contract-first benefits.
+- Treating generated files as manually editable: generated outputs should be reproducible, not handcrafted.
+- Mixing transport models with domain models: API contracts and business entities have different purposes.
+- Ignoring deprecation policy: frontend teams need a predictable migration window.
+
+---
+
+## When TypeSpec is probably overkill
+
+TypeSpec may be unnecessary if:
+
+- you have a very small project with one developer
+- API surface is tiny and unlikely to evolve
+- no separate frontend/backend team boundary exists
+
+In those cases, code-first OpenAPI generation may be enough.
+
+---
+
+## Migration path for an existing .NET + Next.js project
+
+If you already have production APIs, migrate incrementally:
+
+1. Start with one bounded context (for example `projects`).
+2. Model that context in TypeSpec.
+3. Generate artifacts and compare with current OpenAPI.
+4. Align backend behavior where mismatches exist.
+5. Switch frontend data layer to generated types for that context.
+6. Repeat per module.
+
+This avoids a risky all-at-once rewrite.
+
+---
+
+## Practical tips
+
+- Keep `contracts/` versioned and reviewed like production code.
+- Treat breaking TypeSpec changes as versioned API changes.
+- Start small: model only public endpoints first.
+- Add linting and formatting for TypeSpec in pre-commit hooks.
+
+If your team already uses .NET and Next.js, TypeSpec is one of the cleanest ways to make the API contract explicit, reusable, and hard to accidentally break.

@@ -1,8 +1,7 @@
 ---
 title: "Script Gists"
 publishedAt: "2024-08-25"
-summary:
-  "Collection of useful development scripts including Prettier setup, Git
+summary: "Collection of useful development scripts including Prettier setup, Git
   utilities, and automation tools for modern development workflows."
 ---
 
@@ -135,7 +134,7 @@ class TranslationManager extends EventEmitter {
 
     if (jsonFiles.length === 0) {
       throw new LocaleError(
-        `No JSON files found in ${dirName} directory: ${dirPath}`
+        `No JSON files found in ${dirName} directory: ${dirPath}`,
       );
     }
   }
@@ -161,7 +160,7 @@ class TranslationManager extends EventEmitter {
         Array.isArray(parsed)
       ) {
         throw new LocaleError(
-          `Invalid translation file format. Expected an object: ${filePath}`
+          `Invalid translation file format. Expected an object: ${filePath}`,
         );
       }
 
@@ -169,7 +168,7 @@ class TranslationManager extends EventEmitter {
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new LocaleError(`Invalid JSON format in file: ${filePath}`, {
-          originalError: error.message
+          originalError: error.message,
         });
       }
       throw error;
@@ -189,7 +188,7 @@ class TranslationManager extends EventEmitter {
         !Array.isArray(obj[key])
       ) {
         keys.push(
-          ...this.getNestedKeys(obj[key] as TranslationObject, fullKey)
+          ...this.getNestedKeys(obj[key] as TranslationObject, fullKey),
         );
       }
     }
@@ -199,7 +198,7 @@ class TranslationManager extends EventEmitter {
 
   private getValueByPath(
     obj: TranslationObject,
-    path: string
+    path: string,
   ): TranslationValue | undefined {
     return path.split(".").reduce<TranslationValue | undefined>((acc, part) => {
       if (acc && typeof acc === "object" && !Array.isArray(acc)) {
@@ -222,14 +221,14 @@ class TranslationManager extends EventEmitter {
 
         if (fileKeys.length === 0) {
           throw new LocaleError(
-            `No translation keys found in file: ${filePath}`
+            `No translation keys found in file: ${filePath}`,
           );
         }
 
         fileKeys.forEach((key) => {
           if (!key.match(/^[a-zA-Z0-9_.-]+$/)) {
             throw new LocaleError(
-              `Invalid key format found: "${key}" in file: ${filePath}. Keys should only contain letters, numbers, underscores, dots, and hyphens.`
+              `Invalid key format found: "${key}" in file: ${filePath}. Keys should only contain letters, numbers, underscores, dots, and hyphens.`,
             );
           }
           keys.add(key);
@@ -264,10 +263,10 @@ class TranslationManager extends EventEmitter {
         for (const [enFile, enFileKeys] of enData.keysByFile.entries()) {
           if (enFileKeys.includes(key)) {
             const enContent = this.safeParseJson(
-              path.join(this.enPath, enFile)
+              path.join(this.enPath, enFile),
             );
             const trContent = this.safeParseJson(
-              path.join(this.trPath, enFile)
+              path.join(this.trPath, enFile),
             );
 
             const enValue = this.getValueByPath(enContent, key);
@@ -283,7 +282,7 @@ class TranslationManager extends EventEmitter {
                   enType,
                   trType,
                   enFile,
-                  trFile: enFile
+                  trFile: enFile,
                 });
               }
             }
@@ -376,8 +375,8 @@ class TranslationManager extends EventEmitter {
           `Failed to create combined directory: ${this.combinedPath}`,
           {
             originalError:
-              error instanceof Error ? error.message : "Unknown error"
-          }
+              error instanceof Error ? error.message : "Unknown error",
+          },
         );
       }
     }
@@ -388,7 +387,7 @@ class TranslationManager extends EventEmitter {
       fs.writeFileSync(filePath, content, { encoding: "utf8" });
     } catch (error) {
       throw new LocaleError(`Failed to write file: ${filePath}`, {
-        originalError: error instanceof Error ? error.message : "Unknown error"
+        originalError: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -417,11 +416,11 @@ class TranslationManager extends EventEmitter {
       // Write combined files
       this.safeWriteFile(
         path.join(this.combinedPath, "en.json"),
-        JSON.stringify(enCombined, null, 2)
+        JSON.stringify(enCombined, null, 2),
       );
       this.safeWriteFile(
         path.join(this.combinedPath, "tr.json"),
-        JSON.stringify(trCombined, null, 2)
+        JSON.stringify(trCombined, null, 2),
       );
 
       this.emit("success", "Translations processed successfully");
@@ -450,7 +449,7 @@ class TranslationManager extends EventEmitter {
       const enWatcher = fs.watch(
         this.enPath,
         watchOptions,
-        this.handleFileChange.bind(this)
+        this.handleFileChange.bind(this),
       );
       this.watchers.push(enWatcher);
 
@@ -458,7 +457,7 @@ class TranslationManager extends EventEmitter {
       const trWatcher = fs.watch(
         this.trPath,
         watchOptions,
-        this.handleFileChange.bind(this)
+        this.handleFileChange.bind(this),
       );
       this.watchers.push(trWatcher);
 
@@ -467,7 +466,7 @@ class TranslationManager extends EventEmitter {
     } catch (error) {
       this.emit("error", {
         message: "Failed to start file watchers",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }

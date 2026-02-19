@@ -138,4 +138,3 @@ To run the project in a Docker container:
 docker build -t personal-website-blazor .
 docker run -p 8080:8080 personal-website-blazor
 ```
-

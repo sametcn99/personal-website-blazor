@@ -1,18 +1,13 @@
 ---
 title: "Rendering HTML Details/Summary in MDX with Custom Components"
 publishedAt: "2026-01-30"
-summary:
-  "A comprehensive guide on how to transform HTML details and summary elements
-  into custom React components in Next.js MDX projects"
+summary: "A comprehensive guide on how to transform HTML details and summary elements into custom React components in Next.js MDX projects"
 tags: ["mdx", "react", "next.js", "typescript", "html"]
 ---
 
 # Rendering HTML Details/Summary in MDX with Custom Components
 
-When working with MDX in Next.js projects, you might encounter a common
-challenge: HTML `<details>` and `<summary>` elements don't render properly. This
-guide explains the problem and provides a complete solution using custom React
-components.
+When working with MDX in Next.js projects, you might encounter a common challenge: HTML `<details>` and `<summary>` elements don't render properly. This guide explains the problem and provides a complete solution using custom React components.
 
 ## Table of Contents
 
@@ -29,9 +24,7 @@ components.
 
 ## The Problem
 
-MDX compiles content into JSX, but it doesn't natively support raw HTML elements
-like `<details>` and `<summary>`. When you try to use these elements in your MDX
-content:
+MDX compiles content into JSX, but it doesn't natively support raw HTML elements like `<details>` and `<summary>`. When you try to use these elements in your MDX content:
 
 ```html
 <details>
@@ -42,11 +35,9 @@ content:
 
 You'll likely encounter one of these issues:
 
-1. **Compilation Error**: MDX throws an error because it can't process raw HTML
-   nodes
+1. **Compilation Error**: MDX throws an error because it can't process raw HTML nodes
 2. **No Rendering**: The elements are ignored or rendered as plain text
-3. **rehype-raw Conflict**: Using `rehype-raw` plugin causes conflicts with MDX
-   JSX nodes
+3. **rehype-raw Conflict**: Using `rehype-raw` plugin causes conflicts with MDX JSX nodes
 
 The error message typically looks like:
 
@@ -65,13 +56,12 @@ import rehypeRaw from "rehype-raw";
 
 const options = {
   mdxOptions: {
-    rehypePlugins: [rehypeRaw] // Causes compilation errors
-  }
+    rehypePlugins: [rehypeRaw], // Causes compilation errors
+  },
 };
 ```
 
-The `rehype-raw` plugin is designed for regular markdown, not MDX. MDX has its
-own JSX handling that conflicts with raw HTML processing.
+The `rehype-raw` plugin is designed for regular markdown, not MDX. MDX has its own JSX handling that conflicts with raw HTML processing.
 
 ## The Solution
 
@@ -192,9 +182,7 @@ Add some basic styles:
 
 ### Step 2: Transform HTML Tags Before Compilation
 
-The key insight is that we need to transform HTML tags **before** MDX compiles
-them. We also need to be careful not to transform tags inside code blocks or
-inline code. Create a context-aware transform function:
+The key insight is that we need to transform HTML tags **before** MDX compiles them. We also need to be careful not to transform tags inside code blocks or inline code. Create a context-aware transform function:
 
 ````tsx
 // components/mdx.tsx
@@ -245,8 +233,8 @@ export function CustomMDX({ source }: { source: string }) {
           ],
           rehypePlugins: [
             /* your plugins */
-          ]
-        }
+          ],
+        },
       }}
     />
   );
@@ -255,8 +243,7 @@ export function CustomMDX({ source }: { source: string }) {
 
 This refined transformation:
 
-- **Identifies code regions** using regex to prevent accidental transformation
-  within examples.
+- **Identifies code regions** using regex to prevent accidental transformation within examples.
 - **Converts `<details>` to `<Details>`** only in prose.
 - **Converts `</details>` to `</Details>`** only in prose.
 - **Converts `<summary>` to `<Summary>`** only in prose.
@@ -271,7 +258,7 @@ Finally, register the components in your MDX component mapping:
 import type { MDXComponents } from "mdx/types";
 import {
   DetailsComponent,
-  SummaryComponent
+  SummaryComponent,
 } from "./components/mdx-components/Details";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -279,7 +266,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ...components,
     // Map JSX component names (capitalized)
     Details: DetailsComponent,
-    Summary: SummaryComponent
+    Summary: SummaryComponent,
     // ... other components
   };
 }
@@ -287,14 +274,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
 
 ## Why First Child as Summary?
 
-In the HTML specification, `<details>` element's first child should always be
-`<summary>`. The component leverages this by:
+In the HTML specification, `<details>` element's first child should always be `<summary>`. The component leverages this by:
 
 1. Taking the first child's content as the collapsible header
 2. Putting all remaining children in the collapsible body
 
-This approach is more reliable than trying to identify the Summary component by
-type checking, which can fail due to how MDX compiles components.
+This approach is more reliable than trying to identify the Summary component by type checking, which can fail due to how MDX compiles components.
 
 ## Handling the `open` Attribute
 
@@ -315,8 +300,7 @@ const [isOpen, setIsOpen] = useState(open);
 
 ## Extending the Solution
 
-You can extend this pattern for other HTML elements that MDX doesn't handle well
-by adding more replacements inside the non-code part of your transform function:
+You can extend this pattern for other HTML elements that MDX doesn't handle well by adding more replacements inside the non-code part of your transform function:
 
 ```typescript
 // Inside the transformHtmlToJsx .map() callback:
@@ -341,11 +325,8 @@ return (
 When MDX doesn't support certain HTML elements:
 
 1. **Don't use rehype-raw** - it conflicts with MDX's JSX processing
-2. **Transform tags before compilation** - convert HTML tags to JSX component
-   names using string replacement
-3. **Create custom React components** - implement the desired behavior with your
-   preferred UI approach
+2. **Transform tags before compilation** - convert HTML tags to JSX component names using string replacement
+3. **Create custom React components** - implement the desired behavior with your preferred UI approach
 4. **Register in component mapping** - make components available to MDX
 
-This pattern maintains compatibility with remote or external MDX content while
-providing full control over how elements render.
+This pattern maintains compatibility with remote or external MDX content while providing full control over how elements render.

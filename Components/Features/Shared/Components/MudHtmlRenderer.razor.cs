@@ -29,7 +29,7 @@ namespace personal_website_blazor.Components.Features.Shared.Components
                 switch (child.NodeType)
                 {
                     case HtmlNodeType.Text:
-                        builder.AddContent(0, child.InnerText);
+                        builder.AddContent(0, HtmlEntity.DeEntitize(child.InnerText));
                         break;
 
                     case HtmlNodeType.Element:
@@ -241,7 +241,7 @@ namespace personal_website_blazor.Components.Features.Shared.Components
                     }
                 }
 
-                string code = codeNode.InnerText;
+                string code = HtmlEntity.DeEntitize(codeNode.InnerText);
 
                 if (language.Equals("mermaid", StringComparison.OrdinalIgnoreCase))
                 {
