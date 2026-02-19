@@ -76,14 +76,18 @@ app.UseAntiforgery();
 app.Use(
     async (context, next) =>
     {
-        await next();
-
         if (context.Request.Path.StartsWithSegments("/_blazor"))
         {
-            context.Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
-            context.Response.Headers.Pragma = "no-cache";
-            context.Response.Headers.Expires = "0";
+            context.Response.OnStarting(() =>
+            {
+                context.Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
+                context.Response.Headers.Pragma = "no-cache";
+                context.Response.Headers.Expires = "0";
+                return Task.CompletedTask;
+            });
         }
+
+        await next();
     }
 );
 
