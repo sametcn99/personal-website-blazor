@@ -1,4 +1,6 @@
-﻿@rendermode InteractiveAuto
+﻿@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
 
 <Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
