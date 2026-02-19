@@ -160,7 +160,26 @@ function decorateCodeBlocks() {
   });
 }
 
+window.__contentInitState = window.__contentInitState || {
+  lastPath: "",
+  lastRunAt: 0,
+};
+
 window.initContent = () => {
+  const currentPath = `${window.location.pathname}${window.location.search}`;
+  const now = Date.now();
+
+  // Prevent duplicate init runs caused by rapid consecutive renders.
+  if (
+    window.__contentInitState.lastPath === currentPath
+    && now - window.__contentInitState.lastRunAt < 1000
+  ) {
+    return;
+  }
+
+  window.__contentInitState.lastPath = currentPath;
+  window.__contentInitState.lastRunAt = now;
+
   console.log("Initializing content...");
   decorateCodeBlocks();
 };

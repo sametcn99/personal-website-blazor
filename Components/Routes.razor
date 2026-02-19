@@ -1,5 +1,4 @@
-﻿@rendermode InteractiveServer
-@using personal_website_blazor.Components.Features.Shared.Layout
+﻿@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">

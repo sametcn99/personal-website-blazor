@@ -54,6 +54,7 @@ else
     private PostModel? PrevPost;
     private PostModel? NextPost;
     private bool IsLoading = true;
+    private string? _initializedSlug;
 
     private string UrlSection => Section switch
     {
@@ -93,11 +94,12 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Post != null)
+        if (Post != null && !string.Equals(_initializedSlug, Slug, StringComparison.OrdinalIgnoreCase))
         {
             try
             {
                 await Runtime.InvokeVoidAsync("initContent");
+                _initializedSlug = Slug;
             }
             catch (Exception ex)
             {
