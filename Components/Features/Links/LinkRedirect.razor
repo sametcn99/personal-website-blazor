@@ -2,6 +2,10 @@
 
 <PageTitle>@(_social?.Label ?? "Redirecting") | Samet Can Cıncık</PageTitle>
 
+<HeadContent>
+    <meta name="description" content="@(_social is null ? "Redirecting to selected link." : $"Redirecting to {_social.Label}.")" />
+</HeadContent>
+
 @if (_social == null)
 {
     <MudContainer   Class="py-8">

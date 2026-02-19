@@ -3,6 +3,10 @@
 
 <PageTitle>@(_repoName ?? "Redirecting") | Samet Can Cıncık</PageTitle>
 
+<HeadContent>
+    <meta name="description" content="@(_repoName is null ? "Redirecting to repository page." : $"Redirecting to {_repoName} on GitHub.")" />
+</HeadContent>
+
 @if (_notFound)
 {
     <MudContainer   Class="py-8">
