@@ -1,8 +1,30 @@
 ﻿@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-<Router AppAssembly="typeof(Program).Assembly">
+<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <Navigating>
+        <MudContainer Class="d-flex align-center justify-center" Style="min-height: 70vh;">
+            <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Loading page...</MudText>
+            </MudStack>
+        </MudContainer>
+    </Navigating>
 </Router>
+
+@code {
+    private static async Task HandleNavigateAsync(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
+    {
+        // Keep the loader visible briefly so route transitions feel intentional.
+        try
+        {
+            await Task.Delay(180, context.CancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+}
