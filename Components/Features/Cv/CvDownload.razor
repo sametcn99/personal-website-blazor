@@ -1,0 +1,61 @@
+@page "/cv/download/{Language}"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<PageTitle>Downloading CV... | Samet Can Cıncık</PageTitle>
+
+<MudContainer Class="d-flex align-center justify-center" Style="min-height: 80vh;">
+    <MudStack AlignItems="AlignItems.Center" Spacing="4">
+        <MudText Typo="Typo.h5">Preparing your download...</MudText>
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        <MudText Typo="Typo.body1" Color="Color.Secondary">If the download doesn't start automatically, <MudLink Href="@_fileUrl" download="@_fileName">click here</MudLink>.</MudText>
+    </MudStack>
+</MudContainer>
+
+@code {
+    [Parameter] public string Language { get; set; } = string.Empty;
+
+    private string _fileUrl = string.Empty;
+    private string _fileName = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var lang = Language.ToLowerInvariant();
+        if (lang == "tr")
+        {
+            _fileUrl = "/Samet_Can_Cincik_CV_TR.pdf";
+            _fileName = "Samet_Can_Cincik_CV_TR.pdf";
+        }
+        else if (lang == "en")
+        {
+            _fileUrl = "/Samet_Can_Cincik_CV_EN.pdf";
+            _fileName = "Samet_Can_Cincik_CV_EN.pdf";
+        }
+        else
+        {
+            Navigation.NavigateTo("/cv");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrEmpty(_fileUrl))
+        {
+            // Give it a tiny delay to ensure the UI is rendered
+            await Task.Delay(500);
+            try
+            {
+                await JS.InvokeVoidAsync("downloadFile", _fileUrl, _fileName);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore JS disconnection or framework issues
+            }
+            
+            // Optional: Redirect back to CV page after a short delay
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/cv");
+        }
+    }
+}
