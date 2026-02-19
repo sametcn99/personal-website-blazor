@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 using personal_website_blazor.Components;
 using personal_website_blazor.Core.Application.Abstractions;
@@ -20,6 +21,18 @@ builder.Configuration.AddJsonFile(
     reloadOnChange: false
 );
 builder.Configuration.AddEnvironmentVariables();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedProto
+        | ForwardedHeaders.XForwardedHost;
+
+    // This app runs behind container/reverse-proxy setups with dynamic upstream IPs.
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
@@ -45,6 +58,8 @@ builder.Services.AddHttpClient(
 );
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -111,7 +126,7 @@ app.MapGet(
                 new
                 {
                     src = "/favicon.ico",
-                    sizes = "any",
+                    sizes = "16x16 32x32 48x48",
                     type = "image/x-icon",
                     purpose = "any",
                 },
@@ -268,7 +283,7 @@ app.MapGet(
     "/api/repos",
     async (IGitHubService gitHubService) =>
     {
-        var repos = await gitHubService.GetUserRepositoriesAsync("sametcn99", 100);
+        var repos = await gitHubService.GetUserRepositoriesAsync("sametcn99");
 
         return Results.Json(
             repos.Select(repo => new
@@ -344,10 +359,12 @@ static IResult FilterAndPaginate(
         filtered = filtered.Where(p => p.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
     }
 
-    var total = filtered.Count();
+    var filteredList = filtered.ToList();
+
+    var total = filteredList.Count;
     var pageSize = Math.Clamp(limit ?? 20, 1, 100);
     var pageNum = Math.Max(page ?? 1, 1);
-    var items = filtered.Skip((pageNum - 1) * pageSize).Take(pageSize);
+    var items = filteredList.Skip((pageNum - 1) * pageSize).Take(pageSize);
 
     return Results.Json(
         new
