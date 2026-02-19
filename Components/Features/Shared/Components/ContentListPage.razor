@@ -60,7 +60,7 @@
             {
                 <MudLink Href="@($"/{UrlPrefix}/{post.Slug}")" Underline="Underline.None" Color="Color.Inherit"
                         data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
-                    <MudStack Spacing="1" Class="mb-3">
+                    <MudStack Spacing="1" Class="mb-3 hover-card">
                         <MudText Typo="Typo.h6" Style="font-weight: 600;">@post.Title</MudText>
                         <MudText Typo="Typo.body2" Color="Color.Secondary">@post.Description</MudText>
                         <MudText Typo="Typo.caption" Color="Color.Secondary">

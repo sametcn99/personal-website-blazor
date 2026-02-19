@@ -8,3 +8,15 @@ body {
     display: block;
     min-height: 100%;
 }
+
+.hover-card {
+    transition: all 0.2s ease-in-out;
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.hover-card:hover {
+    background-color: var(--mud-palette-action-default-hover);
+}

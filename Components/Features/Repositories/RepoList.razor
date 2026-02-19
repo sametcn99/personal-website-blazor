@@ -41,7 +41,7 @@
         {
             <MudLink Href="@($"/repo/{repo.Name}")" Underline="Underline.None" Color="Color.Inherit"
                      data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
-                <MudStack Spacing="1" Class="mb-3">
+                <MudStack Spacing="1" Class="mb-3 hover-card">
                     <MudText Typo="Typo.h6" Style="font-weight: 600;">@repo.Name</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">@repo.Description</MudText>
                     @if (!string.IsNullOrEmpty(repo.Language))

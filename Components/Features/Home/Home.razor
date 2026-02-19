@@ -41,20 +41,22 @@
                 <MudStack Spacing="1" Class="mt-1">
                     @foreach (var item in _filteredResults)
                     {
-                        <MudStack Spacing="0" Class="py-1">
-                            <MudLink Href="@item.Href"
-                                     Target="@(item.External ? "_blank" : "_self")"
-                                     data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                                @item.Title
-                            </MudLink>
-                            @if (!string.IsNullOrWhiteSpace(item.Summary))
-                            {
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
-                            }
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
-                            </MudText>
-                        </MudStack>
+                        <MudLink Href="@item.Href"
+                                 Underline="Underline.None"
+                                 Color="Color.Inherit"
+                                 Target="@(item.External ? "_blank" : "_self")"
+                                 data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
+                            <MudStack Spacing="0" Class="py-1 hover-card">
+                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@item.Title</MudText>
+                                @if (!string.IsNullOrWhiteSpace(item.Summary))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
+                                }
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                    @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
+                                </MudText>
+                            </MudStack>
+                        </MudLink>
                     }
                 </MudStack>
             }
