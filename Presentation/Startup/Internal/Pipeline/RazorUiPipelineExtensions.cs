@@ -7,7 +7,9 @@ internal static class RazorUiPipelineExtensions
     internal static WebApplication MapRazorUi(this WebApplication app)
     {
         app.MapStaticAssets();
-        app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+        app.MapRazorComponents<App>()
+            .AddInteractiveServerRenderMode()
+            .AddInteractiveWebAssemblyRenderMode();
         return app;
     }
 }

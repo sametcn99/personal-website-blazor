@@ -56,7 +56,10 @@ public static class ServiceRegistrationExtensions
         IConfiguration configuration
     )
     {
-        services.AddRazorComponents().AddInteractiveServerComponents();
+        services
+            .AddRazorComponents()
+            .AddInteractiveServerComponents()
+            .AddInteractiveWebAssemblyComponents();
         services.AddMudServices();
 
         services
