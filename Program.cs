@@ -73,6 +73,20 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
+app.Use(
+    async (context, next) =>
+    {
+        await next();
+
+        if (context.Request.Path.StartsWithSegments("/_blazor"))
+        {
+            context.Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
+            context.Response.Headers.Pragma = "no-cache";
+            context.Response.Headers.Expires = "0";
+        }
+    }
+);
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
@@ -123,13 +137,6 @@ app.MapGet(
             categories = new[] { "education", "productivity", "developer" },
             icons = new[]
             {
-                new
-                {
-                    src = "/favicon.ico",
-                    sizes = "16x16 32x32 48x48",
-                    type = "image/x-icon",
-                    purpose = "any",
-                },
                 new
                 {
                     src = "/favicon-16x16.png",
@@ -222,7 +229,7 @@ app.MapGet(
             dir = "ltr",
         };
 
-        context.Response.Headers.CacheControl = "public, max-age=86400";
+        context.Response.Headers.CacheControl = "public, max-age=600, must-revalidate";
         var json = JsonSerializer.Serialize(manifest);
         return Results.Content(json, "application/manifest+json");
     }
