@@ -53,7 +53,6 @@ public static class ServiceRegistrationExtensions
     {
         services
             .AddRazorComponents()
-            .AddInteractiveServerComponents()
             .AddInteractiveWebAssemblyComponents();
         services.AddMudServices();
 

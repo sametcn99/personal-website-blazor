@@ -10,7 +10,6 @@ internal static class RazorUiPipelineExtensions
     {
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
-            .AddInteractiveServerRenderMode()
             .AddInteractiveWebAssemblyRenderMode()
             .AddAdditionalAssemblies(typeof(ClientAssemblyMarker).Assembly, typeof(NotFound).Assembly);
         return app;
