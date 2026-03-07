@@ -18,15 +18,6 @@
 </Router>
 
 @code {
-    private static async Task HandleNavigateAsync(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
-    {
-        // Keep the loader visible briefly so route transitions feel intentional.
-        try
-        {
-            await Task.Delay(180, context.CancellationToken);
-        }
-        catch (TaskCanceledException)
-        {
-        }
-    }
+    private static Task HandleNavigateAsync(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
+        => Task.CompletedTask;
 }
