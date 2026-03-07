@@ -6,8 +6,7 @@
     <RootNamespace>personal_website_blazor</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     <UserSecretsId>f44aea12-c646-4712-9b7c-b95947cbb3a3</UserSecretsId>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;Shared\**;src\Client\**;src\Shared\**;src\Application\**;src\Domain\**;src\Infrastructure\**</DefaultItemExcludes>
-    <WebRootPath>src\wwwroot</WebRootPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;Shared\**;src\Client\**;src\Shared\**;src\Application\**;src\Domain\**;src\Infrastructure\**;src\wwwroot\**</DefaultItemExcludes>
     <LaunchSettingsFile>src\Properties\launchSettings.json</LaunchSettingsFile>
   </PropertyGroup>
 
@@ -29,6 +28,14 @@
   <ItemGroup>
     <Content Include="content\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="src\wwwroot\**\*.*">
+      <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 </Project>

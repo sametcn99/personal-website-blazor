@@ -2,8 +2,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore dependencies
+# Copy project files and restore dependencies
 COPY ["personal-website-blazor.csproj", "./"]
+COPY ["src/Application/personal-website-blazor.Application.csproj", "src/Application/"]
+COPY ["src/Client/personal-website-blazor.Client.csproj", "src/Client/"]
+COPY ["src/Domain/personal-website-blazor.Domain.csproj", "src/Domain/"]
+COPY ["src/Infrastructure/personal-website-blazor.Infrastructure.csproj", "src/Infrastructure/"]
+COPY ["src/Shared/personal-website-blazor.Shared.csproj", "src/Shared/"]
 RUN dotnet restore "personal-website-blazor.csproj"
 
 # Copy everything else and publish directly
