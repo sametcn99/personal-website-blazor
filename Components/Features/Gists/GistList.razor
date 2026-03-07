@@ -1,5 +1,7 @@
 @page "/gist"
 @inject IContentService ContentService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>Gists | Samet Can Cıncık</PageTitle>
 
@@ -7,7 +9,7 @@
     <meta name="description" content="Explore quick technical gists, scripts, and short practical development notes." />
 </HeadContent>
 
-<ContentListPage @rendermode="InteractiveServer" Title="Gists"
+<ContentListPage Title="Gists"
                  Description="Quick notes and useful scripts."
                  Posts="_posts"
                  UrlPrefix="gist"
@@ -16,10 +18,35 @@
 @code {
     private List<PostModel> _posts = new();
     private bool _loading = true;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<List<PostModel>>(nameof(GistList), out var posts) && posts is not null)
+        {
+            _posts = posts;
+            _loading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        if (!_loading)
+        {
+            return;
+        }
+
         _posts = await ContentService.GetPostsAsync("gists");
         _loading = false;
     }
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(GistList), _posts);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
 }

@@ -1,8 +1,8 @@
 @page "/readme"
-@rendermode InteractiveServer
-@using Markdig
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime Runtime
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>README | Samet Can Cıncık</PageTitle>
 
@@ -34,19 +34,32 @@
     private string? _error;
     private string _htmlContent = string.Empty;
     private bool _contentInitialized;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<ReadmeState>(nameof(ReadmePage), out var state) && state is not null)
+        {
+            _htmlContent = state.HtmlContent;
+            _error = state.Error;
+            _loading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        if (!_loading)
+        {
+            return;
+        }
+
         try
         {
-            var client = HttpClientFactory.CreateClient("GitHub");
-            var markdown = await client.GetStringAsync(
-                "https://raw.githubusercontent.com/sametcn99/sametcn99/refs/heads/main/README.md");
-
-            var pipeline = new Markdig.MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()
-                .Build();
-            _htmlContent = Markdig.Markdown.ToHtml(markdown, pipeline);
+            var client = HttpClientFactory.CreateClient("Server");
+            var response = await client.GetFromJsonAsync<ReadmeResponse>("api/readme");
+            _htmlContent = response?.Html ?? string.Empty;
         }
         catch (Exception ex)
         {
@@ -74,5 +87,29 @@
         {
             Console.WriteLine($"JS Error: {ex.Message}");
         }
+    }
+
+    private sealed class ReadmeResponse
+    {
+        public string Html { get; set; } = string.Empty;
+    }
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(ReadmePage), new ReadmeState
+        {
+            HtmlContent = _htmlContent,
+            Error = _error,
+        });
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class ReadmeState
+    {
+        public string HtmlContent { get; set; } = string.Empty;
+        public string? Error { get; set; }
     }
 }

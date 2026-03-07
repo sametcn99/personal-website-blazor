@@ -38,17 +38,18 @@
         {
             <pre class="mermaid-code"><code>@Definition</code></pre>
         }
-        else if (IsLoading)
-        {
-            <div class="mermaid-loading">Loading diagram...</div>
-        }
-        else if (HasSvg)
-        {
-            <div class="mermaid-diagram-host">@((MarkupString)SvgMarkup)</div>
-        }
         else
         {
-            <div class="mermaid-loading">Diagram could not be rendered.</div>
+            @if (IsLoading)
+            {
+                <div class="mermaid-loading">Loading diagram...</div>
+            }
+            else if (!HasSvg)
+            {
+                <div class="mermaid-loading">Diagram could not be rendered.</div>
+            }
+
+            <div class="mermaid-diagram-host" id="@_diagramId"></div>
         }
     </div>
 </MudPaper>
@@ -121,6 +122,7 @@
     private string SvgMarkup = string.Empty;
     private string _lastDefinition = string.Empty;
     private bool _renderRequested = true;
+    private bool _diagramDomNeedsRefresh;
     private readonly string _diagramId = $"mermaid-{Guid.NewGuid():N}";
     private readonly string _fullscreenId = $"mermaid-fullscreen-{Guid.NewGuid():N}";
     private bool _focusFullscreenRequested;
@@ -143,6 +145,7 @@
 
         _lastDefinition = Definition;
         _renderRequested = true;
+        _diagramDomNeedsRefresh = false;
         IsLoading = true;
         SvgMarkup = string.Empty;
         HasSvg = false;
@@ -154,6 +157,20 @@
         {
             _renderRequested = false;
             await RenderMermaid();
+        }
+
+        if (_diagramDomNeedsRefresh && !ShowCode && HasSvg)
+        {
+            _diagramDomNeedsRefresh = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
+                HasSvg = true;
+            }
+            catch
+            {
+                HasSvg = false;
+            }
         }
 
         if (_focusFullscreenRequested)
@@ -174,19 +191,19 @@
     {
         try
         {
-            var svg = await JSRuntime.InvokeAsync<string>("renderMermaidToSvg", Definition, _diagramId);
-            SvgMarkup = svg;
-            HasSvg = !string.IsNullOrWhiteSpace(svg);
+            await JSRuntime.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
+            HasSvg = true;
+            SvgMarkup = string.Empty;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Mermaid render failed: {ex.Message}");
-            SvgMarkup = "";
             HasSvg = false;
         }
         finally
         {
             IsLoading = false;
+            _diagramDomNeedsRefresh = HasSvg;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -194,6 +211,10 @@
     private void ToggleCode()
     {
         ShowCode = !ShowCode;
+        if (!ShowCode && HasSvg)
+        {
+            _diagramDomNeedsRefresh = true;
+        }
     }
 
     private async Task CopyDefinition()
@@ -228,6 +249,7 @@
         {
             Downloading = true;
             await InvokeAsync(StateHasChanged);
+            await EnsureSvgMarkupLoaded();
             await JSRuntime.InvokeVoidAsync("downloadSvgMarkup", SvgMarkup, "mermaid-diagram");
 
             await Task.Delay(800);
@@ -249,10 +271,21 @@
             return;
         }
 
+        await EnsureSvgMarkupLoaded();
         IsFullscreen = true;
         ResetView();
         _focusFullscreenRequested = true;
         await ToggleBodyScrollLock(true);
+    }
+
+    private async Task EnsureSvgMarkupLoaded()
+    {
+        if (!string.IsNullOrWhiteSpace(SvgMarkup))
+        {
+            return;
+        }
+
+        SvgMarkup = await JSRuntime.InvokeAsync<string>("getElementInnerHtml", _diagramId);
     }
 
     private async Task CloseFullscreen()

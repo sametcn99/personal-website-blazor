@@ -21,6 +21,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="Shared\personal-website-blazor.Shared.csproj" />
+    <ProjectReference Include="Client\personal-website-blazor.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Client\**\*.cs" />
+    <Compile Remove="Shared\**\*.cs" />
+    <Compile Remove="Core\Application\Abstractions\**\*.cs" />
+    <Compile Remove="Core\Application\Configuration\SocialData.cs" />
+    <Compile Remove="Core\Application\Configuration\UmamiEvent.cs" />
+    <Compile Remove="Core\Domain\Entities\**\*.cs" />
+    <Compile Remove="Components\**\*.cs" />
+    <Content Remove="Client\**\*" />
+    <Content Remove="Shared\**\*" />
+    <Content Remove="Components\**\*.razor" />
+    <EmbeddedResource Remove="Client\**\*" />
+    <EmbeddedResource Remove="Shared\**\*" />
+    <None Remove="Client\**\*" />
+    <None Remove="Shared\**\*" />
+    <None Remove="Components\**\*.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Components\App.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="content\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

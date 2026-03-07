@@ -1,5 +1,7 @@
 @page "/repo/{Slug}"
 @inject IHttpClientFactory HttpClientFactory
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>@(_repoName ?? "Redirecting") | Samet Can Cıncık</PageTitle>
 
@@ -31,22 +33,36 @@ else
     private string? _repoUrl;
     private string? _repoName;
     private bool _notFound;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<RepoRedirectState>(GetStateKey(), out var state) && state is not null)
+        {
+            _repoUrl = state.RepoUrl;
+            _repoName = state.RepoName;
+            _notFound = state.NotFound;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnParametersSetAsync()
     {
+        if (_notFound || !string.IsNullOrWhiteSpace(_repoUrl))
+        {
+            return;
+        }
+
         try
         {
-            var client = HttpClientFactory.CreateClient("GitHub");
-            var response = await client.GetAsync($"https://api.github.com/repos/sametcn99/{Slug}");
-            if (response.IsSuccessStatusCode)
+            var client = HttpClientFactory.CreateClient("Server");
+            var repo = await client.GetFromJsonAsync<RepoData>($"api/repos/{Uri.EscapeDataString(Slug)}");
+            if (repo != null)
             {
-                var repo = await response.Content.ReadFromJsonAsync<RepoData>();
-                if (repo != null)
-                {
-                    _repoUrl = repo.Html_url;
-                    _repoName = repo.Full_name;
-                    return;
-                }
+                _repoUrl = repo.Html_url;
+                _repoName = repo.Full_name;
+                return;
             }
         }
         catch { }
@@ -58,5 +74,28 @@ else
     {
         public string Html_url { get; set; } = string.Empty;
         public string Full_name { get; set; } = string.Empty;
+    }
+
+    private string GetStateKey() => $"{nameof(RepoRedirect)}:{Slug}";
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(GetStateKey(), new RepoRedirectState
+        {
+            RepoUrl = _repoUrl,
+            RepoName = _repoName,
+            NotFound = _notFound,
+        });
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class RepoRedirectState
+    {
+        public string? RepoUrl { get; set; }
+        public string? RepoName { get; set; }
+        public bool NotFound { get; set; }
     }
 }

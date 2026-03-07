@@ -1,9 +1,10 @@
 @page "/{Section}/{Slug}"
-@rendermode InteractiveServer
 @using personal_website_blazor.Core.Domain.Entities
 @inject personal_website_blazor.Core.Application.Abstractions.IContentService ContentService
 @inject IJSRuntime Runtime
 @inject NavigationManager Navigation
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>@(Post?.Title ?? "Loading...") | Samet Can Cıncık</PageTitle>
 
@@ -57,6 +58,7 @@ else
     private PostModel? NextPost;
     private bool IsLoading = true;
     private string? _initializedSlug;
+    private PersistingComponentStateSubscription? _persistSubscription;
 
     private string UrlSection => Section switch
     {
@@ -74,8 +76,27 @@ else
         _ => Section
     };
 
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<PostViewerState>(GetStateKey(), out var state) && state is not null)
+        {
+            Post = state.Post;
+            PrevPost = state.PrevPost;
+            NextPost = state.NextPost;
+            IsLoading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
+        if (Post is not null && string.Equals(Post.Slug, Slug, StringComparison.OrdinalIgnoreCase) && string.Equals(Post.Section, FsSection, StringComparison.OrdinalIgnoreCase))
+        {
+            IsLoading = false;
+            return;
+        }
+
         IsLoading = true;
 
         Post = await ContentService.GetPostAsync(FsSection, Slug);
@@ -112,6 +133,25 @@ else
 
     private string GetCanonicalUrl() => Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
 
+    private string GetStateKey() => $"{nameof(PostViewer)}:{FsSection}:{Slug}";
+
+    private Task PersistStateAsync()
+    {
+        if (Post is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        ApplicationState.PersistAsJson(GetStateKey(), new PostViewerState
+        {
+            Post = Post,
+            PrevPost = PrevPost,
+            NextPost = NextPost,
+        });
+
+        return Task.CompletedTask;
+    }
+
     private string GetOgImageUrl()
     {
         if (!string.IsNullOrWhiteSpace(Post?.Image))
@@ -122,5 +162,14 @@ else
         }
 
         return Navigation.ToAbsoluteUri("/opengraph-image").ToString();
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class PostViewerState
+    {
+        public PostModel? Post { get; set; }
+        public PostModel? PrevPost { get; set; }
+        public PostModel? NextPost { get; set; }
     }
 }

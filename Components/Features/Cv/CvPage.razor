@@ -1,7 +1,8 @@
 @page "/cv"
-@rendermode InteractiveServer
-@using Markdig
+@inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime Runtime
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>CV | Samet Can Cıncık</PageTitle>
 
@@ -27,26 +28,41 @@
 
     @if (!string.IsNullOrWhiteSpace(_htmlContent))
     {
-        <CvDownloadMenu @rendermode="InteractiveServer" />
+        <CvDownloadMenu />
     }
 </MudContainer>
 
 @code {
-    [Inject] private IWebHostEnvironment Env { get; set; } = default!;
-
     private string _htmlContent = string.Empty;
     private bool _contentInitialized;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<string>(nameof(CvPage), out var html) && !string.IsNullOrWhiteSpace(html))
+        {
+            _htmlContent = html;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        var path = Path.Combine(Env.ContentRootPath, "content", "cv.mdx");
-        if (File.Exists(path))
+        if (!string.IsNullOrWhiteSpace(_htmlContent))
         {
-            var markdown = await File.ReadAllTextAsync(path);
-            var pipeline = new MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()
-                .Build();
-            _htmlContent = Markdown.ToHtml(markdown, pipeline);
+            return;
+        }
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient("Server");
+            var response = await client.GetFromJsonAsync<CvResponse>("api/content/cv");
+            _htmlContent = response?.Html ?? string.Empty;
+        }
+        catch
+        {
+            _htmlContent = string.Empty;
         }
     }
 
@@ -67,4 +83,17 @@
             Console.WriteLine($"JS Error: {ex.Message}");
         }
     }
+
+    private sealed class CvResponse
+    {
+        public string Html { get; set; } = string.Empty;
+    }
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(CvPage), _htmlContent);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
 }

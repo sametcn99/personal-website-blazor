@@ -1,6 +1,7 @@
 ﻿@attribute [StreamRendering]
+@rendermode InteractiveAuto
 
-<Router AppAssembly="typeof(Program).Assembly" OnNavigateAsync="HandleNavigateAsync">
+<Router AppAssembly="typeof(Routes).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />

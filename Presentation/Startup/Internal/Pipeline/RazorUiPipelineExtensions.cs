@@ -1,4 +1,6 @@
 using personal_website_blazor.Components;
+using personal_website_blazor.Components.Features.Status;
+using personal_website_blazor.Client;
 
 namespace personal_website_blazor.Presentation.Startup.Internal.Pipeline;
 
@@ -9,7 +11,8 @@ internal static class RazorUiPipelineExtensions
         app.MapStaticAssets();
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode()
-            .AddInteractiveWebAssemblyRenderMode();
+            .AddInteractiveWebAssemblyRenderMode()
+            .AddAdditionalAssemblies(typeof(ClientAssemblyMarker).Assembly, typeof(NotFound).Assembly);
         return app;
     }
 }

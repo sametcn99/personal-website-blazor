@@ -1,5 +1,7 @@
 ﻿@page "/"
 @inject IContentService ContentService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>Samet Can Cıncık</PageTitle>
 
@@ -9,7 +11,7 @@
 
 <MudContainer>
 <MudStack Spacing="6">
-    <HomeSearchSection @rendermode="InteractiveServer"
+    <HomeSearchSection
                        BlogPosts="_blogPosts"
                        GistPosts="_gistPosts"
                        ProjectPosts="_projectPosts" />
@@ -45,9 +47,30 @@
     private int _blogTotal;
     private int _gistTotal;
     private int _projectTotal;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<HomePageState>(nameof(HomePageState), out var state) && state is not null)
+        {
+            _blogPosts = state.BlogPosts;
+            _gistPosts = state.GistPosts;
+            _projectPosts = state.ProjectPosts;
+            _blogTotal = state.BlogTotal;
+            _gistTotal = state.GistTotal;
+            _projectTotal = state.ProjectTotal;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        if (_blogTotal > 0 || _gistTotal > 0 || _projectTotal > 0)
+        {
+            return;
+        }
+
         var blogs = await ContentService.GetPostsAsync("posts");
         var projects = await ContentService.GetPostsAsync("projects");
         var gists = await ContentService.GetPostsAsync("gists");
@@ -70,4 +93,31 @@
         Tags = p.Tags,
         Language = p.Language,
     };
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(HomePageState), new HomePageState
+        {
+            BlogPosts = _blogPosts,
+            GistPosts = _gistPosts,
+            ProjectPosts = _projectPosts,
+            BlogTotal = _blogTotal,
+            GistTotal = _gistTotal,
+            ProjectTotal = _projectTotal,
+        });
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class HomePageState
+    {
+        public List<ContentMetadata> BlogPosts { get; set; } = [];
+        public List<ContentMetadata> GistPosts { get; set; } = [];
+        public List<ContentMetadata> ProjectPosts { get; set; } = [];
+        public int BlogTotal { get; set; }
+        public int GistTotal { get; set; }
+        public int ProjectTotal { get; set; }
+    }
 }

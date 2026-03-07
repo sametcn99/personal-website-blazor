@@ -1,5 +1,7 @@
 @page "/repo"
 @inject IGitHubService GitHubService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
 
 <PageTitle>Repositories | Samet Can Cıncık</PageTitle>
 
@@ -27,7 +29,7 @@
     }
     else
     {
-        <InteractiveRepoList @rendermode="InteractiveServer" Repos="_repos" />
+        <InteractiveRepoList Repos="_repos" />
     }
 </MudContainer>
 
@@ -35,9 +37,27 @@
     private bool _loading = true;
     private string? _error;
     private List<GitHubRepository> _repos = new();
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<RepoListState>(nameof(RepoList), out var state) && state is not null)
+        {
+            _repos = state.Repos;
+            _error = state.Error;
+            _loading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        if (!_loading)
+        {
+            return;
+        }
+
         try
         {
             var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99", 100);
@@ -51,5 +71,24 @@
         {
             _loading = false;
         }
+    }
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(RepoList), new RepoListState
+        {
+            Repos = _repos,
+            Error = _error,
+        });
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class RepoListState
+    {
+        public List<GitHubRepository> Repos { get; set; } = [];
+        public string? Error { get; set; }
     }
 }

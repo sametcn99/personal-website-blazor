@@ -1,5 +1,6 @@
 using personal_website_blazor.Core.Application.Abstractions;
 using personal_website_blazor.Core.Domain.Entities;
+using Markdig;
 
 namespace personal_website_blazor.Presentation.Startup.Internal.Endpoints;
 
@@ -7,6 +8,85 @@ internal static class ContentApiEndpointExtensions
 {
     internal static WebApplication MapContentApiEndpoints(this WebApplication app)
     {
+        app.MapGet(
+            "/api/content/all",
+            async (IContentService contentService) =>
+            {
+                var contents = await contentService.GetAllContentsAsync();
+                return Results.Json(contents);
+            }
+        );
+
+        app.MapGet(
+            "/api/content/{section}",
+            async (IContentService contentService, string section) =>
+            {
+                var posts = await contentService.GetPostsAsync(section);
+                return Results.Json(posts);
+            }
+        );
+
+        app.MapGet(
+            "/api/content/{section}/{slug}",
+            async (IContentService contentService, string section, string slug) =>
+            {
+                var post = await contentService.GetPostAsync(section, slug);
+                return post is null ? Results.NotFound() : Results.Json(post);
+            }
+        );
+
+        app.MapGet(
+            "/api/content/cv",
+            async (IWebHostEnvironment env) =>
+            {
+                var path = Path.Combine(env.ContentRootPath, "content", "cv.mdx");
+                if (!File.Exists(path))
+                {
+                    return Results.NotFound();
+                }
+
+                var markdown = await File.ReadAllTextAsync(path);
+                var pipeline = new MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .Build();
+
+                return Results.Json(new { html = Markdown.ToHtml(markdown, pipeline) });
+            }
+        );
+
+        app.MapGet(
+            "/api/readme",
+            async (IHttpClientFactory httpClientFactory) =>
+            {
+                var client = httpClientFactory.CreateClient("GitHub");
+                var markdown = await client.GetStringAsync(
+                    "https://raw.githubusercontent.com/sametcn99/sametcn99/refs/heads/main/README.md"
+                );
+
+                var pipeline = new MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .Build();
+
+                return Results.Json(new { html = Markdown.ToHtml(markdown, pipeline) });
+            }
+        );
+
+        app.MapGet(
+            "/api/repos/{slug}",
+            async (IHttpClientFactory httpClientFactory, string slug) =>
+            {
+                var client = httpClientFactory.CreateClient("GitHub");
+                var response = await client.GetAsync($"https://api.github.com/repos/sametcn99/{slug}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Results.NotFound();
+                }
+
+                var repo = await response.Content.ReadFromJsonAsync<RepoRedirectDto>();
+                return repo is null ? Results.NotFound() : Results.Json(repo);
+            }
+        );
+
         app.MapGet(
             "/api/blog",
             async (
@@ -125,5 +205,11 @@ internal static class ContentApiEndpointExtensions
                 }),
             }
         );
+    }
+
+    private sealed class RepoRedirectDto
+    {
+        public string Html_url { get; set; } = string.Empty;
+        public string Full_name { get; set; } = string.Empty;
     }
 }

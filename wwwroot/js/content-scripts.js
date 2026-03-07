@@ -29,7 +29,7 @@ window.ensureMermaidReady = async () => {
 window.renderMermaidDiagram = async (containerId, definition) => {
   const container = document.getElementById(containerId);
   if (!container || !definition) {
-    return;
+    return false;
   }
 
   try {
@@ -37,9 +37,11 @@ window.renderMermaidDiagram = async (containerId, definition) => {
     const renderId = `mermaid-svg-${containerId}-${Date.now()}`;
     const result = await mermaid.render(renderId, definition);
     container.innerHTML = result.svg;
+    return true;
   } catch (error) {
     console.error("Mermaid render error:", error);
     container.innerHTML = `<pre style="margin:0; overflow:auto;">${definition}</pre>`;
+    throw error;
   }
 };
 
@@ -92,6 +94,16 @@ window.downloadSvgMarkup = (svgMarkup, filenamePrefix = "mermaid-diagram") => {
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+};
+
+window.getElementInnerHtml = (elementId) => {
+  const element = document.getElementById(elementId);
+  return element?.innerHTML || "";
+};
+
+window.hasSvgContent = (elementId) => {
+  const element = document.getElementById(elementId);
+  return !!element?.querySelector("svg");
 };
 
 function decorateCodeBlocks() {

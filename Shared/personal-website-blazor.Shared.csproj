@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>personal_website_blazor</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="Markdig" Version="0.45.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="MudBlazor" Version="8.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Core\Application\Abstractions\**\*.cs" Link="Core\Application\Abstractions\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Core\Application\Configuration\SocialData.cs" Link="Core\Application\Configuration\SocialData.cs" />
+    <Compile Include="..\Core\Application\Configuration\UmamiEvent.cs" Link="Core\Application\Configuration\UmamiEvent.cs" />
+    <Compile Include="..\Core\Domain\Entities\**\*.cs" Link="Core\Domain\Entities\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Components\Features\Shared\Components\MudHtmlRenderer.razor.cs" Link="Components\Features\Shared\Components\MudHtmlRenderer.razor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\Components\**\*.razor" Link="Components\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\Components\**\*.razor.css" Link="Components\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="..\Components\App.razor" />
+  </ItemGroup>
+</Project>
