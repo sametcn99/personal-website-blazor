@@ -1,0 +1,175 @@
+@page "/{Section}/{Slug}"
+@using personal_website_blazor.Domain.Entities
+@inject personal_website_blazor.Application.Abstractions.IContentService ContentService
+@inject IJSRuntime Runtime
+@inject NavigationManager Navigation
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
+
+<PageTitle>@(Post?.Title ?? "Loading...") | Samet Can Cıncık</PageTitle>
+
+@if (Post == null && IsLoading)
+{
+    @* Show skeleton to prevent layout shift *@
+    <ArticleWrapper ShowSkeleton="true">
+        <MudSkeleton Width="100%" Height="40px" Animation="Animation.Wave" Class="mb-4" />
+        <MudSkeleton Width="60%" Height="30px" Animation="Animation.Wave" Class="mb-8" />
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" Animation="Animation.Wave" Class="mb-6 rounded-lg" />
+        <MudSkeleton Width="100%" Height="20px" Animation="Animation.Wave" Class="mb-2" />
+        <MudSkeleton Width="90%" Height="20px" Animation="Animation.Wave" Class="mb-2" />
+        <MudSkeleton Width="95%" Height="20px" Animation="Animation.Wave" Class="mb-10" />
+    </ArticleWrapper>
+}
+else if (Post == null)
+{
+    <MudContainer  >
+        <BackToHome />
+        <MudAlert Severity="Severity.Error" Class="mt-4">Post not found.</MudAlert>
+    </MudContainer>
+}
+else
+{
+    <HeadContent>
+        <meta name="description" content="@Post.Description" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="@Post.Title" />
+        <meta property="og:description" content="@Post.Description" />
+        <meta property="og:url" content="@GetCanonicalUrl()" />
+        <meta property="og:image" content="@GetOgImageUrl()" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content="@Post.Title" />
+        <meta property="twitter:description" content="@Post.Description" />
+        <meta property="twitter:image" content="@GetOgImageUrl()" />
+    </HeadContent>
+
+    <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost">
+        <div class="content">
+            <MudHtmlRenderer HtmlContent="@Post.Content" />
+        </div>
+    </ArticleWrapper>
+}
+
+@code {
+    [Parameter] public string Section { get; set; } = string.Empty;
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private PostModel? Post;
+    private PostModel? PrevPost;
+    private PostModel? NextPost;
+    private bool IsLoading = true;
+    private string? _initializedSlug;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    private string UrlSection => Section switch
+    {
+        "posts" => "blog",
+        "projects" => "project",
+        "gists" => "gist",
+        _ => Section
+    };
+
+    private string FsSection => Section switch
+    {
+        "blog" => "posts",
+        "project" => "projects",
+        "gist" => "gists",
+        _ => Section
+    };
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<PostViewerState>(GetStateKey(), out var state) && state is not null)
+        {
+            Post = state.Post;
+            PrevPost = state.PrevPost;
+            NextPost = state.NextPost;
+            IsLoading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Post is not null && string.Equals(Post.Slug, Slug, StringComparison.OrdinalIgnoreCase) && string.Equals(Post.Section, FsSection, StringComparison.OrdinalIgnoreCase))
+        {
+            IsLoading = false;
+            return;
+        }
+
+        IsLoading = true;
+
+        Post = await ContentService.GetPostAsync(FsSection, Slug);
+
+        if (Post != null)
+        {
+            var allPosts = await ContentService.GetPostsAsync(FsSection);
+            var idx = allPosts.FindIndex(p => p.Slug == Slug);
+            if (idx >= 0)
+            {
+                NextPost = idx > 0 ? allPosts[idx - 1] : null;
+                PrevPost = idx < allPosts.Count - 1 ? allPosts[idx + 1] : null;
+            }
+        }
+
+        IsLoading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Post != null && !string.Equals(_initializedSlug, Slug, StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                await Runtime.InvokeVoidAsync("initContent");
+                _initializedSlug = Slug;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JS Error: {ex.Message}");
+            }
+        }
+    }
+
+    private string GetCanonicalUrl() => Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
+
+    private string GetStateKey() => $"{nameof(PostViewer)}:{FsSection}:{Slug}";
+
+    private Task PersistStateAsync()
+    {
+        if (Post is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        ApplicationState.PersistAsJson(GetStateKey(), new PostViewerState
+        {
+            Post = Post,
+            PrevPost = PrevPost,
+            NextPost = NextPost,
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private string GetOgImageUrl()
+    {
+        if (!string.IsNullOrWhiteSpace(Post?.Image))
+        {
+            return Post.Image!.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? Post.Image!
+                : Navigation.ToAbsoluteUri(Post.Image!).ToString();
+        }
+
+        return Navigation.ToAbsoluteUri("/opengraph-image").ToString();
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class PostViewerState
+    {
+        public PostModel? Post { get; set; }
+        public PostModel? PrevPost { get; set; }
+        public PostModel? NextPost { get; set; }
+    }
+}

@@ -3,48 +3,27 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>personal-website-blazor</RootNamespace>
+    <RootNamespace>personal_website_blazor</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     <UserSecretsId>f44aea12-c646-4712-9b7c-b95947cbb3a3</UserSecretsId>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;Shared\**;src\Client\**;src\Shared\**;src\Application\**;src\Domain\**;src\Infrastructure\**</DefaultItemExcludes>
+    <WebRootPath>src\wwwroot</WebRootPath>
+    <LaunchSettingsFile>src\Properties\launchSettings.json</LaunchSettingsFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Markdig" Version="0.45.0" />
     <PackageReference
       Include="Microsoft.AspNetCore.Components.WebAssembly.Server"
       Version="10.0.3"
     />
     <PackageReference Include="MudBlazor" Version="8.15.0" />
-    <PackageReference Include="Octokit" Version="14.0.0" />
-    <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Shared\personal-website-blazor.Shared.csproj" />
-    <ProjectReference Include="Client\personal-website-blazor.Client.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Client\**\*.cs" />
-    <Compile Remove="Shared\**\*.cs" />
-    <Compile Remove="Core\Application\Abstractions\**\*.cs" />
-    <Compile Remove="Core\Application\Configuration\SocialData.cs" />
-    <Compile Remove="Core\Application\Configuration\UmamiEvent.cs" />
-    <Compile Remove="Core\Domain\Entities\**\*.cs" />
-    <Compile Remove="Components\**\*.cs" />
-    <Content Remove="Client\**\*" />
-    <Content Remove="Shared\**\*" />
-    <Content Remove="Components\**\*.razor" />
-    <EmbeddedResource Remove="Client\**\*" />
-    <EmbeddedResource Remove="Shared\**\*" />
-    <None Remove="Client\**\*" />
-    <None Remove="Shared\**\*" />
-    <None Remove="Components\**\*.razor.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Components\App.razor" />
+    <ProjectReference Include="src\Shared\personal-website-blazor.Shared.csproj" />
+    <ProjectReference Include="src\Client\personal-website-blazor.Client.csproj" />
+    <ProjectReference Include="src\Infrastructure\personal-website-blazor.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
