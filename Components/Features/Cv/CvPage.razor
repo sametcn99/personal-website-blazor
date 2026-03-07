@@ -1,5 +1,7 @@
 @page "/cv"
+@rendermode InteractiveServer
 @using Markdig
+@inject IJSRuntime Runtime
 
 <PageTitle>CV | Samet Can Cıncık</PageTitle>
 
@@ -25,26 +27,7 @@
 
     @if (!string.IsNullOrWhiteSpace(_htmlContent))
     {
-        <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4 mb-4 d-print-none">
-            <MudMenu Variant="Variant.Outlined" Color="Color.Primary" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Style="text-transform: none;">
-                <ActivatorContent>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Download"
-                               EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
-                               Style="text-transform: none;">
-                        Download CV
-                    </MudButton>
-                </ActivatorContent>
-                <ChildContent>
-                    <MudMenuItem Target="_blank" Href="/Samet_Can_Cincik_CV_TR.pdf" download="Samet_Can_Cincik_CV_TR.pdf" data-umami-event="cv-download-tr-click">
-                        Özgeçmiş (TR)
-                    </MudMenuItem>
-                    <MudMenuItem Target="_blank" Href="/Samet_Can_Cincik_CV_EN.pdf" download="Samet_Can_Cincik_CV_EN.pdf" data-umami-event="cv-download-en-click">
-                        Resume (EN)
-                    </MudMenuItem>
-                </ChildContent>
-            </MudMenu>
-        </MudStack>
+        <CvDownloadMenu @rendermode="InteractiveServer" />
     }
 </MudContainer>
 
@@ -52,6 +35,7 @@
     [Inject] private IWebHostEnvironment Env { get; set; } = default!;
 
     private string _htmlContent = string.Empty;
+    private bool _contentInitialized;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,6 +47,24 @@
                 .UseAdvancedExtensions()
                 .Build();
             _htmlContent = Markdown.ToHtml(markdown, pipeline);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_contentInitialized || string.IsNullOrWhiteSpace(_htmlContent))
+        {
+            return;
+        }
+
+        try
+        {
+            await Runtime.InvokeVoidAsync("initContent");
+            _contentInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"JS Error: {ex.Message}");
         }
     }
 }

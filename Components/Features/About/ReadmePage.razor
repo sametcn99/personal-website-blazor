@@ -1,6 +1,8 @@
 @page "/readme"
+@rendermode InteractiveServer
 @using Markdig
 @inject IHttpClientFactory HttpClientFactory
+@inject IJSRuntime Runtime
 
 <PageTitle>README | Samet Can Cıncık</PageTitle>
 
@@ -31,6 +33,7 @@
     private bool _loading = true;
     private string? _error;
     private string _htmlContent = string.Empty;
+    private bool _contentInitialized;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,6 +55,24 @@
         finally
         {
             _loading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_contentInitialized || string.IsNullOrWhiteSpace(_htmlContent))
+        {
+            return;
+        }
+
+        try
+        {
+            await Runtime.InvokeVoidAsync("initContent");
+            _contentInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"JS Error: {ex.Message}");
         }
     }
 }

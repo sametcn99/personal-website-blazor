@@ -32,7 +32,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="/rss.xml" />
     <link rel="alternate" type="application/feed+json" title="JSON Feed" href="/feed.json" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-    <HeadOutlet @rendermode="@(new InteractiveServerRenderMode(prerender: false))" />
+    <HeadOutlet />
     <script defer src="https://umami.sametcc.me/script.js"
             data-website-id="be8d6d00-6517-4fe6-8a97-e5d0f8434685"></script>
     <meta name="robots" content="index, follow">
@@ -54,7 +54,7 @@
     <script src="/js/ui-utils.js"></script>
     
     <main id="main-content">
-        <Routes @rendermode="@(new InteractiveServerRenderMode(prerender: false))" />
+        <Routes />
     </main>
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>

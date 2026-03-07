@@ -1,0 +1,20 @@
+<MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4 mb-4 d-print-none">
+    <MudMenu Variant="Variant.Outlined" Color="Color.Primary" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Style="text-transform: none;">
+        <ActivatorContent>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Download"
+                       EndIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                       Style="text-transform: none;">
+                Download CV
+            </MudButton>
+        </ActivatorContent>
+        <ChildContent>
+            <MudMenuItem Target="_blank" Href="/Samet_Can_Cincik_CV_TR.pdf" download="Samet_Can_Cincik_CV_TR.pdf" data-umami-event="cv-download-tr-click">
+                Özgeçmiş (TR)
+            </MudMenuItem>
+            <MudMenuItem Target="_blank" Href="/Samet_Can_Cincik_CV_EN.pdf" download="Samet_Can_Cincik_CV_EN.pdf" data-umami-event="cv-download-en-click">
+                Resume (EN)
+            </MudMenuItem>
+        </ChildContent>
+    </MudMenu>
+</MudStack>

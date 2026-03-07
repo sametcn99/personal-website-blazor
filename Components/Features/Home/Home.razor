@@ -1,10 +1,5 @@
 ﻿@page "/"
-@implements IAsyncDisposable
-@using System.Text.Json.Serialization
 @inject IContentService ContentService
-@inject IHttpClientFactory HttpClientFactory
-@inject IJSRuntime JS
-@inject NavigationManager Navigation
 
 <PageTitle>Samet Can Cıncık</PageTitle>
 
@@ -14,61 +9,10 @@
 
 <MudContainer>
 <MudStack Spacing="6">
-    <MudStack Spacing="2">
-        <MudTextField T="string"
-                      InputId="home-search-input"
-                      Value="_searchQuery"
-                      ValueChanged="OnSearchQueryChanged"
-                      Placeholder="Search posts, links, and repositories..."
-                      Variant="Variant.Text"
-                      Margin="Margin.Dense"
-                      Immediate="true"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      Clearable="true"
-                      data-umami-event="home-search-input-click"
-                      OnClearButtonClick="ClearSearchAsync" />
-
-        @if (!string.IsNullOrWhiteSpace(_searchQuery))
-        {
-            @if (_isRepoLoading)
-            {
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                    <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">Loading repositories...</MudText>
-                </MudStack>
-            }
-
-            @if (_filteredResults.Count > 0)
-            {
-                <MudStack Spacing="1" Class="mt-1">
-                    @foreach (var item in _filteredResults)
-                    {
-                        <MudLink Href="@item.Href"
-                                 Underline="Underline.None"
-                                 Color="Color.Inherit"
-                                 Target="@(item.External ? "_blank" : "_self")"
-                                 data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                            <MudStack Spacing="0" Class="py-1 hover-card">
-                                <MudText Typo="Typo.body1" Style="font-weight: 500;">@item.Title</MudText>
-                                @if (!string.IsNullOrWhiteSpace(item.Summary))
-                                {
-                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
-                                }
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                    @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
-                                </MudText>
-                            </MudStack>
-                        </MudLink>
-                    }
-                </MudStack>
-            }
-            else
-            {
-                <MudText Typo="Typo.body2" Color="Color.Secondary">No results found.</MudText>
-            }
-        }
-    </MudStack>
+    <HomeSearchSection @rendermode="InteractiveServer"
+                       BlogPosts="_blogPosts"
+                       GistPosts="_gistPosts"
+                       ProjectPosts="_projectPosts" />
 
     <ReadmeSection />
 
@@ -95,19 +39,9 @@
 </MudContainer>
 
 @code {
-    private const int MaxSearchResults = 10;
-
-    private bool _isRepoLoading;
-    private bool _repoFetchStarted;
-    private bool _hotkeyRegistered;
-    private string _searchQuery = string.Empty;
     private List<ContentMetadata> _blogPosts = new();
     private List<ContentMetadata> _gistPosts = new();
     private List<ContentMetadata> _projectPosts = new();
-    private readonly List<SearchEntry> _searchSource = new();
-    private readonly Dictionary<string, SearchEntry> _searchIndexByHref = new(StringComparer.OrdinalIgnoreCase);
-    private List<SearchEntry> _filteredResults = new();
-    private DotNetObjectReference<Home>? _dotNetRef;
     private int _blogTotal;
     private int _gistTotal;
     private int _projectTotal;
@@ -125,261 +59,6 @@
         _blogPosts = blogs.Take(5).Select(ToMeta("blog")).ToList();
         _gistPosts = gists.Take(5).Select(ToMeta("gist")).ToList();
         _projectPosts = projects.Take(5).Select(ToMeta("project")).ToList();
-
-        BuildBaseSearchSource(blogs, gists, projects);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_hotkeyRegistered)
-        {
-            return;
-        }
-
-        _dotNetRef ??= DotNetObjectReference.Create(this);
-
-        try
-        {
-            await JS.InvokeVoidAsync("registerHomeSearchKeyHandler", _dotNetRef);
-            _hotkeyRegistered = true;
-        }
-        catch (InvalidOperationException)
-        {
-        }
-        catch (JSDisconnectedException)
-        {
-        }
-    }
-
-    [JSInvokable]
-    public async Task HandleGlobalKeyInput(string key, bool ctrlKey, bool metaKey, bool altKey)
-    {
-        if (ctrlKey || metaKey || altKey)
-        {
-            return;
-        }
-
-        if (key == "Escape")
-        {
-            await ClearSearchAsync();
-            return;
-        }
-
-        if (key == "Backspace")
-        {
-            if (_searchQuery.Length == 0)
-            {
-                return;
-            }
-
-            _searchQuery = _searchQuery[..^1];
-            ApplySearchFilter();
-            await FocusSearchInputAsync();
-            await InvokeAsync(StateHasChanged);
-            return;
-        }
-
-        if (key.Length == 1)
-        {
-            _searchQuery += key;
-
-            if (!_repoFetchStarted && _searchQuery.Length > 0)
-            {
-                _ = LoadRepositoriesAsync();
-            }
-
-            ApplySearchFilter();
-            await FocusSearchInputAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private Task OnSearchQueryChanged(string? value)
-    {
-        _searchQuery = value ?? string.Empty;
-
-        if (!_repoFetchStarted && _searchQuery.Length > 0)
-        {
-            _ = LoadRepositoriesAsync();
-        }
-
-        ApplySearchFilter();
-        return Task.CompletedTask;
-    }
-
-    private async Task ClearSearchAsync()
-    {
-        _searchQuery = string.Empty;
-        _filteredResults.Clear();
-        await FocusSearchInputAsync();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task FocusSearchInputAsync()
-    {
-        if (!_hotkeyRegistered)
-        {
-            return;
-        }
-
-        try
-        {
-            await JS.InvokeVoidAsync("focusElementById", "home-search-input");
-        }
-        catch (JSDisconnectedException)
-        {
-        }
-    }
-
-    private void BuildBaseSearchSource(List<PostModel> blogs, List<PostModel> gists, List<PostModel> projects)
-    {
-        foreach (var post in blogs)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = post.Title,
-                Summary = post.Description,
-                Href = $"/blog/{post.Slug}",
-                TypeLabel = "Blog",
-                PublishedAt = post.PublishDate?.ToString("yyyy-MM-dd")
-            });
-        }
-
-        foreach (var gist in gists)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = gist.Title,
-                Summary = gist.Description,
-                Href = $"/gist/{gist.Slug}",
-                TypeLabel = "Gist",
-                PublishedAt = gist.PublishDate?.ToString("yyyy-MM-dd")
-            });
-        }
-
-        foreach (var project in projects)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = project.Title,
-                Summary = project.Description,
-                Href = $"/project/{project.Slug}",
-                TypeLabel = "Project",
-                PublishedAt = project.PublishDate?.ToString("yyyy-MM-dd")
-            });
-        }
-
-        foreach (var link in SocialData.Links)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = link.Label,
-                Summary = link.Category,
-                Href = link.Link,
-                TypeLabel = "Link",
-                External = link.External
-            });
-        }
-    }
-
-    private async Task LoadRepositoriesAsync()
-    {
-        if (_repoFetchStarted)
-        {
-            return;
-        }
-
-        _repoFetchStarted = true;
-        _isRepoLoading = true;
-        await InvokeAsync(StateHasChanged);
-
-        try
-        {
-            var client = HttpClientFactory.CreateClient();
-            var reposApiUrl = Navigation.ToAbsoluteUri("/api/repos");
-            var repos = await client.GetFromJsonAsync<List<GitHubRepoDto>>(reposApiUrl);
-
-            if (repos is null)
-            {
-                return;
-            }
-
-            foreach (var repo in repos)
-            {
-                if (string.IsNullOrWhiteSpace(repo.HtmlUrl) || string.IsNullOrWhiteSpace(repo.Name))
-                {
-                    continue;
-                }
-
-                AddSearchEntry(new SearchEntry
-                {
-                    Title = repo.Name,
-                    Summary = repo.Description ?? string.Empty,
-                    Href = repo.HtmlUrl,
-                    TypeLabel = "Repository",
-                    PublishedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
-                    External = true
-                });
-            }
-        }
-        catch
-        {
-            _repoFetchStarted = false;
-        }
-        finally
-        {
-            _isRepoLoading = false;
-            ApplySearchFilter();
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void AddSearchEntry(SearchEntry entry)
-    {
-        if (string.IsNullOrWhiteSpace(entry.Href))
-        {
-            return;
-        }
-
-        if (_searchIndexByHref.ContainsKey(entry.Href))
-        {
-            return;
-        }
-
-        _searchIndexByHref[entry.Href] = entry;
-        _searchSource.Add(entry);
-    }
-
-    private void ApplySearchFilter()
-    {
-        if (string.IsNullOrWhiteSpace(_searchQuery))
-        {
-            _filteredResults.Clear();
-            return;
-        }
-
-        _filteredResults = _searchSource
-            .Where(item =>
-                item.Title.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                item.Summary.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
-            .Take(MaxSearchResults)
-            .ToList();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_hotkeyRegistered)
-        {
-            try
-            {
-                await JS.InvokeVoidAsync("unregisterHomeSearchKeyHandler");
-            }
-            catch (JSDisconnectedException)
-            {
-            }
-        }
-
-        _dotNetRef?.Dispose();
     }
 
     private static Func<PostModel, ContentMetadata> ToMeta(string prefix) => p => new ContentMetadata
@@ -391,29 +70,4 @@
         Tags = p.Tags,
         Language = p.Language,
     };
-
-    private sealed class SearchEntry
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Summary { get; set; } = string.Empty;
-        public string Href { get; set; } = string.Empty;
-        public string TypeLabel { get; set; } = string.Empty;
-        public string? PublishedAt { get; set; }
-        public bool External { get; set; }
-    }
-
-    private sealed class GitHubRepoDto
-    {
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
-        [JsonPropertyName("html_url")]
-        public string? HtmlUrl { get; set; }
-
-        [JsonPropertyName("updated_at")]
-        public DateTime? UpdatedAt { get; set; }
-    }
 }
