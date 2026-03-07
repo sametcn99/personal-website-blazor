@@ -76,21 +76,18 @@
                     Description="A collection of my thoughts on development and the passions that keep me inspired."
                     Posts="_blogPosts"
                     Total="_blogTotal"
-                    IsLoading="_loading"
                     ViewAllHref="/blog" />
 
     <ContentSection Title="Technical Gists"
                     Description="Code snippets, tutorials, and technical documentation."
                     Posts="_gistPosts"
                     Total="_gistTotal"
-                    IsLoading="_loading"
                     ViewAllHref="/gist" />
 
     <ContentSection Title="Projects"
                     Description="A showcase of my personal projects and contributions to the developer community."
                     Posts="_projectPosts"
                     Total="_projectTotal"
-                    IsLoading="_loading"
                     ViewAllHref="/project" />
 
     <LinksSection />
@@ -100,7 +97,6 @@
 @code {
     private const int MaxSearchResults = 10;
 
-    private bool _loading = true;
     private bool _isRepoLoading;
     private bool _repoFetchStarted;
     private bool _hotkeyRegistered;
@@ -131,8 +127,6 @@
         _projectPosts = projects.Take(5).Select(ToMeta("project")).ToList();
 
         BuildBaseSearchSource(blogs, gists, projects);
-
-        _loading = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
