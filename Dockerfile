@@ -26,12 +26,12 @@ EXPOSE 8080
 COPY --from=build /app/publish .
 
 # Set environment variables for production
-ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 ENV ASPNETCORE_hostBuilder__reloadConfigOnChange=false
+ENV PORT=8080
 # .NET config key: GitHub:Token -> environment variable: GitHub__Token
 ENV GitHub__Token=change_me
 
 # Run the application
-ENTRYPOINT ["dotnet", "personal-website-blazor.dll"]
+ENTRYPOINT ["/bin/sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-8080} exec dotnet personal-website-blazor.dll"]
