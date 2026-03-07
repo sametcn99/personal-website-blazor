@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 using personal_website_blazor.Infrastructure;
@@ -10,6 +12,7 @@ public static class ServiceRegistrationExtensions
     {
         ConfigureConfiguration(builder);
         ConfigureForwardedHeaders(builder.Services);
+        ConfigureDataProtection(builder.Services, builder.Configuration, builder.Environment);
         RegisterApplicationServices(builder.Services, builder.Configuration);
         return builder;
     }
@@ -44,6 +47,30 @@ public static class ServiceRegistrationExtensions
             options.KnownIPNetworks.Clear();
             options.KnownProxies.Clear();
         });
+    }
+
+    private static void ConfigureDataProtection(
+        IServiceCollection services,
+        IConfiguration configuration,
+        IWebHostEnvironment environment
+    )
+    {
+        var dataProtection = services.AddDataProtection().SetApplicationName("personal-website-blazor");
+
+        var keysPath = configuration["DataProtection:KeysPath"];
+
+        if (string.IsNullOrWhiteSpace(keysPath) && !environment.IsDevelopment())
+        {
+            keysPath = Path.Combine(environment.ContentRootPath, "data-protection-keys");
+        }
+
+        if (string.IsNullOrWhiteSpace(keysPath))
+        {
+            return;
+        }
+
+        Directory.CreateDirectory(keysPath);
+        dataProtection.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
     }
 
     private static void RegisterApplicationServices(

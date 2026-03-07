@@ -19,8 +19,12 @@ RUN dotnet publish "personal-website-blazor.csproj" -c Release -o /app/publish /
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
+RUN mkdir -p /app/data-protection-keys
+
 # Expose port (Render.com will use the PORT environment variable)
 EXPOSE 8080
+
+VOLUME ["/app/data-protection-keys"]
 
 # Copy published app
 COPY --from=build /app/publish .
@@ -30,6 +34,7 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 ENV ASPNETCORE_hostBuilder__reloadConfigOnChange=false
 ENV PORT=8080
+ENV DataProtection__KeysPath=/app/data-protection-keys
 # .NET config key: GitHub:Token -> environment variable: GitHub__Token
 ENV GitHub__Token=change_me
 

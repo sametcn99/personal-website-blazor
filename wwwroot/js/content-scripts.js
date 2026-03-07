@@ -1,13 +1,23 @@
 window.__mermaidReadyPromise = null;
+window.__mermaidInitialized = window.__mermaidInitialized || false;
+window.__mermaidModuleUrl = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
 
 window.ensureMermaidReady = async () => {
   if (window.mermaid) {
+    if (!window.__mermaidInitialized) {
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+      });
+      window.__mermaidInitialized = true;
+    }
+
     return window.mermaid;
   }
 
   if (!window.__mermaidReadyPromise) {
     window.__mermaidReadyPromise =
-      import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs")
+      import(window.__mermaidModuleUrl)
         .then((module) => {
           const mermaid = module.default;
           mermaid.initialize({
@@ -15,10 +25,12 @@ window.ensureMermaidReady = async () => {
             theme: "dark",
           });
           window.mermaid = mermaid;
+          window.__mermaidInitialized = true;
           return mermaid;
         })
         .catch((error) => {
           window.__mermaidReadyPromise = null;
+          window.__mermaidInitialized = false;
           throw error;
         });
   }
