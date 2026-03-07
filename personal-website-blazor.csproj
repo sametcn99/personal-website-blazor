@@ -6,17 +6,14 @@
     <RootNamespace>personal_website_blazor</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     <UserSecretsId>f44aea12-c646-4712-9b7c-b95947cbb3a3</UserSecretsId>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;Shared\**;src\Client\**;src\Shared\**;src\Application\**;src\Domain\**;src\Infrastructure\**;src\wwwroot\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;Shared\**;src\Client\**;src\Shared\**;src\Application\**;src\Domain\**;src\Infrastructure\**</DefaultItemExcludes>
     <LaunchSettingsFile>src\Properties\launchSettings.json</LaunchSettingsFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.45.0" />
-    <PackageReference
-      Include="Microsoft.AspNetCore.Components.WebAssembly.Server"
-      Version="10.0.3"
-    />
-    <PackageReference Include="MudBlazor" Version="8.15.0" />
+    <PackageReference Include="Markdig" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.3" />
+    <PackageReference Include="MudBlazor" Version="9.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,14 +25,6 @@
   <ItemGroup>
     <Content Include="content\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="src\wwwroot\**\*.*">
-      <Link>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 </Project>

@@ -1,20 +1,6 @@
 using personal_website_blazor.Presentation.Startup;
 
-var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-	?? Environments.Production;
-
-var options = string.Equals(environmentName, Environments.Development, StringComparison.OrdinalIgnoreCase)
-	? new WebApplicationOptions
-	{
-		Args = args,
-		WebRootPath = "src/wwwroot"
-	}
-	: new WebApplicationOptions
-	{
-		Args = args
-	};
-
-var builder = WebApplication.CreateBuilder(options);
+var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
 {
