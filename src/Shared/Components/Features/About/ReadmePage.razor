@@ -1,5 +1,6 @@
 @page "/readme"
 @inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager NavigationManager
 @inject IJSRuntime Runtime
 @inject PersistentComponentState ApplicationState
 @implements IDisposable
@@ -42,7 +43,7 @@
         {
             _htmlContent = state.HtmlContent;
             _error = state.Error;
-            _loading = false;
+            _loading = string.IsNullOrWhiteSpace(_htmlContent);
         }
 
         _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
@@ -50,15 +51,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!_loading)
+        if (!string.IsNullOrWhiteSpace(_htmlContent))
         {
             return;
         }
 
         try
         {
-            var client = HttpClientFactory.CreateClient("Server");
-            var response = await client.GetFromJsonAsync<ReadmeResponse>("api/readme");
+            _loading = true;
+            _error = null;
+
+            var client = HttpClientFactory.CreateClient();
+            var requestUri = NavigationManager.ToAbsoluteUri("api/readme");
+            var response = await client.GetFromJsonAsync<ReadmeResponse>(requestUri);
             _htmlContent = response?.Html ?? string.Empty;
         }
         catch (Exception ex)
