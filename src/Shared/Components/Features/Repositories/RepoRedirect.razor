@@ -1,5 +1,7 @@
 @page "/repo/{Slug}"
+@using System.Text.Json.Serialization
 @inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
 @inject PersistentComponentState ApplicationState
 @implements IDisposable
 
@@ -33,6 +35,7 @@ else
     private string? _repoUrl;
     private string? _repoName;
     private bool _notFound;
+    private string? _loadedSlug;
     private PersistingComponentStateSubscription? _persistSubscription;
 
     protected override void OnInitialized()
@@ -49,6 +52,22 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        if (!string.Equals(_loadedSlug, Slug, StringComparison.Ordinal))
+        {
+            _repoUrl = null;
+            _repoName = null;
+            _notFound = false;
+            _loadedSlug = null;
+
+            if (ApplicationState.TryTakeFromJson<RepoRedirectState>(GetStateKey(), out var state) && state is not null)
+            {
+                _repoUrl = state.RepoUrl;
+                _repoName = state.RepoName;
+                _notFound = state.NotFound;
+                _loadedSlug = Slug;
+            }
+        }
+
         if (_notFound || !string.IsNullOrWhiteSpace(_repoUrl))
         {
             return;
@@ -56,24 +75,31 @@ else
 
         try
         {
-            var client = HttpClientFactory.CreateClient("Server");
-            var repo = await client.GetFromJsonAsync<RepoData>($"api/repos/{Uri.EscapeDataString(Slug)}");
+            var client = HttpClientFactory.CreateClient();
+            var requestUri = new Uri(new Uri(Navigation.BaseUri), $"api/repos/{Uri.EscapeDataString(Slug)}");
+            var repo = await client.GetFromJsonAsync<RepoData>(requestUri);
             if (repo != null)
             {
-                _repoUrl = repo.Html_url;
-                _repoName = repo.Full_name;
+                _repoUrl = repo.HtmlUrl;
+                _repoName = repo.FullName;
+                _loadedSlug = Slug;
                 return;
             }
         }
-        catch { }
+        catch (HttpRequestException) { }
+        catch (NotSupportedException) { }
 
         _notFound = true;
+        _loadedSlug = Slug;
     }
 
     private class RepoData
     {
-        public string Html_url { get; set; } = string.Empty;
-        public string Full_name { get; set; } = string.Empty;
+        [JsonPropertyName("html_url")]
+        public string HtmlUrl { get; set; } = string.Empty;
+
+        [JsonPropertyName("full_name")]
+        public string FullName { get; set; } = string.Empty;
     }
 
     private string GetStateKey() => $"{nameof(RepoRedirect)}:{Slug}";
