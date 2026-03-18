@@ -6,14 +6,12 @@
     <meta name="description" content="The requested page could not be found. Return to the homepage to continue browsing." />
 </HeadContent>
 
-<MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="min-height: 80vh; text-align: center;" Class="pa-2">
-    <MudIcon Icon="@Icons.Material.Outlined.ReportProblem" Size="Size.Large" Color="Color.Secondary" Style="font-size: 60px;" />
-    <MudText Typo="Typo.h1">404</MudText>
-    <MudText Typo="Typo.h5">Page Not Found</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" GutterBottom>
+<div class="center-stack status-page">
+    <AppIcon Name="report-problem" Class="status-icon text-muted" Decorative="true" />
+    <h1 class="text-display">404</h1>
+    <h2 class="text-section-title">Page Not Found</h2>
+    <p class="text-body text-muted status-copy">
         The page you are looking for does not exist or may have been moved.
-    </MudText>
-    <MudButton Href="/" Variant="Variant.Outlined" Color="Color.Default" Style="text-transform: none;" data-umami-event="not-found-home-click">
-        Return to Home Page
-    </MudButton>
-</MudStack>
+    </p>
+    <a class="button button-outline" href="/" data-umami-event="not-found-home-click">Return to Home Page</a>
+</div>

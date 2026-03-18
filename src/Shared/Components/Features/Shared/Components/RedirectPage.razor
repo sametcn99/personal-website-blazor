@@ -1,24 +1,23 @@
 @* RedirectPage.razor - Countdown redirect component *@
 
-<MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="min-height: 100vh; text-align: center;"
-          Spacing="3" Class="pa-4">
-    <MudText Typo="Typo.h4" Style="font-weight: 600;">Redirecting you shortly…</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary">
+<div class="center-stack redirect-page">
+    <h2 class="text-section-title">Redirecting you shortly…</h2>
+    <p class="text-body text-muted">
         You'll be automatically redirected in @_countdown second@(_countdown != 1 ? "s" : "").
-    </MudText>
-    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+    </p>
+    <div class="spinner" aria-hidden="true"></div>
 
     @if (_showManualLink)
     {
-        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mt-4">
-            <MudText Typo="Typo.body2" Color="Color.Secondary">
+        <div class="center-stack redirect-page-manual">
+            <p class="text-caption text-muted">
                 If you are not redirected automatically, please click the link below:
-            </MudText>
-            <MudLink Href="@TargetUrl" Underline="Underline.Hover"
-                     data-umami-event='@UmamiEvent.Click("redirect-manual-link", TargetUrl)'>@TargetUrl</MudLink>
-        </MudStack>
+            </p>
+            <a class="link-muted" href="@TargetUrl"
+               data-umami-event='@UmamiEvent.Click("redirect-manual-link", TargetUrl)'>@TargetUrl</a>
+        </div>
     }
-</MudStack>
+</div>
 
 @code {
     [Parameter] public string TargetUrl { get; set; } = string.Empty;

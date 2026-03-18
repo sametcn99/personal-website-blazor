@@ -1,70 +1,31 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
-<MudDialogProvider />
-<MudPopoverProvider />
-<MudSnackbarProvider />
-
 <div class="page-shell">
-    <MudLayout>
-        <MudMainContent>
-            <div class="page-content">
-                <div class="content-body">
-                    <MudContainer MaxWidth="MaxWidth.Medium" Class="px-4">
-                        @Body
-                    </MudContainer>
-                </div>
-
-                @if (!ShouldHideFooter())
-                {
-                    <div class="footer-area">
-                        <MudContainer   Class="mt-16 mb-8">
-                            <MudDivider Class="mb-4" />
-                            <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2" Class="mb-2">
-                                <MudLink Href="/privacy-policy" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-privacy-click">
-                                    <MudText Typo="Typo.caption">Privacy Policy</MudText>
-                                </MudLink>
-                                <MudLink Href="/rss" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-rss-click">
-                                    <MudText Typo="Typo.caption">RSS</MudText>
-                                </MudLink>
-                                <MudLink Href="/readme" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="footer-readme-click">
-                                    <MudText Typo="Typo.caption">README</MudText>
-                                </MudLink>
-                            </MudStack>
-                        </MudContainer>
-                    </div>
-                }
+    <div class="page-content">
+        <div class="content-body">
+            <div class="page-container">
+                @Body
             </div>
-        </MudMainContent>
-    </MudLayout>
+        </div>
+
+        @if (!ShouldHideFooter())
+        {
+            <footer class="footer-area">
+                <div class="page-container footer-container">
+                    <div class="divider"></div>
+                    <nav class="footer-links" aria-label="Footer">
+                        <a class="link-muted footer-link" href="/privacy-policy" data-umami-event="footer-privacy-click">Privacy Policy</a>
+                        <a class="link-muted footer-link" href="/rss" data-umami-event="footer-rss-click">RSS</a>
+                        <a class="link-muted footer-link" href="/readme" data-umami-event="footer-readme-click">README</a>
+                    </nav>
+                </div>
+            </footer>
+        }
+    </div>
 </div>
 
 @code {
-    private bool _isDarkMode = true;
-    private MudTheme _theme = new MudTheme()
-    {
-        PaletteDark = new PaletteDark()
-        {
-            Primary = "#7dd3fc",
-            Secondary = "#cbd5e1",
-            Background = "#000000",
-            Surface = "#0a0a0a",
-            TextPrimary = "#f5f5f5",
-            TextSecondary = "#a3a3a3",
-            Divider = "#262626",
-            ActionDefault = "#7dd3fc",
-            Error = "#f87171",
-            Warning = "#fbbf24",
-            Info = "#38bdf8",
-            Success = "#4ade80"
-        },
-        LayoutProperties = new LayoutProperties()
-        {
-            AppbarHeight = "0px"
-        }
-    };
-
     private bool ShouldHideFooter()
     {
         var uri = Navigation.ToBaseRelativePath(Navigation.Uri).ToLowerInvariant();
@@ -75,5 +36,5 @@
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload" data-umami-event="blazor-error-reload-click">Reload</a>
-    <a class="dismiss" data-umami-event="blazor-error-dismiss-click">🗙</a>
+    <button type="button" class="dismiss" data-umami-event="blazor-error-dismiss-click" aria-label="Dismiss error">✕</button>
 </div>

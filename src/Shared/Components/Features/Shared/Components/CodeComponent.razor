@@ -1,25 +1,25 @@
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JsRuntime
 
-<MudPaper Class="code-component-container" Style="position: relative; margin: 1rem 0; background-color: #1e1e1e; border-radius: 8px; overflow: hidden;">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background-color: #2d2d2d; border-bottom: 1px solid #3e3e3e;">
+<div class="code-component-container">
+    <div class="code-component-toolbar">
         @if (!string.IsNullOrEmpty(Language))
         {
-            <MudText Typo="Typo.caption" Style="color: #858585; text-transform: uppercase; font-weight: 600;">@Language</MudText>
+            <span class="code-component-language">@Language</span>
         }
         else
         {
             <div></div>
         }
-        <MudIconButton Icon="@Icons.Material.Filled.ContentCopy" 
-                       Size="Size.Small" 
-                       Color="Color.Default"
-                       OnClick="CopyToClipboard"
-                       Style="color: #858585;"
-                       data-umami-event="code-copy-click"
-                       title="Copy code" />
+        <button type="button"
+                class="icon-button code-copy-button"
+                @onclick="CopyToClipboard"
+                data-umami-event="code-copy-click"
+                title="Copy code">
+            <AppIcon Name="copy" />
+        </button>
     </div>
-    <pre style="margin: 0; padding: 1rem; overflow-x: auto;"><code id="@codeElementId" class="@GetLanguageClass()">@Code</code></pre>
-</MudPaper>
+    <pre class="code-component-pre"><code id="@_codeElementId" class="@GetLanguageClass()">@Code</code></pre>
+</div>
 
 @code {
     [Parameter]
@@ -28,7 +28,7 @@
     [Parameter]
     public string Language { get; set; } = string.Empty;
 
-    private string codeElementId = Guid.NewGuid().ToString();
+    private string _codeElementId = Guid.NewGuid().ToString();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -36,7 +36,7 @@
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync("highlightCode", codeElementId);
+                await JsRuntime.InvokeVoidAsync("highlightCode", _codeElementId);
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
         }
         catch (Exception ex)
         {

@@ -13,10 +13,10 @@
 
 @if (_notFound)
 {
-    <MudContainer   Class="py-8">
+    <div class="page-container page-section">
         <BackToHome />
-        <MudAlert Severity="Severity.Warning" Class="mt-4">Repository not found.</MudAlert>
-    </MudContainer>
+        <div class="alert alert-warning" style="margin-top: 1rem;">Repository not found.</div>
+    </div>
 }
 else if (_repoUrl != null)
 {
@@ -24,9 +24,9 @@ else if (_repoUrl != null)
 }
 else
 {
-    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="mt-16">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-    </MudStack>
+    <div class="page-container center-stack status-page">
+        <div class="spinner"></div>
+    </div>
 }
 
 @code {

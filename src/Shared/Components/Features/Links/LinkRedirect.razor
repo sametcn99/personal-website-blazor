@@ -8,10 +8,10 @@
 
 @if (_social == null)
 {
-    <MudContainer   Class="py-8">
+    <div class="page-container page-section">
         <BackToHome />
-        <MudAlert Severity="Severity.Warning" Class="mt-4">Link not found.</MudAlert>
-    </MudContainer>
+        <div class="alert alert-warning" style="margin-top: 1rem;">Link not found.</div>
+    </div>
 }
 else
 {

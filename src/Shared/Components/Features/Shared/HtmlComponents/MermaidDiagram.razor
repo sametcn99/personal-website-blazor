@@ -1,36 +1,23 @@
-@using MudBlazor
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
-<MudPaper Elevation="1" Class="mermaid-wrapper my-4">
+<div class="mermaid-wrapper">
     <div class="mermaid-toolbar">
-        <MudText Typo="Typo.caption" Class="mermaid-toolbar-title">@(ShowCode ? "Code" : "Mermaid Diagram")</MudText>
-        <MudStack Row Spacing="0">
-            <MudIconButton Icon="@Icons.Material.Filled.Code"
-                           Size="Size.Small"
-                           OnClick="ToggleCode"
-                           title="@(ShowCode ? "Show diagram" : "Show code")"
-                           data-umami-event="mermaid-toggle-code-click" />
-            <MudIconButton Icon="@(Copied ? Icons.Material.Filled.Check : Icons.Material.Filled.ContentCopy)"
-                           Size="Size.Small"
-                           Color="@(Copied ? Color.Success : Color.Default)"
-                           OnClick="CopyDefinition"
-                           title="@(Copied ? "Copied" : "Copy")"
-                           data-umami-event="mermaid-copy-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.Download"
-                           Size="Size.Small"
-                           Color="@(Downloading ? Color.Success : Color.Default)"
-                           Disabled="@(!HasSvg || Downloading)"
-                           OnClick="DownloadSvg"
-                           title="@(Downloading ? "Downloading..." : "Download SVG")"
-                           data-umami-event="mermaid-download-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.Fullscreen"
-                           Size="Size.Small"
-                           Disabled="@(!HasSvg)"
-                           OnClick="OpenFullscreen"
-                           title="Fullscreen"
-                           data-umami-event="mermaid-fullscreen-click" />
-        </MudStack>
+        <span class="mermaid-toolbar-title">@(ShowCode ? "Code" : "Mermaid Diagram")</span>
+        <div class="row" style="gap: 0;">
+            <button type="button" class="icon-button" @onclick="ToggleCode" title="@(ShowCode ? "Show diagram" : "Show code")" data-umami-event="mermaid-toggle-code-click">
+                <AppIcon Name="code" />
+            </button>
+            <button type="button" class="icon-button @(Copied ? "text-primary" : string.Empty)" @onclick="CopyDefinition" title="@(Copied ? "Copied" : "Copy")" data-umami-event="mermaid-copy-click">
+                <AppIcon Name="@(Copied ? "check" : "copy")" />
+            </button>
+            <button type="button" class="icon-button @(Downloading ? "text-primary" : string.Empty)" @onclick="DownloadSvg" disabled="@(!HasSvg || Downloading)" title="@(Downloading ? "Downloading..." : "Download SVG")" data-umami-event="mermaid-download-click">
+                <AppIcon Name="download" />
+            </button>
+            <button type="button" class="icon-button" @onclick="OpenFullscreen" disabled="@(!HasSvg)" title="Fullscreen" data-umami-event="mermaid-fullscreen-click">
+                <AppIcon Name="fullscreen" />
+            </button>
+        </div>
     </div>
 
     <div class="mermaid-content">
@@ -52,7 +39,7 @@
             <div class="mermaid-diagram-host" id="@_diagramId"></div>
         }
     </div>
-</MudPaper>
+</div>
 
 @if (IsFullscreen)
 {
@@ -69,33 +56,21 @@
          @onmouseleave="EndDrag"
          @onclick="CloseFullscreen">
         <div class="mermaid-fullscreen-toolbar" @onclick:stopPropagation="true">
-            <MudIconButton Icon="@Icons.Material.Filled.Add"
-                           Size="Size.Small"
-                           OnClick="ZoomIn"
-                           title="Zoom in (+/=)"
-                           data-umami-event="mermaid-fullscreen-zoom-in-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.Remove"
-                           Size="Size.Small"
-                           OnClick="ZoomOut"
-                           title="Zoom out (-)"
-                           data-umami-event="mermaid-fullscreen-zoom-out-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.CenterFocusStrong"
-                           Size="Size.Small"
-                           OnClick="ResetView"
-                           title="Reset (0)"
-                           data-umami-event="mermaid-fullscreen-reset-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.Download"
-                           Size="Size.Small"
-                           Color="@(Downloading ? Color.Success : Color.Default)"
-                           Disabled="@(!HasSvg || Downloading)"
-                           OnClick="DownloadSvg"
-                           title="Download SVG"
-                           data-umami-event="mermaid-fullscreen-download-click" />
-            <MudIconButton Icon="@Icons.Material.Filled.FullscreenExit"
-                           Size="Size.Small"
-                           OnClick="CloseFullscreen"
-                           title="Exit Fullscreen (Esc)"
-                           data-umami-event="mermaid-fullscreen-exit-click" />
+            <button type="button" class="icon-button" @onclick="ZoomIn" title="Zoom in (+/=)" data-umami-event="mermaid-fullscreen-zoom-in-click">
+                <AppIcon Name="plus" />
+            </button>
+            <button type="button" class="icon-button" @onclick="ZoomOut" title="Zoom out (-)" data-umami-event="mermaid-fullscreen-zoom-out-click">
+                <AppIcon Name="minus" />
+            </button>
+            <button type="button" class="icon-button" @onclick="ResetView" title="Reset (0)" data-umami-event="mermaid-fullscreen-reset-click">
+                <AppIcon Name="target" />
+            </button>
+            <button type="button" class="icon-button @(Downloading ? "text-primary" : string.Empty)" @onclick="DownloadSvg" disabled="@(!HasSvg || Downloading)" title="Download SVG" data-umami-event="mermaid-fullscreen-download-click">
+                <AppIcon Name="download" />
+            </button>
+            <button type="button" class="icon-button" @onclick="CloseFullscreen" title="Exit Fullscreen (Esc)" data-umami-event="mermaid-fullscreen-exit-click">
+                <AppIcon Name="fullscreen-exit" />
+            </button>
         </div>
 
         <div class="mermaid-scale-chip" @onclick:stopPropagation="true">@GetScaleText()</div>

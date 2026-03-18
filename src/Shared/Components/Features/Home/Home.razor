@@ -9,8 +9,7 @@
     <meta name="description" content="Personal website of Samet Can Cincik featuring blog posts, projects, gists, and links." />
 </HeadContent>
 
-<MudContainer>
-<MudStack Spacing="6">
+<div class="page-container page-section flow-xl home-shell">
     <HomeSearchSection
                        BlogPosts="_blogPosts"
                        GistPosts="_gistPosts"
@@ -37,8 +36,7 @@
                     ViewAllHref="/project" />
 
     <LinksSection />
-</MudStack>
-</MudContainer>
+</div>
 
 @code {
     private List<ContentMetadata> _blogPosts = new();

@@ -1,36 +1,36 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
 @inject IJSRuntime JS
 
-<MudContainer>
+<div class="page-container page-section">
     <BackToHome />
 
     @if (Post != null)
     {
-        <MudStack Spacing="0">
-            <MudStack Row Class="flex-wrap" Spacing="1">
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
+        <div class="flow-sm">
+            <div class="meta-list text-muted text-caption">
+                <span>
                     @PublishedLabel: @Post.PublishDate?.ToString("ddd MMM dd yyyy")
-                </MudText>
+                </span>
                 @if (!string.IsNullOrEmpty(Post.Language))
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                    <span>
                         @Post.Language.ToUpperInvariant()
-                    </MudText>
+                    </span>
                 }
-            </MudStack>
+            </div>
 
             @if (Post.Tags.Length > 0)
             {
-                <MudStack Row Class="flex-wrap" Spacing="1">
+                <div class="tag-list text-caption text-muted">
                     @foreach (var tag in Post.Tags)
                     {
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">#@tag</MudText>
+                        <span>#@tag</span>
                     }
-                </MudStack>
+                </div>
             }
-        </MudStack>
+        </div>
 
-        <MudDivider Class="my-4" />
+        <div class="divider article-divider"></div>
 
         <article>
             @ChildContent
@@ -39,7 +39,7 @@
         <ArticleNavigation PrevArticle="@PrevArticleRef" NextArticle="@NextArticleRef" PrevLabel="@PrevLabel"
                            NextLabel="@NextLabel" />
     }
-</MudContainer>
+</div>
 
 @code {
     [Parameter] public PostModel? Post { get; set; }

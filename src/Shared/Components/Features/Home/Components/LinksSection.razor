@@ -10,30 +10,22 @@
 
 @if (visible.Count > 0)
 {
-    <MudStack Class="mb-6" Spacing="2">
-        <MudText Typo="Typo.h4" Style="font-weight: 600;">Connect With Me</MudText>
-        <MudStack Row Class="flex-wrap gap-1">
+    <section class="flow mb-section">
+        <h2 class="text-section-title">Connect With Me</h2>
+        <div class="row wrap" style="gap: 0.5rem 0.75rem;">
             @foreach (var link in visible)
             {
                 @if (link.External)
                 {
-                    <MudLink Href="@link.Link" Target="_blank"
-                             Underline="Underline.Hover" Color="Color.Secondary"
-                             data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>
-                        <MudText Typo="Typo.body2">@link.Label</MudText>
-                    </MudLink>
+                    <a class="link-muted" href="@link.Link" target="_blank" rel="noreferrer noopener"
+                       data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>@link.Label</a>
                 }
                 else
                 {
-                    <MudLink Href="@link.Link" Underline="Underline.Hover" Color="Color.Secondary"
-                             data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>
-                        <MudText Typo="Typo.body2">@link.Label</MudText>
-                    </MudLink>
+                    <a class="link-muted" href="@link.Link" data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>@link.Label</a>
                 }
             }
-            <MudLink Href="/link" Underline="Underline.Hover" Color="Color.Secondary" data-umami-event="home-all-links-click">
-                <MudText Typo="Typo.body2">All Links</MudText>
-            </MudLink>
-        </MudStack>
-    </MudStack>
+            <a class="link-muted" href="/link" data-umami-event="home-all-links-click">All Links</a>
+        </div>
+    </section>
 }

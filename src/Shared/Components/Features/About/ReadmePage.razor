@@ -11,24 +11,24 @@
     <meta name="description" content="Read my GitHub profile README with background, interests, and current focus areas." />
 </HeadContent>
 
-<MudContainer  >
+<div class="page-container page-section">
     <BackToHome />
 
     @if (_loading)
     {
-        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        <div class="progress-bar" style="margin: 1.75rem 0;"></div>
     }
     else if (_error != null)
     {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@_error</MudAlert>
+        <div class="alert alert-error" style="margin-top: 1rem;">@_error</div>
     }
     else
     {
-        <article class="mt-4">
-            <MudHtmlRenderer HtmlContent="@_htmlContent" />
+        <article class="readme-article">
+            <HtmlRenderer HtmlContent="@_htmlContent" />
         </article>
     }
-</MudContainer>
+</div>
 
 @code {
     private bool _loading = true;
@@ -63,7 +63,7 @@
 
             var client = HttpClientFactory.CreateClient();
             var requestUri = NavigationManager.ToAbsoluteUri("api/readme");
-            var response = await client.GetFromJsonAsync<ReadmeResponse>(requestUri);
+            var response = await client.GetFromJsonAsync<ReadmeResponse>(requestUri.ToString());
             _htmlContent = response?.Html ?? string.Empty;
         }
         catch (Exception ex)

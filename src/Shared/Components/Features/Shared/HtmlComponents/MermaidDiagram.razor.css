@@ -18,6 +18,7 @@
   overflow: hidden;
   border: 1px solid var(--mud-palette-divider);
   border-radius: 12px;
+  margin: 1rem 0;
 }
 
 .mermaid-toolbar {
@@ -30,6 +31,7 @@
 
 .mermaid-toolbar-title {
   font-family: monospace;
+  font-size: 0.82rem;
 }
 
 .mermaid-content {

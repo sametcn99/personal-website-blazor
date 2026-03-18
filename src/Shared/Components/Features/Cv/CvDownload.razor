@@ -8,13 +8,11 @@
     <meta name="description" content="Preparing your CV download and redirecting back to the CV page." />
 </HeadContent>
 
-<MudContainer Class="d-flex align-center justify-center" Style="min-height: 80vh;">
-    <MudStack AlignItems="AlignItems.Center" Spacing="4">
-        <MudText Typo="Typo.h5">Preparing your download...</MudText>
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
-        <MudText Typo="Typo.body1" Color="Color.Secondary">If the download doesn't start automatically, <MudLink Href="@_fileUrl" download="@_fileName">click here</MudLink>.</MudText>
-    </MudStack>
-</MudContainer>
+<div class="page-container center-stack status-page">
+    <h1 class="text-section-title">Preparing your download...</h1>
+    <div class="spinner spinner-lg"></div>
+    <p class="text-body text-muted">If the download doesn't start automatically, <a class="link-muted" href="@_fileUrl" download="@_fileName">click here</a>.</p>
+</div>
 
 @code {
     [Parameter] public string Language { get; set; } = string.Empty;

@@ -1,80 +1,62 @@
-<MudTextField T="string" @bind-Value="_search" Immediate="true"
-              Placeholder="Search links..."
-              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
-              Variant="Variant.Text" Margin="Margin.Dense" Class="mb-2"
-              data-umami-event="links-search-input-click" />
+<div class="input-shell" style="margin-bottom: 0.5rem;">
+    <AppIcon Name="search" />
+    <input class="input-native"
+           @bind="_search"
+           @bind:event="oninput"
+           placeholder="Search links..."
+           data-umami-event="links-search-input-click" />
+</div>
 
-<MudStack Row Class="flex-wrap gap-1 mb-2">
-    <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = null"
-             data-umami-event="links-category-all-click"
-             Class="links-filter-chip"
-             Color="@(_selectedCategory == null ? Color.Primary : Color.Default)"
-             Variant="@(_selectedCategory == null ? Variant.Filled : Variant.Outlined)">All</MudChip>
+<div class="pill-row">
+    <button type="button" class="pill @GetPillClass(_selectedCategory == null)"
+            @onclick="() => _selectedCategory = null"
+            data-umami-event="links-category-all-click">All</button>
     @foreach (var cat in _categories)
     {
         var c = cat;
-        <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = c"
-                 data-umami-event='@UmamiEvent.Click("links-category", c)'
-                 data-umami-event-category="@c"
-                 Class="links-filter-chip"
-                 Color="@(_selectedCategory == c ? Color.Primary : Color.Default)"
-                 Variant="@(_selectedCategory == c ? Variant.Filled : Variant.Outlined)">@c</MudChip>
+        <button type="button" class="pill @GetPillClass(_selectedCategory == c)"
+                @onclick="() => _selectedCategory = c"
+                data-umami-event='@UmamiEvent.Click("links-category", c)'
+                data-umami-event-category="@c">@c</button>
     }
-</MudStack>
+</div>
 
-<MudStack Row Class="flex-wrap gap-1 mb-2">
-    <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "category"'
-             data-umami-event="links-sort-category-click"
-             Class="links-filter-chip"
-             Color="@(_sort == "category" ? Color.Primary : Color.Default)"
-             Variant="@(_sort == "category" ? Variant.Filled : Variant.Outlined)">Category</MudChip>
-    <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "asc"'
-             data-umami-event="links-sort-az-click"
-             Class="links-filter-chip"
-             Color="@(_sort == "asc" ? Color.Primary : Color.Default)"
-             Variant="@(_sort == "asc" ? Variant.Filled : Variant.Outlined)">A → Z</MudChip>
-    <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "desc"'
-             data-umami-event="links-sort-za-click"
-             Class="links-filter-chip"
-             Color="@(_sort == "desc" ? Color.Primary : Color.Default)"
-             Variant="@(_sort == "desc" ? Variant.Filled : Variant.Outlined)">Z → A</MudChip>
-</MudStack>
+<div class="pill-row">
+    <button type="button" class="pill @GetPillClass(_sort == "category")" @onclick='() => _sort = "category"' data-umami-event="links-sort-category-click">Category</button>
+    <button type="button" class="pill @GetPillClass(_sort == "asc")" @onclick='() => _sort = "asc"' data-umami-event="links-sort-az-click">A → Z</button>
+    <button type="button" class="pill @GetPillClass(_sort == "desc")" @onclick='() => _sort = "desc"' data-umami-event="links-sort-za-click">Z → A</button>
+</div>
 
 @if (!string.IsNullOrWhiteSpace(_search) || _selectedCategory != null)
 {
-    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">
+    <p class="text-caption text-muted result-row">
         @FilteredLinks.Count result@(FilteredLinks.Count != 1 ? "s" : "") found
-    </MudText>
+    </p>
 }
 
-<MudPaper Outlined Class="rounded-lg" Style="border-color: var(--mud-palette-divider);">
-    <MudList T="string" Dense>
-        @foreach (var link in FilteredLinks)
-        {
-            var slug = link.Type[0];
-            var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
-            <MudListItem T="string" Href="@($"/link/{slug}")" Dense="true"
-                         data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
-                <MudStack Spacing="0">
-                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                        <MudText Typo="Typo.body1" Style="font-weight: 600;">@link.Label</MudText>
-                        @if (link.External)
-                        {
-                            <MudChip T="string" Size="Size.Small" Icon="@Icons.Material.Filled.OpenInNew"
-                                     Style="background: transparent;" Variant="Variant.Text">External</MudChip>
-                        }
-                    </MudStack>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">/link/@slug</MudText>
-                    @if (aliases != null)
+<div class="flow-sm">
+    @foreach (var link in FilteredLinks)
+    {
+        var slug = link.Type[0];
+        var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
+        <a class="link-plain" href="@($"/link/{slug}")" data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
+            <div class="hover-card flow-sm" style="margin-bottom: 0.75rem;">
+                <div class="row wrap">
+                    <p class="text-heading">@link.Label</p>
+                    @if (link.External)
                     {
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">aliases: @aliases</MudText>
+                        <span class="badge"><AppIcon Name="external-link" />External</span>
                     }
-                </MudStack>
-            </MudListItem>
-            <MudDivider />
-        }
-    </MudList>
-</MudPaper>
+                </div>
+                <p class="text-body text-muted">/link/@slug</p>
+                @if (aliases != null)
+                {
+                    <p class="text-caption text-muted">aliases: @aliases</p>
+                }
+            </div>
+        </a>
+    }
+</div>
 
 @code {
     private string _search = string.Empty;
@@ -120,5 +102,7 @@
             return links.ToList();
         }
     }
+
+    private static string GetPillClass(bool isActive) => isActive ? "pill-active" : string.Empty;
 
 }

@@ -1,50 +1,30 @@
-@using MudBlazor
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
-<MudImage Src="@Src"
-          Alt="@Alt"
-          Fluid="true"
-          Elevation="4"
-          Class="rounded-lg my-6 d-block mx-auto html-content-image"
-          ObjectFit="ObjectFit.Cover"
-          Style="cursor: zoom-in;"
-          @onclick="OpenViewer" />
+<img src="@Src"
+    alt="@Alt"
+    class="html-content-image"
+    style="cursor: zoom-in;"
+    @onclick="OpenViewer" />
 
 @if (_isViewerOpen)
 {
     <div class="image-viewer-backdrop" @onclick="CloseViewer" @onwheel:preventDefault="true" @onwheel:stopPropagation="true">
         <div class="image-viewer-modal" @onclick:stopPropagation="true">
             <div class="image-viewer-toolbar">
-                <MudIconButton Icon="@Icons.Material.Filled.Remove"
-                               Variant="Variant.Text"
-                               Color="Color.Default"
-                               Size="Size.Medium"
-                               OnClick="ZoomOut"
-                               data-umami-event="image-viewer-zoom-out-click"
-                               title="Zoom out" />
-                <MudIconButton Icon="@Icons.Material.Filled.Add"
-                               Variant="Variant.Text"
-                               Color="Color.Default"
-                               Size="Size.Medium"
-                               OnClick="ZoomIn"
-                               data-umami-event="image-viewer-zoom-in-click"
-                               title="Zoom in" />
-                <MudIconButton Icon="@Icons.Material.Filled.CenterFocusStrong"
-                               Variant="Variant.Text"
-                               Color="Color.Default"
-                               Size="Size.Medium"
-                               OnClick="ResetTransform"
-                               data-umami-event="image-viewer-reset-click"
-                               title="Reset" />
-                <MudSpacer />
-                <MudIconButton Icon="@Icons.Material.Filled.Close"
-                               Variant="Variant.Text"
-                               Color="Color.Default"
-                               Size="Size.Medium"
-                               OnClick="CloseViewer"
-                               data-umami-event="image-viewer-close-click"
-                               title="Close" />
+                <button type="button" class="icon-button" @onclick="ZoomOut" data-umami-event="image-viewer-zoom-out-click" title="Zoom out">
+                    <AppIcon Name="minus" />
+                </button>
+                <button type="button" class="icon-button" @onclick="ZoomIn" data-umami-event="image-viewer-zoom-in-click" title="Zoom in">
+                    <AppIcon Name="plus" />
+                </button>
+                <button type="button" class="icon-button" @onclick="ResetTransform" data-umami-event="image-viewer-reset-click" title="Reset">
+                    <AppIcon Name="target" />
+                </button>
+                <div class="image-viewer-spacer"></div>
+                <button type="button" class="icon-button" @onclick="CloseViewer" data-umami-event="image-viewer-close-click" title="Close">
+                    <AppIcon Name="close" />
+                </button>
             </div>
 
             <div class="image-viewer-stage"

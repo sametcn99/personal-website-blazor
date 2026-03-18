@@ -1,8 +1,8 @@
-@using MudBlazor
-<MudLink Href="@Href" Target="@Target" Underline="Underline.Hover" Color="Color.Secondary" Class="font-weight-bold"
-         data-umami-event='@UmamiEvent.Click("mdx-link", Href)'>
+<a class="link-muted html-link" href="@Href" target="@Target"
+    rel="@(Target == "_blank" ? "noreferrer noopener" : null)"
+    data-umami-event='@UmamiEvent.Click("mdx-link", Href)'>
     @ChildContent
-</MudLink>
+</a>
 
 @code {
     [Parameter] public string? Href { get; set; }

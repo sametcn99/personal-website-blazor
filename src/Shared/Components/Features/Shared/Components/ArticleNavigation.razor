@@ -2,39 +2,35 @@
 
 @if (PrevArticle != null || NextArticle != null)
 {
-    <MudStack Row Class="mt-4 flex-wrap" Spacing="2">
+    <div class="article-nav-row">
         @if (PrevArticle != null)
         {
-            <MudPaper Elevation="0" Class="flex-grow-1 pa-3" Style="min-width: 200px; background: transparent;">
-                <MudLink Href="@PrevArticle.Href" Underline="Underline.None" Color="Color.Inherit"
-                         data-umami-event='@UmamiEvent.Click("article-nav-prev", PrevArticle.Title)'>
-                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
-                        <MudIcon Icon="@Icons.Material.Filled.NavigateBefore" Color="Color.Primary" />
-                        <MudStack Spacing="0">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">@PrevLabel</MudText>
-                            <MudText Typo="Typo.body1" Style="font-weight: 500;">@PrevArticle.Title</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudLink>
-            </MudPaper>
+            <div class="article-nav-card">
+                <a class="article-nav-link" href="@PrevArticle.Href"
+                   data-umami-event='@UmamiEvent.Click("article-nav-prev", PrevArticle.Title)'>
+                    <AppIcon Name="chevron-left" Class="text-primary" />
+                    <div class="flow-sm">
+                        <span class="text-caption text-muted">@PrevLabel</span>
+                        <span class="text-body">@PrevArticle.Title</span>
+                    </div>
+                </a>
+            </div>
         }
 
         @if (NextArticle != null)
         {
-            <MudPaper Elevation="0" Class="flex-grow-1 pa-3" Style="min-width: 200px; background: transparent;">
-                <MudLink Href="@NextArticle.Href" Underline="Underline.None" Color="Color.Inherit"
-                         data-umami-event='@UmamiEvent.Click("article-nav-next", NextArticle.Title)'>
-                    <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.FlexEnd" Spacing="1">
-                        <MudStack Spacing="0" Style="text-align: right;">
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">@NextLabel</MudText>
-                            <MudText Typo="Typo.body1" Style="font-weight: 500;">@NextArticle.Title</MudText>
-                        </MudStack>
-                        <MudIcon Icon="@Icons.Material.Filled.NavigateNext" Color="Color.Primary" />
-                    </MudStack>
-                </MudLink>
-            </MudPaper>
+            <div class="article-nav-card article-nav-next">
+                <a class="article-nav-link" href="@NextArticle.Href"
+                   data-umami-event='@UmamiEvent.Click("article-nav-next", NextArticle.Title)'>
+                    <div class="flow-sm">
+                        <span class="text-caption text-muted">@NextLabel</span>
+                        <span class="text-body">@NextArticle.Title</span>
+                    </div>
+                    <AppIcon Name="chevron-right" Class="text-primary" />
+                </a>
+            </div>
         }
-    </MudStack>
+    </div>
 }
 
 @code {

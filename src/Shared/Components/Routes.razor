@@ -5,16 +5,16 @@
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
     </Found>
     <Navigating>
-        <MudContainer Class="d-flex align-center justify-center" Style="min-height: 70vh;">
-            <MudStack AlignItems="AlignItems.Center" Spacing="2">
-                <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-                <MudText Typo="Typo.body2" Color="Color.Secondary">Loading page...</MudText>
-            </MudStack>
-        </MudContainer>
+        <div class="page-container route-loading-shell">
+            <div class="center-stack route-loading-state">
+                <div class="spinner spinner-lg"></div>
+                <p class="text-caption text-muted">Loading page...</p>
+            </div>
+        </div>
     </Navigating>
 </Router>
 
 @code {
-    private static Task HandleNavigateAsync(Microsoft.AspNetCore.Components.Routing.NavigationContext context)
+    private static Task HandleNavigateAsync(NavigationContext context)
         => Task.CompletedTask;
 }

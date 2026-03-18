@@ -6,69 +6,59 @@
     <meta name="description" content="Subscribe to RSS or JSON feeds to follow the latest posts, projects, and gists." />
 </HeadContent>
 
-<MudContainer   Class="py-8">
+<div class="page-container page-section flow-lg">
     <BackToHome />
 
-    <MudStack AlignItems="AlignItems.Center" Class="mb-6 mt-4" Spacing="2">
-        <MudText Typo="Typo.h3" Style="font-weight: 700; background: linear-gradient(45deg, #2196F3 30%, #21CBF3 90%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Subscribe to Updates
-        </MudText>
-        <MudText Typo="Typo.h6" Color="Color.Secondary" Align="Align.Center" Style="max-width: 600px;">
+    <div class="center-stack" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+        <h1 class="text-page-title text-gradient">Subscribe to Updates</h1>
+        <p class="text-body text-muted" style="max-width: 600px;">
             Stay up-to-date with the latest blog posts, gists, and projects.
             Choose your preferred feed format below.
-        </MudText>
-    </MudStack>
+        </p>
+    </div>
 
-    <MudGrid Spacing="3" Class="mb-4">
-        <MudItem xs="12" md="6">
-            <MudPaper Elevation="0" Outlined Class="pa-4 d-flex flex-column h-100">
-                <MudStack Spacing="2" Class="flex-grow-1">
-                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.RssFeed" Color="Color.Primary" Size="Size.Large" />
-                        <MudText Typo="Typo.h5" Style="font-weight: 700;">RSS Feed</MudText>
-                    </MudStack>
-                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="flex-grow-1">
+    <div class="row wrap" style="align-items: stretch; gap: 1rem; margin-bottom: 1rem;">
+        <section class="card card-outline flow" style="flex: 1 1 18rem;">
+            <div class="row">
+                <AppIcon Name="rss" Class="icon-lg text-primary" />
+                <h2 class="text-section-title">RSS Feed</h2>
+            </div>
+            <p class="text-body text-muted" style="flex: 1 1 auto;">
                         Standard RSS 2.0 format. Compatible with Feedly, Inoreader, and most classic feed readers.
-                    </MudText>
-                    <MudStack Row Spacing="2" Class="pt-2">
-                        <MudButton Href="/rss.xml" Target="_blank" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" data-umami-event="feed-open-rss-xml-click">Open</MudButton>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudPaper Elevation="0" Outlined Class="pa-4 d-flex flex-column h-100">
-                <MudStack Spacing="2" Class="flex-grow-1">
-                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="mb-1">
-                        <MudIcon Icon="@Icons.Material.Filled.Code" Color="Color.Secondary" Size="Size.Large" />
-                        <MudText Typo="Typo.h5" Style="font-weight: 700;">JSON Feed</MudText>
-                    </MudStack>
-                    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="flex-grow-1">
+            </p>
+            <div class="row">
+                <a class="button button-outline button-small" href="/rss.xml" target="_blank" data-umami-event="feed-open-rss-xml-click">Open</a>
+            </div>
+        </section>
+        <section class="card card-outline flow" style="flex: 1 1 18rem;">
+            <div class="row">
+                <AppIcon Name="code" Class="icon-lg text-muted" />
+                <h2 class="text-section-title">JSON Feed</h2>
+            </div>
+            <p class="text-body text-muted" style="flex: 1 1 auto;">
                         Modern JSON format. Ideal for developers and programmatic consumption of the content.
-                    </MudText>
-                    <MudStack Row Spacing="2" Class="pt-2">
-                        <MudButton Href="/feed.json" Target="_blank" Variant="Variant.Outlined" Color="Color.Secondary" Size="Size.Small" data-umami-event="feed-open-feed-json-click">Open</MudButton>
-                    </MudStack>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
+            </p>
+            <div class="row">
+                <a class="button button-outline button-small" href="/feed.json" target="_blank" data-umami-event="feed-open-feed-json-click">Open</a>
+            </div>
+        </section>
+    </div>
 
-    <MudPaper Elevation="0" Class="pa-4 rounded-lg" Style="background: rgba(255,255,255,0.03);">
-        <MudText Typo="Typo.h6" GutterBottom Style="font-weight: 700;">Quick Start Guide</MudText>
-        <MudStack Spacing="2">
-            <MudStack Row Spacing="2">
-                <MudAvatar Size="Size.Small" Style="background: var(--mud-palette-text-primary); color: var(--mud-palette-background); width: 24px; height: 24px; font-size: 14px; font-weight: bold;">1</MudAvatar>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
+    <section class="card card-outline flow" style="background: var(--color-surface-muted);">
+        <h2 class="text-heading">Quick Start Guide</h2>
+        <div class="flow">
+            <div class="row" style="align-items: flex-start;">
+                <span class="guide-index">1</span>
+                <p class="text-body text-muted">
                     Click <b>"Open"</b> to preview the feed in your browser, or copy the URL from the address bar.
-                </MudText>
-            </MudStack>
-            <MudStack Row Spacing="2">
-                <MudAvatar Size="Size.Small" Style="background: var(--mud-palette-text-primary); color: var(--mud-palette-background); width: 24px; height: 24px; font-size: 14px; font-weight: bold;">2</MudAvatar>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                </p>
+            </div>
+            <div class="row" style="align-items: flex-start;">
+                <span class="guide-index">2</span>
+                <p class="text-body text-muted">
                     Paste the URL into your favorite feed reader (e.g., Feedly, Inoreader, NetNewsWire).
-                </MudText>
-            </MudStack>
-        </MudStack>
-    </MudPaper>
-</MudContainer>
+                </p>
+            </div>
+        </div>
+    </section>
+</div>

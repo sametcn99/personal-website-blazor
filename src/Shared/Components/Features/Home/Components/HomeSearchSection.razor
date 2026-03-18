@@ -4,61 +4,58 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<MudStack Spacing="2">
-    <MudTextField T="string"
-                  InputId="home-search-input"
-                  Value="_searchQuery"
-                  ValueChanged="OnSearchQueryChanged"
-                  Placeholder="Search posts, links, and repositories..."
-                  Variant="Variant.Text"
-                  Margin="Margin.Dense"
-                  Immediate="true"
-                  Adornment="Adornment.Start"
-                  AdornmentIcon="@Icons.Material.Filled.Search"
-                  Clearable="true"
-                  data-umami-event="home-search-input-click"
-                  OnClearButtonClick="ClearSearchAsync" />
+<div class="flow">
+    <div class="input-shell">
+        <AppIcon Name="search" />
+        <input id="home-search-input"
+               class="input-native"
+               @bind="_searchQuery"
+               @bind:event="oninput"
+               @bind:after="HandleSearchInputChanged"
+               placeholder="Search posts, links, and repositories..."
+               data-umami-event="home-search-input-click" />
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(_searchQuery))
     {
         @if (_isRepoLoading)
         {
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                <MudProgressCircular Color="Color.Primary" Size="Size.Small" Indeterminate="true" />
-                <MudText Typo="Typo.caption" Color="Color.Secondary">Loading repositories...</MudText>
-            </MudStack>
+            <div class="row text-muted">
+                <div class="spinner"></div>
+                <span class="text-caption">Loading repositories...</span>
+            </div>
         }
 
         @if (_filteredResults.Count > 0)
         {
-            <MudStack Spacing="1" Class="mt-1">
+            <div class="flow-sm">
                 @foreach (var item in _filteredResults)
                 {
-                    <MudLink Href="@item.Href"
-                             Underline="Underline.None"
-                             Color="Color.Inherit"
-                             Target="@(item.External ? "_blank" : "_self")"
-                             data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                        <MudStack Spacing="0" Class="py-1 hover-card">
-                            <MudText Typo="Typo.body1" Style="font-weight: 500;">@item.Title</MudText>
+                    <a class="link-plain"
+                       href="@item.Href"
+                       target="@(item.External ? "_blank" : null)"
+                       rel="@(item.External ? "noreferrer noopener" : null)"
+                       data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
+                        <div class="hover-card flow-sm" style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
+                            <p class="text-subtitle">@item.Title</p>
                             @if (!string.IsNullOrWhiteSpace(item.Summary))
                             {
-                                <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Summary</MudText>
+                                <p class="text-body text-muted">@item.Summary</p>
                             }
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            <p class="text-caption text-muted">
                                 @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
-                            </MudText>
-                        </MudStack>
-                    </MudLink>
+                            </p>
+                        </div>
+                    </a>
                 }
-            </MudStack>
+            </div>
         }
         else
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary">No results found.</MudText>
+            <p class="text-body text-muted">No results found.</p>
         }
     }
-</MudStack>
+</div>
 
 @code {
     private const int MaxSearchResults = 10;
@@ -185,6 +182,8 @@
         ApplySearchFilter();
         return Task.CompletedTask;
     }
+
+    private Task HandleSearchInputChanged() => OnSearchQueryChanged(_searchQuery);
 
     private async Task ClearSearchAsync()
     {

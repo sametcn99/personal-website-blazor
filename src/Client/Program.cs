@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using MudBlazor.Services;
 using personal_website_blazor.Client.Services;
 using personal_website_blazor.Application.Abstractions;
 
@@ -10,7 +9,6 @@ public static class Program
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
-        builder.Services.AddMudServices();
         builder.Services.AddHttpClient();
         builder.Services.AddHttpClient("Server", client =>
         {

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using MudBlazor.Services;
 using personal_website_blazor.Infrastructure;
 
 namespace personal_website_blazor.Presentation.Startup;
@@ -81,7 +80,6 @@ public static class ServiceRegistrationExtensions
         services
             .AddRazorComponents()
             .AddInteractiveWebAssemblyComponents();
-        services.AddMudServices();
 
         services.AddInfrastructure(configuration);
     }

@@ -10,19 +10,21 @@
     <meta name="description" content="View my CV, experience, skills, and downloadable resume files in Turkish and English." />
 </HeadContent>
 
-<MudContainer  >
+<div class="page-container page-section">
     <BackToHome />
 
-    <article class="mt-4">
+    <article class="readme-article">
         @if (string.IsNullOrWhiteSpace(_htmlContent))
         {
-            <MudSkeleton Width="100%" Height="60px" Animation="Animation.Wave" Class="mb-6" />
-            <MudSkeleton Width="100%" Height="150px" Animation="Animation.Wave" Class="mb-6" />
-            <MudSkeleton Width="80%" Height="100px" Animation="Animation.Wave" Class="mb-6" />
+            <div class="flow-sm">
+                <div class="skeleton" style="width: 100%; height: 60px; margin-bottom: 1.5rem;"></div>
+                <div class="skeleton" style="width: 100%; height: 150px; margin-bottom: 1.5rem;"></div>
+                <div class="skeleton" style="width: 80%; height: 100px; margin-bottom: 1.5rem;"></div>
+            </div>
         }
         else
         {
-            <MudHtmlRenderer HtmlContent="@_htmlContent" />
+            <HtmlRenderer HtmlContent="@_htmlContent" />
         }
     </article>
 
@@ -30,7 +32,7 @@
     {
         <CvDownloadMenu />
     }
-</MudContainer>
+</div>
 
 @code {
     private string _htmlContent = string.Empty;

@@ -1,5 +1,9 @@
 .html-content-image {
+  display: block;
+  width: min(100%, 100%);
   max-height: 28rem;
+  margin: 1.5rem auto;
+  border-radius: 12px;
 }
 
 .image-viewer-backdrop {
@@ -30,6 +34,10 @@
   gap: 0.25rem;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--mud-palette-divider);
+}
+
+.image-viewer-spacer {
+  flex: 1;
 }
 
 .image-viewer-stage {

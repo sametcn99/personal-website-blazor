@@ -9,29 +9,29 @@
     <meta name="description" content="See my public GitHub repositories with live data and quick access links." />
 </HeadContent>
 
-<MudContainer   Class="py-6">
+<div class="page-container page-section">
     <BackToHome />
-    <MudText Typo="Typo.h3" Style="font-weight: 700;" GutterBottom>Repositories</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-3">
+    <h1 class="text-page-title">Repositories</h1>
+    <p class="text-body text-muted" style="margin-bottom: 0.75rem;">
         A live list of my GitHub repositories.
-    </MudText>
+    </p>
 
     @if (_loading)
     {
-        <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="2">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
-            <MudText Typo="Typo.body2" Color="Color.Secondary">Loading repositories...</MudText>
-        </MudStack>
+        <div class="center-stack" style="padding: 2rem 0;">
+            <div class="spinner"></div>
+            <p class="text-caption text-muted">Loading repositories...</p>
+        </div>
     }
     else if (_error != null)
     {
-        <MudAlert Severity="Severity.Error">@_error</MudAlert>
+        <div class="alert alert-error">@_error</div>
     }
     else
     {
         <InteractiveRepoList Repos="_repos" />
     }
-</MudContainer>
+</div>
 
 @code {
     private bool _loading = true;
