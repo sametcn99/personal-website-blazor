@@ -1,7 +1,25 @@
+:root {
+  --mud-palette-primary: #7dd3fc;
+  --mud-palette-secondary: #cbd5e1;
+  --mud-palette-background: #000000;
+  --mud-palette-surface: #0a0a0a;
+  --mud-palette-text-primary: #f5f5f5;
+  --mud-palette-text-secondary: #a3a3a3;
+  --mud-palette-divider: #262626;
+  --mud-palette-action-default: #7dd3fc;
+  --mud-palette-error: #f87171;
+  --mud-palette-warning: #fbbf24;
+  --mud-palette-info: #38bdf8;
+  --mud-palette-success: #4ade80;
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
+  background-color: var(--mud-palette-background);
+  color: var(--mud-palette-text-primary);
+  font-family: "Roboto", sans-serif;
 }
 
 #main-content {
@@ -11,7 +29,7 @@ body {
 
 .hover-card {
   border: 1px solid transparent;
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
   padding: 0.5rem;
   border-radius: 8px;
   margin-left: -0.5rem;
@@ -21,5 +39,25 @@ body {
 .hover-card:hover {
   background-color: rgba(125, 211, 252, 0.08);
   border-color: rgba(125, 211, 252, 0.18);
-  transform: translateY(-1px);
+}
+
+.links-filter-chip.mud-chip,
+.links-filter-chip.mud-chip.mud-chip-filled,
+.links-filter-chip.mud-chip.mud-chip-outlined {
+  color: #f8fafc !important;
+}
+
+.links-filter-chip.mud-chip.mud-chip-filled,
+.links-filter-chip.mud-chip.mud-chip-filled.mud-chip-color-primary {
+  background-color: rgba(8, 47, 73, 0.94) !important;
+}
+
+.links-filter-chip.mud-chip.mud-chip-outlined,
+.links-filter-chip.mud-chip.mud-chip-outlined.mud-chip-color-default {
+  background-color: rgba(17, 24, 39, 0.7) !important;
+  border-color: rgba(125, 211, 252, 0.18) !important;
+}
+
+.links-filter-chip.mud-chip:hover {
+  background-color: rgba(15, 23, 42, 0.96) !important;
 }

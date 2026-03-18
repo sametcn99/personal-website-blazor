@@ -3,7 +3,6 @@
 <Router AppAssembly="typeof(Routes).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
     <Navigating>
         <MudContainer Class="d-flex align-center justify-center" Style="min-height: 70vh;">

@@ -1,9 +1,23 @@
 .page-shell {
   min-height: 93dvh;
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  color: var(--mud-palette-text-primary);
+}
+
+.page-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   background:
     radial-gradient(circle at top, rgba(125, 211, 252, 0.08), transparent 32%),
     linear-gradient(180deg, #050505 0%, #000000 100%);
-  color: var(--mud-palette-text-primary);
+  height: 92rem;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .page-content {
@@ -19,7 +33,7 @@
 
 .footer-area {
   width: 100%;
-  background: linear-gradient(180deg, transparent 0%, rgba(10, 10, 10, 0.92) 40%, #050505 100%);
+  background: transparent;
 }
 
 #blazor-error-ui {

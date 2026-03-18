@@ -7,6 +7,7 @@
 <MudStack Row Class="flex-wrap gap-1 mb-2">
     <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = null"
              data-umami-event="links-category-all-click"
+             Class="links-filter-chip"
              Color="@(_selectedCategory == null ? Color.Primary : Color.Default)"
              Variant="@(_selectedCategory == null ? Variant.Filled : Variant.Outlined)">All</MudChip>
     @foreach (var cat in _categories)
@@ -15,6 +16,7 @@
         <MudChip T="string" Size="Size.Small" OnClick="() => _selectedCategory = c"
                  data-umami-event='@UmamiEvent.Click("links-category", c)'
                  data-umami-event-category="@c"
+                 Class="links-filter-chip"
                  Color="@(_selectedCategory == c ? Color.Primary : Color.Default)"
                  Variant="@(_selectedCategory == c ? Variant.Filled : Variant.Outlined)">@c</MudChip>
     }
@@ -23,14 +25,17 @@
 <MudStack Row Class="flex-wrap gap-1 mb-2">
     <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "category"'
              data-umami-event="links-sort-category-click"
+             Class="links-filter-chip"
              Color="@(_sort == "category" ? Color.Primary : Color.Default)"
              Variant="@(_sort == "category" ? Variant.Filled : Variant.Outlined)">Category</MudChip>
     <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "asc"'
              data-umami-event="links-sort-az-click"
+             Class="links-filter-chip"
              Color="@(_sort == "asc" ? Color.Primary : Color.Default)"
              Variant="@(_sort == "asc" ? Variant.Filled : Variant.Outlined)">A → Z</MudChip>
     <MudChip T="string" Size="Size.Small" OnClick='() => _sort = "desc"'
              data-umami-event="links-sort-za-click"
+             Class="links-filter-chip"
              Color="@(_sort == "desc" ? Color.Primary : Color.Default)"
              Variant="@(_sort == "desc" ? Variant.Filled : Variant.Outlined)">Z → A</MudChip>
 </MudStack>
@@ -115,4 +120,5 @@
             return links.ToList();
         }
     }
+
 }
