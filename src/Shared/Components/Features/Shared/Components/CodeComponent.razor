@@ -2,20 +2,18 @@
 
 <div class="code-component-container">
     <div class="code-component-toolbar">
-        @if (!string.IsNullOrEmpty(Language))
-        {
-            <span class="code-component-language">@Language</span>
-        }
-        else
-        {
-            <div></div>
-        }
+        <div class="code-component-meta">
+            <span class="code-component-dot"></span>
+            <span class="code-component-language">@GetLanguageLabel()</span>
+        </div>
+
         <button type="button"
                 class="icon-button code-copy-button"
                 @onclick="CopyToClipboard"
                 data-umami-event="code-copy-click"
-                title="Copy code">
-            <AppIcon Name="copy" />
+                title="Copy code"
+                aria-label="@(_copied ? "Copied" : "Copy code")">
+            <AppIcon Name="@(_copied ? "check" : "copy")" />
         </button>
     </div>
     <pre class="code-component-pre"><code id="@_codeElementId" class="@GetLanguageClass()">@Code</code></pre>
@@ -29,6 +27,7 @@
     public string Language { get; set; } = string.Empty;
 
     private string _codeElementId = Guid.NewGuid().ToString();
+    private bool _copied;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -50,6 +49,13 @@
         try
         {
             await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            _copied = true;
+            StateHasChanged();
+
+            await Task.Delay(1400);
+
+            _copied = false;
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -61,7 +67,17 @@
     {
         if (string.IsNullOrEmpty(Language))
             return "language-plaintext";
-        
+
         return $"language-{Language.ToLowerInvariant()}";
+    }
+
+    private string GetLanguageLabel()
+    {
+        if (string.IsNullOrWhiteSpace(Language))
+        {
+            return "Plain Text";
+        }
+
+        return Language.ToUpperInvariant();
     }
 }

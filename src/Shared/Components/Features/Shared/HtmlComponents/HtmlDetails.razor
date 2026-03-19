@@ -1,0 +1,15 @@
+<details class="html-details" open="@Open">
+    <HtmlSummary>
+        @SummaryContent
+    </HtmlSummary>
+
+    <div class="html-details-content">
+        @ChildContent
+    </div>
+</details>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public RenderFragment? SummaryContent { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

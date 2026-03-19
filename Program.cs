@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 if (builder.Environment.IsDevelopment())
 {
-	builder.WebHost.UseStaticWebAssets();
+    builder.WebHost.UseStaticWebAssets();
 }
 builder.ConfigureApplication();
 

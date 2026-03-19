@@ -66,6 +66,12 @@ public class HtmlRenderer : ComponentBase
             case "blockquote":
                 RenderHtmlBlockquote(builder, node);
                 break;
+            case "details":
+                RenderHtmlDetails(builder, node);
+                break;
+            case "summary":
+                RenderHtmlSummary(builder, node);
+                break;
             case "a":
                 RenderHtmlLink(builder, node);
                 break;
@@ -135,6 +141,44 @@ public class HtmlRenderer : ComponentBase
         builder.AddAttribute(
             1,
             nameof(HtmlBlockquote.ChildContent),
+            (RenderFragment)(fragmentBuilder => RenderNode(fragmentBuilder, node))
+        );
+        builder.CloseComponent();
+    }
+
+    private void RenderHtmlDetails(RenderTreeBuilder builder, HtmlNode node)
+    {
+        var summaryNode = GetSummaryNode(node);
+
+        builder.OpenComponent<HtmlDetails>(0);
+        builder.AddAttribute(1, nameof(HtmlDetails.Open), node.Attributes.Contains("open"));
+        builder.AddAttribute(
+            2,
+            nameof(HtmlDetails.SummaryContent),
+            (RenderFragment)(fragmentBuilder =>
+            {
+                if (summaryNode is null)
+                {
+                    return;
+                }
+
+                RenderNode(fragmentBuilder, summaryNode);
+            })
+        );
+        builder.AddAttribute(
+            3,
+            nameof(HtmlDetails.ChildContent),
+            (RenderFragment)(fragmentBuilder => RenderNodeChildren(fragmentBuilder, node, summaryNode))
+        );
+        builder.CloseComponent();
+    }
+
+    private void RenderHtmlSummary(RenderTreeBuilder builder, HtmlNode node)
+    {
+        builder.OpenComponent<HtmlSummary>(0);
+        builder.AddAttribute(
+            1,
+            nameof(HtmlSummary.ChildContent),
             (RenderFragment)(fragmentBuilder => RenderNode(fragmentBuilder, node))
         );
         builder.CloseComponent();
@@ -231,5 +275,40 @@ public class HtmlRenderer : ComponentBase
         builder.OpenComponent<HtmlInlineCode>(0);
         builder.AddAttribute(1, nameof(HtmlInlineCode.ChildContent), (RenderFragment)(fragmentBuilder => fragmentBuilder.AddContent(0, HtmlEntity.DeEntitize(node.InnerText))));
         builder.CloseComponent();
+    }
+
+    private static HtmlNode? GetSummaryNode(HtmlNode node)
+    {
+        foreach (var child in node.ChildNodes)
+        {
+            if (child.NodeType == HtmlNodeType.Element
+                && child.Name.Equals("summary", StringComparison.OrdinalIgnoreCase))
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private void RenderNodeChildren(RenderTreeBuilder builder, HtmlNode node, HtmlNode? excludedNode)
+    {
+        foreach (var child in node.ChildNodes)
+        {
+            if (ReferenceEquals(child, excludedNode))
+            {
+                continue;
+            }
+
+            switch (child.NodeType)
+            {
+                case HtmlNodeType.Text:
+                    builder.AddContent(0, HtmlEntity.DeEntitize(child.InnerText));
+                    break;
+                case HtmlNodeType.Element:
+                    RenderElement(builder, child);
+                    break;
+            }
+        }
     }
 }
