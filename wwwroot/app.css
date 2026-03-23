@@ -814,17 +814,6 @@ pre {
 	font-size: 0.75rem;
 }
 
-.banner-card {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	padding: 0.9rem 1rem;
-	margin-bottom: 1.5rem;
-	border: 1px solid rgba(144, 202, 249, 0.1);
-	border-radius: var(--radius-md);
-	background: var(--color-surface-soft);
-}
-
 .hover-card {
 	border: 1px solid transparent;
 	transition:
@@ -1129,7 +1118,6 @@ pre {
 		flex-direction: column;
 	}
 
-	.banner-card,
 	.support-card {
 		width: 100%;
 		align-items: flex-start;
