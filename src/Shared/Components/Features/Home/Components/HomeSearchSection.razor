@@ -4,8 +4,8 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<div class="flow">
-    <div class="input-shell">
+<div class="flow home-search-panel">
+    <div class="input-shell search-input-shell">
         <AppIcon Name="search" />
         <input id="home-search-input"
                class="input-native"
@@ -28,7 +28,7 @@
 
         @if (_filteredResults.Count > 0)
         {
-            <div class="flow-sm">
+            <div class="flow-sm search-results-panel">
                 @foreach (var item in _filteredResults)
                 {
                     <a class="link-plain"
@@ -36,7 +36,7 @@
                        target="@(item.External ? "_blank" : null)"
                        rel="@(item.External ? "noreferrer noopener" : null)"
                        data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                        <div class="hover-card flow-sm" style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
+                        <div class="hover-card search-result-card flow-sm" style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
                             <p class="text-subtitle">@item.Title</p>
                             @if (!string.IsNullOrWhiteSpace(item.Summary))
                             {
@@ -52,7 +52,7 @@
         }
         else
         {
-            <p class="text-body text-muted">No results found.</p>
+            <p class="text-body text-muted search-empty-state">No results found.</p>
         }
     }
 </div>

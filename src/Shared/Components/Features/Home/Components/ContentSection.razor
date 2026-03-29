@@ -1,15 +1,17 @@
 @* ContentSection.razor - Section with title, description, posts, and "See All" button *@
 
-<section class="flow mb-section">
-    <div class="row-between wrap">
+<section class="flow mb-section home-section">
+    <div class="row-between wrap section-header">
         <h2 class="text-section-title">@Title</h2>
         @if (Total > Posts.Count)
         {
             <a class="button button-outline button-small" href="@ViewAllHref" data-umami-event="content-section-see-all-click">See All (@Total)</a>
         }
     </div>
-    <p class="text-body text-muted">@Description</p>
-    <PostsList Posts="Posts" />
+    <p class="text-body text-muted section-description">@Description</p>
+    <div class="posts-stack">
+        <PostsList Posts="Posts" />
+    </div>
 </section>
 
 @code {

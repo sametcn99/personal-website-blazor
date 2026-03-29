@@ -10,22 +10,22 @@
 
 @if (visible.Count > 0)
 {
-    <section class="flow mb-section">
+    <section class="flow mb-section home-section links-section">
         <h2 class="text-section-title">Connect With Me</h2>
-        <div class="row wrap" style="gap: 0.5rem 0.75rem;">
+        <div class="row wrap links-cloud" style="gap: 0.5rem 0.75rem;">
             @foreach (var link in visible)
             {
                 @if (link.External)
                 {
-                    <a class="link-muted" href="@link.Link" target="_blank" rel="noreferrer noopener"
+                    <a class="link-muted social-link-chip" href="@link.Link" target="_blank" rel="noreferrer noopener"
                        data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>@link.Label</a>
                 }
                 else
                 {
-                    <a class="link-muted" href="@link.Link" data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>@link.Label</a>
+                    <a class="link-muted social-link-chip" href="@link.Link" data-umami-event='@UmamiEvent.Click("home-link", link.Label)'>@link.Label</a>
                 }
             }
-            <a class="link-muted" href="/link" data-umami-event="home-all-links-click">All Links</a>
+            <a class="link-muted social-link-chip" href="/link" data-umami-event="home-all-links-click">All Links</a>
         </div>
     </section>
 }

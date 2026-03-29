@@ -1,13 +1,15 @@
 @* ContentListPage.razor - Reusable content listing with search and sort *@
 
-<div class="page-container page-section">
+<div class="page-container page-section content-list-page">
     <BackToHome />
 
-    <div class="flow-lg readme-article">
-        <h1 class="text-page-title">@Title</h1>
-        <p class="text-body text-muted">@Description</p>
+    <div class="flow-lg readme-article content-list-shell">
+        <div class="flow-sm content-list-hero">
+            <h1 class="text-page-title">@Title</h1>
+            <p class="text-body text-muted content-list-description">@Description</p>
+        </div>
 
-        <div class="controls-row">
+        <div class="controls-row content-list-controls">
             <div class="input-shell">
                 <AppIcon Name="search" />
                 <input class="input-native"
@@ -29,7 +31,7 @@
 
         @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
         {
-            <p class="text-caption text-muted result-row">
+            <p class="text-caption text-muted result-row content-list-result-row">
                 @FilteredPosts.Count result@(FilteredPosts.Count != 1 ? "s" : "") found
             </p>
         }
@@ -57,15 +59,15 @@
         {
             @foreach (var post in FilteredPosts)
             {
-                <a class="link-plain" href="@($"/{UrlPrefix}/{post.Slug}")"
+                <a class="link-plain content-list-card-link" href="@($"/{UrlPrefix}/{post.Slug}")"
                    data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
-                    <div class="hover-card flow-sm" style="margin-bottom: 0.75rem;">
+                    <article class="hover-card content-list-card flow-sm" style="margin-bottom: 0.75rem;">
                         <p class="text-heading">@post.Title</p>
                         <p class="text-body text-muted">@post.Description</p>
                         <p class="text-caption text-muted">
                             @post.PublishDate?.ToString("ddd MMM dd yyyy")
                         </p>
-                    </div>
+                    </article>
                 </a>
             }
         }

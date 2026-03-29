@@ -2,14 +2,14 @@
 
 @foreach (var post in Posts)
 {
-    <a class="link-plain" href="@post.Href" data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
-        <div class="hover-card flow-sm" style="margin-bottom: 0.75rem;">
+    <a class="link-plain post-card-link" href="@post.Href" data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
+        <article class="hover-card post-card flow-sm" style="margin-bottom: 0.75rem;">
             <p class="text-heading">@post.Title</p>
             <p class="text-body text-muted">@post.Summary</p>
             <p class="text-caption text-muted">
                 @FormatDate(post.PublishedAt)
             </p>
-        </div>
+        </article>
     </a>
 }
 
