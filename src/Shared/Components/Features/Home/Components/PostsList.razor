@@ -1,20 +1,43 @@
 @* PostsList.razor - Renders a list of posts in the home page *@
 
-@foreach (var post in Posts)
+@if (IsLoading)
 {
-    <a class="link-plain post-card-link" href="@post.Href" data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
-        <article class="hover-card post-card flow-sm" style="margin-bottom: 0.75rem;">
-            <p class="text-heading">@post.Title</p>
-            <p class="text-body text-muted">@post.Summary</p>
-            <p class="text-caption text-muted">
-                @FormatDate(post.PublishedAt)
-            </p>
-        </article>
-    </a>
+    <div class="flow-sm">
+        @for (int i = 0; i < SkeletonCount; i++)
+        {
+            <div class="flow-sm" style="margin-bottom: 1rem;">
+                <div class="skeleton" style="width: 40%; height: 24px;"></div>
+                <div class="skeleton" style="width: 90%; height: 18px;"></div>
+                <div class="skeleton" style="width: 20%; height: 14px;"></div>
+            </div>
+        }
+    </div>
+}
+else if (Posts.Count == 0)
+{
+    @* Optionally render generic empty wording or nothing; the section header could be hidden too, but let's just show nothing here or "No posts yet" *@
+    <p class="text-body text-muted text-center" style="padding: 1rem 0;">No posts found.</p>
+}
+else
+{
+    @foreach (var post in Posts)
+    {
+        <a class="link-plain post-card-link" href="@post.Href" data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
+            <article class="hover-card post-card flow-sm" style="margin-bottom: 0.75rem;">
+                <p class="text-heading">@post.Title</p>
+                <p class="text-body text-muted">@post.Summary</p>
+                <p class="text-caption text-muted">
+                    @FormatDate(post.PublishedAt)
+                </p>
+            </article>
+        </a>
+    }
 }
 
 @code {
     [Parameter] public List<ContentMetadata> Posts { get; set; } = new();
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public int SkeletonCount { get; set; } = 3;
 
     private static string FormatDate(string dateStr)
     {

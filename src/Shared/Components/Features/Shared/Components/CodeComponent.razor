@@ -16,7 +16,10 @@
             <AppIcon Name="@(_copied ? "check" : "copy")" />
         </button>
     </div>
-    <pre class="code-component-pre"><code id="@_codeElementId" class="@GetLanguageClass()">@Code</code></pre>
+    <div id="@_codeElementId" class="monaco-code-container" style="width: 100%; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; overflow: hidden; position: relative;">
+        @* Initial fallback before JS loads *@
+        <pre class="code-component-pre" style="opacity: 0.5;"><code class="@GetLanguageClass()">@Code</code></pre>
+    </div>
 </div>
 
 @code {
@@ -35,7 +38,7 @@
         {
             try
             {
-                await JsRuntime.InvokeVoidAsync("highlightCode", _codeElementId);
+                await JsRuntime.InvokeVoidAsync("renderMonacoEditor", _codeElementId, Code, Language);
             }
             catch (Exception ex)
             {

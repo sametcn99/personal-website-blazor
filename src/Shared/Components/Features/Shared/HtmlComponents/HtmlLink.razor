@@ -1,5 +1,10 @@
-<a class="link-muted html-link" href="@Href" target="@Target"
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<a class="link-muted html-link" href="@ResolvedHref" target="@Target"
     rel="@(Target == "_blank" ? "noreferrer noopener" : null)"
+    @onclick="HandleClickAsync"
+    @onclick:preventDefault="@IsInternalLink"
     data-umami-event='@UmamiEvent.Click("mdx-link", Href)'>
     @ChildContent
 </a>
@@ -8,4 +13,19 @@
     [Parameter] public string? Href { get; set; }
     [Parameter] public string? Target { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool IsInternalLink => !string.IsNullOrWhiteSpace(Href) && Href.StartsWith("#");
+
+    private string? ResolvedHref => IsInternalLink ? new Uri(NavigationManager.Uri).LocalPath + Href : Href;
+
+    private async Task HandleClickAsync()
+    {
+        Console.WriteLine($"[C#] Link clicked! Href: {Href}, IsInternal: {IsInternalLink}");
+        if (IsInternalLink && Href!.Length > 1)
+        {
+            var id = Href.Substring(1);
+            Console.WriteLine($"[C#] Calling scrollToElementId for id: {id}");
+            await JsRuntime.InvokeVoidAsync("scrollToElementId", id);
+        }
+    }
 }

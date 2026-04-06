@@ -214,3 +214,91 @@ window.highlightCode = (elementId) => {
     window.Prism.highlightElement(element);
   }
 };
+
+window.__monacoReadyPromise = null;
+window.__monacoInitialized = false;
+
+window.ensureMonacoReady = async () => {
+  if (window.monaco) {
+    return window.monaco;
+  }
+
+  if (!window.__monacoReadyPromise) {
+    window.__monacoReadyPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js";
+      script.onload = () => {
+        window.require.config({
+          paths: {
+            vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs",
+          },
+        });
+        window.require(["vs/editor/editor.main"], function () {
+          window.__monacoInitialized = true;
+          resolve(window.monaco);
+        });
+      };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  return window.__monacoReadyPromise;
+};
+
+window.renderMonacoEditor = async (containerId, code, language) => {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  try {
+    const monaco = await window.ensureMonacoReady();
+
+    // Map common markdown language codes to Monaco language IDs
+    const langMap = {
+      js: 'javascript',
+      ts: 'typescript',
+      cs: 'csharp',
+      md: 'markdown',
+      sh: 'shell',
+      bash: 'shell',
+      py: 'python',
+      yml: 'yaml'
+    };
+    
+    let monacoLang = (language || 'plaintext').toLowerCase();
+    if (langMap[monacoLang]) {
+      monacoLang = langMap[monacoLang];
+    }
+
+    const lines = code.split("\n").length;
+    const lineHeight = 19;
+    const editorHeight = Math.min(Math.max(lines * lineHeight + 20, 80), 800);
+    container.style.height = `${editorHeight}px`;
+
+    // Clear previous content if any
+    container.innerHTML = '';
+
+    monaco.editor.create(container, {
+      value: code,
+      language: monacoLang,
+      theme: "vs-dark",
+      readOnly: true,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      automaticLayout: true,
+      lineNumbers: "on",
+      renderLineHighlight: "none",
+      domReadOnly: true,
+      contextmenu: false,
+      scrollbar: {
+        vertical: "hidden",
+        horizontal: "auto",
+      },
+    });
+  } catch (e) {
+    console.error("Monaco editor error:", e);
+    // Fallback
+    container.innerHTML = `<pre style="margin:0; padding:1rem; overflow:auto;"><code>${code}</code></pre>`;
+  }
+};

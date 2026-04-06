@@ -5,6 +5,23 @@ window.focusElementById = (elementId) => {
   }
 };
 
+window.scrollToElementId = (elementId) => {
+  console.log('scrollToElementId called with:', elementId);
+  const element = document.getElementById(elementId) || document.getElementById(decodeURIComponent(elementId));
+  if (element) {
+    console.log('Element found, scrolling...');
+    // Add small timeout to ensure layout is complete
+    setTimeout(() => {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Update URL hash without causing navigation reload
+      const newUrl = window.location.pathname + window.location.search + '#' + elementId;
+      window.history.pushState(null, '', newUrl);
+    }, 50);
+  } else {
+    console.warn(`scrollToElementId: Element with id '${elementId}' not found.`);
+  }
+};
+
 window.__bodyScrollLockCount = 0;
 
 window.lockBodyScroll = () => {

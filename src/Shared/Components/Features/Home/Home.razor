@@ -19,19 +19,22 @@
                     Description="A collection of my thoughts on development and the passions that keep me inspired."
                     Posts="_blogPosts"
                     Total="_blogTotal"
-                    ViewAllHref="/blog" />
+                    ViewAllHref="/blog"
+                    IsLoading="_isLoading" />
 
     <ContentSection Title="Technical Gists"
                     Description="Code snippets, tutorials, and technical documentation."
                     Posts="_gistPosts"
                     Total="_gistTotal"
-                    ViewAllHref="/gist" />
+                    ViewAllHref="/gist"
+                    IsLoading="_isLoading" />
 
     <ContentSection Title="Projects"
                     Description="A showcase of my personal projects and contributions to the developer community."
                     Posts="_projectPosts"
                     Total="_projectTotal"
-                    ViewAllHref="/project" />
+                    ViewAllHref="/project"
+                    IsLoading="_isLoading" />
 
     <LinksSection />
 </div>
@@ -43,6 +46,7 @@
     private int _blogTotal;
     private int _gistTotal;
     private int _projectTotal;
+    private bool _isLoading = true;
     private PersistingComponentStateSubscription? _persistSubscription;
 
     protected override void OnInitialized()
@@ -55,6 +59,7 @@
             _blogTotal = state.BlogTotal;
             _gistTotal = state.GistTotal;
             _projectTotal = state.ProjectTotal;
+            _isLoading = false;
         }
 
         _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
@@ -62,7 +67,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (_blogTotal > 0 || _gistTotal > 0 || _projectTotal > 0)
+        if (!_isLoading)
         {
             return;
         }
@@ -78,6 +83,7 @@
         _blogPosts = blogs.Take(5).Select(ToMeta("blog")).ToList();
         _gistPosts = gists.Take(5).Select(ToMeta("gist")).ToList();
         _projectPosts = projects.Take(5).Select(ToMeta("project")).ToList();
+        _isLoading = false;
     }
 
     private static Func<PostModel, ContentMetadata> ToMeta(string prefix) => p => new ContentMetadata

@@ -10,7 +10,7 @@
     </div>
     <p class="text-body text-muted section-description">@Description</p>
     <div class="posts-stack">
-        <PostsList Posts="Posts" />
+        <PostsList Posts="Posts" IsLoading="IsLoading" />
     </div>
 </section>
 
@@ -20,4 +20,5 @@
     [Parameter] public List<ContentMetadata> Posts { get; set; } = new();
     [Parameter] public int Total { get; set; }
     [Parameter] public string ViewAllHref { get; set; } = string.Empty;
+    [Parameter] public bool IsLoading { get; set; }
 }
