@@ -682,6 +682,7 @@ pre {
 }
 
 .html-heading {
+	position: relative;
 	color: var(--color-text-primary);
 	font-weight: 700;
 	line-height: 1.2;
@@ -1372,4 +1373,39 @@ pre {
 	.download-menu-panel {
 		width: 100%;
 	}
+}
+
+/* Heading Anchor Styles */
+.heading-anchor {
+    position: absolute;
+    left: -1em;
+    opacity: 0;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-weight: 400;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    user-select: none;
+    padding-right: 0.2em;
+}
+
+.html-heading:hover .heading-anchor,
+.html-heading:focus-within .heading-anchor,
+.heading-anchor:focus {
+    opacity: 1;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.heading-anchor:hover,
+.heading-anchor:active {
+    color: var(--color-primary) !important;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .heading-anchor {
+        position: static;
+        opacity: 1;
+        margin-right: 0.3em;
+    }
 }

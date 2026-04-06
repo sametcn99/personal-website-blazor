@@ -1,22 +1,42 @@
+@inject NavigationManager NavigationManager
+
 @switch (Tag)
 {
     case "h1":
-        <h1 id="@Id" class="html-heading html-heading-h1">@ChildContent</h1>
+        <h1 id="@Id" class="html-heading html-heading-h1">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h1>
         break;
     case "h2":
-        <h2 id="@Id" class="html-heading html-heading-h2">@ChildContent</h2>
+        <h2 id="@Id" class="html-heading html-heading-h2">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h2>
         break;
     case "h3":
-        <h3 id="@Id" class="html-heading html-heading-h3">@ChildContent</h3>
+        <h3 id="@Id" class="html-heading html-heading-h3">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h3>
         break;
     case "h4":
-        <h4 id="@Id" class="html-heading html-heading-h4">@ChildContent</h4>
+        <h4 id="@Id" class="html-heading html-heading-h4">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h4>
         break;
     case "h5":
-        <h5 id="@Id" class="html-heading html-heading-h5">@ChildContent</h5>
+        <h5 id="@Id" class="html-heading html-heading-h5">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h5>
         break;
     case "h6":
-        <h6 id="@Id" class="html-heading html-heading-h6">@ChildContent</h6>
+        <h6 id="@Id" class="html-heading html-heading-h6">
+            @if (!string.IsNullOrEmpty(Id)) { <a href="@($"{CurrentUrl}#{Id}")" class="heading-anchor" aria-hidden="true">#</a> }
+            @ChildContent
+        </h6>
         break;
     default:
         <p id="@Id" class="html-paragraph">@ChildContent</p>
@@ -27,4 +47,6 @@
     [Parameter] public string Tag { get; set; } = "p";
     [Parameter] public string? Id { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CurrentUrl => new Uri(NavigationManager.Uri).AbsolutePath;
 }
