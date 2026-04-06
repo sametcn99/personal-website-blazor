@@ -57,3 +57,5 @@ TestResult.xml
 nunit-*.xml
 .publish-check
 .fake
+
+**/**/*.lscache

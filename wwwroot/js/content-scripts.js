@@ -254,21 +254,31 @@ window.renderMonacoEditor = async (containerId, code, language) => {
   try {
     const monaco = await window.ensureMonacoReady();
 
-    // Map common markdown language codes to Monaco language IDs
-    const langMap = {
-      js: 'javascript',
-      ts: 'typescript',
-      cs: 'csharp',
-      md: 'markdown',
-      sh: 'shell',
-      bash: 'shell',
-      py: 'python',
-      yml: 'yaml'
-    };
-    
-    let monacoLang = (language || 'plaintext').toLowerCase();
-    if (langMap[monacoLang]) {
-      monacoLang = langMap[monacoLang];
+    let monacoLang = 'plaintext';
+    if (language) {
+      const searchLang = language.toLowerCase();
+      const languages = monaco.languages.getLanguages();
+      
+      const match = languages.find(l => 
+        l.id.toLowerCase() === searchLang || 
+        (l.aliases && l.aliases.some(a => a.toLowerCase() === searchLang)) ||
+        (l.extensions && l.extensions.some(e => e.toLowerCase() === `.${searchLang}`)) ||
+        (l.extensions && l.extensions.some(e => e.toLowerCase() === searchLang))
+      );
+
+      if (match) {
+        monacoLang = match.id;
+      } else {
+        // Fallbacks for common mappings not directly in aliases
+        const fallbackMap = {
+          md: 'markdown',
+          sh: 'shell',
+          bash: 'shell',
+          py: 'python',
+          yml: 'yaml'
+        };
+        monacoLang = fallbackMap[searchLang] || searchLang;
+      }
     }
 
     const lines = code.split("\n").length;
