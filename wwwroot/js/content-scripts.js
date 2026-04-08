@@ -294,7 +294,7 @@ window.renderMonacoEditor = async (containerId, code, language) => {
       language: monacoLang,
       theme: "vs-dark",
       readOnly: true,
-      minimap: { enabled: false },
+      minimap: { enabled: true },
       scrollBeyondLastLine: false,
       automaticLayout: true,
       lineNumbers: "on",
