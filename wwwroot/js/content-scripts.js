@@ -286,15 +286,36 @@ window.renderMonacoEditor = async (containerId, code, language) => {
     const editorHeight = Math.min(Math.max(lines * lineHeight + 20, 80), 800);
     container.style.height = `${editorHeight}px`;
 
+    // Define a custom theme matching the application design
+    monaco.editor.defineTheme('personal-website-theme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#171c25',              // --color-surface-elevated
+        'editor.foreground': '#dbe7f3',              // customized for pre-block code
+        'editorLineNumber.foreground': '#9ea8b7',    // --color-text-secondary
+        'editor.selectionBackground': '#8ecbff38',   // --color-primary with opacity
+        'editor.lineHighlightBackground': '#ffffff0a',
+        'minimap.background': '#171c25',
+        'scrollbarSlider.background': '#8ecbff15',
+        'scrollbarSlider.hoverBackground': '#8ecbff30',
+        'scrollbarSlider.activeBackground': '#8ecbff50'
+      }
+    });
+
     // Clear previous content if any
     container.innerHTML = '';
 
     monaco.editor.create(container, {
       value: code,
       language: monacoLang,
-      theme: "vs-dark",
+      theme: "personal-website-theme",
       readOnly: true,
       minimap: { enabled: true },
+      fontFamily: '"JetBrains Mono", Consolas, Monaco, "Courier New", monospace',
+      fontLigatures: true,
+      fontSize: 14,
       scrollBeyondLastLine: false,
       automaticLayout: true,
       lineNumbers: "on",
