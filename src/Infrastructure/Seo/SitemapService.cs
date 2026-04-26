@@ -68,11 +68,10 @@ public class SitemapService : ISitemapService
                 var loc = new Uri(baseUri, $"{section.routePrefix}/{post.Slug}").ToString();
                 var url = new XElement(ns + "url", new XElement(ns + "loc", loc));
 
-                if (post.PublishDate.HasValue)
+                var lastModified = post.UpdatedAt ?? post.PublishDate;
+                if (lastModified.HasValue)
                 {
-                    url.Add(
-                        new XElement(ns + "lastmod", post.PublishDate.Value.ToString("yyyy-MM-dd"))
-                    );
+                    url.Add(new XElement(ns + "lastmod", lastModified.Value.ToString("yyyy-MM-dd")));
                 }
 
                 url.Add(new XElement(ns + "changefreq", "monthly"));

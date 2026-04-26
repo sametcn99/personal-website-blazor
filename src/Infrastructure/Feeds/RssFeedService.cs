@@ -17,7 +17,12 @@ public class RssFeedService : IRssFeedService
     {
         var posts = await _contentService.GetPostsAsync("posts");
 
-        var now = DateTimeOffset.UtcNow;
+        var lastBuildDate = posts
+            .Select(post => post.UpdatedAt ?? post.PublishDate)
+            .Where(date => date.HasValue)
+            .Select(date => new DateTimeOffset(date!.Value))
+            .DefaultIfEmpty(DateTimeOffset.UtcNow)
+            .Max();
         var channelTitle = "Samet Can Cıncık - Blog";
         var channelDescription = "Recent posts and updates";
 
@@ -31,8 +36,8 @@ public class RssFeedService : IRssFeedService
                     new XElement("title", channelTitle),
                     new XElement("link", baseUri.ToString().TrimEnd('/')),
                     new XElement("description", channelDescription),
-                    new XElement("lastBuildDate", now.ToString("r")),
-                    posts.Select(post => BuildItem(post, baseUri, now))
+                    new XElement("lastBuildDate", lastBuildDate.ToString("r")),
+                    posts.Select(post => BuildItem(post, baseUri, lastBuildDate))
                 )
             )
         );

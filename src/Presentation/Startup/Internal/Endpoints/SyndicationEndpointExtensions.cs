@@ -66,6 +66,7 @@ internal static class SyndicationEndpointExtensions
                     title = c.Title,
                     summary = c.Summary,
                     date_published = c.PublishedAt,
+                    date_modified = c.UpdatedAt,
                     tags = c.Tags,
                 });
 

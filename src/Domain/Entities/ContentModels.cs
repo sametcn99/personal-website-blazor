@@ -5,6 +5,7 @@ public class PostModel
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime? PublishDate { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public string[] Tags { get; set; } = Array.Empty<string>();
     public string Content { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
@@ -19,6 +20,7 @@ public class ContentMetadata
     public string Title { get; set; } = string.Empty;
     public string Href { get; set; } = string.Empty;
     public string PublishedAt { get; set; } = string.Empty;
+    public string? UpdatedAt { get; set; }
     public string Summary { get; set; } = string.Empty;
     public string[] Tags { get; set; } = Array.Empty<string>();
     public string Language { get; set; } = "en";

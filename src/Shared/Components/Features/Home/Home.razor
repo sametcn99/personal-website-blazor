@@ -80,9 +80,9 @@
         _projectTotal = projects.Count;
         _gistTotal = gists.Count;
 
-        _blogPosts = blogs.Take(5).Select(ToMeta("blog")).ToList();
-        _gistPosts = gists.Take(5).Select(ToMeta("gist")).ToList();
-        _projectPosts = projects.Take(5).Select(ToMeta("project")).ToList();
+        _blogPosts = blogs.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("blog")).ToList();
+        _gistPosts = gists.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("gist")).ToList();
+        _projectPosts = projects.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("project")).ToList();
         _isLoading = false;
     }
 
@@ -91,10 +91,13 @@
         Title = p.Title,
         Href = $"/{prefix}/{p.Slug}",
         PublishedAt = p.PublishDate?.ToString("yyyy-MM-dd") ?? "",
+        UpdatedAt = p.UpdatedAt?.ToString("yyyy-MM-dd"),
         Summary = p.Description,
         Tags = p.Tags,
         Language = p.Language,
     };
+
+    private static DateTime? GetEffectiveDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
 
     private Task PersistStateAsync()
     {

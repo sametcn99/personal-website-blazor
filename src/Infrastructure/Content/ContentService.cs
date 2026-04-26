@@ -71,6 +71,11 @@ public class ContentService : IContentService
                     && DateTime.TryParse(pa.ToString(), out var date2)
                 )
                     post.PublishDate = date2;
+                if (
+                    metadata.TryGetValue("updatedAt", out var ua)
+                    && DateTime.TryParse(ua.ToString(), out var updatedDate)
+                )
+                    post.UpdatedAt = updatedDate;
                 if (metadata.TryGetValue("image", out var img))
                     post.Image = img.ToString();
                 if (metadata.TryGetValue("author", out var author))
@@ -134,6 +139,7 @@ public class ContentService : IContentService
                     Title = p.Title,
                     Href = $"/{urlPrefix}/{p.Slug}",
                     PublishedAt = p.PublishDate?.ToString("yyyy-MM-dd") ?? "",
+                    UpdatedAt = p.UpdatedAt?.ToString("yyyy-MM-dd"),
                     Summary = p.Description,
                     Tags = p.Tags,
                     Language = p.Language,
@@ -141,6 +147,11 @@ public class ContentService : IContentService
             );
         }
 
-        return result;
+        return result
+            .OrderByDescending(item => GetMetadataDate(item.UpdatedAt) ?? GetMetadataDate(item.PublishedAt))
+            .ToList();
     }
+
+    private static DateTime? GetMetadataDate(string? value)
+        => DateTime.TryParse(value, out var parsed) ? parsed : null;
 }

@@ -43,7 +43,7 @@
                                 <p class="text-body text-muted">@item.Summary</p>
                             }
                             <p class="text-caption text-muted">
-                                @item.TypeLabel@(string.IsNullOrWhiteSpace(item.PublishedAt) ? string.Empty : $" · {item.PublishedAt}")
+                                @item.TypeLabel@GetDateSummary(item)
                             </p>
                         </div>
                     </a>
@@ -220,6 +220,7 @@
                 Href = item.Href,
                 TypeLabel = typeLabel,
                 PublishedAt = item.PublishedAt,
+                UpdatedAt = item.UpdatedAt,
             });
         }
     }
@@ -259,7 +260,7 @@
                     Summary = repo.Description ?? string.Empty,
                     Href = repo.HtmlUrl,
                     TypeLabel = "Repository",
-                    PublishedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
+                    UpdatedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
                     External = true,
                 });
             }
@@ -303,6 +304,21 @@
             .ToList();
     }
 
+    private static string GetDateSummary(SearchEntry item)
+    {
+        if (!string.IsNullOrWhiteSpace(item.UpdatedAt))
+        {
+            return $" · Updated {item.UpdatedAt}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(item.PublishedAt))
+        {
+            return $" · Published {item.PublishedAt}";
+        }
+
+        return string.Empty;
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_hotkeyRegistered)
@@ -326,6 +342,7 @@
         public string Href { get; set; } = string.Empty;
         public string TypeLabel { get; set; } = string.Empty;
         public string? PublishedAt { get; set; }
+        public string? UpdatedAt { get; set; }
         public bool External { get; set; }
     }
 

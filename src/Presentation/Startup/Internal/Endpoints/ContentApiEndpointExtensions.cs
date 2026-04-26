@@ -200,6 +200,7 @@ internal static class ContentApiEndpointExtensions
                     href = $"/{urlPrefix}/{p.Slug}",
                     description = p.Description,
                     publishDate = p.PublishDate?.ToString("yyyy-MM-dd"),
+                    updatedAt = p.UpdatedAt?.ToString("yyyy-MM-dd"),
                     tags = p.Tags,
                     language = p.Language,
                 }),

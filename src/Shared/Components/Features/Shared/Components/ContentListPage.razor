@@ -65,7 +65,7 @@
                         <p class="text-heading">@post.Title</p>
                         <p class="text-body text-muted">@post.Description</p>
                         <p class="text-caption text-muted">
-                            @post.PublishDate?.ToString("ddd MMM dd yyyy")
+                            @GetDateLabel(post)
                         </p>
                     </article>
                 </a>
@@ -107,10 +107,24 @@
                 ? filtered.OrderBy(p => p.Title)
                 : filtered.OrderByDescending(p => p.Title),
             _ => _sortOrder == "asc"
-                ? filtered.OrderBy(p => p.PublishDate)
-                : filtered.OrderByDescending(p => p.PublishDate),
+                ? filtered.OrderBy(GetSortDate)
+                : filtered.OrderByDescending(GetSortDate),
         };
 
         return filtered.ToList();
+    }
+
+    private static DateTime? GetSortDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static string GetDateLabel(PostModel post)
+    {
+        if (post.UpdatedAt.HasValue)
+        {
+            return $"Updated {post.UpdatedAt.Value.ToString("ddd MMM dd yyyy")}";
+        }
+
+        return post.PublishDate.HasValue
+            ? $"Published {post.PublishDate.Value.ToString("ddd MMM dd yyyy")}"
+            : string.Empty;
     }
 }

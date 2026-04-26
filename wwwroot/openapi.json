@@ -312,6 +312,12 @@
             "description": "Publication date in ISO-8601 format.",
             "example": "2026-01-10"
           },
+          "updatedAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Last modification date in ISO-8601 format when the content has been updated after publication.",
+            "example": "2026-04-27"
+          },
           "summary": {
             "type": "string",
             "example": "A practical guide to building APIs with route handlers."

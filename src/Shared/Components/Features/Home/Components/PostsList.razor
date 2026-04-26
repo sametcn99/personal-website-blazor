@@ -27,7 +27,7 @@ else
                 <p class="text-heading">@post.Title</p>
                 <p class="text-body text-muted">@post.Summary</p>
                 <p class="text-caption text-muted">
-                    @FormatDate(post.PublishedAt)
+                    @FormatDateLabel(post)
                 </p>
             </article>
         </a>
@@ -39,10 +39,21 @@ else
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public int SkeletonCount { get; set; } = 3;
 
-    private static string FormatDate(string dateStr)
+    private static string FormatDateLabel(ContentMetadata post)
     {
-        if (DateTime.TryParse(dateStr, out var d))
+        if (!string.IsNullOrWhiteSpace(post.UpdatedAt))
+            return $"Updated {FormatDate(post.UpdatedAt)}";
+
+        if (!string.IsNullOrWhiteSpace(post.PublishedAt))
+            return $"Published {FormatDate(post.PublishedAt)}";
+
+        return string.Empty;
+    }
+
+    private static string FormatDate(string? dateStr)
+    {
+        if (!string.IsNullOrWhiteSpace(dateStr) && DateTime.TryParse(dateStr, out var d))
             return d.ToString("ddd MMM dd yyyy");
-        return dateStr;
+        return dateStr ?? string.Empty;
     }
 }
