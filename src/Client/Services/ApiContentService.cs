@@ -44,4 +44,20 @@ internal sealed class ApiContentService(IHttpClientFactory httpClientFactory) : 
             return [];
         }
     }
+
+    public async Task<List<SearchResult>> SearchAsync(string query, string? section = null)
+    {
+        try
+        {
+            var url = $"api/content/search?q={Uri.EscapeDataString(query)}";
+            if (!string.IsNullOrWhiteSpace(section))
+                url += $"&section={Uri.EscapeDataString(section)}";
+
+            return await _client.GetFromJsonAsync<List<SearchResult>>(url) ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
 }

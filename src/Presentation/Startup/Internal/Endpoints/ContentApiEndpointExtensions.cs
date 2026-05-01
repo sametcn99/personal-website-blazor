@@ -18,6 +18,18 @@ internal static class ContentApiEndpointExtensions
         );
 
         app.MapGet(
+            "/api/content/search",
+            async (IContentService contentService, string? q, string? section) =>
+            {
+                if (string.IsNullOrWhiteSpace(q))
+                    return Results.Json(new List<SearchResult>());
+
+                var results = await contentService.SearchAsync(q, section);
+                return Results.Json(results);
+            }
+        );
+
+        app.MapGet(
             "/api/content/{section}",
             async (IContentService contentService, string section) =>
             {

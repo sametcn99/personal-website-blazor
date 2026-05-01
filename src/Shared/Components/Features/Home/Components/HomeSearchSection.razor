@@ -4,71 +4,80 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<div class="flow home-search-panel">
-    <div class="input-shell search-input-shell">
-        <AppIcon Name="search" />
-        <input id="home-search-input"
-               class="input-native"
-               @bind="_searchQuery"
-               @bind:event="oninput"
-               @bind:after="HandleSearchInputChanged"
-               placeholder="Search posts, links, and repositories..."
-               data-umami-event="home-search-input-click" />
-    </div>
+<section class="flow mb-section home-section">
+    <h2 class="text-section-title">Search</h2>
+    <div class="flow home-search-panel">
+        <div class="input-shell search-input-shell">
+            <AppIcon Name="search" />
+            <input id="home-search-input"
+                   class="input-native"
+                   @bind="_searchQuery"
+                   @bind:event="oninput"
+                   @bind:after="HandleSearchInputChanged"
+                   placeholder="Search posts, links, and repositories..."
+                   data-umami-event="home-search-input-click" />
+        </div>
 
-    @if (!string.IsNullOrWhiteSpace(_searchQuery))
-    {
-        @if (_isRepoLoading)
+        @if (_isSearching)
         {
-            <div class="row text-muted">
+            <div class="row text-muted" style="margin-top: 0.5rem;">
                 <div class="spinner"></div>
-                <span class="text-caption">Loading repositories...</span>
+                <span class="text-caption">Searching...</span>
             </div>
         }
 
-        @if (_filteredResults.Count > 0)
+        @if (!string.IsNullOrWhiteSpace(_searchQuery) && !_isSearching)
         {
-            <div class="flow-sm search-results-panel">
-                @foreach (var item in _filteredResults)
-                {
-                    <a class="link-plain"
-                       href="@item.Href"
-                       target="@(item.External ? "_blank" : null)"
-                       rel="@(item.External ? "noreferrer noopener" : null)"
-                       data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                        <div class="hover-card search-result-card flow-sm" style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
-                            <p class="text-subtitle">@item.Title</p>
-                            @if (!string.IsNullOrWhiteSpace(item.Summary))
-                            {
-                                <p class="text-body text-muted">@item.Summary</p>
-                            }
-                            <p class="text-caption text-muted">
-                                @item.TypeLabel@GetDateSummary(item)
-                            </p>
-                        </div>
-                    </a>
-                }
-            </div>
+            @if (_filteredResults.Count > 0)
+            {
+                <div class="posts-stack">
+                    @foreach (var item in _filteredResults)
+                    {
+                        <a class="link-plain post-card-link"
+                           href="@item.Href"
+                           target="@(item.External ? "_blank" : null)"
+                           rel="@(item.External ? "noreferrer noopener" : null)"
+                           data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
+                            <article class="hover-card post-card flow-sm" style="margin-bottom: 0.75rem;">
+                                <p class="text-heading">@item.Title</p>
+                                @if (!string.IsNullOrWhiteSpace(item.MatchSnippet))
+                                {
+                                    <p class="text-caption text-muted" style="opacity: 0.85; line-height: 1.4;"><i>@item.MatchSnippet</i></p>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(item.Summary))
+                                {
+                                    <p class="text-body text-muted">@item.Summary</p>
+                                }
+                                <p class="text-caption text-muted">
+                                    @item.TypeLabel@GetDateSummary(item)
+                                </p>
+                            </article>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-body text-muted search-empty-state">No results found.</p>
+            }
         }
-        else
-        {
-            <p class="text-body text-muted search-empty-state">No results found.</p>
-        }
-    }
-</div>
+    </div>
+</section>
 
 @code {
     private const int MaxSearchResults = 10;
+    private const int DebounceMs = 250;
 
     [Parameter] public List<ContentMetadata> BlogPosts { get; set; } = new();
     [Parameter] public List<ContentMetadata> GistPosts { get; set; } = new();
     [Parameter] public List<ContentMetadata> ProjectPosts { get; set; } = new();
 
-    private bool _isRepoLoading;
+    private bool _isSearching;
     private bool _repoFetchStarted;
     private bool _hotkeyRegistered;
     private string _searchQuery = string.Empty;
-    private readonly List<SearchEntry> _searchSource = new();
+    private CancellationTokenSource? _debounceCts;
+    private readonly List<SearchEntry> _localSearchSource = new();
     private readonly Dictionary<string, SearchEntry> _searchIndexByHref = new(StringComparer.OrdinalIgnoreCase);
     private List<SearchEntry> _filteredResults = new();
     private DotNetObjectReference<HomeSearchSection>? _dotNetRef;
@@ -83,12 +92,12 @@
         }
 
         _contentHash = nextHash;
-        _searchSource.Clear();
+        _localSearchSource.Clear();
         _searchIndexByHref.Clear();
 
-        BuildBaseSearchSource(BlogPosts, "Blog");
-        BuildBaseSearchSource(GistPosts, "Gist");
-        BuildBaseSearchSource(ProjectPosts, "Project");
+        BuildLocalSearchSource(BlogPosts, "Blog");
+        BuildLocalSearchSource(GistPosts, "Gist");
+        BuildLocalSearchSource(ProjectPosts, "Project");
 
         foreach (var link in SocialData.Links)
         {
@@ -102,7 +111,10 @@
             });
         }
 
-        ApplySearchFilter();
+        if (!string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            _ = PerformSearchAsync();
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -149,7 +161,7 @@
             }
 
             _searchQuery = _searchQuery[..^1];
-            ApplySearchFilter();
+            DebounceSearch();
             await FocusSearchInputAsync();
             await InvokeAsync(StateHasChanged);
             return;
@@ -164,7 +176,7 @@
                 _ = LoadRepositoriesAsync();
             }
 
-            ApplySearchFilter();
+            DebounceSearch();
             await FocusSearchInputAsync();
             await InvokeAsync(StateHasChanged);
         }
@@ -179,16 +191,122 @@
             _ = LoadRepositoriesAsync();
         }
 
-        ApplySearchFilter();
+        DebounceSearch();
         return Task.CompletedTask;
     }
 
     private Task HandleSearchInputChanged() => OnSearchQueryChanged(_searchQuery);
 
+    private void DebounceSearch()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = new CancellationTokenSource();
+
+        var token = _debounceCts.Token;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(DebounceMs, token);
+                if (!token.IsCancellationRequested)
+                {
+                    await PerformSearchAsync();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        });
+    }
+
+    private async Task PerformSearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+        {
+            _filteredResults.Clear();
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        _isSearching = true;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var client = HttpClientFactory.CreateClient();
+            var searchUrl = Navigation.ToAbsoluteUri($"/api/content/search?q={Uri.EscapeDataString(_searchQuery)}");
+
+            List<SearchResultDto>? apiResults = null;
+            try
+            {
+                apiResults = await client.GetFromJsonAsync<List<SearchResultDto>>(searchUrl);
+            }
+            catch
+            {
+            }
+
+            _searchIndexByHref.Clear();
+            _localSearchSource.Clear();
+            _filteredResults.Clear();
+
+            if (apiResults != null)
+            {
+                foreach (var r in apiResults)
+                {
+                    AddSearchEntry(new SearchEntry
+                    {
+                        Title = r.Title ?? string.Empty,
+                        Summary = r.Summary ?? string.Empty,
+                        Href = r.Href ?? string.Empty,
+                        TypeLabel = r.TypeLabel ?? string.Empty,
+                        PublishedAt = r.PublishedAt,
+                        UpdatedAt = r.UpdatedAt,
+                        MatchSnippet = r.MatchSnippet ?? string.Empty,
+                        Tags = r.Tags ?? Array.Empty<string>(),
+                    });
+                }
+            }
+
+            foreach (var link in SocialData.Links)
+            {
+                var q = _searchQuery;
+                if (q.Length > 0 && (
+                    link.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    link.Category.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    link.Link.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                    Array.Exists(link.Type, t => t.Contains(q, StringComparison.OrdinalIgnoreCase))))
+                {
+                    AddSearchEntry(new SearchEntry
+                    {
+                        Title = link.Label,
+                        Summary = link.Category,
+                        Href = link.Link,
+                        TypeLabel = "Link",
+                        External = link.External,
+                    });
+                }
+            }
+
+            if (_repoFetchStarted)
+            {
+                ApplyRepoContentFilter();
+            }
+
+            _filteredResults = _localSearchSource.Take(MaxSearchResults).ToList();
+        }
+        finally
+        {
+            _isSearching = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
     private async Task ClearSearchAsync()
     {
         _searchQuery = string.Empty;
         _filteredResults.Clear();
+        _debounceCts?.Cancel();
         await FocusSearchInputAsync();
         await InvokeAsync(StateHasChanged);
     }
@@ -209,7 +327,7 @@
         }
     }
 
-    private void BuildBaseSearchSource(List<ContentMetadata> items, string typeLabel)
+    private void BuildLocalSearchSource(List<ContentMetadata> items, string typeLabel)
     {
         foreach (var item in items)
         {
@@ -233,8 +351,6 @@
         }
 
         _repoFetchStarted = true;
-        _isRepoLoading = true;
-        await InvokeAsync(StateHasChanged);
 
         try
         {
@@ -271,9 +387,35 @@
         }
         finally
         {
-            _isRepoLoading = false;
-            ApplySearchFilter();
+            if (!string.IsNullOrWhiteSpace(_searchQuery))
+            {
+                ApplyRepoContentFilter();
+                _filteredResults = _localSearchSource.Take(MaxSearchResults).ToList();
+            }
+
             await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ApplyRepoContentFilter()
+    {
+        var repoEntries = _localSearchSource
+            .Where(e => e.TypeLabel == "Repository")
+            .Where(e =>
+                e.Title.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                e.Summary.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        _localSearchSource.RemoveAll(e => e.TypeLabel == "Repository");
+
+        foreach (var repo in repoEntries)
+        {
+            var href = repo.Href;
+            if (!_searchIndexByHref.ContainsKey(href))
+            {
+                _searchIndexByHref[href] = repo;
+                _localSearchSource.Add(repo);
+            }
         }
     }
 
@@ -285,23 +427,7 @@
         }
 
         _searchIndexByHref[entry.Href] = entry;
-        _searchSource.Add(entry);
-    }
-
-    private void ApplySearchFilter()
-    {
-        if (string.IsNullOrWhiteSpace(_searchQuery))
-        {
-            _filteredResults.Clear();
-            return;
-        }
-
-        _filteredResults = _searchSource
-            .Where(item =>
-                item.Title.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase)
-                || item.Summary.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
-            .Take(MaxSearchResults)
-            .ToList();
+        _localSearchSource.Add(entry);
     }
 
     private static string GetDateSummary(SearchEntry item)
@@ -321,6 +447,9 @@
 
     public async ValueTask DisposeAsync()
     {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+
         if (_hotkeyRegistered)
         {
             try
@@ -344,6 +473,8 @@
         public string? PublishedAt { get; set; }
         public string? UpdatedAt { get; set; }
         public bool External { get; set; }
+        public string MatchSnippet { get; set; } = string.Empty;
+        public string[] Tags { get; set; } = Array.Empty<string>();
     }
 
     private sealed class GitHubRepoDto
@@ -359,5 +490,32 @@
 
         [JsonPropertyName("updated_at")]
         public DateTime? UpdatedAt { get; set; }
+    }
+
+    private sealed class SearchResultDto
+    {
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
+
+        [JsonPropertyName("summary")]
+        public string? Summary { get; set; }
+
+        [JsonPropertyName("href")]
+        public string? Href { get; set; }
+
+        [JsonPropertyName("typeLabel")]
+        public string? TypeLabel { get; set; }
+
+        [JsonPropertyName("publishedAt")]
+        public string? PublishedAt { get; set; }
+
+        [JsonPropertyName("updatedAt")]
+        public string? UpdatedAt { get; set; }
+
+        [JsonPropertyName("matchSnippet")]
+        public string? MatchSnippet { get; set; }
+
+        [JsonPropertyName("tags")]
+        public string[]? Tags { get; set; }
     }
 }

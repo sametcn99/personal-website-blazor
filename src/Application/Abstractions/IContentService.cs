@@ -7,4 +7,5 @@ public interface IContentService
     Task<PostModel?> GetPostAsync(string section, string slug);
     Task<List<PostModel>> GetPostsAsync(string section);
     Task<List<ContentMetadata>> GetAllContentsAsync();
+    Task<List<SearchResult>> SearchAsync(string query, string? section = null);
 }

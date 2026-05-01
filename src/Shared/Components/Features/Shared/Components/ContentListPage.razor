@@ -64,6 +64,10 @@
                     <article class="hover-card content-list-card flow-sm" style="margin-bottom: 0.75rem;">
                         <p class="text-heading">@post.Title</p>
                         <p class="text-body text-muted">@post.Description</p>
+                        @if (!string.IsNullOrWhiteSpace(GetMatchSnippet(post)))
+                        {
+                            <p class="text-caption text-muted" style="opacity: 0.8;">@GetMatchSnippet(post)</p>
+                        }
                         <p class="text-caption text-muted">
                             @GetDateLabel(post)
                         </p>
@@ -98,7 +102,9 @@
             var q = _searchQuery.ToLowerInvariant();
             filtered = filtered.Where(p =>
                 p.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase));
+                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                p.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                p.SearchableText.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
         filtered = _sortBy switch
@@ -112,6 +118,26 @@
         };
 
         return filtered.ToList();
+    }
+
+    private string GetMatchSnippet(PostModel post)
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+            return string.Empty;
+
+        var q = _searchQuery.Trim();
+        var idx = post.SearchableText.IndexOf(q, StringComparison.OrdinalIgnoreCase);
+        if (idx < 0)
+            return string.Empty;
+
+        var start = Math.Max(0, idx - 40);
+        var end = Math.Min(post.SearchableText.Length, idx + q.Length + 40);
+        var snippet = post.SearchableText[start..end];
+
+        var prefix = start > 0 ? "..." : "";
+        var suffix = end < post.SearchableText.Length ? "..." : "";
+
+        return $"{prefix}{snippet}{suffix}";
     }
 
     private static DateTime? GetSortDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
