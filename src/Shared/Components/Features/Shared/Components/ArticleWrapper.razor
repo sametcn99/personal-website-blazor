@@ -1,5 +1,6 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
 @inject IJSRuntime JS
+@using personal_website_blazor.Domain.Entities
 
 <div class="page-container page-section">
     <BackToHome />
@@ -40,6 +41,8 @@
         </div>
 
         <div class="divider article-divider"></div>
+
+        <TableOfContents Items="Post.TocItems" />
 
         <article>
             @ChildContent

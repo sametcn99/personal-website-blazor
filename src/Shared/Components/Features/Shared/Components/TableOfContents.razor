@@ -1,0 +1,37 @@
+@using personal_website_blazor.Domain.Entities
+@inject IJSRuntime JsRuntime
+
+@if (Items is { Length: > 0 })
+{
+    <details class="toc">
+        <summary class="toc-summary">Table of Contents</summary>
+        <nav class="toc-nav">
+            @foreach (var item in Items)
+            {
+                var indent = item.Level - 2;
+                <a class="toc-link toc-level-@item.Level"
+                   href="#@item.Id"
+                   style="padding-left: @(0.5 + indent * 0.75)rem;"
+                   @onclick="() => ScrollToId(item.Id)"
+                   @onclick:preventDefault>
+                    @item.Text
+                </a>
+            }
+        </nav>
+    </details>
+}
+
+@code {
+    [Parameter] public TocItem[] Items { get; set; } = Array.Empty<TocItem>();
+
+    private async Task ScrollToId(string id)
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("scrollToElementId", id);
+        }
+        catch
+        {
+        }
+    }
+}

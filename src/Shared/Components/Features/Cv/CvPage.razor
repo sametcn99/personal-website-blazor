@@ -1,4 +1,6 @@
 @page "/cv"
+@using personal_website_blazor.Domain.Entities
+@using personal_website_blazor.Domain.Utilities
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime Runtime
 @inject PersistentComponentState ApplicationState
@@ -24,6 +26,7 @@
         }
         else
         {
+            <TableOfContents Items="_tocItems" />
             <HtmlRenderer HtmlContent="@_htmlContent" />
         }
     </article>
@@ -36,6 +39,7 @@
 
 @code {
     private string _htmlContent = string.Empty;
+    private TocItem[] _tocItems = Array.Empty<TocItem>();
     private bool _contentInitialized;
     private PersistingComponentStateSubscription? _persistSubscription;
 
@@ -61,6 +65,7 @@
             var client = HttpClientFactory.CreateClient("Server");
             var response = await client.GetFromJsonAsync<CvResponse>("api/content/cv");
             _htmlContent = response?.Html ?? string.Empty;
+            _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
         }
         catch
         {

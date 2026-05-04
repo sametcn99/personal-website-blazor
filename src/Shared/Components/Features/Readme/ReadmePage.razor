@@ -1,4 +1,6 @@
 @page "/readme"
+@using personal_website_blazor.Domain.Entities
+@using personal_website_blazor.Domain.Utilities
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager NavigationManager
 @inject IJSRuntime Runtime
@@ -25,6 +27,7 @@
     else
     {
         <article class="readme-article">
+            <TableOfContents Items="_tocItems" />
             <HtmlRenderer HtmlContent="@_htmlContent" />
         </article>
     }
@@ -34,6 +37,7 @@
     private bool _loading = true;
     private string? _error;
     private string _htmlContent = string.Empty;
+    private TocItem[] _tocItems = Array.Empty<TocItem>();
     private bool _contentInitialized;
     private PersistingComponentStateSubscription? _persistSubscription;
 
@@ -65,6 +69,7 @@
             var requestUri = NavigationManager.ToAbsoluteUri("api/readme");
             var response = await client.GetFromJsonAsync<ReadmeResponse>(requestUri.ToString());
             _htmlContent = response?.Html ?? string.Empty;
+            _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
         }
         catch (Exception ex)
         {

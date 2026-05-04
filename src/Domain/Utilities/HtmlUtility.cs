@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using personal_website_blazor.Domain.Entities;
 
 namespace personal_website_blazor.Domain.Utilities;
 
@@ -6,6 +7,7 @@ public static class HtmlUtility
 {
     private static readonly Regex HtmlTagRegex = new("<[^>]+>", RegexOptions.Compiled);
     private static readonly Regex WhitespaceRegex = new(@"\s+", RegexOptions.Compiled);
+    private static readonly string[] HeadingTags = ["h2", "h3", "h4", "h5", "h6"];
 
     public static string StripHtml(string? html)
     {
@@ -42,5 +44,30 @@ public static class HtmlUtility
         var suffix = end < text.Length ? "..." : "";
 
         return $"{prefix}{snippet}{suffix}";
+    }
+
+    public static List<TocItem> ExtractHeadings(string? html)
+    {
+        var items = new List<TocItem>();
+        if (string.IsNullOrWhiteSpace(html))
+            return items;
+
+        var pattern = @"<(h[2-6])\s[^>]*?id=""([^""]+)""[^>]*>(.*?)</\1>";
+        var matches = Regex.Matches(html, pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        foreach (Match match in matches)
+        {
+            var tag = match.Groups[1].Value.ToLowerInvariant();
+            var level = int.Parse(tag[1..]);
+            var id = match.Groups[2].Value;
+            var text = StripHtml(match.Groups[3].Value);
+
+            if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(text))
+            {
+                items.Add(new TocItem { Id = id, Text = text, Level = level });
+            }
+        }
+
+        return items;
     }
 }

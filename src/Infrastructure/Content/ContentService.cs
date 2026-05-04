@@ -106,6 +106,7 @@ public class ContentService : IContentService
 
         post.Content = Markdown.ToHtml(content, _pipeline);
         post.SearchableText = HtmlUtility.StripHtml(post.Content);
+        post.TocItems = HtmlUtility.ExtractHeadings(post.Content).ToArray();
         return post;
     }
 

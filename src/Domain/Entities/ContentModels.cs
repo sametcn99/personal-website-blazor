@@ -14,6 +14,14 @@ public class PostModel
     public string Language { get; set; } = "en";
     public string? Image { get; set; }
     public string? Author { get; set; }
+    public TocItem[] TocItems { get; set; } = Array.Empty<TocItem>();
+}
+
+public class TocItem
+{
+    public string Id { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
+    public int Level { get; set; }
 }
 
 public class ContentMetadata
