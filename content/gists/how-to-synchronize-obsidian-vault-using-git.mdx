@@ -1,311 +1,625 @@
 ---
-title: "How to Synchronize Obsidian Vault Using Git"
+title: "How to Synchronize Obsidian Vault Using Git (PC + Android)"
 publishedAt: "2026-05-05"
 summary:
-  "A step-by-step guide on synchronizing your Obsidian vault across PC and
-  Android devices using Git."
+  "A comprehensive, step-by-step guide on synchronizing your Obsidian vault
+  across PC and Android devices using Git, covering setup, workflow, conflict
+  resolution, and best practices."
 ---
 
 # How to Synchronize Obsidian Vault Using Git (PC + Android)
 
-Obsidian stores all your notes as plain Markdown files inside a local folder called a "vault." While this makes your data portable and platform-independent, it also means there is no built-in cloud sync. If you use Obsidian on both a computer and an Android phone, you need a way to keep those two vault copies consistent. This is where Git comes in.
+Obsidian stores all your notes as plain Markdown files inside a local folder called a "vault." Unlike cloud-based note-taking apps such as Notion or Google Keep, Obsidian does not include a built-in sync service. This design choice gives you full ownership and portability of your data, but it also means you need to handle cross-device synchronization yourself. If you use Obsidian on both a computer and an Android phone, you need a reliable way to keep those two vault copies consistent. This is where Git comes in.
 
-Git is a distributed version control system originally designed for source code, but it works just as well for any collection of text files, including your Obsidian notes. By turning your vault into a Git repository and pushing it to a remote host like GitHub, you get several advantages:
+Git is a distributed version control system originally built for tracking changes in source code. However, since Obsidian notes are just plain text files written in Markdown, Git is a natural fit. By turning your vault into a Git repository and pushing it to a remote host like GitHub, you gain several concrete advantages:
 
-- **Version history**: Every change is recorded as a commit. You can browse, compare, or revert to any earlier state of any note at any time.
-- **Two-way synchronization**: You can make edits on your PC, push them to GitHub, then pull them on your phone, and vice versa. Both devices stay up to date.
-- **No third-party cloud service**: Your notes live on GitHub under your control (in a private repository), not inside someone else's sync engine.
-- **Free and transparent**: Git and GitHub are free for this use case, and you can see exactly what changed, when, and why.
+- **Full version history**: Every change you make is recorded as a commit. You can browse past versions of any note, compare differences between versions, or revert to an earlier state if you accidentally delete or overwrite something. This is far more powerful than a simple backup because you get granular, per-change tracking.
+- **Two-way synchronization**: You can edit notes on your PC, push them to GitHub, then pull them on your phone, and vice versa. Both devices stay up to date with the latest changes. There is no single "source of truth" device; GitHub acts as the central hub.
+- **No third-party cloud dependency**: Your notes live on GitHub inside a private repository that only you can access. Unlike commercial sync services, you are not locked into anyone's ecosystem, and there is no subscription fee for the tier most people need.
+- **Free and transparent**: Git and GitHub's free tier are more than sufficient for personal note synchronization. You can inspect exactly what changed, when it changed, and why, through Git's log and diff tools.
+- **Conflict visibility**: When two devices edit the same note simultaneously, Git does not silently overwrite one version. Instead, it flags the conflict and gives you full control over how to resolve it. You always know exactly what happened.
 
-That said, this approach does have trade-offs. It is **not automatic**: you must manually run `git pull` and `git push` to sync. It also assumes **basic familiarity with Git** (commit, push, pull). If you prefer a set-and-forget sync that works silently in the background, consider dedicated sync plugins instead. But if you value control, auditability, and a full version history, the Git-based workflow is hard to beat.
+That said, this approach has trade-offs you should be aware of before committing to it:
 
-Before diving into the setup, there are two important points to clarify:
+- **It is not automatic**: You must manually run `git pull` and `git push` to sync. There is no background daemon watching your files. If you forget to push after editing on your PC, those changes will not appear on your phone until you do.
+- **It requires basic Git familiarity**: Concepts like staging, committing, pushing, pulling, and resolving merge conflicts are fundamental to this workflow. If you have never used Git before, there is a learning curve, but this guide covers everything you need.
+- **Binary files are not ideal in Git**: Obsidian notes are plain text, which Git handles brilliantly. However, if you store large numbers of images, PDFs, or audio files in your vault, your repository size will grow quickly. Git is designed for text; for large binary assets, consider using Git LFS or a separate cloud storage solution.
+
+If you prefer a set-and-forget sync that works silently in the background, consider using Obsidian's official Sync service or community plugins like Remotely Save instead. But if you value control, auditability, cost efficiency, and a complete version history, the Git-based workflow is hard to beat.
 
 ---
 
 ## Important Notes
 
-- This method **does not provide automatic synchronization**. Synchronization operations (`git pull` and `git push`) are performed manually. This means you need to remember to run the relevant commands after making changes.
+Read these carefully before proceeding. Understanding these points will save you from common pitfalls later.
 
-- This approach **requires basic Git knowledge**. You should be familiar with core Git concepts such as commit, push, and pull. If you are new to Git, it is recommended to get comfortable with the basics first.
+- **This method does not provide automatic synchronization.** Every time you finish editing on one device, you must explicitly run `git add`, `git commit`, and `git push`. On the other device, you must run `git pull` to receive those changes. If you forget to push, your other device will not see your latest notes. If you forget to pull before editing, you risk creating a merge conflict. Developing a habit of syncing at the start and end of each session is critical.
 
-If you are looking for a fully automatic, background-syncing solution, this method may not be the right fit. However, if you want full control with proper versioning, this approach is highly effective.
+- **This approach requires basic Git knowledge.** You do not need to be a Git expert, but you should understand what commit, push, pull, and merge conflict mean. This guide explains each step, but if you run into issues, knowing how to read Git error messages and search for solutions will be valuable.
+
+- **Avoid editing the same note on two devices without syncing in between.** If you edit the same file on your PC and your phone without pushing and pulling between those edits, Git will encounter a merge conflict. Conflicts are not destructive; Git preserves both versions and asks you to choose. However, resolving conflicts takes time and can be confusing if you are not prepared for them.
 
 ---
 
 ## 1. Create a GitHub Account
 
-Start by creating a GitHub account. GitHub is a platform that lets you host your code and notes on a remote server.
+GitHub will serve as the remote host for your Obsidian vault. It stores a copy of your repository in the cloud, acting as the synchronization point between your PC and your phone. Both devices push and pull from the same GitHub repository, so changes made on either device are reflected on the other.
 
-- You can create a free account at [github.com](https://github.com).
-- It is recommended to use a **private repository**. Obsidian vaults typically contain personal notes, journals, and sensitive data, so hosting them in a public repository could pose a security risk.
-- By choosing a private repository, you ensure that only you have access to the remote repository.
+- Go to [github.com](https://github.com) and sign up for a free account. The free tier includes unlimited private repositories, which is all you need for personal note synchronization.
+- After creating your account, create a new repository. Give it a recognizable name such as `obsidian-vault` or `my-notes`.
+- **Choose "Private" visibility.** Obsidian vaults often contain personal notes, journals, passwords, and other sensitive information. A private repository ensures that only you (and anyone you explicitly grant access to) can read or modify the contents. Do not use a public repository unless you are certain your vault contains nothing private.
+- **Do not initialize the repository with a README, .gitignore, or license** if you are going to push an existing vault. This avoids conflicts between GitHub's initial commit and your local files. You can add these later if needed.
 
 ---
 
 ## 2. Install Git and GitHub CLI on Your Computer
 
-You need to install Git and GitHub CLI (Command Line Interface) tools on your computer. Git is the core tool that handles version control operations, while GitHub CLI simplifies authentication and repository management from the command line.
+Before you can use Git from the command line, you need to install it on your computer. Additionally, installing the GitHub CLI (`gh`) simplifies authentication so you do not have to manage SSH keys or personal access tokens for day-to-day operations on your PC.
 
-- **Git**: Download and install the appropriate version for your operating system from [git-scm.com](https://git-scm.com).
-- **GitHub CLI**: Install it from [cli.github.com](https://cli.github.com).
+### Installing Git
 
-After completing the installations, authenticate with your GitHub account:
+- **Windows**: Download the installer from [git-scm.com](https://git-scm.com) and run it. During installation, you can accept the default options. The installer includes Git Bash, which provides a Unix-style terminal you can use throughout this guide.
+- **macOS**: Git comes pre-installed on most macOS versions. If it is not available, install it via Homebrew with `brew install git`, or download the installer from [git-scm.com](https://git-scm.com).
+- **Linux**: Install Git through your distribution's package manager. For Debian/Ubuntu, run `sudo apt install git`. For Fedora, run `sudo dnf install git`.
+
+After installation, verify it works by running:
+
+```bash
+git --version
+```
+
+You should see output like `git version 2.x.x`.
+
+### Installing GitHub CLI
+
+The GitHub CLI (`gh`) lets you authenticate with GitHub directly from the terminal without manually creating SSH keys or tokens for every operation.
+
+- Download it from [cli.github.com](https://cli.github.com) for your operating system.
+- On macOS, you can also install it via Homebrew: `brew install gh`.
+
+### Authenticating with GitHub
+
+Once both tools are installed, authenticate with your GitHub account:
 
 ```bash
 gh auth login
 ```
 
-This command will guide you through the process step by step and save your GitHub credentials on your computer.
+This command will guide you through an interactive setup:
+
+1. Choose **GitHub.com** as the platform.
+2. Select **HTTPS** as the preferred protocol (this is the simplest option and works well with the GitHub CLI).
+3. Choose **Login with a web browser** when prompted. The CLI will give you a one-time code. Open the URL it displays in your browser, paste the code, and authorize the application.
+
+Once authenticated, the GitHub CLI stores your credentials securely. You can now push to and pull from GitHub repositories without entering your password each time.
 
 ---
 
 ## 3. Convert Your Obsidian Vault into a Git Repository
 
-In this step, you will convert your existing Obsidian vault folder into a Git repository. This allows Git to track the files in your folder.
+This step turns your existing Obsidian vault folder into a Git repository on your PC. This means Git will start tracking every file inside the vault, recording each change you make.
 
 ### Navigate to your vault folder
 
-Open a terminal or command line and navigate to the directory containing your Obsidian vault:
+Open a terminal (or Git Bash on Windows) and navigate to your Obsidian vault directory:
 
 ```bash
 cd /path/to/your/obsidian-vault
 ```
 
-Replace `/path/to/your/obsidian-vault` with the actual path to your vault folder.
+Replace `/path/to/your/obsidian-vault` with the actual path to your vault. For example:
+
+- **Windows**: `cd C:\Users\YourName\Documents\MyVault`
+- **macOS**: `cd ~/Documents/MyVault`
+- **Linux**: `cd ~/Documents/MyVault`
+
+If you are not sure where your vault is located, open Obsidian, go to Settings, and look at the "Vault location" field. It will show you the exact folder path.
+
+### Create a .gitignore file
+
+Before initializing Git, it is a good idea to create a `.gitignore` file. This file tells Git which files or folders to ignore, so they are not tracked or uploaded to GitHub. Obsidian generates some internal files that you typically do not need to sync:
+
+```plaintext
+# Obsidian workspace and configuration
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+```
+
+Create this file in the root of your vault directory. The `workspace.json` files store window layout and open tab state, which differ between your PC and phone. If you track them, they will cause frequent and unnecessary merge conflicts.
 
 ### Initialize Git
 
-Initialize a Git repository in the folder:
+Initialize a Git repository in the vault folder:
 
 ```bash
 git init
 ```
 
-This command creates a hidden `.git` directory in the folder and enables Git to start tracking your files.
+This command creates a hidden `.git` directory inside your vault. This directory stores all of Git's tracking data, including the full history of every change you commit. It does not modify any of your note files.
 
-### Add files
+### Stage all files
 
-Add all files to Git's tracking system:
+Add every file in the vault to Git's staging area. The staging area is a holding zone where you prepare changes before committing them:
 
 ```bash
 git add .
 ```
 
-The dot (`.`) represents all files and folders in the current directory.
+The dot (`.`) means "everything in the current directory and all subdirectories." Git will scan your vault, find every file, and mark them for inclusion in the next commit. You can verify what was staged by running `git status`.
 
 ### Create your first commit
 
-Record the added files with an initial commit:
+A commit is a snapshot of your vault at a specific point in time. It records the current state of all staged files and attaches a message describing the change:
 
 ```bash
 git commit -m "initial obsidian vault"
 ```
 
-Commit messages provide short descriptions of the changes made. This way, you can see what was changed and when in the future.
+This creates your first commit, which represents the initial state of your vault. Think of it as the starting point in your vault's history. From now on, every commit you make will build on top of this one.
 
-### Add a remote
+### Create the repository on GitHub
 
-Link your local repository to the remote repository on GitHub:
+If you have not already created a repository on GitHub, you can do it from the command line using the GitHub CLI:
+
+```bash
+gh repo create obsidian-vault --private --source=. --remote=origin --push
+```
+
+This single command does three things at once:
+
+1. Creates a **private** repository named `obsidian-vault` on your GitHub account.
+2. Links your local repository to the remote repository under the name `origin`.
+3. Pushes your initial commit to GitHub immediately.
+
+If you already created the repository on GitHub's website, link it manually instead:
 
 ```bash
 git branch -M main
-git remote add origin https://github.com/username/repo.git
+git remote add origin https://github.com/username/obsidian-vault.git
 ```
 
-- `git branch -M main` sets your default branch to "main".
-- `git remote add origin` links your local repository to the remote one on GitHub. Replace the URL with your own repository URL.
+- `git branch -M main` renames your current branch to "main," which is the modern convention (older Git versions default to "master").
+- `git remote add origin` tells Git where the remote repository lives. Replace the URL with your actual repository URL.
 
-### Push to remote
+### Push to the remote repository
 
-Send your local commits to the remote repository:
+If you used `gh repo create` with the `--push` flag, your code is already on GitHub. If not, push manually:
 
 ```bash
 git push -u origin main
 ```
 
-The `-u` flag sets the remote repository as the upstream for this branch. This way, subsequent `git push` and `git pull` commands do not require you to specify the branch name.
+The `-u` flag sets the remote repository as the "upstream" for your current branch. This is a one-time setup. After this, you can simply run `git push` and `git pull` without specifying the remote or branch name each time.
+
+You should now be able to visit your repository on GitHub and see all your vault files in the browser.
 
 ---
 
 ## 4. Android Setup: Install Termux
 
-To perform Git operations on your Android device, you need to install the Termux app. Termux provides a Linux terminal environment on Android.
+To use Git on your Android phone, you need a terminal emulator. Termux is the most capable option available. It provides a full Linux environment on Android, complete with a package manager that can install Git and other tools.
 
-- Download Termux from [F-Droid](https://f-droid.org) or [GitHub Releases](https://github.com/termux/termux-app/releases). The **GitHub version is recommended** because it is more up to date and stable compared to the Google Play Store version.
-- The Google Play Store version may be outdated and can cause issues, so it should be avoided.
+### Why Termux and not other apps?
+
+There are other terminal apps on Android, but Termux stands out because it includes its own package ecosystem. You can install not just Git, but also tools like `ssh`, `nano`, and `vim` directly through its package manager. It is actively maintained and widely used in the Android development community.
+
+### Installation
+
+- **Recommended**: Download Termux from [F-Droid](https://f-droid.org) or the [GitHub Releases page](https://github.com/termux/termux-app/releases). These versions are up to date and receive regular updates.
+- **Not recommended**: The Google Play Store version of Termux is outdated and unmaintained. It has known bugs and incompatibilities with newer Android versions. Avoid it if possible.
+
+### Initial setup
+
+After installing Termux, open it and run the following command to update all packages to their latest versions:
+
+```bash
+pkg update && pkg upgrade
+```
+
+This ensures you are starting from the most current and stable package versions, which reduces the chance of running into bugs during setup.
 
 ---
 
 ## 5. Grant Termux Storage Access
 
-You need to grant storage permission so Termux can access your phone's files:
+By default, Termux cannot access your phone's files. You need to grant it storage permission so it can read and write to your device's shared storage, where Obsidian stores its vaults.
 
 ```bash
 termux-setup-storage
 ```
 
-When you run this command, Android will display a prompt asking you to grant file access permission to Termux. Approve the permission. After this, Termux will be able to access your phone's internal storage.
+When you run this command, Android will display a system prompt asking whether you want to allow Termux access to your photos, media, and files. Tap **Allow**. If you accidentally deny the permission, you can grant it later by going to your phone's Settings, finding Termux under Apps, and enabling the Storage permission manually.
+
+After granting permission, Termux creates a `~/storage` directory containing symlinks to various locations on your phone's file system. The most important one for this guide is `~/storage/shared`, which points to your phone's primary shared storage (the same storage you see when you connect your phone to a computer via USB).
 
 ---
 
 ## 6. Navigate to the Obsidian Folder
 
-Inside Termux, navigate to your Obsidian vault folder:
+Now that Termux has storage access, navigate to where your Obsidian vault is (or will be) stored:
 
 ```bash
 cd ~/storage/shared
 ```
 
-This command takes you to the root directory of your phone's internal storage. From there, navigate to the folder where you want to store your Obsidian vault:
+This command takes you to the root of your phone's shared internal storage. From there, navigate to the folder where you want your vault to live. If you already have an Obsidian vault on your phone, go to that directory:
 
 ```bash
 cd Obsidian
 ```
 
-If the Obsidian app stores your vault in a different location, navigate to that directory instead.
+If you do not yet have an Obsidian vault on your phone and want to create one from the GitHub repository, you can run the clone command directly in `~/storage/shared`. Obsidian detects folders that contain Markdown files and offers to open them as vaults.
+
+To see the contents of the current directory, use:
+
+```bash
+ls -la
+```
+
+This helps you confirm you are in the right place before proceeding.
 
 ---
 
 ## 7. Install Git on Termux
 
-Install Git on Termux:
+Install Git through Termux's package manager:
 
 ```bash
 pkg install git
 ```
 
-This command downloads and installs Git using Termux's package manager. After the installation is complete, you can verify it by running `git --version`.
+Termux uses the `pkg` command as a wrapper around `apt`, so this works similarly to installing packages on Debian/Ubuntu Linux. The command downloads Git and any dependencies it needs.
+
+After installation finishes, verify that Git is available and working:
+
+```bash
+git --version
+```
+
+You should see output like `git version 2.x.x`. If you get a "command not found" error, make sure the installation completed without errors and try running `pkg update` before reinstalling.
 
 ---
 
-## 8. Configure Credential Cache
+## 8. Configure Git Identity on Termux
 
-To avoid entering your username and password on every Git operation, configure credential storage:
+Before making any commits on your phone, tell Git who you are. Git attaches your name and email to every commit you make, making it easy to see who changed what. This is especially important when syncing across devices, so you can distinguish edits made on your PC from those made on your phone.
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+```
+
+Use the same name and email you configured on your PC so that commits from both devices are attributed to the same person in the Git log.
+
+### Configure credential storage
+
+To avoid entering your GitHub credentials on every `git push` or `git pull`, configure Git to store them:
 
 ```bash
 git config --global credential.helper store
 ```
 
-This command saves your credentials in a file so you do not need to re-enter your GitHub credentials on every `git push` or `git pull`. However, be mindful of the security of this file; on rooted devices, it could pose a security risk.
+This command saves your credentials in a plain text file (`~/.git-credentials`) inside Termux's private storage. The next time you authenticate, Git will read from this file automatically.
+
+**Security note**: The `store` helper saves credentials in plaintext. On a non-rooted phone, this is reasonably secure because Termux's internal storage is isolated from other apps. However, on a rooted device, another app with root access could potentially read this file. If you are concerned about this, you can use the `cache` helper instead, which stores credentials only in memory for a limited time:
+
+```bash
+git config --global credential.helper cache
+```
+
+The `cache` helper keeps credentials in memory for 15 minutes by default. You can extend this duration with `git config --global credential.helper "cache --timeout=3600"` (1 hour).
 
 ---
 
 ## 9. Create a GitHub Personal Access Token
 
-GitHub has removed the ability to authenticate with a password. Instead, you need to use a **Personal Access Token (PAT)**. Steps to create a token:
+GitHub no longer accepts account passwords for Git operations over HTTPS. Instead, you must use a **Personal Access Token (PAT)**. This is a long, random string that acts as a password with scoped permissions, meaning you can restrict what the token is allowed to do.
 
-1. Log in to GitHub
-2. Click your profile picture in the top right corner and go to **Settings**
-3. Click **Developer settings** in the left sidebar
-4. Under **Personal access tokens**, click **Fine-grained tokens**
-5. Click **Generate new token**
-6. Set a name and expiration for the token
-7. Under **Repository access**, select only your Obsidian vault repository (this limits the token's access and improves security)
-8. Under **Permissions**, grant **Read & Write** access for **Contents**
-9. Generate the token and copy it to a secure location
+There are two types of tokens on GitHub:
 
-Make sure not to lose the token, as GitHub only displays it once. If you lose it, you will need to create a new one.
+- **Classic tokens**: Simpler to create, with broad permissions. Good for quick setup but offer less fine-grained control.
+- **Fine-grained tokens**: Newer and more secure. They let you restrict access to specific repositories and specific permissions. This is the recommended type for this guide.
+
+### Creating a fine-grained token
+
+1. Log in to [github.com](https://github.com) on your computer.
+2. Click your profile picture in the top right corner, then click **Settings**.
+3. In the left sidebar, scroll down and click **Developer settings**.
+4. Click **Personal access tokens**, then click **Fine-grained tokens**.
+5. Click **Generate new token**.
+6. Give the token a descriptive name, such as "Obsidian Vault - Android." This helps you remember what the token is for if you need to manage it later.
+7. Set an expiration date. GitHub will revoke the token after this date. You can choose 30 days, 60 days, 90 days, or a custom date. For personal use, 90 days is a reasonable balance between convenience and security. You will need to generate a new token when this one expires.
+8. Under **Repository access**, select **Only select repositories**, then choose your Obsidian vault repository. This ensures the token can only access that one repository and nothing else on your account, which significantly reduces the impact if the token is ever compromised.
+9. Under **Permissions**, expand **Repository permissions** and set **Contents** to **Read and Write**. This is the minimum permission needed to push and pull changes from your repository.
+10. Click **Generate token** at the bottom of the page.
+11. **Copy the token immediately and store it somewhere secure** (such as a password manager). GitHub only displays the token once. After you leave the page, there is no way to see it again. If you lose it, you must generate a new one.
 
 ---
 
-## 10. Clone the Repository
+## 10. Clone the Repository on Your Phone
 
-Clone your Obsidian vault repository to your Android device:
+Now that Git is installed, configured, and you have a personal access token, clone your Obsidian vault repository from GitHub to your phone. Navigate to the folder where you want the vault to be stored (see step 6), then run:
 
 ```bash
-git clone https://github.com/username/repo.git
+git clone https://github.com/username/obsidian-vault.git
 ```
 
-You will be prompted for login credentials during the clone process:
+Replace `username` and `obsidian-vault` with your actual GitHub username and repository name.
 
-- **Username**: Your GitHub username
-- **Password**: Your Personal Access Token (PAT). **Enter the token, not your GitHub password.**
+When prompted for credentials:
 
-Once the clone is complete, a copy of your repository will be downloaded to your Android device.
+- **Username**: Enter your GitHub username.
+- **Password**: Paste your Personal Access Token. **Do not enter your GitHub account password; it will not work.** GitHub has disabled password authentication for Git operations.
+
+If you make a mistake entering the token, Git will reject the authentication. You can retry the clone command. If you previously configured `credential.helper store`, your credentials will be saved after the first successful authentication, so you will not need to enter them again.
+
+After the clone completes, a new folder matching the repository name will appear in your current directory. Verify the contents:
+
+```bash
+ls obsidian-vault/
+```
+
+You should see all your Obsidian notes and folders.
+
+### Opening the vault in Obsidian
+
+1. Open the Obsidian app on your phone.
+2. Tap **Open folder as vault**.
+3. Navigate to the folder where you cloned the repository and select it.
+4. Obsidian will detect the Markdown files and configure the vault automatically.
 
 ---
 
 ## 11. Using Synchronization
 
-You can now synchronize between your two devices. The basic workflow is as follows:
+With both your PC and phone connected to the same GitHub repository, you can now synchronize changes between them. The key principle is simple: **always pull before you start editing, and always push after you finish editing.** Following this habit prevents the vast majority of merge conflicts.
 
-### Make changes on your computer and push them
+### Synchronizing from PC to phone
 
-After making changes to your notes on your computer:
+On your PC, after making changes to your notes:
 
 ```bash
 git add .
-git commit -m "update notes"
+git commit -m "update notes - added meeting notes for Tuesday"
 git push
 ```
 
-- `git add .`: Stages the changed files.
-- `git commit -m "..."`: Records the changes as a commit.
-- `git push`: Sends the commits to the remote repository.
+Let's break down each command:
 
-### Pull changes on your phone
+- `git add .`: Stages all modified and new files. This tells Git which changes you want to include in the next commit. The dot means "all changes in the current directory and subdirectories." If you only want to include specific files, you can list them individually, for example: `git add "Daily Notes/2025-01-15.md"`.
+- `git commit -m "..."`: Creates a commit with a descriptive message. The `-m` flag lets you write the message inline. Good commit messages are short but specific. "update notes" is vague; "add meeting notes for Tuesday" is much more useful when scanning the history later.
+- `git push`: Uploads your commits to GitHub. Your changes are now visible to any other device that pulls from the same repository.
 
-Open Termux on your phone, navigate to the repo folder, and run:
+On your phone, open Termux, navigate to the repo folder, and pull the changes:
+
+```bash
+cd ~/storage/shared/Obsidian/obsidian-vault
+git pull
+```
+
+`git pull` downloads all new commits from GitHub and merges them into your local copy. After this command finishes, the files on your phone match the files on your PC.
+
+### Synchronizing from phone to PC
+
+The process works identically in reverse. After editing notes on your phone:
+
+```bash
+cd ~/storage/shared/Obsidian/obsidian-vault
+git add .
+git commit -m "add quick note from phone"
+git push
+```
+
+Then on your PC:
 
 ```bash
 git pull
 ```
 
-This command downloads and merges the latest changes from the remote repository into your local repository.
-
 ---
 
 ## 12. Making Changes on Your Phone and Pushing Them
 
-Synchronization is not one-way; you can also make changes on your phone and push them to the remote repository. This way, note changes made on your Android device are also reflected on your computer.
+Since synchronization is bidirectional, you can make full edits on your phone and push them back to GitHub. This is useful for adding quick notes, editing existing ones, or reviewing your notes on the go.
 
 ### Navigate to the repo folder
 
-Inside Termux, go to the cloned repo folder:
+Open Termux and navigate to the cloned repository:
 
 ```bash
-cd repo
+cd ~/storage/shared/Obsidian/obsidian-vault
 ```
+
+If you close Termux and reopen it later, you will likely need to navigate to this folder again. You can create a shell alias to make this faster:
+
+```bash
+echo "alias vault='cd ~/storage/shared/Obsidian/obsidian-vault'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+After this, simply typing `vault` will take you directly to the repository folder.
 
 ### Stage your changes
 
-Add your changes to Git:
+After making edits in Obsidian, return to Termux and stage the changes:
 
 ```bash
 git add .
 ```
 
-### Create a commit
-
-Record the changes with a commit:
+You can check what changed before committing by running:
 
 ```bash
-git commit -m "mobile update"
+git status
 ```
 
-Writing commit messages that describe your changes will be helpful in the future.
+This shows you which files are modified, which are new, and which are staged. You can also see a diff of the changes:
+
+```bash
+git diff
+```
+
+This displays the exact lines that were added or removed, which is helpful for reviewing your edits before committing.
+
+### Create a commit
+
+Record the changes with a descriptive commit message:
+
+```bash
+git commit -m "add quick note from phone"
+```
+
+Or, if you want to write a longer, more detailed message, omit the `-m` flag:
+
+```bash
+git commit
+```
+
+This opens your default text editor (usually `nano` in Termux) where you can write a multi-line commit message. The first line is the subject, followed by a blank line, then the body with more details.
 
 ### Push to remote
 
-Send the changes to the remote repository:
+Send the commit to GitHub:
 
 ```bash
 git push
 ```
 
-### Important notes
+### The golden rule: pull before you push
 
-- It is good practice to run `git pull` before pushing. This way, you fetch the latest changes from the remote repository and reduce the risk of merge conflicts.
-- If a conflict occurs, Git will mark the conflicting files. You need to resolve them manually and then commit the result.
+Before pushing, especially if it has been a while since your last sync, it is good practice to pull first:
+
+```bash
+git pull
+git add .
+git commit -m "merge remote changes before push"
+git push
+```
+
+Or more simply, just pull before making any new edits. This ensures your local copy is up to date with GitHub and reduces the chance of merge conflicts. Think of it as refreshing your working copy before you start making changes.
+
+---
+
+## 13. Handling Merge Conflicts
+
+Despite your best efforts, merge conflicts will occasionally happen. A conflict occurs when you edit the same file on both devices without syncing in between. Git cannot automatically merge these changes because it does not know which version you want to keep.
+
+### What a conflict looks like
+
+When you run `git pull` and a conflict is detected, Git will output a message like:
+
+```plaintext
+CONFLICT (content): Merge conflict in Daily Notes/2025-01-15.md
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+If you open the conflicting file, you will see conflict markers:
+
+```plaintext
+<<<<<<< HEAD
+This is the version on your current device.
+=======
+This is the version from the remote repository.
+>>>>>>> origin/main
+```
+
+The text between `<<<<<<< HEAD` and `=======` is your local version. The text between `=======` and `>>>>>>> origin/main` is the version from GitHub.
+
+### How to resolve a conflict
+
+1. Open the conflicting file in any text editor (or in Obsidian itself).
+2. Decide which version you want to keep. You can keep one side, the other, or combine both.
+3. Remove the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) and edit the content to your liking.
+4. Save the file.
+5. Stage and commit the resolution:
+
+```bash
+git add "Daily Notes/2025-01-15.md"
+git commit -m "resolve merge conflict in daily note"
+git push
+```
+
+On the other device, simply run `git pull` to receive the resolved version.
+
+### Tips to minimize conflicts
+
+- **Pull before you edit**: Always run `git pull` before opening Obsidian on either device. This ensures you are working on the latest version.
+- **Push after you edit**: Always run `git push` after finishing a writing session. This keeps GitHub up to date.
+- **Use smaller, more frequent commits**: Instead of one massive commit at the end of the day, commit after each meaningful change. This makes conflicts smaller and easier to resolve.
+- **Avoid editing the same note simultaneously on both devices**: If you know you edited something on your PC that you also need on your phone, push those changes before switching devices.
+
+---
+
+## 14. Automating Sync with Shell Aliases (Optional)
+
+To reduce the number of commands you type each time, you can create shell aliases that combine common Git operations into single commands. Add these to your `~/.bashrc` file on Termux (or your `.bashrc` / `.zshrc` on your PC):
+
+```bash
+alias gsync='git add . && git commit -m "sync $(date +%Y-%m-%d\ %H:%M)" && git push'
+alias gpull='git pull'
+```
+
+After running `source ~/.bashrc`, you can simply type `gsync` to stage, commit, and push in one step, or `gpull` to pull the latest changes. The `$(date +%Y-%m-%d\ %H:%M)` part automatically inserts the current date and time into the commit message, so you always know when each sync happened.
+
+---
+
+## 15. Adding Obsidian-Specific Files to .gitignore (Recommended)
+
+Obsidian generates several internal files that change frequently and are specific to each device. Tracking them in Git causes unnecessary noise and frequent conflicts. Consider adding the following to your `.gitignore`:
+
+```plaintext
+# Obsidian workspace - stores open tabs and panel layout (different per device)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Obsidian plugins that are device-specific
+.obsidian/plugins/obsidian-local-rest-api/
+.obsidian/plugins/phone-clipboard/
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary editor files
+*.tmp
+*.swp
+*~
+```
+
+The `workspace.json` files in particular cause constant merge conflicts because they record which tabs and panes you have open. Since these differ between your PC and phone, it is better to exclude them. Obsidian recreates these files automatically if they are missing.
+
+After updating your `.gitignore`, remove any previously tracked files that should now be ignored:
+
+```bash
+git rm -r --cached .obsidian/workspace.json .obsidian/workspace-mobile.json
+git add .gitignore
+git commit -m "update gitignore and remove workspace files from tracking"
+git push
+```
 
 ---
 
 ## Conclusion
 
-With this setup, you gain the following:
+With this setup, you have a robust, version-controlled synchronization system for your Obsidian notes:
 
-- Your Obsidian vault is version-controlled with Git. Every change is recorded, and you can revert to any previous version at any time.
-- Two-way synchronization between your phone and computer is established. You can make changes from either device and sync them to the other.
-- A complete change history is maintained. You can see exactly what was changed and when.
-- Data security is improved through remote repository backups.
+- **Full version history**: Every change is recorded as a commit. You can revert to any previous version, compare differences, and see exactly what changed and when. This is far more powerful than a simple backup.
+- **Bidirectional sync**: Both your PC and phone can push and pull changes. You can start a note on your computer, continue it on your phone, and finish it back on your computer.
+- **Complete audit trail**: The Git log provides a detailed timeline of every modification, including who made the change and the commit message explaining why.
+- **Data resilience**: Your notes exist in three places: your PC, your phone, and GitHub. If any one device fails, the other two still have a complete copy. Losing all three simultaneously would require a very specific disaster.
+- **Cost efficiency**: Git and GitHub's free tier handle personal note synchronization without any subscription fees.
+
+Remember to develop a consistent sync habit: **pull before you edit, push after you edit.** This simple routine prevents most conflicts and keeps your vault consistent across all devices.
