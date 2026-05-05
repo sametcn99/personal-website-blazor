@@ -571,7 +571,205 @@ After running `source ~/.bashrc`, you can simply type `gsync` to stage, commit, 
 
 ---
 
-## 15. Adding Obsidian-Specific Files to .gitignore (Recommended)
+## 15. Automating Sync with Termux Tasks
+
+Shell aliases are convenient, but you can take automation further by creating dedicated sync scripts and leveraging Termux's task ecosystem. This section covers scripts, home screen shortcuts, boot-time sync, and scheduled auto-sync.
+
+### Create a sync script
+
+Instead of typing multiple Git commands every time, create a single script that handles the full sync workflow. Create a directory for your scripts:
+
+```bash
+mkdir -p ~/bin
+```
+
+Then create a script called `obsidian-sync`:
+
+```bash
+cat > ~/bin/obsidian-sync << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+
+VAULT_DIR="$HOME/storage/shared/Obsidian/obsidian-vault"
+LOG_FILE="$HOME/sync-log.txt"
+
+cd "$VAULT_DIR" || { echo "Vault directory not found"; exit 1; }
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') — Starting sync" >> "$LOG_FILE"
+
+git pull --rebase >> "$LOG_FILE" 2>&1
+
+if [ -n "$(git status --porcelain)" ]; then
+  git add .
+  git commit -m "sync $(date '+%Y-%m-%d %H:%M')" >> "$LOG_FILE" 2>&1
+  git push >> "$LOG_FILE" 2>&1
+  echo "$(date '+%Y-%m-%d %H:%M:%S') — Sync completed with changes" >> "$LOG_FILE"
+else
+  echo "$(date '+%m-%d-%Y %H:%M:%S') — Already up to date, no changes" >> "$LOG_FILE"
+fi
+EOF
+
+chmod +x ~/bin/obsidian-sync
+```
+
+This script does three things in order:
+
+1. **Pulls** the latest changes from GitHub with rebase to keep your history linear.
+2. **Checks** whether you have local changes. If there are none, it skips the commit and push steps entirely.
+3. **Commits and pushes** only if there are local changes to sync.
+
+A log file (`~/sync-log.txt`) records every sync attempt with timestamps, so you can review what happened if something goes wrong. You can run the script with:
+
+```bash
+~/bin/obsidian-sync
+```
+
+### Create separate pull and push scripts
+
+Sometimes you only want to pull or push without the full sync cycle. Create two more scripts for those cases:
+
+```bash
+cat > ~/bin/obsidian-pull << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+cd "$HOME/storage/shared/Obsidian/obsidian-vault" || exit 1
+git pull
+EOF
+
+cat > ~/bin/obsidian-push << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+cd "$HOME/storage/shared/Obsidian/obsidian-vault" || exit 1
+git add .
+git commit -m "sync $(date '+%Y-%m-%d %H:%M')"
+git push
+EOF
+
+chmod +x ~/bin/obsidian-pull ~/bin/obsidian-push
+```
+
+Now you can type `obsidian-pull` to fetch changes or `obsidian-push` to send your edits.
+
+### Add scripts to PATH
+
+To run these scripts from anywhere without typing the full path, add `~/bin` to your PATH:
+
+```bash
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Home screen shortcuts with Termux:Widget
+
+Termux:Widget is a companion app that lets you create home screen shortcuts for Termux scripts. This means you can sync your vault with a single tap, without even opening Termux.
+
+1. Install **Termux:Widget** from [F-Droid](https://f-droid.org) or the [GitHub Releases page](https://github.com/termux/termux-widget/releases). Make sure it matches the same source you installed Termux from (F-Droid or GitHub).
+2. Create the widget scripts directory:
+
+```bash
+mkdir -p ~/.termux/widget
+```
+
+3. Create a widget script for syncing:
+
+```bash
+cat > ~/.termux/widget/Obsidian\ Sync << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+~/bin/obsidian-sync
+echo "Sync complete. Press Enter to close."
+read
+EOF
+
+chmod +x ~/.termux/widget/Obsidian\ Sync
+```
+
+4. Add the widget to your home screen:
+   - Long-press an empty area on your Android home screen.
+   - Tap **Widgets**.
+   - Find **Termux:Widget** and drag it to your home screen.
+   - Select **Obsidian Sync** from the list.
+
+Now you can sync your Obsidian vault with a single tap from your home screen.
+
+### Auto-sync on boot with Termux:Boot
+
+Termux:Boot is another companion app that runs scripts automatically when your phone starts up. You can use it to pull the latest changes every time your phone reboots, ensuring you always start with up-to-date notes.
+
+1. Install **Termux:Boot** from [F-Droid](https://f-droid.org) or the [GitHub Releases page](https://github.com/termux/termux-boot/releases).
+2. Create the boot scripts directory:
+
+```bash
+mkdir -p ~/.termux/boot
+```
+
+3. Create a boot script that pulls your vault on startup:
+
+```bash
+cat > ~/.termux/boot/obsidian-boot-sync << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+sleep 30
+cd "$HOME/storage/shared/Obsidian/obsidian-vault" || exit 1
+git pull >> "$HOME/sync-log.txt" 2>&1
+echo "$(date '+%Y-%m-%d %H:%M:%S') — Boot sync completed" >> "$HOME/sync-log.txt"
+EOF
+
+chmod +x ~/.termux/boot/obsidian-boot-sync
+```
+
+The `sleep 30` delay gives your phone time to establish a network connection before the script attempts to reach GitHub. If your phone connects to Wi-Fi slowly, increase this value.
+
+4. Open the Termux:Boot app once to register it. You will see a Toast notification confirming it is active. After this, the script will run automatically every time your phone restarts.
+
+### Scheduled auto-sync with cron
+
+For truly automatic synchronization at regular intervals, you can set up a cron job inside Termux. This pulls (and optionally pushes) your vault on a schedule, even if you forget to do it manually.
+
+1. Install the cron daemon:
+
+```bash
+pkg install cronie
+```
+
+2. Start the cron daemon:
+
+```bash
+crond
+```
+
+3. Edit the crontab to define your schedule:
+
+```bash
+crontab -e
+```
+
+4. Add a line to sync every 30 minutes while your phone is awake:
+
+```plaintext
+*/30 * * * * /data/data/com.termux/files/home/bin/obsidian-sync
+```
+
+5. Save and exit. If you are using the default `nano` editor, press `Ctrl+O`, `Enter`, then `Ctrl+X`.
+
+To make cron start automatically when Termux opens, add it to your `~/.bashrc`:
+
+```bash
+echo 'crond' >> ~/.bashrc
+```
+
+**Note:** Cron in Termux only runs while Termux is active in the foreground or has a persistent notification. Android aggressively kills background processes to save battery. To keep Termux running, swipe down from the notification area and look for the Termux persistent notification. If you do not see it, open Termux, run `termux-wake-lock`, and then enable the persistent notification in Termux's notification settings. This prevents Android from suspending Termux and stopping your scheduled syncs.
+
+### Summary of automation options
+
+| Method | Effort | Best for |
+|---|---|---|
+| Shell aliases (`gsync`, `gpull`) | Low | Quick manual sync from the terminal |
+| Sync scripts (`obsidian-sync`) | Low | Reliable one-command sync with logging |
+| Termux:Widget | Medium | Tapping a home screen shortcut to sync |
+| Termux:Boot | Medium | Auto-pulling changes on phone restart |
+| Cron job | Medium | Periodic automatic sync in the background |
+
+You can combine these approaches. For example, use Termux:Boot to pull on restart, a cron job for periodic background syncs, and Termux:Widget for on-demand pushes when you finish editing.
+
+---
+
+## 16. Adding Obsidian-Specific Files to .gitignore (Recommended)
 
 Obsidian generates several internal files that change frequently and are specific to each device. Tracking them in Git causes unnecessary noise and frequent conflicts. Consider adding the following to your `.gitignore`:
 
@@ -622,4 +820,4 @@ With this setup, you have a robust, version-controlled synchronization system fo
 - **Data resilience**: Your notes exist in three places: your PC, your phone, and GitHub. If any one device fails, the other two still have a complete copy. Losing all three simultaneously would require a very specific disaster.
 - **Cost efficiency**: Git and GitHub's free tier handle personal note synchronization without any subscription fees.
 
-Remember to develop a consistent sync habit: **pull before you edit, push after you edit.** This simple routine prevents most conflicts and keeps your vault consistent across all devices.
+Remember to develop a consistent sync habit: **pull before you edit, push after you edit.** And if you want to reduce the manual effort, set up the Termux task automation described in section 15 — scripts, widgets, boot hooks, and cron jobs can handle most of the repetitive work for you. This simple routine prevents most conflicts and keeps your vault consistent across all devices.
