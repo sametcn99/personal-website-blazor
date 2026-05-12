@@ -17,15 +17,7 @@
         </button>
     </div>
     <div id="@_codeElementId" class="monaco-code-container" style="width: 100%; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; overflow: hidden; position: relative; min-height: 50px;">
-        <div class="code-component-loading">
-            <div class="code-component-loading-lines">
-                <span class="code-component-loading-line" style="width: 72%;"></span>
-                <span class="code-component-loading-line" style="width: 88%;"></span>
-                <span class="code-component-loading-line" style="width: 55%;"></span>
-                <span class="code-component-loading-line" style="width: 94%;"></span>
-                <span class="code-component-loading-line" style="width: 40%;"></span>
-            </div>
-        </div>
+        <CodeLoadingSkeleton />
         <pre class="code-component-pre" style="opacity: 0; visibility: hidden;"><code class="@GetLanguageClass()">@Code</code></pre>
     </div>
 </div>

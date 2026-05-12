@@ -48,7 +48,7 @@
             @ChildContent
         </article>
 
-        <ArticleNavigation PrevArticle="@PrevArticleRef" NextArticle="@NextArticleRef" PrevLabel="@PrevLabel"
+        <ArticleNavigation PrevArticle="@PrevArticleRef" NextArticle="@NextArticleRef" RandomArticle="@RandomArticleRef" PrevLabel="@PrevLabel"
                            NextLabel="@NextLabel" />
     }
 </div>
@@ -64,6 +64,7 @@
     [Parameter] public string NextLabel { get; set; } = "Next";
     [Parameter] public PostModel? PrevPost { get; set; }
     [Parameter] public PostModel? NextPost { get; set; }
+    [Parameter] public PostModel? RandomPost { get; set; }
 
     private ArticleNavigation.ArticleRef? PrevArticleRef => PrevPost == null ? null : new()
     {
@@ -75,6 +76,12 @@
     {
         Href = $"/{ContentType}/{NextPost.Slug}",
         Title = NextPost.Title,
+    };
+
+    private ArticleNavigation.ArticleRef? RandomArticleRef => RandomPost == null ? null : new()
+    {
+        Href = $"/{ContentType}/{RandomPost.Slug}",
+        Title = RandomPost.Title,
     };
 
     private static bool HasDistinctUpdatedDate(PostModel post) =>

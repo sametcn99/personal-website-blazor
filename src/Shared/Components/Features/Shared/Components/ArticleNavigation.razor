@@ -1,4 +1,4 @@
-@* ArticleNavigation.razor - Previous/Next article navigation *@
+@* ArticleNavigation.razor - Previous/Next/Random article navigation *@
 
 @if (PrevArticle != null || NextArticle != null)
 {
@@ -33,9 +33,24 @@
     </div>
 }
 
+@if (RandomArticle != null)
+{
+    <div class="article-nav-row" style="margin-top: 0.5rem;">
+        <div class="article-nav-card article-nav-random">
+            <a class="article-nav-link article-nav-random-link" href="@RandomArticle.Href"
+               data-umami-event='@UmamiEvent.Click("article-nav-random", RandomArticle.Title)'>
+                <AppIcon Name="shuffle" Class="text-primary" />
+                <span class="text-caption text-muted">Random</span>
+                <span class="text-body">@RandomArticle.Title</span>
+            </a>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public ArticleRef? PrevArticle { get; set; }
     [Parameter] public ArticleRef? NextArticle { get; set; }
+    [Parameter] public ArticleRef? RandomArticle { get; set; }
     [Parameter] public string PrevLabel { get; set; } = "Previous";
     [Parameter] public string NextLabel { get; set; } = "Next";
 

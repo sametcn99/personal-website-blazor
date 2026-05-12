@@ -104,7 +104,7 @@ public class HtmlRenderer : ComponentBase
     {
         builder.OpenComponent<HtmlTypography>(0);
         builder.AddAttribute(1, nameof(HtmlTypography.Tag), tag);
-        
+
         var id = node.GetAttributeValue("id", string.Empty);
         if (!string.IsNullOrEmpty(id))
         {
