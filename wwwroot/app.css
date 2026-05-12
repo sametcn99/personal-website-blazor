@@ -455,6 +455,60 @@ pre {
 	animation: shimmer 1.1s linear infinite;
 }
 
+.code-component-loading {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 1rem 1.1rem 1.2rem;
+	min-height: 120px;
+}
+
+.code-component-loading-lines {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+.code-component-loading-line {
+	display: block;
+	height: 0.85rem;
+	border-radius: 4px;
+	background: linear-gradient(
+		90deg,
+		rgba(142, 203, 255, 0.06) 0%,
+		rgba(142, 203, 255, 0.12) 40%,
+		rgba(142, 203, 255, 0.06) 80%,
+		rgba(142, 203, 255, 0.06) 100%
+	);
+	background-size: 280% 100%;
+	animation: code-shimmer 1.6s ease-in-out infinite;
+}
+
+.code-component-loading-line:nth-child(2) {
+	animation-delay: 0.08s;
+}
+
+.code-component-loading-line:nth-child(3) {
+	animation-delay: 0.16s;
+}
+
+.code-component-loading-line:nth-child(4) {
+	animation-delay: 0.24s;
+}
+
+.code-component-loading-line:nth-child(5) {
+	animation-delay: 0.32s;
+}
+
+@keyframes code-shimmer {
+	0% {
+		background-position: 280% 0;
+	}
+	100% {
+		background-position: -280% 0;
+	}
+}
+
 .input-shell {
 	position: relative;
 }

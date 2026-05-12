@@ -59,3 +59,4 @@ nunit-*.xml
 .fake
 
 **/**/*.lscache
+.sisyphus
