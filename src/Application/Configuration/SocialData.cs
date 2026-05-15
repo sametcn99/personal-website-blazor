@@ -28,7 +28,7 @@ public static class SocialData
         },
         new()
         {
-            Type = ["repo", "repos", "repositories", "repository"],
+            Type = ["repo", "repos", "repositories"],
             Link = "/repo",
             Label = "Repositories",
             Visible = true,
@@ -63,6 +63,15 @@ public static class SocialData
             External = true,
             Category = "Development Platforms",
             IconColor = "#CB3837",
+        },
+        new()
+        {
+            Type = ["statsfm", "sfm"],
+            Link = "https://stats.fm/sametc001",
+            Label = "Stats.fm",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
         },
         new()
         {
@@ -133,6 +142,115 @@ public static class SocialData
             External = true,
             Category = "Contact",
             IconColor = "#25D366",
+        },
+        new()
+        {
+            Type = ["youtube", "yt"],
+            Link = "https://youtube.com/@sametc001",
+            Label = "YouTube",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#FF0000",
+        },
+        new()
+        {
+            Type = ["youtubemusic", "ytmusic", "ytm"],
+            Link = "https://music.youtube.com/channel/UCgXu7EZ76uMqPW8i4ZCL72Q?si=1aNE6Zya_1t9ACFl",
+            Label = "YouTubeMusic",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#FF0000",
+        },
+        new()
+        {
+            Type = ["spotify", "sp"],
+            Link = "https://open.spotify.com/user/31qg3kutxxwdq5lzydjx6md534cq",
+            Label = "Spotify",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#1DB954",
+        },
+        new()
+        {
+            Type = ["letterboxd", "lbxd", "lb"],
+            Link = "https://letterboxd.com/sametc001",
+            Label = "Letterboxd",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#202830",
+        },
+        new()
+        {
+            Type = ["imdb"],
+            Link = "https://www.imdb.com/user/ur120575296",
+            Label = "IMDb",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#F5C518",
+        },
+        new()
+        {
+            Type = ["pinterest"],
+            Link = "https://pinterest.com/sametcn99",
+            Label = "Pinterest",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#E60023",
+        },
+        new()
+        {
+            Type = ["mastodon"],
+            Link = "https://mastodon.social/@sametcn99",
+            Label = "Mastodon",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#6364FF",
+        },
+        new()
+        {
+            Type = ["bluesky", "bsky"],
+            Link = "https://bsky.app/profile/sametcn99.bsky.social",
+            Label = "Bluesky",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#0285FF",
+        },
+        new()
+        {
+            Type = ["goodreads", "gr"],
+            Link = "https://www.goodreads.com/user/show/75848289-samet",
+            Label = "Goodreads",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#553B08",
+        },
+        new()
+        {
+            Type = ["backloggd"],
+            Link = "https://backloggd.com/u/sametc001",
+            Label = "Backloggd",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+        },
+        new()
+        {
+            Type = ["steam"],
+            Link = "https://steamcommunity.com/id/sametc001",
+            Label = "Steam",
+            Visible = false,
+            External = true,
+            Category = "Social Media",
+            IconColor = "#171A21",
         },
     ];
 
