@@ -23,6 +23,8 @@ public static class DependencyInjection
             .AddOptions<CachePolicyOptions>()
             .Bind(configuration.GetSection(CachePolicyOptions.SectionName));
 
+        services.AddMemoryCache();
+
         services.AddScoped<IContentService, ContentService>();
         services.AddScoped<IRssFeedService, RssFeedService>();
         services.AddScoped<ISitemapService, SitemapService>();

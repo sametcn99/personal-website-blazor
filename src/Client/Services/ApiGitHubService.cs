@@ -21,7 +21,9 @@ internal sealed class ApiGitHubService(IHttpClientFactory httpClientFactory) : I
                     Description = repo.Description,
                     Language = repo.Language,
                     Fork = repo.Fork,
+                    StargazersCount = repo.Stars,
                     HtmlUrl = repo.HtmlUrl ?? string.Empty,
+                    CreatedAt = repo.CreatedAt,
                     UpdatedAt = repo.UpdatedAt,
                 })
                 .ToList();
@@ -38,7 +40,9 @@ internal sealed class ApiGitHubService(IHttpClientFactory httpClientFactory) : I
         public string? Description { get; set; }
         public string? Language { get; set; }
         public bool Fork { get; set; }
+        public int Stars { get; set; }
         public string? HtmlUrl { get; set; }
+        public DateTimeOffset? CreatedAt { get; set; }
         public DateTimeOffset? UpdatedAt { get; set; }
     }
 }
