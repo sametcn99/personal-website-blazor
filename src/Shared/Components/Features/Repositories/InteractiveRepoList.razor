@@ -1,52 +1,148 @@
+@using personal_website_blazor.Domain.Entities
+@using personal_website_blazor.Domain.Utilities
+
 @code {
     [Parameter] public List<GitHubRepository> Repos { get; set; } = new();
 
     private string _search = string.Empty;
+    private string _sortBy = "updated";
+    private string _sortOrder = "desc";
+    private string? _languageFilter;
+
+    private HashSet<string> AvailableLanguages =>
+        Repos.Where(r => !string.IsNullOrEmpty(r.Language))
+            .Select(r => r.Language!)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     private List<GitHubRepository> FilteredRepos
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(_search))
+            var query = Repos.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(_search))
             {
-                return Repos;
+                var q = _search.ToLowerInvariant();
+                query = query.Where(r =>
+                    (r.Name?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
+                    || (r.Language?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false));
             }
 
-            var q = _search.ToLowerInvariant();
-            return Repos.Where(r =>
-                (r.Name?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-                || (r.Description?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
+            if (!string.IsNullOrEmpty(_languageFilter))
+            {
+                query = query.Where(r =>
+                    string.Equals(r.Language, _languageFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var sorted = _sortBy switch
+            {
+                "name" => _sortOrder == "asc"
+                    ? query.OrderBy(r => r.Name, StringComparer.OrdinalIgnoreCase)
+                    : query.OrderByDescending(r => r.Name, StringComparer.OrdinalIgnoreCase),
+                "stars" => _sortOrder == "asc"
+                    ? query.OrderBy(r => r.StargazersCount)
+                    : query.OrderByDescending(r => r.StargazersCount),
+                "created" => _sortOrder == "asc"
+                    ? query.OrderBy(r => r.CreatedAt ?? DateTimeOffset.MinValue)
+                    : query.OrderByDescending(r => r.CreatedAt ?? DateTimeOffset.MinValue),
+                _ => _sortOrder == "asc"
+                    ? query.OrderBy(r => r.UpdatedAt ?? DateTimeOffset.MinValue)
+                    : query.OrderByDescending(r => r.UpdatedAt ?? DateTimeOffset.MinValue),
+            };
+
+            return sorted.ToList();
         }
+    }
+
+    private static string FormatDate(DateTimeOffset? date)
+    {
+        if (date is null) return string.Empty;
+        var days = (DateTimeOffset.UtcNow - date.Value).Days;
+        if (days < 0) days = 0;
+        return days switch
+        {
+            0 => "today",
+            1 => "yesterday",
+            < 30 => $"{days}d ago",
+            < 365 => $"{days / 30}mo ago",
+            _ => $"{days / 365}y ago",
+        };
     }
 }
 
-<div class="input-shell" style="margin-bottom: 0.75rem;">
-    <AppIcon Name="search" />
-    <input class="input-native"
-           @bind="_search"
-           @bind:event="oninput"
-           placeholder="Search repositories..."
-           data-umami-event="repo-search-input-click" />
+<div class="controls-row content-list-controls" style="margin-bottom: 0.75rem;">
+    <div class="input-shell">
+        <AppIcon Name="search" />
+        <input class="input-native"
+               @bind="_search"
+               @bind:event="oninput"
+               placeholder="Search repositories..."
+               data-umami-event="repo-search-input-click" />
+    </div>
+    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)'>
+        <option value="updated">Updated</option>
+        <option value="created">Created</option>
+        <option value="stars">Stars</option>
+        <option value="name">Name</option>
+    </select>
+    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)'>
+        <option value="desc">@(_sortBy == "name" ? "Z → A" : "Newest First")</option>
+        <option value="asc">@(_sortBy == "name" ? "A → Z" : "Oldest First")</option>
+    </select>
+    @if (AvailableLanguages.Count > 1)
+    {
+        <select class="select-native" @bind="_languageFilter" data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)'>
+            <option value="">All Languages</option>
+            @foreach (var lang in AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase))
+            {
+                <option value="@lang">@lang</option>
+            }
+        </select>
+    }
 </div>
 
-@if (!string.IsNullOrWhiteSpace(_search))
+@if (!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrEmpty(_languageFilter))
 {
-    <p class="text-caption text-muted result-row">
-        @FilteredRepos.Count result@(FilteredRepos.Count != 1 ? "s" : "") found
-    </p>
+    <p class="text-caption text-muted result-row">@FilteredRepos.Count result@(FilteredRepos.Count != 1 ? "s" : "") found</p>
 }
 
 @foreach (var repo in FilteredRepos)
 {
     <a class="link-plain" href="@($"/repo/{repo.Name}")" data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
-        <div class="hover-card flow-sm" style="margin-bottom: 0.75rem;">
-            <p class="text-heading">@repo.Name</p>
-            <p class="text-body text-muted">@repo.Description</p>
-            @if (!string.IsNullOrEmpty(repo.Language))
+        <div class="hover-card flow-sm repo-card" style="margin-bottom: 0.75rem;">
+            <div class="row" style="gap: 0.35rem; flex-wrap: wrap; align-items: center;">
+                <span class="text-heading">@repo.Name</span>
+                @if (repo.Fork)
+                {
+                    <span class="badge badge-muted">Fork</span>
+                }
+                @if (repo.StargazersCount > 0)
+                {
+                    <span class="badge badge-primary">★ @repo.StargazersCount</span>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(repo.Description))
             {
-                <p class="text-caption text-muted">@repo.Language</p>
+                <p class="text-body text-muted">@repo.Description</p>
             }
+            <div class="row text-caption text-muted" style="gap: 0.75rem; flex-wrap: wrap;">
+                @if (!string.IsNullOrEmpty(repo.Language))
+                {
+                    <span class="repo-lang-dot">
+                        <span class="repo-lang-dot-indicator" style="background: @LanguageColor.GetColor(repo.Language);"></span>
+                        @repo.Language
+                    </span>
+                }
+                @if (repo.UpdatedAt.HasValue)
+                {
+                    <span>Updated @FormatDate(repo.UpdatedAt)</span>
+                }
+                @if (repo.CreatedAt.HasValue)
+                {
+                    <span>Created @FormatDate(repo.CreatedAt)</span>
+                }
+            </div>
         </div>
     </a>
 }

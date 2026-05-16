@@ -61,7 +61,7 @@
         try
         {
             var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99", 100);
-            _repos = repos.Where(r => !r.Fork).OrderByDescending(r => r.UpdatedAt).ToList();
+            _repos = repos.OrderByDescending(r => r.UpdatedAt).ToList();
         }
         catch (Exception ex)
         {

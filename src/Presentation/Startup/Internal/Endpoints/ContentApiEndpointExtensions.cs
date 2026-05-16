@@ -157,8 +157,10 @@ internal static class ContentApiEndpointExtensions
                         description = repo.Description,
                         language = repo.Language,
                         fork = repo.Fork,
+                        stars = repo.StargazersCount,
                         html_url = repo.HtmlUrl,
-                        updated_at = repo.UpdatedAt,
+                        created_at = repo.CreatedAt?.ToString("yyyy-MM-dd"),
+                        updated_at = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
                     })
                 );
             }

@@ -370,13 +370,15 @@
                     continue;
                 }
 
+                var typeLabel = repo.Fork ? "Fork" : "Repository";
                 AddSearchEntry(new SearchEntry
                 {
                     Title = repo.Name,
                     Summary = repo.Description ?? string.Empty,
                     Href = repo.HtmlUrl,
-                    TypeLabel = "Repository",
-                    UpdatedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
+                    TypeLabel = typeLabel,
+                    PublishedAt = repo.CreatedAt,
+                    UpdatedAt = repo.UpdatedAt,
                     External = true,
                 });
             }
@@ -485,11 +487,23 @@
         [JsonPropertyName("description")]
         public string? Description { get; set; }
 
+        [JsonPropertyName("language")]
+        public string? Language { get; set; }
+
+        [JsonPropertyName("fork")]
+        public bool Fork { get; set; }
+
+        [JsonPropertyName("stars")]
+        public int StargazersCount { get; set; }
+
         [JsonPropertyName("html_url")]
         public string? HtmlUrl { get; set; }
 
+        [JsonPropertyName("created_at")]
+        public string? CreatedAt { get; set; }
+
         [JsonPropertyName("updated_at")]
-        public DateTime? UpdatedAt { get; set; }
+        public string? UpdatedAt { get; set; }
     }
 
     private sealed class SearchResultDto

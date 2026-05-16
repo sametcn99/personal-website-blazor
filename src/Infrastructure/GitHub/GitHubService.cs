@@ -45,7 +45,9 @@ public class GitHubService : IGitHubService
                 Description = repo.Description,
                 Language = repo.Language,
                 Fork = repo.Fork,
+                StargazersCount = repo.StargazersCount,
                 HtmlUrl = repo.HtmlUrl,
+                CreatedAt = repo.CreatedAt,
                 UpdatedAt = repo.UpdatedAt,
             })
             .ToList();

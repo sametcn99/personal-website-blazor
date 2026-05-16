@@ -50,3 +50,8 @@ window.downloadFile = (url, fileName) => {
   link.click();
   document.body.removeChild(link);
 };
+
+// Scroll to top on enhanced navigation (Blazor 8+)
+document.addEventListener('enhancednavigation', () => {
+  window.scrollTo({ top: 0, behavior: 'instant' });
+});
