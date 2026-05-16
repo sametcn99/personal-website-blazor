@@ -79,6 +79,7 @@
     private CancellationTokenSource? _debounceCts;
     private readonly List<SearchEntry> _localSearchSource = new();
     private readonly Dictionary<string, SearchEntry> _searchIndexByHref = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<SearchEntry> _cachedRepos = new();
     private List<SearchEntry> _filteredResults = new();
     private DotNetObjectReference<HomeSearchSection>? _dotNetRef;
     private string _contentHash = string.Empty;
@@ -371,7 +372,7 @@
                 }
 
                 var typeLabel = repo.Fork ? "Fork" : "Repository";
-                AddSearchEntry(new SearchEntry
+                var entry = new SearchEntry
                 {
                     Title = repo.Name,
                     Summary = repo.Description ?? string.Empty,
@@ -380,7 +381,9 @@
                     PublishedAt = repo.CreatedAt,
                     UpdatedAt = repo.UpdatedAt,
                     External = true,
-                });
+                };
+                AddSearchEntry(entry);
+                _cachedRepos.Add(entry);
             }
         }
         catch
@@ -401,16 +404,17 @@
 
     private void ApplyRepoContentFilter()
     {
-        var repoEntries = _localSearchSource
-            .Where(e => e.TypeLabel == "Repository")
+        var q = _searchQuery;
+
+        var matchingRepos = _cachedRepos
             .Where(e =>
-                e.Title.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase) ||
-                e.Summary.Contains(_searchQuery, StringComparison.OrdinalIgnoreCase))
+                e.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                e.Summary.Contains(q, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        _localSearchSource.RemoveAll(e => e.TypeLabel == "Repository");
+        _localSearchSource.RemoveAll(e => e.TypeLabel == "Repository" || e.TypeLabel == "Fork");
 
-        foreach (var repo in repoEntries)
+        foreach (var repo in matchingRepos)
         {
             var href = repo.Href;
             if (!_searchIndexByHref.ContainsKey(href))
