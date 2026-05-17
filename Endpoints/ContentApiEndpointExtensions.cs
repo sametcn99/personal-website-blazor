@@ -84,7 +84,7 @@ internal static class ContentApiEndpointExtensions
                 var client = httpClientFactory.CreateClient("GitHub");
                 var markdown = await client.GetStringAsync(
                     "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
-                return Results.Content(markdown, "text/markdown");
+                return Results.Json(new { html = Markdown.ToHtml(markdown) });
             }
         );
 
