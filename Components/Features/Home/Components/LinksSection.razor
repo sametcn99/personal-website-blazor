@@ -1,9 +1,9 @@
 @* LinksSection.razor - "Connect With Me" social links section *@
 
+@inject ISocialLinkProvider SocialLinks
 @{
-    var visible = SocialData.Links
-        .Where(l => l.Visible)
-        .OrderBy(l => SocialData.CategoryOrder.GetValueOrDefault(l.Category, 5))
+    var visible = SocialLinks.Links
+        .OrderBy(l => SocialLinks.GetCategoryOrder(l.Category))
         .ThenBy(l => l.Label)
         .ToList();
 }

@@ -53,7 +53,6 @@ public class SocialMediaLink
     public string[] Type { get; set; } = Array.Empty<string>();
     public string Link { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
-    public bool Visible { get; set; }
     public bool External { get; set; }
     public string Category { get; set; } = "Other";
     public string? IconColor { get; set; }

@@ -8,11 +8,13 @@ public class SitemapService : ISitemapService
 {
     private readonly IContentService _contentService;
     private readonly IGitHubService _gitHubService;
+    private readonly ISocialLinkProvider _socialLinks;
 
-    public SitemapService(IContentService contentService, IGitHubService gitHubService)
+    public SitemapService(IContentService contentService, IGitHubService gitHubService, ISocialLinkProvider socialLinks)
     {
         _contentService = contentService;
         _gitHubService = gitHubService;
+        _socialLinks = socialLinks;
     }
 
     public async Task<string> GenerateSitemapXmlAsync(
@@ -80,7 +82,7 @@ public class SitemapService : ISitemapService
             }
         }
 
-        foreach (var link in SocialData.Links)
+        foreach (var link in _socialLinks.Links)
         {
             foreach (var type in link.Type)
             {

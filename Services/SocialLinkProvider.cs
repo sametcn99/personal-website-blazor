@@ -1,15 +1,17 @@
-namespace personal_website_blazor.Models;
+using personal_website_blazor.Interfaces;
+using personal_website_blazor.Models;
 
-public static class SocialData
+namespace personal_website_blazor.Services;
+
+public sealed class SocialLinkProvider : ISocialLinkProvider
 {
-    public static readonly SocialMediaLink[] Links =
+    public IReadOnlyList<SocialMediaLink> Links { get; } =
     [
         new()
         {
-            Type = ["linkedin", "li"],
+            Type = ["linkedin"],
             Link = "https://www.linkedin.com/in/sametc0",
             Label = "LinkedIn",
-            Visible = true,
             External = true,
             Category = "Professional Networks",
             IconColor = "#0A66C2",
@@ -19,45 +21,32 @@ public static class SocialData
             Type = ["github", "gh"],
             Link = "https://github.com/sametcn99",
             Label = "GitHub",
-            Visible = true,
             External = true,
             Category = "Development Platforms",
             IconColor = "#181717",
         },
         new()
         {
-            Type = ["repo", "repos", "repositories"],
+            Type = ["repositories", "repo"],
             Link = "/repo",
             Label = "Repositories",
-            Visible = true,
-            External = false,
             Category = "Development Platforms",
             IconColor = "#181717",
         },
         new()
         {
-            Type =
-            [
-                "vscode-extensions",
-                "vscodeextensions",
-                "vsextensions",
-                "vsext",
-                "vscode",
-                "vsce",
-            ],
+            Type = ["vscode-extensions", "vscode", "vsce"],
             Link = "https://marketplace.visualstudio.com/publishers/sametcn99",
             Label = "VSCode Extensions",
-            Visible = false,
             External = true,
             Category = "Development Platforms",
             IconColor = "#007ACC",
         },
         new()
         {
-            Type = ["npm", "npmjs"],
+            Type = ["npm"],
             Link = "https://www.npmjs.com/~sametc0",
             Label = "NPMJS",
-            Visible = false,
             External = true,
             Category = "Development Platforms",
             IconColor = "#CB3837",
@@ -67,7 +56,6 @@ public static class SocialData
             Type = ["statsfm", "sfm"],
             Link = "https://stats.fm/sametc001",
             Label = "Stats.fm",
-            Visible = false,
             External = true,
             Category = "Social Media",
         },
@@ -76,14 +64,13 @@ public static class SocialData
             Type = ["leetcode", "lc"],
             Link = "https://leetcode.com/sametcn99",
             Label = "LeetCode",
-            Visible = false,
             External = true,
             Category = "Development Platforms",
             IconColor = "#FFA116",
         },
     ];
 
-    public static readonly Dictionary<string, int> CategoryOrder = new()
+    private static readonly Dictionary<string, int> CategoryOrder = new()
     {
         ["Professional Networks"] = 1,
         ["Development Platforms"] = 2,
@@ -91,4 +78,7 @@ public static class SocialData
         ["Social Media"] = 4,
         ["Other"] = 5,
     };
+
+    public int GetCategoryOrder(string category)
+        => CategoryOrder.GetValueOrDefault(category, 5);
 }

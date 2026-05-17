@@ -1,6 +1,7 @@
 @implements IAsyncDisposable
 @inject IContentService ContentService
 @inject IGitHubService GitHubService
+@inject ISocialLinkProvider SocialLinks
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
@@ -100,7 +101,7 @@
         BuildLocalSearchSource(GistPosts, "Gist");
         BuildLocalSearchSource(ProjectPosts, "Project");
 
-        foreach (var link in SocialData.Links)
+        foreach (var link in SocialLinks.Links)
         {
             AddSearchEntry(new SearchEntry
             {
@@ -259,7 +260,7 @@
                 }
             }
 
-            foreach (var link in SocialData.Links)
+            foreach (var link in SocialLinks.Links)
             {
                 var q = _searchQuery;
                 if (q.Length > 0 && (

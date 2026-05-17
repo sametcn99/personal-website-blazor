@@ -40,6 +40,7 @@ builder.Services
 
 // ── Services ───────────────────────────────────────────────────────────
 builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ISocialLinkProvider, SocialLinkProvider>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

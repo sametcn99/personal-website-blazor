@@ -1,5 +1,7 @@
 @page "/link/{Slug}"
 
+@inject ISocialLinkProvider SocialLinks
+
 <PageTitle>@(_social?.Label ?? "Redirecting") | Samet Can Cıncık</PageTitle>
 
 <HeadContent>
@@ -25,7 +27,7 @@ else
 
     protected override void OnParametersSet()
     {
-        _social = SocialData.Links
+        _social = SocialLinks.Links
             .FirstOrDefault(l => l.Type.Contains(Slug, StringComparer.OrdinalIgnoreCase));
     }
 }

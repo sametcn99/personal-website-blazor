@@ -1,3 +1,5 @@
+@inject ISocialLinkProvider SocialLinks
+
 <div class="input-shell" style="margin-bottom: 0.5rem;">
     <AppIcon Name="search" />
     <input class="input-native"
@@ -30,7 +32,7 @@
 @if (!string.IsNullOrWhiteSpace(_search) || _selectedCategory != null)
 {
     <p class="text-caption text-muted result-row">
-        @FilteredLinks.Count result@(FilteredLinks.Count != 1 ? "s" : "") found
+        @FilteredLinks.Count() result@(FilteredLinks.Count() != 1 ? "s" : "") found
     </p>
 }
 
@@ -62,18 +64,22 @@
     private string _search = string.Empty;
     private string? _selectedCategory;
     private string _sort = "category";
+    private List<string> _categories = [];
 
-    private readonly List<string> _categories = SocialData.Links
-        .Select(l => l.Category)
-        .Distinct()
-        .OrderBy(c => SocialData.CategoryOrder.GetValueOrDefault(c, 5))
-        .ToList();
+    protected override void OnInitialized()
+    {
+        _categories = SocialLinks.Links
+            .Select(l => l.Category)
+            .Distinct()
+            .OrderBy(c => SocialLinks.GetCategoryOrder(c))
+            .ToList();
+    }
 
-    private List<SocialMediaLink> FilteredLinks
+    private IEnumerable<SocialMediaLink> FilteredLinks
     {
         get
         {
-            var links = SocialData.Links.AsEnumerable();
+            IEnumerable<SocialMediaLink> links = SocialLinks.Links;
 
             if (!string.IsNullOrWhiteSpace(_search))
             {
@@ -95,7 +101,7 @@
                 "asc" => links.OrderBy(l => l.Label),
                 "desc" => links.OrderByDescending(l => l.Label),
                 _ => links
-                    .OrderBy(l => SocialData.CategoryOrder.GetValueOrDefault(l.Category, 5))
+                    .OrderBy(l => SocialLinks.GetCategoryOrder(l.Category))
                     .ThenBy(l => l.Label),
             };
 
