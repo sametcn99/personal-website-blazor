@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
-using personal_website_blazor.Endpoints;
 using personal_website_blazor.Interfaces;
 using personal_website_blazor.Models;
 using personal_website_blazor.Services;
@@ -40,6 +39,7 @@ builder.Services
     .Bind(builder.Configuration.GetSection(CachePolicyOptions.SectionName));
 
 // ── Services ───────────────────────────────────────────────────────────
+builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ISocialLinkProvider, SocialLinkProvider>();
 builder.Services.AddRazorComponents()
@@ -184,15 +184,13 @@ app.Use(async (context, next) =>
 // ── Antiforgery ────────────────────────────────────────────────────────
 app.UseAntiforgery();
 
+// ── Controllers ────────────────────────────────────────────────────────
+app.MapControllers();
+
 // ── Razor Components ──────────────────────────────────────────────────
 app.MapStaticAssets();
 app.MapRazorComponents<personal_website_blazor.Components.App>()
     .AddInteractiveServerRenderMode();
-
-// ── API Endpoints ─────────────────────────────────────────────────────
-app.MapContentApiEndpoints();
-app.MapSyndicationEndpoints();
-app.MapMetadataEndpoints();
 
 app.Run();
 
