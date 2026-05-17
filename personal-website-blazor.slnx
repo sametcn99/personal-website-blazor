@@ -17,8 +17,5 @@
   <Folder Name="/src/Infrastructure/">
     <Project Path="src/Infrastructure/personal-website-blazor.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/src/Shared/">
-    <Project Path="src/Shared/personal-website-blazor.Shared.csproj" />
-  </Folder>
   <Project Path="personal-website-blazor.csproj" />
 </Solution>

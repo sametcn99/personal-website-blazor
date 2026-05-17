@@ -14,6 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\personal-website-blazor.Shared.csproj" />
+    <ProjectReference Include="..\Application\personal-website-blazor.Application.csproj" />
   </ItemGroup>
 </Project>
