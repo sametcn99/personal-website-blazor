@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
@@ -46,7 +47,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(options =>
 {
-    options.MaximumReceiveMessageSize = 4 * 1024 * 1024;
+    options.MaximumReceiveMessageSize = 512 * 1024;
 });
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();
@@ -63,17 +64,78 @@ builder.Services.AddHttpClient(
 // ── Build ──────────────────────────────────────────────────────────────
 var app = builder.Build();
 
+// ── Exception Handling ─────────────────────────────────────────────────
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+}
+
 // ── Pipeline ───────────────────────────────────────────────────────────
 app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
     app.UseHttpsRedirection();
 }
 
-app.UseAntiforgery();
+// ── Security Headers ───────────────────────────────────────────────────
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.ContentSecurityPolicy =
+        "default-src 'self'; "
+        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com https://umami.sametcc.me; "
+        + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com cdnjs.cloudflare.com; "
+        + "img-src 'self' data: https:; "
+        + "font-src 'self' https://fonts.gstatic.com data:; "
+        + "connect-src 'self' https://umami.sametcc.me; "
+        + "frame-ancestors 'none'; "
+        + "base-uri 'self'; "
+        + "form-action 'self'";
+    context.Response.Headers.XContentTypeOptions = "nosniff";
+    context.Response.Headers.XFrameOptions = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+
+    await next();
+});
+
+// ── Rate Limiting (API) ────────────────────────────────────────────────
+var rateLimitStore = new ConcurrentDictionary<string, RateLimitEntry>(StringComparer.OrdinalIgnoreCase);
+
+app.Use(async (context, next) =>
+{
+    if (!context.Request.Path.StartsWithSegments("/api"))
+    {
+        await next();
+        return;
+    }
+
+    var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    var entry = rateLimitStore.GetOrAdd(ip, _ => new RateLimitEntry());
+    var windowStart = now / 60 * 60;
+
+    lock (entry)
+    {
+        if (entry.WindowStart != windowStart)
+        {
+            entry.WindowStart = windowStart;
+            entry.Count = 0;
+        }
+
+        entry.Count++;
+
+        if (entry.Count > 120)
+        {
+            context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+            context.Response.Headers.RetryAfter = "60";
+            return;
+        }
+    }
+
+    await next();
+});
 
 // ── Cache Policy ───────────────────────────────────────────────────────
 var cacheOptions = app.Services.GetRequiredService<IOptions<CachePolicyOptions>>().Value;
@@ -118,6 +180,9 @@ app.Use(async (context, next) =>
 
     await next();
 });
+
+// ── Antiforgery ────────────────────────────────────────────────────────
+app.UseAntiforgery();
 
 // ── Razor Components ──────────────────────────────────────────────────
 app.MapStaticAssets();

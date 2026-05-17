@@ -4,6 +4,7 @@
 @inject ISocialLinkProvider SocialLinks
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject ILogger<HomeSearchSection> Logger
 
 <section class="flow mb-section home-section">
     <h2 class="text-section-title">Search</h2>
@@ -133,9 +134,6 @@
             await JS.InvokeVoidAsync("registerHomeSearchKeyHandler", _dotNetRef);
             _hotkeyRegistered = true;
         }
-        catch (InvalidOperationException)
-        {
-        }
         catch (JSDisconnectedException)
         {
         }
@@ -206,20 +204,22 @@
         _debounceCts = new CancellationTokenSource();
 
         var token = _debounceCts.Token;
-        _ = Task.Run(async () =>
+        _ = DebounceAsync(token);
+    }
+
+    private async Task DebounceAsync(CancellationToken token)
+    {
+        try
         {
-            try
+            await Task.Delay(DebounceMs, token);
+            if (!token.IsCancellationRequested)
             {
-                await Task.Delay(DebounceMs, token);
-                if (!token.IsCancellationRequested)
-                {
-                    await PerformSearchAsync();
-                }
+                await InvokeAsync(PerformSearchAsync);
             }
-            catch (OperationCanceledException)
-            {
-            }
-        });
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private async Task PerformSearchAsync()
@@ -370,8 +370,9 @@
                 _cachedRepos.Add(entry);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to load repositories from GitHub");
             _repoFetchStarted = false;
         }
         finally
