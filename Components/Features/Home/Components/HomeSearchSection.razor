@@ -1,6 +1,6 @@
 @implements IAsyncDisposable
-@using System.Text.Json.Serialization
-@inject IHttpClientFactory HttpClientFactory
+@inject IContentService ContentService
+@inject IGitHubService GitHubService
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
@@ -235,36 +235,26 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var searchUrl = Navigation.ToAbsoluteUri($"/api/content/search?q={Uri.EscapeDataString(_searchQuery)}");
-
-            List<SearchResultDto>? apiResults = null;
-            try
-            {
-                apiResults = await client.GetFromJsonAsync<List<SearchResultDto>>(searchUrl);
-            }
-            catch
-            {
-            }
+            var apiResults = await ContentService.SearchAsync(_searchQuery);
 
             _searchIndexByHref.Clear();
             _localSearchSource.Clear();
             _filteredResults.Clear();
 
-            if (apiResults != null)
+            if (apiResults is { Count: > 0 })
             {
                 foreach (var r in apiResults)
                 {
                     AddSearchEntry(new SearchEntry
                     {
-                        Title = r.Title ?? string.Empty,
-                        Summary = r.Summary ?? string.Empty,
-                        Href = r.Href ?? string.Empty,
-                        TypeLabel = r.TypeLabel ?? string.Empty,
+                        Title = r.Title,
+                        Summary = r.Summary,
+                        Href = r.Href,
+                        TypeLabel = r.TypeLabel,
                         PublishedAt = r.PublishedAt,
                         UpdatedAt = r.UpdatedAt,
-                        MatchSnippet = r.MatchSnippet ?? string.Empty,
-                        Tags = r.Tags ?? Array.Empty<string>(),
+                        MatchSnippet = r.MatchSnippet,
+                        Tags = r.Tags,
                     });
                 }
             }
@@ -355,14 +345,7 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var reposApiUrl = Navigation.ToAbsoluteUri("/api/repos");
-            var repos = await client.GetFromJsonAsync<List<GitHubRepoDto>>(reposApiUrl);
-
-            if (repos is null)
-            {
-                return;
-            }
+            var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99");
 
             foreach (var repo in repos)
             {
@@ -378,8 +361,8 @@
                     Summary = repo.Description ?? string.Empty,
                     Href = repo.HtmlUrl,
                     TypeLabel = typeLabel,
-                    PublishedAt = repo.CreatedAt,
-                    UpdatedAt = repo.UpdatedAt,
+                    PublishedAt = repo.CreatedAt?.ToString("yyyy-MM-dd"),
+                    UpdatedAt = repo.UpdatedAt?.ToString("yyyy-MM-dd"),
                     External = true,
                 };
                 AddSearchEntry(entry);
@@ -483,57 +466,4 @@
         public string[] Tags { get; set; } = Array.Empty<string>();
     }
 
-    private sealed class GitHubRepoDto
-    {
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
-        [JsonPropertyName("language")]
-        public string? Language { get; set; }
-
-        [JsonPropertyName("fork")]
-        public bool Fork { get; set; }
-
-        [JsonPropertyName("stars")]
-        public int StargazersCount { get; set; }
-
-        [JsonPropertyName("html_url")]
-        public string? HtmlUrl { get; set; }
-
-        [JsonPropertyName("created_at")]
-        public string? CreatedAt { get; set; }
-
-        [JsonPropertyName("updated_at")]
-        public string? UpdatedAt { get; set; }
-    }
-
-    private sealed class SearchResultDto
-    {
-        [JsonPropertyName("title")]
-        public string? Title { get; set; }
-
-        [JsonPropertyName("summary")]
-        public string? Summary { get; set; }
-
-        [JsonPropertyName("href")]
-        public string? Href { get; set; }
-
-        [JsonPropertyName("typeLabel")]
-        public string? TypeLabel { get; set; }
-
-        [JsonPropertyName("publishedAt")]
-        public string? PublishedAt { get; set; }
-
-        [JsonPropertyName("updatedAt")]
-        public string? UpdatedAt { get; set; }
-
-        [JsonPropertyName("matchSnippet")]
-        public string? MatchSnippet { get; set; }
-
-        [JsonPropertyName("tags")]
-        public string[]? Tags { get; set; }
-    }
 }

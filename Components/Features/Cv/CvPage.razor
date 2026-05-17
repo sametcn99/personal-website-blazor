@@ -1,7 +1,8 @@
 @page "/cv"
-@using personal_website_blazor.Domain.Entities
-@using personal_website_blazor.Domain.Utilities
-@inject IHttpClientFactory HttpClientFactory
+@using personal_website_blazor.Models
+@using personal_website_blazor.Utilities
+@using Markdig
+@inject IWebHostEnvironment Environment
 @inject IJSRuntime Runtime
 @inject PersistentComponentState ApplicationState
 @implements IDisposable
@@ -62,10 +63,16 @@
 
         try
         {
-            var client = HttpClientFactory.CreateClient("Server");
-            var response = await client.GetFromJsonAsync<CvResponse>("api/content/cv");
-            _htmlContent = response?.Html ?? string.Empty;
-            _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
+            var path = Path.Combine(Environment.ContentRootPath, "content", "cv.mdx");
+            if (File.Exists(path))
+            {
+                var markdown = await File.ReadAllTextAsync(path);
+                var pipeline = new MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .Build();
+                _htmlContent = Markdown.ToHtml(markdown, pipeline);
+                _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
+            }
         }
         catch
         {
@@ -89,11 +96,6 @@
         {
             Console.WriteLine($"JS Error: {ex.Message}");
         }
-    }
-
-    private sealed class CvResponse
-    {
-        public string Html { get; set; } = string.Empty;
     }
 
     private Task PersistStateAsync()

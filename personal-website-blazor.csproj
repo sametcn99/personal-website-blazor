@@ -4,26 +4,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>personal_website_blazor</RootNamespace>
-    <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
     <UserSecretsId>f44aea12-c646-4712-9b7c-b95947cbb3a3</UserSecretsId>
-    <DefaultItemExcludes>$(DefaultItemExcludes);Client\**;src\Client\**;src\Application\**;src\Domain\**;src\Infrastructure\**</DefaultItemExcludes>
-    <LaunchSettingsFile>src\Properties\launchSettings.json</LaunchSettingsFile>
+    <LaunchSettingsFile>Properties\launchSettings.json</LaunchSettingsFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-    <PackageReference Include="Markdig" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="src\Client\personal-website-blazor.Client.csproj" />
-    <ProjectReference Include="src\Infrastructure\personal-website-blazor.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="content\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <PackageReference Include="Markdig" Version="1.2.0" />
+    <PackageReference Include="Octokit" Version="14.0.0" />
+    <PackageReference Include="YamlDotNet" Version="17.1.0" />
   </ItemGroup>
 </Project>
