@@ -59,16 +59,7 @@ public sealed class SocialLinkProvider : ISocialLinkProvider
             External = true,
             Category = "Development Platforms",
             IconColor = "#FFA116",
-        },
-        new()
-        {
-            Type = ["statsfm", "stats", "lastfm"],
-            Link = "https://stats.fm/sametcn99",
-            Label = "Last.fm",
-            External = true,
-            Category = "Social Media",
-            IconColor = "#D51007",
-        },
+        }
     ];
 
     private static readonly Dictionary<string, int> CategoryOrder = new()
