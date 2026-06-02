@@ -312,7 +312,7 @@ window.renderMonacoEditor = async (containerId, code, language) => {
       language: monacoLang,
       theme: "personal-website-theme",
       readOnly: true,
-      minimap: { enabled: true },
+      minimap: { enabled: false },
       fontFamily: '"JetBrains Mono", Consolas, Monaco, "Courier New", monospace',
       fontLigatures: true,
       fontSize: 14,
