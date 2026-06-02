@@ -297,7 +297,7 @@ window.renderMonacoEditor = async (containerId, code, language) => {
         'editorLineNumber.foreground': '#9ea8b7',    // --color-text-secondary
         'editor.selectionBackground': '#8ecbff38',   // --color-primary with opacity
         'editor.lineHighlightBackground': '#ffffff0a',
-        'minimap.background': '#171c25',
+        'ap.background': '#171c25',
         'scrollbarSlider.background': '#8ecbff15',
         'scrollbarSlider.hoverBackground': '#8ecbff30',
         'scrollbarSlider.activeBackground': '#8ecbff50'
@@ -312,7 +312,7 @@ window.renderMonacoEditor = async (containerId, code, language) => {
       language: monacoLang,
       theme: "personal-website-theme",
       readOnly: true,
-      minimap: { enabled: false },
+      ap: { enabled: false },
       fontFamily: '"JetBrains Mono", Consolas, Monaco, "Courier New", monospace',
       fontLigatures: true,
       fontSize: 14,
@@ -323,9 +323,9 @@ window.renderMonacoEditor = async (containerId, code, language) => {
       domReadOnly: true,
       contextmenu: false,
       scrollbar: {
-        vertical: "hidden",
-        horizontal: "auto",
-      },
+          vertical: "auto",
+          horizontal: "auto",
+        },
     });
   } catch (e) {
     console.error("Monaco editor error:", e);
