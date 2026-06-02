@@ -60,3 +60,4 @@ nunit-*.xml
 
 **/**/*.lscache
 .sisyphus
+.omo/

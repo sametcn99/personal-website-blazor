@@ -89,7 +89,7 @@ public class ContentController : ControllerBase
         var client = _httpClientFactory.CreateClient("GitHub");
         var markdown = await client.GetStringAsync(
             "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
-        return Ok(new { html = Markdown.ToHtml(markdown) });
+        return Ok(new { html = Markdown.ToHtml(markdown, CvPipeline) });
     }
 
     [HttpGet("repos")]
