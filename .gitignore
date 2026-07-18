@@ -61,3 +61,5 @@ nunit-*.xml
 **/**/*.lscache
 .sisyphus
 .omo/
+.vs/
+personal-website-blazor.csproj.user

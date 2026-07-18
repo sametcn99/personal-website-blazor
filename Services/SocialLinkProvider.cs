@@ -105,6 +105,31 @@ public sealed class SocialLinkProvider : ISocialLinkProvider
             Category = "Contact",
             IconColor = "#FFDD00",
         },
+        new(){
+          Type = ["Whatsapp", "wa", "wp"],
+          Link= "https://wa.me/905303790565",
+          Label = "Whatsapp",
+          External = true,
+          Category = "Contact",
+          IconColor = "#25D366",
+        },
+       new()
+       {
+        Type = ["YouTube", "yt"],
+            Link = "https://www.youtube.com/@sametc001",
+            Label = "YouTube",
+            External = true,
+            Category = "Social Media",
+            IconColor = "#FF0000",
+        },
+        new(){
+            Type = ["YouTubeMusic", "ytm"],
+            Link = "https://music.youtube.com/@sametc001",
+            Label = "YouTube Music",
+            External = true,
+            Category = "Social Media",
+            IconColor = "#FF0000",
+        }
     ];
 
     private static readonly Dictionary<string, int> CategoryOrder = new()
