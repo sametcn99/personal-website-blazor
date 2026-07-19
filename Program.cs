@@ -29,10 +29,12 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 // ── Data Protection ────────────────────────────────────────────────────
 var keysPath = builder.Configuration["DataProtection:KeysPath"];
 var dataProtectionBuilder = builder.Services.AddDataProtection()
-    .SetApplicationName("personal-website-blazor");
+    .SetApplicationName("personal-website-blazor")
+    .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
 if (!string.IsNullOrEmpty(keysPath))
 {
+    Directory.CreateDirectory(keysPath);
     dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
 }
 
@@ -50,7 +52,12 @@ builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ISocialLinkProvider, SocialLinkProvider>();
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(5);
+        options.DisconnectedCircuitMaxRetained = 100;
+        options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(30);
+    });
 
 builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(options =>
 {
@@ -60,12 +67,6 @@ builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(options =>
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
 });
 
-builder.Services.AddServerSideBlazor(options =>
-{
-    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(5);
-    options.DisconnectedCircuitMaxRetained = 100;
-    options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(30);
-});
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();
 builder.Services.AddScoped<ISitemapService, SitemapService>();
@@ -86,9 +87,28 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
 // ── Pipeline ───────────────────────────────────────────────────────────
 app.UseForwardedHeaders();
+
+// ── Global Exception Logger ─────────────────────────────────────────────
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices.GetService<ILogger<Program>>();
+        logger?.LogError(ex, "Unhandled exception on {Path}", context.Request.Path);
+        throw;
+    }
+});
 
 if (!app.Environment.IsDevelopment())
 {
@@ -101,11 +121,11 @@ app.Use(async (context, next) =>
 {
     context.Response.Headers.ContentSecurityPolicy =
         "default-src 'self'; "
-        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; "
+        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
         + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com cdnjs.cloudflare.com; "
         + "img-src 'self' data: https:; "
         + "font-src 'self' https://fonts.gstatic.com data:; "
-        + "connect-src 'self' wss: ws: https://umami.sametcc.me; "
+        + "connect-src 'self' wss: ws: https://umami.sametcc.me https://cdn.jsdelivr.net; "
         + "frame-ancestors 'none'; "
         + "base-uri 'self'; "
         + "form-action 'self'";

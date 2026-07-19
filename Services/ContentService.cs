@@ -76,69 +76,77 @@ public class ContentService : IContentService
         if (path is null)
             return null;
 
-        var content = await File.ReadAllTextAsync(path);
-        var document = Markdown.Parse(content, _pipeline);
-
-        var yamlBlock = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
-        var post = new PostModel { Slug = slug, Section = section };
-
-        if (yamlBlock != null)
+        try
         {
-            var yaml = content.Substring(yamlBlock.Span.Start, yamlBlock.Span.Length);
-            yaml = yaml.Replace("---", "").Trim();
+            var content = await File.ReadAllTextAsync(path);
+            var document = Markdown.Parse(content, _pipeline);
 
-            try
+            var yamlBlock = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
+            var post = new PostModel { Slug = slug, Section = section };
+
+            if (yamlBlock != null)
             {
-                var metadata = _yamlDeserializer.Deserialize<Dictionary<string, object>>(yaml);
-                if (metadata.TryGetValue("title", out var title))
-                    post.Title = title.ToString()!;
-                if (metadata.TryGetValue("description", out var desc))
-                    post.Description = desc.ToString()!;
-                if (metadata.TryGetValue("summary", out var summary))
-                    post.Description = summary.ToString()!;
-                if (
-                    metadata.TryGetValue("publishDate", out var pd)
-                    && DateTime.TryParse(pd.ToString(), out var date)
-                )
-                    post.PublishDate = date;
-                if (
-                    metadata.TryGetValue("publishedAt", out var pa)
-                    && DateTime.TryParse(pa.ToString(), out var date2)
-                )
-                    post.PublishDate = date2;
-                if (
-                    metadata.TryGetValue("updatedAt", out var ua)
-                    && DateTime.TryParse(ua.ToString(), out var updatedDate)
-                )
-                    post.UpdatedAt = updatedDate;
-                if (metadata.TryGetValue("image", out var img))
-                    post.Image = img.ToString();
-                if (metadata.TryGetValue("author", out var author))
-                    post.Author = author.ToString();
-                if (metadata.TryGetValue("tags", out var tags))
+                var yaml = content.Substring(yamlBlock.Span.Start, yamlBlock.Span.Length);
+                yaml = yaml.Replace("---", "").Trim();
+
+                try
                 {
-                    if (tags is List<object> tagsList)
-                        post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
+                    var metadata = _yamlDeserializer.Deserialize<Dictionary<string, object>>(yaml);
+                    if (metadata.TryGetValue("title", out var title))
+                        post.Title = title.ToString()!;
+                    if (metadata.TryGetValue("description", out var desc))
+                        post.Description = desc.ToString()!;
+                    if (metadata.TryGetValue("summary", out var summary))
+                        post.Description = summary.ToString()!;
+                    if (
+                        metadata.TryGetValue("publishDate", out var pd)
+                        && DateTime.TryParse(pd.ToString(), out var date)
+                    )
+                        post.PublishDate = date;
+                    if (
+                        metadata.TryGetValue("publishedAt", out var pa)
+                        && DateTime.TryParse(pa.ToString(), out var date2)
+                    )
+                        post.PublishDate = date2;
+                    if (
+                        metadata.TryGetValue("updatedAt", out var ua)
+                        && DateTime.TryParse(ua.ToString(), out var updatedDate)
+                    )
+                        post.UpdatedAt = updatedDate;
+                    if (metadata.TryGetValue("image", out var img))
+                        post.Image = img.ToString();
+                    if (metadata.TryGetValue("author", out var author))
+                        post.Author = author.ToString();
+                    if (metadata.TryGetValue("tags", out var tags))
+                    {
+                        if (tags is List<object> tagsList)
+                            post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
+                    }
+                    if (metadata.TryGetValue("language", out var lang))
+                        post.Language = lang.ToString()!;
                 }
-                if (metadata.TryGetValue("language", out var lang))
-                    post.Language = lang.ToString()!;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing YAML for {slug}: {ex.Message}");
+                }
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(post.Language) || post.Language == "en")
             {
-                Console.WriteLine($"Error parsing YAML for {slug}: {ex.Message}");
+                if (TurkishChars.IsMatch(content))
+                    post.Language = "tr";
             }
-        }
 
-        if (string.IsNullOrEmpty(post.Language) || post.Language == "en")
+            post.Content = Markdown.ToHtml(content, _pipeline);
+            post.SearchableText = HtmlUtility.StripHtml(post.Content);
+            post.TocItems = HtmlUtility.ExtractHeadings(post.Content).ToArray();
+            return post;
+        }
+        catch (Exception ex)
         {
-            if (TurkishChars.IsMatch(content))
-                post.Language = "tr";
+            Console.WriteLine($"Error parsing post {section}/{slug}: {ex.Message}");
+            return null;
         }
-
-        post.Content = Markdown.ToHtml(content, _pipeline);
-        post.SearchableText = HtmlUtility.StripHtml(post.Content);
-        post.TocItems = HtmlUtility.ExtractHeadings(post.Content).ToArray();
-        return post;
     }
 
     public async Task<List<PostModel>> GetPostsAsync(string section)
