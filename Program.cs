@@ -27,7 +27,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // ── Data Protection ────────────────────────────────────────────────────
-builder.Services.AddDataProtection().SetApplicationName("personal-website-blazor");
+var keysPath = builder.Configuration["DataProtection:KeysPath"];
+var dataProtectionBuilder = builder.Services.AddDataProtection()
+    .SetApplicationName("personal-website-blazor");
+
+if (!string.IsNullOrEmpty(keysPath))
+{
+    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(keysPath));
+}
 
 // ── Options ────────────────────────────────────────────────────────────
 builder.Services
@@ -48,6 +55,16 @@ builder.Services.AddRazorComponents()
 builder.Services.Configure<Microsoft.AspNetCore.SignalR.HubOptions>(options =>
 {
     options.MaximumReceiveMessageSize = 512 * 1024;
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddServerSideBlazor(options =>
+{
+    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(5);
+    options.DisconnectedCircuitMaxRetained = 100;
+    options.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(30);
 });
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();
@@ -84,11 +101,11 @@ app.Use(async (context, next) =>
 {
     context.Response.Headers.ContentSecurityPolicy =
         "default-src 'self'; "
-        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com https://umami.sametcc.me; "
+        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com; "
         + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com cdnjs.cloudflare.com; "
         + "img-src 'self' data: https:; "
         + "font-src 'self' https://fonts.gstatic.com data:; "
-        + "connect-src 'self' https://umami.sametcc.me; "
+        + "connect-src 'self' wss: ws: https://umami.sametcc.me; "
         + "frame-ancestors 'none'; "
         + "base-uri 'self'; "
         + "form-action 'self'";
@@ -183,6 +200,20 @@ app.Use(async (context, next) =>
 
 // ── Antiforgery ────────────────────────────────────────────────────────
 app.UseAntiforgery();
+
+// ── Umami Analytics Proxy ──────────────────────────────────────────────
+// Proxies the Umami tracking script through the same origin to avoid
+// Edge's Tracking Prevention blocking localStorage access.
+app.Map("/umami/script.js", async (HttpContext context, IHttpClientFactory httpClientFactory) =>
+{
+    var client = httpClientFactory.CreateClient();
+    client.Timeout = TimeSpan.FromSeconds(10);
+    var response = await client.GetAsync("https://umami.sametcc.me/script.js");
+    context.Response.StatusCode = (int)response.StatusCode;
+    context.Response.ContentType = "application/javascript";
+    context.Response.Headers.CacheControl = "public, max-age=3600";
+    await response.Content.CopyToAsync(context.Response.Body);
+});
 
 // ── Controllers ────────────────────────────────────────────────────────
 app.MapControllers();
