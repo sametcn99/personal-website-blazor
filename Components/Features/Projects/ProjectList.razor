@@ -38,7 +38,7 @@
             return;
         }
 
-        _posts = await ContentService.GetPostsAsync("projects");
+        _posts = await ContentService.GetPostMetadataListAsync("projects");
         _loading = false;
     }
 

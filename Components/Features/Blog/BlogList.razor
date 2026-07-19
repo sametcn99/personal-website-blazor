@@ -38,7 +38,7 @@
             return;
         }
 
-        _posts = await ContentService.GetPostsAsync("posts");
+        _posts = await ContentService.GetPostMetadataListAsync("posts");
         _loading = false;
     }
 

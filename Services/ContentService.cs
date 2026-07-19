@@ -175,6 +175,83 @@ public class ContentService : IContentService
         return posts.OrderByDescending(p => p.PublishDate).ToList();
     }
 
+    /// <summary>
+    /// Loads only YAML front matter metadata for a section — skips full Markdown → HTML rendering.
+    /// Useful for list views that don't need Content/SearchableText/TocItems, avoiding oversized
+    /// SignalR payloads and memory pressure with large content directories.
+    /// </summary>
+    public async Task<List<PostModel>> GetPostMetadataListAsync(string section)
+    {
+        if (!IsValidSection(section))
+            return new List<PostModel>();
+
+        var dirPath = Path.Combine(_env.ContentRootPath, "content", section);
+        if (!Directory.Exists(dirPath))
+            return new List<PostModel>();
+
+        var files = Directory.GetFiles(dirPath, "*.md*");
+        var posts = new List<PostModel>();
+
+        foreach (var file in files)
+        {
+            var slug = Path.GetFileNameWithoutExtension(file);
+            if (!IsValidSlug(slug))
+                continue;
+
+            try
+            {
+                var content = await File.ReadAllTextAsync(file);
+                var document = Markdown.Parse(content, _pipeline);
+
+                var yamlBlock = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
+                var post = new PostModel { Slug = slug, Section = section };
+
+                if (yamlBlock != null)
+                {
+                    var yaml = content.Substring(yamlBlock.Span.Start, yamlBlock.Span.Length);
+                    yaml = yaml.Replace("---", "").Trim();
+
+                    try
+                    {
+                        var metadata = _yamlDeserializer.Deserialize<Dictionary<string, object>>(yaml);
+                        if (metadata.TryGetValue("title", out var title))
+                            post.Title = title.ToString()!;
+                        if (metadata.TryGetValue("description", out var desc))
+                            post.Description = desc.ToString()!;
+                        if (metadata.TryGetValue("summary", out var summary))
+                            post.Description = summary.ToString()!;
+                        if (metadata.TryGetValue("publishDate", out var pd) && DateTime.TryParse(pd.ToString(), out var date))
+                            post.PublishDate = date;
+                        if (metadata.TryGetValue("publishedAt", out var pa) && DateTime.TryParse(pa.ToString(), out var date2))
+                            post.PublishDate = date2;
+                        if (metadata.TryGetValue("updatedAt", out var ua) && DateTime.TryParse(ua.ToString(), out var updatedDate))
+                            post.UpdatedAt = updatedDate;
+                        if (metadata.TryGetValue("image", out var img))
+                            post.Image = img.ToString();
+                        if (metadata.TryGetValue("author", out var author))
+                            post.Author = author.ToString();
+                        if (metadata.TryGetValue("tags", out var tags) && tags is List<object> tagsList)
+                            post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
+                        if (metadata.TryGetValue("language", out var lang))
+                            post.Language = lang.ToString()!;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error parsing YAML metadata for {section}/{slug}: {ex.Message}");
+                    }
+                }
+
+                posts.Add(post);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading metadata for {section}/{slug}: {ex.Message}");
+            }
+        }
+
+        return posts.OrderByDescending(p => p.PublishDate).ToList();
+    }
+
     public async Task<List<ContentMetadata>> GetAllContentsAsync()
     {
         var result = new List<ContentMetadata>();

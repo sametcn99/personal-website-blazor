@@ -38,7 +38,9 @@
             return;
         }
 
-        _posts = await ContentService.GetPostsAsync("gists");
+        // Use metadata-only loading to avoid heavyweight HTML/SearchableText in the list view.
+        // This prevents SignalR disconnections caused by oversized payloads (20+ gists × ~100KB HTML each).
+        _posts = await ContentService.GetPostMetadataListAsync("gists");
         _loading = false;
     }
 
