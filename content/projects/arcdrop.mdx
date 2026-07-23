@@ -1,0 +1,69 @@
+---
+title: ArcDrop
+publishedAt: 2026-03-10
+summary: A self-host-first bookmarking platform with cross-platform desktop clients and
+  AI-assisted organization, built as a .NET 10 monorepo with MAUI, Blazor, and
+  ASP.NET Core.
+tags: [C#, .NET, ASP.NET Core, Blazor, MAUI, PostgreSQL, Docker, Self-Hosted, Bookmarking, AI, Monorepo]
+---
+
+# ArcDrop
+
+Self-host-first bookmarking platform with cross-platform desktop clients and
+AI-assisted organization.
+
+[GitHub Repository](https://github.com/sametcn99/ArcDrop)
+
+## Overview
+
+ArcDrop is a self-host-first bookmarking platform with cross-platform desktop
+clients and AI-assisted organization. It is structured as a .NET 10 monorepo
+spanning an ASP.NET Core API, a Blazor web host, and a .NET MAUI desktop client,
+all backed by PostgreSQL.
+
+## Repository Status
+
+- Implements initial monorepo baseline.
+- Bootstraps API foundation.
+- Adds PostgreSQL schema, migration pipeline, and CRUD integration tests.
+- Adds fixed-admin JWT login baseline and authentication tests.
+- Adds self-host Docker Compose assets and runbook baseline.
+- Adds VS Code dev container onboarding for .NET 10, PostgreSQL, and shared
+  workspace tooling.
+- Adds AI provider configuration lifecycle API (create/read/update/delete) with
+  encrypted secret persistence.
+- Adds initial AI organization command and auditable operation logging
+  endpoints.
+- Adds MAUI MVVM shell and route navigation foundation.
+- Adds MAUI bookmark add/list/detail/edit workflow slices using API-backed query
+  and command services with resilient list fallback.
+- Adds Blazor web host pages for auth session management, bookmark CRUD, AI
+  provider configuration, and AI organization operation lookup against backend
+  APIs.
+- Adds Blazor web host inside MAUI folder with bookmark add/list/edit flows
+  against the same API contracts.
+- Secures web auth flow with server-issued HttpOnly session cookie, protected
+  route redirects, and persistent refresh-safe sign-in behavior.
+
+## Quick Navigation
+
+- Monorepo rules: `docs/monorepo-structure.md`
+- API bootstrap and migration guide: `docs/api-bootstrap.md`
+- MAUI foundation guide: `docs/desktop-maui-foundation.md`
+- Blazor web app: `apps/web/ArcDrop.Web`
+- API tests project: `tests/ArcDrop.Api.Tests`
+- Self-host quickstart: `docs/self-host-quickstart.md`
+- Dev container setup: `docs/devcontainer-setup.md`
+- Contributor guide: `CONTRIBUTING.md`
+- Engineering guardrails: `.github/copilot-instructions.md`
+- Implementation plans: `.github/plan/`
+
+## Technology Stack
+
+- **C# / .NET 10**
+- **ASP.NET Core** (API)
+- **Blazor** (web host)
+- **.NET MAUI** (desktop client, MVVM)
+- **PostgreSQL** (database)
+- **Docker Compose** (self-host)
+- **Dev Containers** (contributor onboarding)

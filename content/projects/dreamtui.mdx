@@ -1,0 +1,115 @@
+---
+title: DreamTUI
+publishedAt: 2026-03-17
+summary: A terminal-based generative dream engine that transforms written dreams into
+  full-screen, animated ASCII art experiences using a two-stage AI pipeline.
+tags: [TypeScript, TUI, ASCII Art, AI, OpenAI, Anthropic, Google Gemini, Groq, Ollama, Terminal Application]
+---
+
+# DreamTUI
+
+A terminal-based generative dream engine.
+
+[GitHub Repository](https://github.com/sametcn99/dreamtui) |
+[Releases](https://github.com/sametcn99/dreamtui/releases)
+
+## Overview
+
+DreamTUI transforms your written dreams into full-screen, animated ASCII art
+experiences. It uses a sophisticated two-stage AI pipeline to interpret the
+semantics of your dream and generate a procedural visualization that plays out
+directly in your terminal.
+
+> This is an experimental hobby project created to test the concept of AI-driven
+> ASCII visualization. It is currently in a prototype stage (and frankly, it
+> will probably stay that way forever). However, the project is open source and
+> contributions are highly welcome!
+
+## Features
+
+### AI-Powered Interpretation
+
+- **Dream Booster**: Enhances simple inputs into vivid, descriptive narratives.
+- **Semantic Analysis**: Extracts mood, symbols, tempo, and atmosphere from your
+  text.
+
+### ASCII Rendering Engine
+
+- **Layered Composition**: Combines background noise, symbols, and distortion
+  effects.
+- **Procedural Animation**: Real-time animation loop reacting to dream
+  parameters.
+- **Dynamic Distortions**: Visual wobbles and shifts representing dream
+  instability.
+
+### Modern TUI (Terminal User Interface)
+
+- **Interactive Screens**: Dedicated screens for Input, Animation, and Settings.
+- **Responsive Design**: Adapts gracefully to terminal resizing.
+- **Keyboard Controls**: Full keyboard navigation support.
+
+### Flexible AI Providers
+
+Supports multiple LLM providers, configurable via the built-in Settings UI:
+
+- OpenAI
+- Anthropic
+- Google Gemini
+- Groq
+- Ollama (Local)
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) (v1.0 or later recommended)
+- A terminal with TrueColor support.
+
+### Installation
+
+```bash
+git clone https://github.com/sametcn99/dreamtui.git
+cd dreamtui
+bun install
+bun start
+```
+
+## Usage
+
+### 1. The Input Screen
+
+When the app launches, you will see the Input Screen.
+
+- **Type your dream**: Enter a description of a dream (e.g., "I was flying over
+  a neon city made of glass").
+- **Submit**: Press `Enter` to start the dream generation process.
+- **Settings**: Press `Ctrl+S` to open the configuration menu.
+
+### 2. The Dream Experience
+
+Once generated, the visualization will start automatically.
+
+- **Movement**: The ASCII art flows according to the dream's tempo (calm,
+  chaotic, fast, slow).
+- **Controls**:
+  - `Space`: Pause/Resume animation.
+  - `R`: Restart the dream loop.
+  - `Esc`: Exit back to the Input Screen.
+
+### 3. Settings Configuration
+
+Access settings by pressing `Ctrl+S` on the Input Screen.
+
+- **Provider**: Select your preferred AI backend (e.g., OpenAI, Anthropic).
+- **API Key**: Enter your API key securely (stored locally).
+- **Model**: (Optional) Override the default model (e.g., `gpt-4o-mini`,
+  `claude-3-opus`).
+- **Navigation**: Use `Tab` to cycle fields, `Ctrl+S` to Save, `Esc` to go
+  back.
+
+## Technology Stack
+
+- **TypeScript**
+- **Bun**
+- **OpenTUI** (terminal UI framework)
+- **Multiple LLM Providers** (OpenAI, Anthropic, Google Gemini, Groq, Ollama)

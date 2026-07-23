@@ -1,0 +1,84 @@
+---
+title: Application Tracker
+publishedAt: 2026-05-15
+summary: A self-hosted job search operating system that keeps applications, company
+  notes, follow-ups, documents, and progress history together in a single
+  private dashboard.
+tags: [TypeScript, Next.js, Prisma, PostgreSQL, Docker, Self-Hosted, Job Search, Application Tracking System, MinIO]
+---
+
+# Application Tracker
+
+Application Tracker is a self-hosted workspace for people who want one place to
+manage their job search.
+
+[GitHub Repository](https://github.com/sametcn99/application-tracker) |
+[Container Image](https://github.com/sametcn99/application-tracker/pkgs/container/application-tracker)
+
+## Overview
+
+Application Tracker is designed for people who want more structure than a
+spreadsheet and more privacy than a hosted service. It helps you keep
+applications, company notes, follow-ups, documents, and progress history
+together in a single private dashboard.
+
+## What You Can Do
+
+- **Track applications**: Keep role titles, companies, compensation notes,
+  statuses, links, and next steps in one place.
+- **Organize company records**: Save company-specific notes and see every
+  related application in context.
+- **Manage documents**: Attach files to applications so resumes, cover letters,
+  and other materials stay easy to find.
+- **Follow your progress**: Use the dashboard and activity history to
+  understand what changed and what needs attention next.
+- **Customize your workflow**: Use your own tags, source lists, and currencies
+  instead of forcing everything into a fixed template.
+
+## Install from a Local Clone
+
+Prerequisites: Docker 24+ and Docker Compose plugin.
+
+```bash
+git clone https://github.com/sametcn99/application-tracker.git
+cd application-tracker
+cp .env.example .env
+docker compose up --build -d
+```
+
+After the containers start, open `http://localhost:3000` and sign in with the
+admin email and password you set in `.env`.
+
+## Install from GitHub Packages
+
+If you prefer using the published container image instead of building locally,
+use the package published to GitHub Container Registry.
+
+```bash
+docker pull ghcr.io/sametcn99/application-tracker:<version>
+```
+
+Before starting the published image, provide these environment variables
+directly in your deployment platform, compose file, or container configuration:
+
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `POSTGRES_DB`
+- `AUTH_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `ADMIN_NAME`
+- `MINIO_ROOT_USER`
+- `MINIO_ROOT_PASSWORD`
+
+The supporting PostgreSQL and MinIO services should use the same values so the
+application, database, and object storage all start with matching credentials.
+
+## Technology Stack
+
+- **TypeScript / Next.js**
+- **Prisma**
+- **PostgreSQL**
+- **MinIO** (object storage)
+- **Docker Compose** (orchestration)
+- **Playwright / Vitest** (testing)

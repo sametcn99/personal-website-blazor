@@ -1,0 +1,124 @@
+---
+title: HTWind
+publishedAt: 2026-03-15
+summary: A highly customizable, HTML-based widget manager for Windows built with .NET
+  and WPF, bringing web tools and system helpers directly to your desktop with
+  native PowerShell execution support.
+tags: [C#, .NET, WPF, XAML, HTML Widgets, Desktop Application, Windows, PowerShell, Fluent UI, Widget Manager]
+---
+
+# HTWind
+
+The missing HTML-based widget manager created with .NET.
+
+[Homepage](https://htwind.vercel.app/) |
+[GitHub Repository](https://github.com/sametcn99/HTWind) |
+[Releases](https://github.com/sametcn99/HTWind/releases) |
+[Microsoft Store](https://apps.microsoft.com/detail/9PN58CG1P20L)
+
+## Overview
+
+HTWind is a highly customizable, HTML-based widget manager that brings your
+favorite web tools and system helpers directly to your Windows desktop. It also
+supports running PowerShell commands when you need quick system actions.
+
+Build custom widgets using plain HTML, CSS, and JavaScript — from a single HTML
+file for the fastest prototype, to a manifest-driven package using
+`htwind.widget.json` that can describe one widget or multiple widgets in one
+importable bundle.
+
+## Highlights
+
+- **Native PowerShell Execution**: Run PowerShell scripts for system automation
+  and quick tasks via the host bridge API.
+- **Desktop HTML Widgets**: HTML widgets with lock/unlock interaction modes.
+- **Widget Package Imports**: Import widget packages through
+  `htwind.widget.json`.
+- **Local Asset Support**: Widgets can include local CSS, JavaScript, images,
+  and fonts.
+- **Multi-Widget Packages**: Install several widgets from one manifest.
+- **Built-in Widget Library**: Clock, weather, system tools, file helpers, and
+  more.
+- **Built-in Code Editor**: Widget code editor with syntax highlighting and
+  live preview (hot reload).
+- **Tray Integration**: Show/hide app, background workflow.
+- **Window Management**: Pin-on-top, visibility toggle, and persisted widget
+  geometry/state.
+- **Smart Visibility Suppression**: Hide widget windows while another app is
+  fullscreen or maximized (per display, toggleable).
+- **Startup Toggle**: Optional launch on system startup
+  (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`).
+- **Localization Infrastructure**: `resx` + `LocExtension`.
+- **Open-Source and Community-Driven**: Contributions, widgets, and feedback
+  welcome.
+
+## Visibility Suppression Modes
+
+HTWind includes per-display runtime suppression options in Settings to reduce
+distraction and improve performance while other apps are in focus.
+
+- **Hide widgets on fullscreen apps** (enabled by default): Widget windows are
+  temporarily closed on the same display when another app enters fullscreen,
+  then restored when fullscreen ends.
+- **Hide widgets on maximized apps** (optional): Widget windows are temporarily
+  closed on the same display when another app is maximized, then restored when
+  that app is no longer maximized.
+
+> These options do not change the widget `Visible` state in app data.
+> Suppression is runtime-only and windows are restored automatically.
+
+## Widget Development
+
+You can build custom widgets using plain HTML/CSS/JavaScript. HTWind supports
+three practical widget packaging levels:
+
+1. A single HTML file for the fastest possible prototype.
+2. A widget folder with additional local assets such as CSS, JavaScript, images,
+   or fonts.
+3. A manifest-driven package using `htwind.widget.json`, which can describe one
+   widget or multiple widgets in one importable bundle.
+
+### Host Bridge API
+
+Widgets can call `window.HTWind.invoke("powershell.exec", args)` with supported
+args including `script` (required), `timeoutMs`, `maxOutputChars`, `shell`
+(`powershell` or `pwsh`), and `workingDirectory`.
+
+> Only `powershell.exec` is currently supported. Output is clipped by
+> `maxOutputChars` for safety. Scripts are executed with
+> `-NoProfile -NonInteractive -ExecutionPolicy Bypass`.
+
+### Generate Widgets With LLM Help
+
+Use the dedicated HTWind system prompt to generate HTWind-compatible widgets
+(including PowerShell bridge usage) as a single HTML file with your preferred
+LLM.
+
+## Installation
+
+### Option 1: From GitHub Releases (Recommended)
+
+1. Open [Releases](https://github.com/sametcn99/HTWind/releases) in this
+   repository.
+2. Download one of the assets:
+   - `HTWind-setup-<version>.exe` (installer, recommended)
+   - `HTWind-portable-<version>.zip` (portable alternative)
+3. For installer mode, run the setup executable and follow the wizard.
+
+### Option 2: Run from Source
+
+Prerequisites: Windows 10/11 and .NET SDK 10.0+.
+
+```bash
+dotnet restore HTWind/HTWind.csproj
+dotnet build HTWind/HTWind.csproj
+dotnet run --project HTWind/HTWind.csproj
+```
+
+## Technology Stack
+
+- **C# / .NET 10**
+- **WPF / XAML**
+- **Fluent UI**
+- **HTML / CSS / TypeScript / JavaScript** (widgets)
+- **PowerShell** (host bridge)

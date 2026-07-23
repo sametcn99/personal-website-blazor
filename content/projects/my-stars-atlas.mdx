@@ -1,0 +1,78 @@
+---
+title: My Stars Atlas
+publishedAt: 2026-07-20
+summary: A generated, searchable catalog of starred GitHub repositories grouped into
+  stable categories, built with a deterministic classification engine and
+  published as a static site on GitHub Pages.
+tags: [TypeScript, GitHub API, GitHub Pages, GitHub Actions, Handlebars, Static Site, Awesome List, Automation]
+---
+
+# My Stars Atlas
+
+A generated catalog of starred GitHub repositories, grouped into stable
+categories.
+
+[Homepage](https://sametcn99.github.io/my-stars-atlas/) |
+[GitHub Repository](https://github.com/sametcn99/my-stars-atlas)
+
+## About This Project
+
+This repository generates a curated, searchable catalog from a GitHub account's
+starred repositories. It combines a data pipeline, deterministic categorization
+rules, chunked JSON exports, and a static frontend so the result can be
+published on GitHub Pages without a server runtime.
+
+The project is useful if you want to:
+
+- publish your starred repositories as a clean public directory,
+- keep repository metadata and categories in version control,
+- customize how projects are grouped with your own rules and overrides,
+- reuse the structure for your own profile by forking or cloning the repository.
+
+## How It Works
+
+The generator fetches starred repositories for `@sametcn99`, classifies each
+repository with stable rule-based categories, writes the results into chunked
+files under `dist/data/`, and rebuilds the README together with the static site
+assets. The frontend then reads the generated catalog and chunk files to provide
+filtering, search, sorting, and progressive loading in the browser.
+
+The main project-level settings live in `config/config.json`, while
+classification behavior stays in `config/categories.json` and
+`config/overrides.json`.
+
+## Key Features
+
+- **Deterministic Classification Engine**: The taxonomy lives in configuration,
+  not hardcoded per repository. Overrides win first, then rule-based scoring
+  tries to find the strongest category. Only low-confidence items may trigger
+  extra README fetches, which keeps the fallback precise and avoids paying that
+  cost for the full dataset.
+- **Chunked JSON Exports**: Catalog data is split into chunked files under
+  `dist/data/` for progressive loading in the browser.
+- **Static Frontend**: Filtering, search, sorting, and progressive loading —
+  all client-side, no server runtime required.
+- **Automated Updates**: A GitHub Actions workflow keeps the catalog in sync
+  with newly starred repositories on a schedule.
+- **Forkable & Reusable**: Fork the repo, edit `config/config.json` for your
+  own username, add a GitHub token, and run the generator on your fork.
+
+## Use This Project
+
+You can use this project in three common ways:
+
+1. **Fork It** — Keep the existing setup and adapt it for your own GitHub
+   account. Edit `config/config.json` for your own username, README copy, and
+   site SEO settings.
+2. **Clone It** — Get full local control or customize the data model,
+   categorization rules, UI, or deployment flow.
+3. **Contribute To It** — Improve category definitions, UI and accessibility,
+   GitHub API efficiency, or documentation.
+
+## Technology Stack
+
+- **TypeScript**
+- **Bun**
+- **Handlebars** (templating)
+- **GitHub Actions** (automation)
+- **GitHub Pages** (hosting)

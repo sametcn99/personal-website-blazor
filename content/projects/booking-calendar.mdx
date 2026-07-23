@@ -1,0 +1,65 @@
+---
+title: Booking Calendar
+publishedAt: 2026-04-04
+summary: A self-hosted PWA designed for single-admin appointment management, running on
+  your own server with shareable booking links, smart notifications, and
+  integrations for webhooks, CalDAV, and iCal.
+tags: [TypeScript, React, Bun, TypeORM, SQLite, PWA, Self-Hosted, Calendar, Booking Platform, Webhooks, SMTP]
+---
+
+# Booking Calendar (Self-Hosted)
+
+Booking Calendar is a self-hosted PWA designed for single-admin appointment
+management. It runs on your own server, keeps your data under your control, and
+supports a complete booking flow using shareable booking links.
+
+[Documentation](https://booking-calendar-docs.vercel.app/) |
+[GitHub Repository](https://github.com/sametcn99/booking-calendar) |
+[Releases](https://github.com/sametcn99/booking-calendar/releases) |
+[Container Image](https://github.com/sametcn99/booking-calendar/pkgs/container/booking-calendar)
+
+## Key Features
+
+- **Admin Control**: Full dashboard for managing slots, appointments, and
+  unique booking links.
+- **Guest Experience**: Streamlined public booking page with mobile-first
+  design.
+- **Conflict Prevention**: Built-in double-booking prevention with intelligent
+  slot overlap checks.
+- **Smart Notifications**:
+  - Email alerts with `.ics` calendar attachments for instant syncing.
+  - Token-based one-click cancellation links for guests.
+  - Real-time Web Push notifications for administrators.
+- **Advanced Sharing**: Public appointment detail pages with persistent
+  shareable links.
+- **Community Events**: Support for community-driven events with public
+  approval workflows.
+- **Integrations**:
+  - **Webhooks**: HMAC-signed notifications for Discord, Slack, or custom
+    automations.
+  - **CalDAV**: Import remote busy times anonymously and write approved
+    bookings back to your own calendar.
+  - **iCal Export**: Export your entire schedule or specific ranges to external
+    calendars.
+- **Performance & Security**:
+  - **Native PWA**: Installable on both mobile and desktop.
+  - **Rate Limiting**: IP-based protection against brute-force and spam.
+  - **Async Processing**: Asynchronous email delivery to ensure zero-latency
+    booking responses.
+  - **Privacy**: Self-hosted SQLite persistence — your data never leaves your
+    server.
+
+## Quick Links
+
+- [Screenshots](https://booking-calendar-docs.vercel.app/pages/screenshots)
+- [Getting Started](https://booking-calendar-docs.vercel.app/guide/getting-started)
+- [Docker Deployment Guide](https://booking-calendar-docs.vercel.app/guide/deployment-docker)
+- [Environment Variables](https://booking-calendar-docs.vercel.app/guide/configuration)
+- [Contributing Guide](https://booking-calendar-docs.vercel.app/contributing)
+
+## Technology Stack
+
+- **Frontend**: React 19, TypeScript, Base Web, Vite.
+- **Backend**: Bun native HTTP server, Layered Architecture.
+- **Database**: TypeORM + SQLite (file-based persistence).
+- **Notifications**: Nodemailer, Web Push (VAPID), Webhooks.
