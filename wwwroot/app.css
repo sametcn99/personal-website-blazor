@@ -1494,7 +1494,6 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
   padding: 0.65rem 1rem;
   gap: 1rem;
 }
