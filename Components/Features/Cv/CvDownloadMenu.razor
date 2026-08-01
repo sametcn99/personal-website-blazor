@@ -9,8 +9,28 @@
         @if (_isOpen)
         {
             <div class="download-menu-panel">
-                <a class="menu-item-link" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" download="Samet_Can_Cincik_CV_TR.pdf" data-umami-event="cv-download-tr-click">Özgeçmiş (TR)</a>
-                <a class="menu-item-link" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" download="Samet_Can_Cincik_CV_EN.pdf" data-umami-event="cv-download-en-click">Resume (EN)</a>
+                <div class="menu-item-row">
+                    <span class="menu-item-label">Özgeçmiş (TR)</span>
+                    <span class="menu-item-actions">
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" title="Preview" data-umami-event="cv-preview-tr-click">
+                            <AppIcon Name="eye" />
+                        </a>
+                        <a class="icon-btn" href="/Samet_Can_Cincik_CV_TR.pdf" download="Samet_Can_Cincik_CV_TR.pdf" title="Download" data-umami-event="cv-download-tr-click">
+                            <AppIcon Name="download" />
+                        </a>
+                    </span>
+                </div>
+                <div class="menu-item-row">
+                    <span class="menu-item-label">Resume (EN)</span>
+                    <span class="menu-item-actions">
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" title="Preview" data-umami-event="cv-preview-en-click">
+                            <AppIcon Name="eye" />
+                        </a>
+                        <a class="icon-btn" href="/Samet_Can_Cincik_CV_EN.pdf" download="Samet_Can_Cincik_CV_EN.pdf" title="Download" data-umami-event="cv-download-en-click">
+                            <AppIcon Name="download" />
+                        </a>
+                    </span>
+                </div>
             </div>
         }
     </div>
