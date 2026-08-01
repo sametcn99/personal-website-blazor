@@ -1,5 +1,5 @@
 @page "/cv/download/{Language}"
-@inject IJSRuntime JS
+@inject IJSRuntime Js
 @inject NavigationManager Navigation
 
 <PageTitle>Downloading CV... | Samet Can Cıncık</PageTitle>
@@ -47,7 +47,7 @@
             await Task.Delay(500);
             try
             {
-                await JS.InvokeVoidAsync("downloadFile", _fileUrl, _fileName);
+                await Js.InvokeVoidAsync("downloadFile", _fileUrl, _fileName);
             }
             catch (JSDisconnectedException)
             {
