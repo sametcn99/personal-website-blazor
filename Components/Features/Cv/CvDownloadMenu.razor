@@ -1,3 +1,5 @@
+@inject IJSRuntime JS
+
 <div class="row-end d-print-none">
     <div class="download-menu">
         <button type="button" class="download-trigger" @onclick="ToggleMenu">
@@ -12,23 +14,27 @@
                 <div class="menu-item-row">
                     <span class="menu-item-label">TR</span>
                     <span class="menu-item-actions">
-                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" title="Preview" data-umami-event="cv-preview-tr-click">
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" title="Preview"
+                           data-umami-event="cv-preview-tr-click">
                             <AppIcon Name="eye" />
                         </a>
-                        <a class="icon-btn" href="/Samet_Can_Cincik_CV_TR.pdf" download="Samet_Can_Cincik_CV_TR.pdf" title="Download" data-umami-event="cv-download-tr-click">
+                        <button type="button" class="icon-btn" title="Download" data-umami-event="cv-download-tr-click"
+                                @onclick="DownloadTrCv">
                             <AppIcon Name="download" />
-                        </a>
+                        </button>
                     </span>
                 </div>
                 <div class="menu-item-row">
                     <span class="menu-item-label">EN</span>
                     <span class="menu-item-actions">
-                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" title="Preview" data-umami-event="cv-preview-en-click">
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" title="Preview"
+                           data-umami-event="cv-preview-en-click">
                             <AppIcon Name="eye" />
                         </a>
-                        <a class="icon-btn" href="/Samet_Can_Cincik_CV_EN.pdf" download="Samet_Can_Cincik_CV_EN.pdf" title="Download" data-umami-event="cv-download-en-click">
+                        <button type="button" class="icon-btn" title="Download" data-umami-event="cv-download-en-click"
+                                @onclick="DownloadEnCv">
                             <AppIcon Name="download" />
-                        </a>
+                        </button>
                     </span>
                 </div>
             </div>
@@ -40,4 +46,16 @@
     private bool _isOpen;
 
     private void ToggleMenu() => _isOpen = !_isOpen;
+
+    private async Task DownloadTrCv()
+    {
+        _isOpen = false;
+        await JS.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_TR.pdf", "Samet_Can_Cincik_CV_TR.pdf");
+    }
+
+    private async Task DownloadEnCv()
+    {
+        _isOpen = false;
+        await JS.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_EN.pdf", "Samet_Can_Cincik_CV_EN.pdf");
+    }
 }
