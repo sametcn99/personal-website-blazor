@@ -1,4 +1,4 @@
-@inject IJSRuntime JS
+@inject IJSRuntime Js
 
 <div class="row-end d-print-none">
     <div class="download-menu">
@@ -50,12 +50,12 @@
     private async Task DownloadTrCv()
     {
         _isOpen = false;
-        await JS.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_TR.pdf", "Samet_Can_Cincik_CV_TR.pdf");
+        await Js.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_TR.pdf", "Samet_Can_Cincik_CV_TR.pdf");
     }
 
     private async Task DownloadEnCv()
     {
         _isOpen = false;
-        await JS.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_EN.pdf", "Samet_Can_Cincik_CV_EN.pdf");
+        await Js.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_EN.pdf", "Samet_Can_Cincik_CV_EN.pdf");
     }
 }
