@@ -129,6 +129,14 @@ public sealed class SocialLinkProvider : ISocialLinkProvider
             External = true,
             Category = "Social Media",
             IconColor = "#FF0000",
+        },
+        new(){
+            Type=["Letterboxd", "lb", "lbxd"],
+            Link = "https://letterboxd.com/sametc001",
+            Label = "Letterboxd",
+            External = true,
+            Category = "Social Media",
+            IconColor = "#14181c",
         }
     ];
 
