@@ -233,6 +233,14 @@ public class HtmlRenderer : ComponentBase
     {
         var codeNode = node.SelectSingleNode(".//code");
 
+        if (node.GetClasses().Contains("mermaid", StringComparer.OrdinalIgnoreCase))
+        {
+            builder.OpenComponent<MermaidDiagram>(0);
+            builder.AddAttribute(1, nameof(MermaidDiagram.Definition), HtmlEntity.DeEntitize(node.InnerText));
+            builder.CloseComponent();
+            return;
+        }
+
         if (codeNode is null)
         {
             builder.OpenComponent<HtmlPre>(0);
