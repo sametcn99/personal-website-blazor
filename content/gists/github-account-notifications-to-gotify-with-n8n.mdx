@@ -1,0 +1,269 @@
+---
+title: GitHub Account Notifications to Gotify with n8n
+summary: A production-ready guide for delivering GitHub App events from every repository in an account to a Gotify phone notification channel.
+publishedAt: 2026-08-07
+tags: [github, github-apps, gotify, n8n, webhooks, notifications, automation]
+---
+
+# GitHub Account Notifications to Gotify with n8n
+
+This guide configures a GitHub App to send repository activity from a personal
+account or organization to **Gotify** through an importable **n8n** workflow.
+It uses the released workflow JSON from
+[sametcn99/n8n-automations](https://github.com/sametcn99/n8n-automations), not
+a locally built or hand-edited workflow.
+
+The workflow formats GitHub webhook payloads into compact phone notifications
+with an event title, useful context, and a direct GitHub link. It supports
+pushes, pull requests, issues, comments, workflow runs, releases, stars,
+watches, forks, ref changes, and other documented GitHub webhook events that
+the installed GitHub App is allowed to receive.
+
+---
+
+## Architecture and Scope
+
+The event path is:
+
+```text
+GitHub App -> public n8n production webhook -> event formatter -> Gotify -> phone
+```
+
+GitHub does not offer a general webhook for all activity on a personal user
+account. A repository webhook covers only one repository and an organization
+webhook covers only one organization.
+
+To cover repositories belonging to an account, create a **GitHub App**, install
+it on the target account, and choose **All repositories**. New repositories are
+included while that installation remains scoped to all repositories.
+
+This is not a feed of every action performed by a GitHub user. GitHub only sends
+events supported by GitHub Apps, enabled under the App's event subscriptions,
+and available through the App's repository or organization permissions. The App
+cannot observe repositories that the account does not own or administer.
+
+---
+
+## Prerequisites
+
+Before starting, make sure you have:
+
+- A GitHub account or organization where you can create and install a GitHub
+  App.
+- A public HTTPS URL for an n8n instance. GitHub must reach its production
+  webhook URL from the internet.
+- An n8n instance where you can import and activate workflows and create Gotify
+  credentials. n8n Cloud and Community Edition are both suitable.
+- A running Gotify server and permission to create an application token.
+
+Do not put Gotify tokens, webhook URLs, or production workflow exports in a
+public repository.
+
+---
+
+## Step 1 - Download the Released Workflow JSON
+
+Open the [latest GitHub release](https://github.com/sametcn99/n8n-automations/releases/latest)
+and download the `github-gotify.json` asset. The repository rebuilds this JSON
+from its TypeScript source during release publication, so the release asset is
+the supported import artifact.
+
+You can also use this download URL:
+
+```text
+https://github.com/sametcn99/n8n-automations/releases/latest/download/github-gotify.json
+```
+
+Release assets intentionally contain this placeholder instead of a real secret:
+
+```text
+<long-random-secret>
+```
+
+That is expected. Each installation must replace it with its own random value
+before importing the workflow.
+
+For repeatable production rollouts, retain the exact release URL or release tag
+you approved in your deployment documentation. Review workflow changes before
+upgrading to a newer release.
+
+---
+
+## Step 2 - Generate a Webhook URL Secret
+
+This workflow protects its endpoint with an unguessable path. Generate a unique
+64-character lowercase hexadecimal value, which provides 256 bits of random
+entropy.
+
+### Windows PowerShell
+
+```powershell
+[Convert]::ToHexString([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
+```
+
+### macOS or Linux
+
+```bash
+openssl rand -hex 32
+```
+
+### Python 3
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+On Windows systems where `python3` is unavailable, use `python` instead.
+
+Replace every occurrence of `<long-random-secret>` in the downloaded
+`github-gotify.json` file with the generated value. The final n8n webhook path
+must look like this:
+
+```text
+github-account-gotify-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+
+The path is effectively a password. Never send it in chat, screenshots, logs,
+or source control. Use a distinct value for each environment and rotate it
+immediately if it is exposed.
+
+---
+
+## Step 3 - Create a Gotify Application and n8n Credential
+
+1. Sign in to the Gotify server.
+2. Create an application, for example **GitHub Notifications**.
+3. Copy the application's generated token.
+4. In n8n, create a **Gotify** credential.
+5. Enter the Gotify server URL and application token in that credential.
+
+Keep the token in n8n's credential store. Do not add it to the workflow JSON,
+the Code node, or notification content. Using a dedicated Gotify application
+for this integration makes token rotation and message management easier.
+
+---
+
+## Step 4 - Import and Activate the n8n Workflow
+
+1. In n8n, create a new workflow or open the import screen.
+2. Import the edited `github-gotify.json` file from Step 2.
+3. Open the **Send to Gotify** node and select the Gotify credential created in
+   Step 3.
+4. Open **GitHub Account Webhook Input** and verify its path contains the new
+   64-character secret rather than `<long-random-secret>`.
+5. Save the workflow.
+6. Activate the workflow.
+7. Open **GitHub Account Webhook Input** and copy its **Production URL**.
+
+Use the production URL in GitHub. The n8n test URL only works while n8n is
+listening for a manual test request and is not a durable webhook endpoint.
+
+If n8n is behind a reverse proxy, configure its public webhook base URL before
+copying the production URL. A typical configuration is:
+
+```text
+WEBHOOK_URL=https://n8n.example.com/
+```
+
+The final URL must be public HTTPS, resolve from the internet, and pass through
+the proxy without rewriting its path.
+
+---
+
+## Step 5 - Create and Install the GitHub App
+
+Create the App from the target account:
+
+1. Open **Settings** -> **Developer settings** -> **GitHub Apps** -> **New
+   GitHub App**.
+2. Give the App a recognizable name, such as **Account Gotify Notifications**.
+3. Paste the n8n production URL into **Webhook URL**.
+4. Leave GitHub's **Webhook secret** field empty. This workflow authenticates
+   requests with the random n8n URL path instead.
+5. Keep webhook delivery active.
+6. Select **Only on this account** for installation access unless another
+   account genuinely needs to install the App.
+7. Grant only the permissions GitHub requires for the events you select. Apply
+   the principle of least privilege.
+8. Under **Subscribe to events**, select the events you want to receive.
+9. Create the GitHub App, open its install page, install it on the target
+   account, and select **All repositories**.
+
+Useful subscriptions include **Push**, **Pull request**, **Issues**, **Issue
+comment**, **Workflow run**, **Release**, **Star**, **Watch**, **Fork**,
+**Create**, and **Delete**. GitHub may require additional permissions before
+some subscriptions are available.
+
+Selecting **All repositories** is what gives the App account-wide repository
+coverage. Revisit this installation after repository transfers, archival, or
+permission changes.
+
+---
+
+## Step 6 - Verify the End-to-End Delivery
+
+GitHub sends a `ping` webhook when the App webhook is configured. It should
+produce a low-priority Gotify notification indicating that webhook delivery was
+verified.
+
+To confirm the integration:
+
+1. Open the GitHub App's webhook delivery or **Recent Deliveries** page.
+2. Open the initial `ping` delivery and confirm GitHub records a successful
+   response.
+3. Confirm the Gotify notification arrived on the phone.
+4. Create a small test event, such as pushing a commit or opening a pull
+   request.
+5. Confirm the notification has a concise summary, relevant GitHub URL, and no
+   raw JSON payload.
+
+Use GitHub's **Redeliver** action after correcting a configuration issue. Do not
+rotate the URL secret unless you also update the n8n path and the GitHub App's
+Webhook URL together.
+
+---
+
+## Security and Operations
+
+- Keep HTTPS enabled from GitHub through the n8n endpoint. Do not terminate TLS
+  at an untrusted proxy.
+- Treat the 64-character webhook path as an authentication secret. It is not
+  included in Gotify messages.
+- Limit access to the n8n workflow, workflow execution history, and Gotify
+  application.
+- GitHub event data can contain issue titles, pull request titles, comment
+  excerpts, author names, commit messages, and URLs. Configure n8n execution
+  retention according to your privacy and compliance requirements.
+- Review the GitHub App's permissions and selected event subscriptions
+  regularly. Fewer event types and permissions reduce exposure and notification
+  noise.
+- Rotate the random webhook path if it may have leaked: generate a new value,
+  update the n8n Webhook node, save and activate the workflow, then immediately
+  update the GitHub App webhook URL.
+- When updating the automation, download and review a new release asset, make
+  the same secret replacement, import it into a non-production workflow first,
+  then switch production after successful delivery tests.
+
+---
+
+## Troubleshooting
+
+| Symptom                               | Likely cause                                                                                                  | Resolution                                                                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| GitHub reports `404` or `Not Found`   | The GitHub App URL differs from the active n8n production URL.                                                | Copy the production URL again from the active **GitHub Account Webhook Input** node. Do not use the test URL.              |
+| No n8n execution appears              | The workflow is inactive or GitHub cannot reach the endpoint.                                                 | Confirm the workflow is active, the URL is public HTTPS, and firewall or proxy rules permit GitHub requests.               |
+| A request reaches n8n unexpectedly    | The random URL path was disclosed.                                                                            | Rotate the path in n8n and update the GitHub App's Webhook URL immediately.                                                |
+| Gotify receives no message            | The Gotify server URL, application token, or selected credential is wrong.                                    | Test the Gotify credential in n8n and verify the token belongs to the intended application.                                |
+| Only some events arrive               | The App is not subscribed to those events, lacks permission, or the event is unavailable to the installation. | Review the GitHub App's event subscriptions, required permissions, and repository installation scope.                      |
+| The copied URL is internal or invalid | n8n's public webhook URL is not configured behind the proxy.                                                  | Set the correct public `WEBHOOK_URL`, restart n8n if required, reactivate the workflow, and copy the production URL again. |
+
+---
+
+## What You Get
+
+Once active, the workflow turns GitHub App deliveries into concise Gotify phone
+notifications. Each message identifies the event and repository, summarizes the
+most useful event details, and includes the best available direct GitHub link.
+The formatter limits large values such as commit lists, comments, and release
+notes, keeping routine notifications practical on a phone while preserving the
+link back to the full GitHub context.
