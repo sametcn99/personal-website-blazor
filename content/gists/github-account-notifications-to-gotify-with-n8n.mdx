@@ -8,7 +8,10 @@ tags: [github, github-apps, gotify, n8n, webhooks, notifications, automation]
 # GitHub Account Notifications to Gotify with n8n
 
 This guide configures a GitHub App to send repository activity from a personal
-account or organization to **Gotify** through an importable **n8n** workflow.
+account or organization to the **Gotify Android app** through an importable
+**n8n** workflow. n8n sends events to the Gotify server, and the Gotify app
+receives them as real-time Android notifications on the phone.
+
 It uses the released workflow JSON from
 [sametcn99/n8n-automations](https://github.com/sametcn99/n8n-automations), not
 a locally built or hand-edited workflow.
@@ -26,8 +29,13 @@ the installed GitHub App is allowed to receive.
 The event path is:
 
 ```text
-GitHub App -> public n8n production webhook -> event formatter -> Gotify -> phone
+GitHub App -> public n8n production webhook -> event formatter -> Gotify server -> Gotify Android app -> phone notification
 ```
+
+In Gotify terminology, n8n is an **application** that can send messages. The
+phone is a separate **client** that receives those messages from the Gotify
+server. Creating the Gotify application token configures the sending side; it
+does not by itself configure a phone to receive notifications.
 
 GitHub does not offer a general webhook for all activity on a personal user
 account. A repository webhook covers only one repository and an organization
@@ -54,7 +62,12 @@ Before starting, make sure you have:
   webhook URL from the internet.
 - An n8n instance where you can import and activate workflows and create Gotify
   credentials. n8n Cloud and Community Edition are both suitable.
-- A running Gotify server and permission to create an application token.
+- A running Gotify server, a user account, and permission to create an
+   application token.
+- An Android phone with the official Gotify app installed from
+   [Google Play](https://play.google.com/store/apps/details?id=com.github.gotify),
+   [F-Droid](https://f-droid.org/packages/com.github.gotify/), or the
+   [latest GitHub release](https://github.com/gotify/android/releases/latest).
 
 Do not put Gotify tokens, webhook URLs, or production workflow exports in a
 public repository.
@@ -143,7 +156,32 @@ for this integration makes token rotation and message management easier.
 
 ---
 
-## Step 4 - Import and Activate the n8n Workflow
+## Step 4 - Connect the Gotify Android App
+
+The official Gotify Android app maintains a connection to the Gotify server and
+displays a device notification whenever the server receives a new message.
+Install the app and connect it before testing the GitHub workflow:
+
+1. Open the Gotify app on the Android phone.
+2. Add the public HTTPS URL of the Gotify server.
+3. Sign in with the Gotify user account that owns the **GitHub Notifications**
+   application created in Step 3.
+4. Allow Android notification permission when prompted.
+5. Send a test message from the Gotify server's web interface and confirm that
+   it appears immediately as an Android notification.
+
+The phone needs network access to the Gotify server. For reliable background
+delivery, exclude Gotify from the device's battery optimization or unrestricted
+battery restrictions. Some Android vendors terminate background connections
+aggressively; their device-specific guidance is available at
+[DontKillMyApp](https://dontkillmyapp.com/).
+
+The app's persistent foreground connection indicator is normal. It keeps the
+real-time notification channel alive while the app is running in the background.
+
+---
+
+## Step 5 - Import and Activate the n8n Workflow
 
 1. In n8n, create a new workflow or open the import screen.
 2. Import the edited `github-gotify.json` file from Step 2.
@@ -170,7 +208,7 @@ the proxy without rewriting its path.
 
 ---
 
-## Step 5 - Create and Install the GitHub App
+## Step 6 - Create and Install the GitHub App
 
 Create the App from the target account:
 
@@ -200,7 +238,7 @@ permission changes.
 
 ---
 
-## Step 6 - Verify the End-to-End Delivery
+## Step 7 - Verify the End-to-End Delivery
 
 GitHub sends a `ping` webhook when the App webhook is configured. It should
 produce a low-priority Gotify notification indicating that webhook delivery was
@@ -211,11 +249,11 @@ To confirm the integration:
 1. Open the GitHub App's webhook delivery or **Recent Deliveries** page.
 2. Open the initial `ping` delivery and confirm GitHub records a successful
    response.
-3. Confirm the Gotify notification arrived on the phone.
+3. Confirm the Gotify Android app displays an immediate device notification.
 4. Create a small test event, such as pushing a commit or opening a pull
    request.
-5. Confirm the notification has a concise summary, relevant GitHub URL, and no
-   raw JSON payload.
+5. Confirm the Android notification has a concise summary, relevant GitHub URL,
+   and no raw JSON payload.
 
 Use GitHub's **Redeliver** action after correcting a configuration issue. Do not
 rotate the URL secret unless you also update the n8n path and the GitHub App's
@@ -254,6 +292,7 @@ Webhook URL together.
 | No n8n execution appears              | The workflow is inactive or GitHub cannot reach the endpoint.                                                 | Confirm the workflow is active, the URL is public HTTPS, and firewall or proxy rules permit GitHub requests.               |
 | A request reaches n8n unexpectedly    | The random URL path was disclosed.                                                                            | Rotate the path in n8n and update the GitHub App's Webhook URL immediately.                                                |
 | Gotify receives no message            | The Gotify server URL, application token, or selected credential is wrong.                                    | Test the Gotify credential in n8n and verify the token belongs to the intended application.                                |
+| The Gotify server receives a message but the phone stays silent | The Android app is disconnected, notifications are blocked, or battery optimization stopped its background connection. | Open the Gotify Android app, verify it is connected to the right server, allow notifications, and exempt it from battery optimization. |
 | Only some events arrive               | The App is not subscribed to those events, lacks permission, or the event is unavailable to the installation. | Review the GitHub App's event subscriptions, required permissions, and repository installation scope.                      |
 | The copied URL is internal or invalid | n8n's public webhook URL is not configured behind the proxy.                                                  | Set the correct public `WEBHOOK_URL`, restart n8n if required, reactivate the workflow, and copy the production URL again. |
 
@@ -261,9 +300,10 @@ Webhook URL together.
 
 ## What You Get
 
-Once active, the workflow turns GitHub App deliveries into concise Gotify phone
-notifications. Each message identifies the event and repository, summarizes the
-most useful event details, and includes the best available direct GitHub link.
-The formatter limits large values such as commit lists, comments, and release
-notes, keeping routine notifications practical on a phone while preserving the
-link back to the full GitHub context.
+Once active, the workflow turns GitHub App deliveries into concise messages on
+the Gotify server. The Gotify Android app receives each new message in real time
+and raises the device notification. Each notification identifies the event and
+repository, summarizes the most useful event details, and includes the best
+available direct GitHub link. The formatter limits large values such as commit
+lists, comments, and release notes, keeping routine notifications practical on
+a phone while preserving the link back to the full GitHub context.
