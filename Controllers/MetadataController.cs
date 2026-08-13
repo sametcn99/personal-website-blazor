@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using personal_website_blazor.Models;
@@ -14,6 +15,51 @@ public class MetadataController : ControllerBase
     public MetadataController(IOptions<CachePolicyOptions> cacheOptions)
     {
         _cacheOptions = cacheOptions;
+    }
+
+    [HttpGet(".well-known/api-catalog")]
+    public ActionResult GetApiCatalog()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var catalog = new
+        {
+            linkset = new object[]
+            {
+                new
+                {
+                    anchor = $"{baseUrl}/api/blog",
+                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
+                    serviceDoc = new { href = $"{baseUrl}/blog", type = "text/html" },
+                },
+                new
+                {
+                    anchor = $"{baseUrl}/api/gists",
+                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
+                    serviceDoc = new { href = $"{baseUrl}/gist", type = "text/html" },
+                },
+                new
+                {
+                    anchor = $"{baseUrl}/api/projects",
+                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
+                    serviceDoc = new { href = $"{baseUrl}/project", type = "text/html" },
+                },
+                new
+                {
+                    anchor = $"{baseUrl}/api/repos",
+                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
+                    serviceDoc = new { href = $"{baseUrl}/repo", type = "text/html" },
+                },
+            }
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(catalog, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/linkset+json");
     }
 
     [HttpGet("manifest.webmanifest")]

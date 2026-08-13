@@ -56,7 +56,6 @@ public class MarkdownForAgentsMiddleware
         if (string.IsNullOrEmpty(acceptHeader))
             return false;
 
-        return acceptHeader.Contains("text/markdown", StringComparison.OrdinalIgnoreCase)
-            || acceptHeader.Contains("*/*", StringComparison.OrdinalIgnoreCase);
+        return acceptHeader.Contains("text/markdown", StringComparison.OrdinalIgnoreCase);
     }
 }

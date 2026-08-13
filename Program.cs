@@ -139,6 +139,18 @@ app.Use(async (context, next) =>
     await next();
 });
 
+// ── Link Headers (RFC 8288 / RFC 9727) ────────────────────────────────
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Request.Path == "/" && context.Response.StatusCode == StatusCodes.Status200OK)
+    {
+        var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+        context.Response.Headers.Link = $"</.well-known/api-catalog>; rel=\"api-catalog\", </openapi.json>; rel=\"describedby\"";
+    }
+});
+
 // ── Rate Limiting (API) ────────────────────────────────────────────────
 var rateLimitStore = new ConcurrentDictionary<string, RateLimitEntry>(StringComparer.OrdinalIgnoreCase);
 
