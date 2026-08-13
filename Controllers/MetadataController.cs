@@ -24,31 +24,31 @@ public class MetadataController : ControllerBase
 
         var catalog = new
         {
-            linkset = new object[]
+            linkset = new Dictionary<string, object>[]
             {
-                new
+                new Dictionary<string, object>
                 {
-                    anchor = $"{baseUrl}/api/blog",
-                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
-                    serviceDoc = new { href = $"{baseUrl}/blog", type = "text/html" },
+                    ["anchor"] = $"{baseUrl}/api/content/posts",
+                    ["service-desc"] = new[] { new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" } },
+                    ["service-doc"] = new[] { new { href = $"{baseUrl}/blog", type = "text/html" } },
                 },
-                new
+                new Dictionary<string, object>
                 {
-                    anchor = $"{baseUrl}/api/gists",
-                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
-                    serviceDoc = new { href = $"{baseUrl}/gist", type = "text/html" },
+                    ["anchor"] = $"{baseUrl}/api/content/gists",
+                    ["service-desc"] = new[] { new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" } },
+                    ["service-doc"] = new[] { new { href = $"{baseUrl}/gist", type = "text/html" } },
                 },
-                new
+                new Dictionary<string, object>
                 {
-                    anchor = $"{baseUrl}/api/projects",
-                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
-                    serviceDoc = new { href = $"{baseUrl}/project", type = "text/html" },
+                    ["anchor"] = $"{baseUrl}/api/content/projects",
+                    ["service-desc"] = new[] { new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" } },
+                    ["service-doc"] = new[] { new { href = $"{baseUrl}/project", type = "text/html" } },
                 },
-                new
+                new Dictionary<string, object>
                 {
-                    anchor = $"{baseUrl}/api/repos",
-                    serviceDesc = new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" },
-                    serviceDoc = new { href = $"{baseUrl}/repo", type = "text/html" },
+                    ["anchor"] = $"{baseUrl}/api/repos",
+                    ["service-desc"] = new[] { new { href = $"{baseUrl}/openapi.json", type = "application/openapi+json" } },
+                    ["service-doc"] = new[] { new { href = $"{baseUrl}/repo", type = "text/html" } },
                 },
             }
         };
@@ -59,7 +59,7 @@ public class MetadataController : ControllerBase
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         });
-        return Content(json, "application/linkset+json");
+        return Content(json, "application/linkset+json; profile=\"https://www.rfc-editor.org/info/rfc9727\"");
     }
 
     [HttpGet(".well-known/oauth-protected-resource")]
@@ -73,7 +73,8 @@ public class MetadataController : ControllerBase
             authorization_servers = new[] { $"{baseUrl}" },
             scopes_supported = new[] { "openid", "profile", "email" },
             bearer_methods_supported = new[] { "header", "query" },
-            authorization_servers_metadata_endpoint = $"{baseUrl}/.well-known/oauth-authorization-server",
+            resource_name = "Samet Can Cıncık Personal Website",
+            resource_documentation = $"{baseUrl}/auth.md",
         };
 
         Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
@@ -101,6 +102,22 @@ public class MetadataController : ControllerBase
             grant_types_supported = new[] { "authorization_code", "client_credentials" },
             token_endpoint_auth_methods_supported = new[] { "client_secret_basic", "client_secret_post" },
             service_documentation = $"{baseUrl}/auth.md",
+            agent_auth = new
+            {
+                skill = $"{baseUrl}/auth.md",
+                register_uri = $"{baseUrl}/agent/register",
+                registration_methods = new[]
+                {
+                    new
+                    {
+                        type = "oauth2_dynamic_client_registration",
+                        endpoint = $"{baseUrl}/agent/register",
+                        method = "POST",
+                        content_type = "application/json",
+                        authentication = "none",
+                    },
+                },
+            },
             revocation_endpoint = $"{baseUrl}/agent/revoke",
             events_supported = new[] { "urn:ietf:params:oauth:agent:registered", "urn:ietf:params:oauth:agent:revoked" },
         };
@@ -140,6 +157,35 @@ public class MetadataController : ControllerBase
 
         Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
         var json = JsonSerializer.Serialize(discovery, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
+    [HttpGet(".well-known/agent-skills/index.json")]
+    public ActionResult GetAgentSkillsIndex()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var index = new Dictionary<string, object>
+        {
+            ["$schema"] = "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+            ["skills"] = new[]
+            {
+                new
+                {
+                    name = "website-content",
+                    type = "skill-md",
+                    description = "Read and use the public blog posts, gists, projects, and repository content exposed by this website.",
+                    url = $"{baseUrl}/.well-known/agent-skills/website-content/SKILL.md",
+                    digest = "sha256:e0640ae2fc3783e4792ff3b7344c7d1ab5332cd9c098accd20531f055bd0cf95",
+                },
+            },
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(index, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
