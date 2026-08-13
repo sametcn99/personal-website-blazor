@@ -123,11 +123,11 @@ app.Use(async (context, next) =>
 {
     context.Response.Headers.ContentSecurityPolicy =
         "default-src 'self'; "
-        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        + "script-src 'self' 'unsafe-inline' cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; "
         + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com cdnjs.cloudflare.com; "
         + "img-src 'self' data: https:; "
         + "font-src 'self' https://fonts.gstatic.com data:; "
-        + "connect-src 'self' wss: ws: https://umami.sametcc.me https://cdn.jsdelivr.net; "
+        + "connect-src 'self' wss: ws: https://umami.sametcc.me https://cdn.jsdelivr.net https://cloudflareinsights.com; "
         + "frame-ancestors 'none'; "
         + "base-uri 'self'; "
         + "form-action 'self'";
