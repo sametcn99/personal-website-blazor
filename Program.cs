@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using personal_website_blazor.Interfaces;
+using personal_website_blazor.Middleware;
 using personal_website_blazor.Models;
 using personal_website_blazor.Services;
 
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();
 builder.Services.AddScoped<ISitemapService, SitemapService>();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddScoped<IMarkdownForAgentsService, MarkdownForAgentsService>();
 
 builder.Services.AddHttpClient(
     "GitHub", client =>
@@ -220,6 +222,9 @@ app.Use(async (context, next) =>
 
 // ── Antiforgery ────────────────────────────────────────────────────────
 app.UseAntiforgery();
+
+// ── Markdown for Agents ───────────────────────────────────────────────
+app.UseMiddleware<MarkdownForAgentsMiddleware>();
 
 // ── Umami Analytics Proxy ──────────────────────────────────────────────
 // Proxies the Umami tracking script through the same origin to avoid
