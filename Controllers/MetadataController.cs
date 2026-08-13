@@ -62,6 +62,91 @@ public class MetadataController : ControllerBase
         return Content(json, "application/linkset+json");
     }
 
+    [HttpGet(".well-known/oauth-protected-resource")]
+    public ActionResult GetOAuthProtectedResource()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var metadata = new
+        {
+            resource = baseUrl,
+            authorization_servers = new[] { $"{baseUrl}" },
+            scopes_supported = new[] { "openid", "profile", "email" },
+            bearer_methods_supported = new[] { "header", "query" },
+            authorization_servers_metadata_endpoint = $"{baseUrl}/.well-known/oauth-authorization-server",
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
+    [HttpGet(".well-known/oauth-authorization-server")]
+    public ActionResult GetOAuthAuthorizationServer()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var metadata = new
+        {
+            issuer = baseUrl,
+            authorization_endpoint = $"{baseUrl}/agent/auth",
+            token_endpoint = $"{baseUrl}/agent/token",
+            registration_endpoint = $"{baseUrl}/agent/register",
+            scopes_supported = new[] { "openid", "profile", "email" },
+            response_types_supported = new[] { "code" },
+            grant_types_supported = new[] { "authorization_code", "client_credentials" },
+            token_endpoint_auth_methods_supported = new[] { "client_secret_basic", "client_secret_post" },
+            service_documentation = $"{baseUrl}/auth.md",
+            revocation_endpoint = $"{baseUrl}/agent/revoke",
+            events_supported = new[] { "urn:ietf:params:oauth:agent:registered", "urn:ietf:params:oauth:agent:revoked" },
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(metadata, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
+    [HttpGet(".well-known/acp.json")]
+    public ActionResult GetAcpDiscovery()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var discovery = new
+        {
+            protocol = new
+            {
+                name = "acp",
+                version = "1.0.0",
+            },
+            api_base_url = $"{baseUrl}/api",
+            transports = new[] { "https" },
+            capabilities = new
+            {
+                services = new[]
+                {
+                    new { id = "content", name = "Content API", description = "Access blog posts, gists, and projects" },
+                    new { id = "repos", name = "Repositories API", description = "Access GitHub repositories" },
+                }
+            },
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(discovery, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
     [HttpGet("manifest.webmanifest")]
     public ActionResult GetManifest()
     {
