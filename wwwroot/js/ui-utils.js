@@ -98,8 +98,13 @@ window.sloppyBird =
 
         const loadGame = async () => {
           if (games.has(id)) return
-          const module = await import("/js/sloppy-bird.js?v=8")
-          games.set(id, module.mount(host))
+          try {
+            const module = await import("/js/sloppy-bird.js?v=9")
+            games.set(id, module.mount(host))
+          } catch (error) {
+            console.warn("Sloppy Bird could not be loaded.", error)
+            host.innerHTML = '<p class="sloppy-bird-placeholder">Sloppy Bird is unavailable right now.</p>'
+          }
         }
 
         if (!("IntersectionObserver" in window)) {
@@ -107,18 +112,23 @@ window.sloppyBird =
           return
         }
 
-        const observer = new IntersectionObserver(
-          async ([entry]) => {
-            if (!entry.isIntersecting) return
-            observer.disconnect()
-            observers.delete(id)
-            await loadGame()
-          },
-          { threshold: 0.1 },
-        )
+        try {
+          const observer = new IntersectionObserver(
+            async ([entry]) => {
+              if (!entry.isIntersecting) return
+              observer.disconnect()
+              observers.delete(id)
+              await loadGame()
+            },
+            { threshold: 0.1 },
+          )
 
-        observers.set(id, observer)
-        observer.observe(host)
+          observers.set(id, observer)
+          observer.observe(host)
+        } catch (error) {
+          console.warn("Sloppy Bird could not be observed.", error)
+          loadGame()
+        }
       },
       dispose,
     }

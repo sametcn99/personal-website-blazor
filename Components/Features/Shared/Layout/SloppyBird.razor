@@ -15,8 +15,15 @@
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("sloppyBird.observe", _gameId);
-            _isClientInitialized = true;
+            try
+            {
+                await JS.InvokeVoidAsync("sloppyBird.observe", _gameId);
+                _isClientInitialized = true;
+            }
+            catch (JSException)
+            {
+                // The optional footer game must never terminate the page circuit.
+            }
         }
     }
 
@@ -29,7 +36,7 @@
         {
             await JS.InvokeVoidAsync("sloppyBird.dispose", _gameId);
         }
-        catch (JSDisconnectedException)
+        catch (JSException)
         {
         }
     }
