@@ -39,7 +39,7 @@
         try
         {
             var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99", 100);
-            _repos = repos.OrderByDescending(r => r.UpdatedAt).ToList();
+            _repos = repos.OrderByDescending(GetActivityDate).ToList();
         }
         catch (Exception ex)
         {
@@ -63,6 +63,9 @@
     }
 
     public void Dispose() => _persistSubscription?.Dispose();
+
+    private static DateTimeOffset GetActivityDate(GitHubRepository repository) =>
+        repository.PushedAt ?? repository.UpdatedAt ?? DateTimeOffset.MinValue;
 
     private sealed class RepoListState
     {

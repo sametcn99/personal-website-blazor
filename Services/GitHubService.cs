@@ -58,6 +58,7 @@ public class GitHubService : IGitHubService
                 HtmlUrl = repo.HtmlUrl,
                 CreatedAt = repo.CreatedAt,
                 UpdatedAt = repo.UpdatedAt,
+                PushedAt = repo.PushedAt,
             })
             .ToList();
 

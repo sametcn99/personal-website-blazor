@@ -49,27 +49,45 @@
                     ? query.OrderBy(r => r.CreatedAt ?? DateTimeOffset.MinValue)
                     : query.OrderByDescending(r => r.CreatedAt ?? DateTimeOffset.MinValue),
                 _ => _sortOrder == "asc"
-                    ? query.OrderBy(r => r.UpdatedAt ?? DateTimeOffset.MinValue)
-                    : query.OrderByDescending(r => r.UpdatedAt ?? DateTimeOffset.MinValue),
+                    ? query.OrderBy(GetActivityDate)
+                    : query.OrderByDescending(GetActivityDate),
             };
 
             return sorted.ToList();
         }
     }
 
+    private static DateTimeOffset GetActivityDate(GitHubRepository repository) =>
+        repository.PushedAt ?? repository.UpdatedAt ?? DateTimeOffset.MinValue;
+
     private static string FormatDate(DateTimeOffset? date)
     {
         if (date is null) return string.Empty;
-        var days = (DateTimeOffset.UtcNow - date.Value).Days;
-        if (days < 0) days = 0;
-        return days switch
+        return date.Value.UtcDateTime.ToString("yyyy-MM-dd");
+    }
+
+    private static string FormatUpdatedDate(DateTimeOffset date)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var value = date.ToUniversalTime();
+
+        if (value.Date != now.Date)
         {
-            0 => "today",
-            1 => "yesterday",
-            < 30 => $"{days}d ago",
-            < 365 => $"{days / 30}mo ago",
-            _ => $"{days / 365}y ago",
-        };
+            return value.UtcDateTime.ToString("yyyy-MM-dd");
+        }
+
+        var elapsed = now - value;
+        if (elapsed.TotalMinutes < 1)
+        {
+            return "just now";
+        }
+
+        if (elapsed.TotalHours < 1)
+        {
+            return $"{Math.Floor(elapsed.TotalMinutes)}m ago";
+        }
+
+        return $"{Math.Floor(elapsed.TotalHours)}h ago";
     }
 }
 
@@ -185,9 +203,9 @@
                                     </div>
                                 </div>
                                 <div class="content-list-card-date">
-                                    @if (repo.UpdatedAt.HasValue)
+                                    @if (GetActivityDate(repo) != DateTimeOffset.MinValue)
                                     {
-                                        <span>Updated @FormatDate(repo.UpdatedAt)</span>
+                                        <span>Updated @FormatUpdatedDate(GetActivityDate(repo))</span>
                                     }
                                     @if (repo.CreatedAt.HasValue)
                                     {

@@ -10,4 +10,5 @@ public class GitHubRepository
     public string HtmlUrl { get; set; } = string.Empty;
     public DateTimeOffset? CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
+    public DateTimeOffset? PushedAt { get; set; }
 }

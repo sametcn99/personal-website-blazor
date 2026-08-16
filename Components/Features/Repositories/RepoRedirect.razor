@@ -1,7 +1,5 @@
 @page "/repo/{Slug}"
-@using System.Text.Json.Serialization
-@inject IHttpClientFactory HttpClientFactory
-@inject NavigationManager Navigation
+@inject IGitHubService GitHubService
 @inject PersistentComponentState ApplicationState
 @implements IDisposable
 
@@ -75,31 +73,21 @@ else
 
         try
         {
-            var client = HttpClientFactory.CreateClient();
-            var requestUri = new Uri(new Uri(Navigation.BaseUri), $"api/repos/{Uri.EscapeDataString(Slug)}");
-            var repo = await client.GetFromJsonAsync<RepoData>(requestUri);
+            var repos = await GitHubService.GetUserRepositoriesAsync("sametcn99");
+            var repo = repos.FirstOrDefault(repository =>
+                string.Equals(repository.Name, Slug, StringComparison.OrdinalIgnoreCase));
             if (repo != null)
             {
                 _repoUrl = repo.HtmlUrl;
-                _repoName = repo.FullName;
+                _repoName = repo.Name;
                 _loadedSlug = Slug;
                 return;
             }
         }
-        catch (HttpRequestException) { }
-        catch (NotSupportedException) { }
+        catch { }
 
         _notFound = true;
         _loadedSlug = Slug;
-    }
-
-    private class RepoData
-    {
-        [JsonPropertyName("html_url")]
-        public string HtmlUrl { get; set; } = string.Empty;
-
-        [JsonPropertyName("full_name")]
-        public string FullName { get; set; } = string.Empty;
     }
 
     private string GetStateKey() => $"{nameof(RepoRedirect)}:{Slug}";

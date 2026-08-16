@@ -64,3 +64,4 @@ nunit-*.xml
 .vs/
 personal-website-blazor.csproj.user
 .codex-build
+.codex-verify
