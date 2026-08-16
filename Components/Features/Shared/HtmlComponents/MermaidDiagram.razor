@@ -4,7 +4,7 @@
 <div class="mermaid-wrapper">
     <div class="mermaid-toolbar">
         <span class="mermaid-toolbar-title">@(ShowCode ? "Code" : "Mermaid Diagram")</span>
-        <div class="row" style="gap: 0;">
+        <div class="mermaid-toolbar-actions">
             <button type="button" class="icon-button" @onclick="ToggleCode" title="@(ShowCode ? "Show diagram" : "Show code")" data-umami-event="mermaid-toggle-code-click">
                 <AppIcon Name="code" />
             </button>

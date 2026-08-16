@@ -34,6 +34,12 @@
   font-size: 0.82rem;
 }
 
+.mermaid-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .mermaid-content {
   min-height: 200px;
 }

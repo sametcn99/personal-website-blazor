@@ -960,6 +960,115 @@ pre {
   overflow: hidden;
 }
 
+/* A quiet, fixed reading rail: labels only surface on intent, never over the article. */
+.toc-rail {
+  display: none;
+}
+
+@media (min-width: 1366px) {
+  .toc-rail {
+    position: fixed;
+    z-index: 10;
+    top: 50%;
+    right: 2rem;
+    display: flex;
+    width: 1.3rem;
+    max-height: min(62vh, 36rem);
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.12rem;
+    padding: 0.3rem 0;
+    transform: translateY(-50%);
+  }
+
+  .toc-rail-item {
+    --toc-proximity: 0;
+    --toc-scale: 0.48;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 0.44rem;
+    padding: 0.1rem 0;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    outline: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .toc-rail-line {
+    width: 1.18rem;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--color-text-secondary);
+    opacity: 1;
+    transform: scaleX(var(--toc-scale));
+    transform-origin: right center;
+    transition: transform 170ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, box-shadow 180ms ease;
+  }
+
+  .toc-rail-item.is-active .toc-rail-line {
+    background: var(--color-primary-strong);
+    opacity: 1;
+    box-shadow: 0 2px 9px rgba(76, 141, 255, 0.28);
+    transform: scaleX(1);
+  }
+
+  .toc-rail-item:hover .toc-rail-line,
+  .toc-rail-item:focus-visible .toc-rail-line {
+    background: var(--color-primary-strong);
+    opacity: 1;
+    transform: scaleX(1);
+    box-shadow: 0 2px 9px rgba(76, 141, 255, 0.28);
+  }
+
+  .toc-rail-label {
+    position: absolute;
+    right: calc(100% + 0.7rem);
+    top: -0.3rem;
+    width: 12.5rem;
+    max-width: 12.5rem;
+    padding: 0.38rem 0.58rem;
+    border: 1px solid rgba(76, 141, 255, 0.2);
+    border-radius: var(--radius-sm);
+    background: rgba(19, 21, 25, 0.96);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+    color: var(--color-text-primary);
+    font-size: 0.76rem;
+    font-weight: 500;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(0.35rem, 0, 0) scale(0.98);
+    transform-origin: right center;
+    transition: opacity 140ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1), border-color 140ms ease;
+  }
+
+  .toc-rail-item:hover .toc-rail-label,
+  .toc-rail-item:focus-visible .toc-rail-label {
+    border-color: rgba(76, 141, 255, 0.42);
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .toc-rail-item:focus-visible {
+    border-radius: 999px;
+    outline: 2px solid rgba(76, 141, 255, 0.65);
+    outline-offset: 3px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-rail-line,
+  .toc-rail-label {
+    transition-duration: 1ms !important;
+  }
+}
+
 .toc-summary {
   display: flex;
   align-items: center;

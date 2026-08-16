@@ -3,6 +3,19 @@
 
 @if (Items is { Length: > 0 })
 {
+    <nav class="toc-rail" aria-label="On this page">
+        @foreach (var item in Items)
+        {
+            <a class="toc-rail-item toc-rail-level-@item.Level"
+               href="#@item.Id"
+               data-toc-target="@item.Id"
+               aria-label="@item.Text">
+                <span class="toc-rail-line" aria-hidden="true"></span>
+                <span class="toc-rail-label">@item.Text</span>
+            </a>
+        }
+    </nav>
+
     <details class="toc">
         <summary class="toc-summary">Table of Contents</summary>
         <nav class="toc-nav">

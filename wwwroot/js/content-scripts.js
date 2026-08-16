@@ -189,6 +189,100 @@ window.__contentInitState = window.__contentInitState || {
   lastRunAt: 0,
 };
 
+window.__tocRailCleanup?.();
+window.__tocRailCleanup = null;
+
+function initTocRail() {
+  const rail = document.querySelector(".toc-rail");
+  const items = Array.from(rail?.querySelectorAll(".toc-rail-item") ?? []);
+
+  if (!rail || items.length === 0) return;
+
+  const headings = items
+    .map((item) => ({ item, heading: document.getElementById(item.dataset.tocTarget) }))
+    .filter(({ heading }) => heading);
+
+  let activeItem = null;
+  const setActive = (item) => {
+    if (activeItem === item) return;
+    activeItem?.classList.remove("is-active");
+    activeItem = item;
+    activeItem?.classList.add("is-active");
+  };
+
+  const updateActiveHeading = () => {
+    const marker = Math.min(window.innerHeight * 0.33, 260);
+    let current = headings[0]?.item ?? null;
+
+    for (const { item, heading } of headings) {
+      if (heading.getBoundingClientRect().top <= marker) current = item;
+      else break;
+    }
+
+    setActive(current);
+  };
+
+  let frame = 0;
+  const onScroll = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      updateActiveHeading();
+    });
+  };
+
+  const onPointerMove = (event) => {
+    for (const item of items) {
+      const rect = item.getBoundingClientRect();
+      const distance = Math.abs(event.clientY - (rect.top + rect.height / 2));
+      const proximity = Math.max(0, 1 - distance / 80);
+      item.style.setProperty("--toc-proximity", proximity.toFixed(3));
+      item.style.setProperty("--toc-scale", (0.48 + proximity * 0.52).toFixed(3));
+    }
+  };
+
+  const resetProximity = () => {
+    items.forEach((item) => {
+      item.style.removeProperty("--toc-proximity");
+      item.style.removeProperty("--toc-scale");
+    });
+  };
+
+  const onClick = (event) => {
+    const item = event.target.closest(".toc-rail-item");
+    if (!item) return;
+
+    event.preventDefault();
+    const id = item.dataset.tocTarget;
+    const heading = document.getElementById(id);
+    if (!heading) return;
+
+    heading.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.pushState(null, "", `${window.location.pathname}${window.location.search}#${encodeURIComponent(id)}`);
+    setActive(item);
+  };
+
+  const preventLinkDrag = (event) => event.preventDefault();
+
+  rail.addEventListener("pointermove", onPointerMove);
+  rail.addEventListener("pointerleave", resetProximity);
+  rail.addEventListener("dragstart", preventLinkDrag);
+  rail.addEventListener("click", onClick);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", updateActiveHeading, { passive: true });
+  updateActiveHeading();
+
+  window.__tocRailCleanup = () => {
+    if (frame) cancelAnimationFrame(frame);
+    rail.removeEventListener("pointermove", onPointerMove);
+    rail.removeEventListener("pointerleave", resetProximity);
+    rail.removeEventListener("dragstart", preventLinkDrag);
+    rail.removeEventListener("click", onClick);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", updateActiveHeading);
+  };
+}
+
 window.initContent = () => {
   const currentPath = `${window.location.pathname}${window.location.search}`;
   const now = Date.now();
@@ -206,6 +300,9 @@ window.initContent = () => {
 
   console.log("Initializing content...");
   decorateCodeBlocks();
+  window.__tocRailCleanup?.();
+  window.__tocRailCleanup = null;
+  initTocRail();
 };
 
 window.highlightCode = (elementId) => {
