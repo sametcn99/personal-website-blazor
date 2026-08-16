@@ -1,3 +1,5 @@
+const sloppyBirdModuleUrl = document.currentScript?.dataset.sloppyBirdSrc || "/js/sloppy-bird.js"
+
 window.focusElementById = (elementId) => {
   const element = document.getElementById(elementId)
   if (element) {
@@ -99,7 +101,7 @@ window.sloppyBird =
         const loadGame = async () => {
           if (games.has(id)) return
           try {
-            const module = await import("/js/sloppy-bird.js?v=9")
+            const module = await import(sloppyBirdModuleUrl)
             games.set(id, module.mount(host))
           } catch (error) {
             console.warn("Sloppy Bird could not be loaded.", error)

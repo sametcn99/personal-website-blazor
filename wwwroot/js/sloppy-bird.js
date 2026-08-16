@@ -40,6 +40,17 @@ export function mount(host) {
     </div>`
 
   const canvas = host.querySelector("canvas")
+  Object.assign(host.style, {
+    position: "relative",
+    width: "100%",
+    height: "clamp(19rem, 34vw, 24rem)",
+    overflow: "hidden",
+  })
+  Object.assign(canvas.style, {
+    display: "block",
+    width: "100%",
+    height: "100%",
+  })
   const context = canvas.getContext("2d", { alpha: false })
   const scoreValue = host.querySelector(".sloppy-bird-hud strong")
   const overlay = host.querySelector(".sloppy-bird-overlay")
@@ -47,6 +58,7 @@ export function mount(host) {
   const groundHeight = 34
   let width = 0
   let height = 0
+  let pixelRatio = 0
   let frame = 0
   let previousTime = 0
   let score = 0
@@ -96,12 +108,17 @@ export function mount(host) {
   const resize = () => {
     const rect = host.getBoundingClientRect()
     const pixelArea = rect.width * rect.height
-    const ratio = Math.min(window.devicePixelRatio || 1, pixelArea > 700000 ? 1 : 1.5)
-    width = Math.max(1, Math.round(rect.width))
-    height = Math.max(1, Math.round(rect.height))
-    canvas.width = Math.round(width * ratio)
-    canvas.height = Math.round(height * ratio)
-    context.setTransform(ratio, 0, 0, ratio, 0, 0)
+    const nextRatio = Math.min(window.devicePixelRatio || 1, pixelArea > 700000 ? 1 : 1.5)
+    const nextWidth = Math.max(1, Math.round(rect.width))
+    const nextHeight = Math.max(1, Math.round(rect.height))
+    if (width === nextWidth && height === nextHeight && pixelRatio === nextRatio) return
+
+    width = nextWidth
+    height = nextHeight
+    pixelRatio = nextRatio
+    canvas.width = Math.round(width * pixelRatio)
+    canvas.height = Math.round(height * pixelRatio)
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
     skyGradient = context.createLinearGradient(0, 0, 0, height)
     skyGradient.addColorStop(0, palette.skyTop)
     skyGradient.addColorStop(0.66, palette.skyBottom)

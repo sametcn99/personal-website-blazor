@@ -24,6 +24,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["css/core.css"]" />
+    <link rel="stylesheet" href="@Assets["css/components.css"]" />
+    <link rel="stylesheet" href="@Assets["css/home.css"]" />
+    <link rel="stylesheet" href="@Assets["css/content.css"]" />
     <link rel="stylesheet" href="@Assets["personal-website-blazor.styles.css"]" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -55,9 +59,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     
-    <script src="/js/content-scripts.js"></script>
-    <script src="/js/home-search-hotkey.js"></script>
-    <script src="/js/ui-utils.js"></script>
+    <script src="@Assets["js/content-scripts.js"]"></script>
+    <script src="@Assets["js/home-search-hotkey.js"]"></script>
+    <script src="@Assets["js/ui-utils.js"]"
+            data-sloppy-bird-src="@Assets["js/sloppy-bird.js"]"></script>
     
     <main id="main-content">
         <Routes />
