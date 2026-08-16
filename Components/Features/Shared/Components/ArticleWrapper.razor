@@ -1,50 +1,51 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
-@inject IJSRuntime JS
 @using personal_website_blazor.Models
 
-<div class="page-container page-section">
+<div class="page-container article-shell">
     <BackToHome />
 
     @if (Post != null)
     {
-        <div class="flow-sm">
-            <div class="meta-list text-muted text-caption">
-                @if (Post.PublishDate.HasValue)
-                {
-                    <span>
-                        @PublishedLabel: @FormatDate(Post.PublishDate)
-                    </span>
-                }
-                @if (HasDistinctUpdatedDate(Post))
-                {
-                    <span>
-                        @UpdatedLabel: @FormatDate(Post.UpdatedAt)
-                    </span>
-                }
-                @if (!string.IsNullOrEmpty(Post.Language))
-                {
-                    <span>
-                        @Post.Language.ToUpperInvariant()
-                    </span>
-                }
-            </div>
-
-            @if (Post.Tags.Length > 0)
-            {
-                <div class="tag-list text-caption text-muted">
-                    @foreach (var tag in Post.Tags)
+        <header class="article-record-header">
+            <div class="flow-sm">
+                <div class="meta-list text-muted text-caption">
+                    @if (Post.PublishDate.HasValue)
                     {
-                        <span>#@tag</span>
+                        <span>
+                            @PublishedLabel: @FormatDate(Post.PublishDate)
+                        </span>
+                    }
+                    @if (HasDistinctUpdatedDate(Post))
+                    {
+                        <span>
+                            @UpdatedLabel: @FormatDate(Post.UpdatedAt)
+                        </span>
+                    }
+                    @if (!string.IsNullOrEmpty(Post.Language))
+                    {
+                        <span>
+                            @Post.Language.ToUpperInvariant()
+                        </span>
                     }
                 </div>
-            }
-        </div>
+
+                @if (Post.Tags.Length > 0)
+                {
+                    <div class="tag-list text-caption text-muted">
+                        @foreach (var tag in Post.Tags)
+                        {
+                            <span>#@tag</span>
+                        }
+                    </div>
+                }
+            </div>
+        </header>
 
         <div class="divider article-divider"></div>
 
         <TableOfContents Items="Post.TocItems" />
 
-        <article>
+        <article class="article-document">
             @ChildContent
         </article>
 

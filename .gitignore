@@ -63,3 +63,4 @@ nunit-*.xml
 .omo/
 .vs/
 personal-website-blazor.csproj.user
+.codex-build

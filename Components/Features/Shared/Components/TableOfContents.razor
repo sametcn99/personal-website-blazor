@@ -1,13 +1,12 @@
 @using personal_website_blazor.Models
-@inject IJSRuntime JsRuntime
-
+@inject NavigationManager Navigation
 @if (Items is { Length: > 0 })
 {
     <nav class="toc-rail" aria-label="On this page">
         @foreach (var item in Items)
         {
             <a class="toc-rail-item toc-rail-level-@item.Level"
-               href="#@item.Id"
+               href="@GetHref(item.Id)"
                data-toc-target="@item.Id"
                aria-label="@item.Text">
                 <span class="toc-rail-line" aria-hidden="true"></span>
@@ -23,10 +22,9 @@
             {
                 var indent = item.Level - 2;
                 <a class="toc-link toc-level-@item.Level"
-                   href="#@item.Id"
-                   style="padding-left: @(0.5 + indent * 0.75)rem;"
-                   @onclick="() => ScrollToId(item.Id)"
-                   @onclick:preventDefault>
+                   href="@GetHref(item.Id)"
+                   data-toc-target="@item.Id"
+                   style="padding-left: @(0.5 + indent * 0.75)rem;">
                     @item.Text
                 </a>
             }
@@ -37,14 +35,9 @@
 @code {
     [Parameter] public TocItem[] Items { get; set; } = Array.Empty<TocItem>();
 
-    private async Task ScrollToId(string id)
+    private string GetHref(string id)
     {
-        try
-        {
-            await JsRuntime.InvokeVoidAsync("scrollToElementId", id);
-        }
-        catch
-        {
-        }
+        var current = new Uri(Navigation.Uri);
+        return $"{current.AbsolutePath}{current.Query}#{Uri.EscapeDataString(id)}";
     }
 }

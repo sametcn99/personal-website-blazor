@@ -1,63 +1,99 @@
 @inject ISocialLinkProvider SocialLinks
 
-<div class="input-shell" style="margin-bottom: 0.5rem;">
-    <AppIcon Name="search" />
-    <input class="input-native"
-           @bind="_search"
-           @bind:event="oninput"
-           placeholder="Search links..."
-           data-umami-event="links-search-input-click" />
-</div>
-
-<div class="pill-row">
-    <button type="button" class="pill @GetPillClass(_selectedCategory == null)"
-            @onclick="() => _selectedCategory = null"
-            data-umami-event="links-category-all-click">All</button>
-    @foreach (var cat in _categories)
-    {
-        var c = cat;
-        <button type="button" class="pill @GetPillClass(_selectedCategory == c)"
-                @onclick="() => _selectedCategory = c"
-                data-umami-event='@UmamiEvent.Click("links-category", c)'
-                data-umami-event-category="@c">@c</button>
-    }
-</div>
-
-<div class="pill-row">
-    <button type="button" class="pill @GetPillClass(_sort == "category")" @onclick='() => _sort = "category"' data-umami-event="links-sort-category-click">Category</button>
-    <button type="button" class="pill @GetPillClass(_sort == "asc")" @onclick='() => _sort = "asc"' data-umami-event="links-sort-az-click">A → Z</button>
-    <button type="button" class="pill @GetPillClass(_sort == "desc")" @onclick='() => _sort = "desc"' data-umami-event="links-sort-za-click">Z → A</button>
-</div>
-
-@if (!string.IsNullOrWhiteSpace(_search) || _selectedCategory != null)
-{
-    <p class="text-caption text-muted result-row">
-        @FilteredLinks.Count() result@(FilteredLinks.Count() != 1 ? "s" : "") found
-    </p>
+@{
+    var visibleLinks = FilteredLinks.ToList();
 }
 
-<div class="flow-sm">
-    @foreach (var link in FilteredLinks)
-    {
-        var slug = link.Type[0];
-        var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
-        <a class="link-plain" href="@($"/link/{slug}")" data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
-            <div class="hover-card flow-sm" style="margin-bottom: 0.75rem;">
-                <div class="row wrap">
-                    <p class="text-heading">@link.Label</p>
-                    @if (link.External)
+<div class="page-container content-list-page">
+    <div class="content-index-layout">
+        <aside class="content-index-sidebar">
+            <BackToHome />
+
+            <header class="content-index-header">
+                <h1>Links</h1>
+                <p>Short routes to my profiles, platforms, and other resources.</p>
+                <div class="content-index-tally" aria-label="@($"{SocialLinks.Links.Count} entries")">
+                    <strong>@SocialLinks.Links.Count.ToString("00")</strong>
+                    <span>records</span>
+                </div>
+            </header>
+
+            <div class="content-list-controls">
+                <div class="input-shell">
+                    <AppIcon Name="search" />
+                    <input class="input-native"
+                           @bind="_search"
+                           @bind:event="oninput"
+                           placeholder="Search links..."
+                           data-umami-event="links-search-input-click" />
+                </div>
+                <div class="content-index-selects">
+                    <select class="select-native" @bind="_selectedCategory" data-umami-event="links-category-select">
+                        <option value="">All categories</option>
+                        @foreach (var category in _categories)
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                    <select class="select-native" @bind="_sort" data-umami-event="links-sort-select">
+                        <option value="category">Category</option>
+                        <option value="asc">A → Z</option>
+                        <option value="desc">Z → A</option>
+                    </select>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrWhiteSpace(_selectedCategory))
+            {
+                <p class="text-caption text-muted content-list-result-row">
+                    @visibleLinks.Count result@(visibleLinks.Count != 1 ? "s" : "") found
+                </p>
+            }
+        </aside>
+
+        <main class="content-index-main">
+            @if (visibleLinks.Count == 0)
+            {
+                <div class="content-index-empty">
+                    <p>No links found@(!string.IsNullOrWhiteSpace(_search) ? $" for \"{_search}\"" : "").</p>
+                </div>
+            }
+            else
+            {
+                <div class="content-index-list">
+                    @for (var index = 0; index < visibleLinks.Count; index++)
                     {
-                        <span class="badge"><AppIcon Name="external-link" />External</span>
+                        var link = visibleLinks[index];
+                        var slug = link.Type[0];
+                        var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
+                        <a class="content-list-card-link" href="@($"/link/{slug}")" data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
+                            <article class="content-list-card">
+                                <div class="content-list-card-main">
+                                    <div class="content-list-title-row">
+                                        <span class="content-list-number">@((index + 1).ToString("00"))</span>
+                                        <h2>@link.Label</h2>
+                                    </div>
+                                    <p class="content-list-summary">/link/@slug</p>
+                                    <div class="content-list-tags" aria-label="Link details">
+                                        <span class="content-type-label">@link.Category</span>
+                                        @if (link.External)
+                                        {
+                                            <span>External</span>
+                                        }
+                                        @if (aliases is not null)
+                                        {
+                                            <span>Aliases: @aliases</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="content-list-card-date">@link.Category</div>
+                            </article>
+                        </a>
                     }
                 </div>
-                <p class="text-body text-muted">/link/@slug</p>
-                @if (aliases != null)
-                {
-                    <p class="text-caption text-muted">aliases: @aliases</p>
-                }
-            </div>
-        </a>
-    }
+            }
+        </main>
+    </div>
 </div>
 
 @code {
@@ -91,7 +127,7 @@
                     || l.Type.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)));
             }
 
-            if (_selectedCategory != null)
+            if (!string.IsNullOrWhiteSpace(_selectedCategory))
             {
                 links = links.Where(l => l.Category == _selectedCategory);
             }
@@ -108,7 +144,4 @@
             return links.ToList();
         }
     }
-
-    private static string GetPillClass(bool isActive) => isActive ? "pill-active" : string.Empty;
-
 }

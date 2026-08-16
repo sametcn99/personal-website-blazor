@@ -1,36 +1,36 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
 
-<div class="page-shell">
+<div class="page-shell @(ShouldHideChrome() ? "redirect-shell" : null)">
+    @if (!ShouldHideChrome())
+    {
+        <SiteHeader />
+    }
     <div class="page-content">
-        <div class="content-body">
-            <div class="page-container">
-                @Body
-            </div>
-        </div>
+        <div class="content-body">@Body</div>
 
-        @if (!ShouldHideFooter())
+        @if (!ShouldHideChrome() && !ShouldHideFooter())
         {
-            <footer class="footer-area">
-                <div class="page-container footer-container">
-                    <div class="divider"></div>
-                    <nav class="footer-links" aria-label="Footer">
-                        <a class="link-muted footer-link" href="/privacy-policy" data-umami-event="footer-privacy-click">Privacy Policy</a>
-                        <a class="link-muted footer-link" href="/rss" data-umami-event="footer-rss-click">RSS</a>
-                        <a class="link-muted footer-link" href="/readme" data-umami-event="footer-readme-click">README</a>
-                        <a class="link-muted footer-link" href="/link" data-umami-event="footer-all-links-click">Connect With Me</a>
-                    </nav>
-                </div>
-            </footer>
+            <SiteFooter />
         }
     </div>
 </div>
 
+@if (!ShouldHideChrome())
+{
+    <HomeSearchSection />
+}
+
 @code {
+    private string CurrentPath => Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/').ToLowerInvariant();
+
+    private bool ShouldHideChrome() =>
+        CurrentPath.StartsWith("link/", StringComparison.Ordinal) ||
+        CurrentPath.StartsWith("repo/", StringComparison.Ordinal);
+
     private bool ShouldHideFooter()
     {
-        var uri = Navigation.ToBaseRelativePath(Navigation.Uri).ToLowerInvariant();
-        return uri.StartsWith("link") || uri.StartsWith("repo") || uri.StartsWith("privacy");
+        return CurrentPath.StartsWith("privacy", StringComparison.Ordinal);
     }
 }
 

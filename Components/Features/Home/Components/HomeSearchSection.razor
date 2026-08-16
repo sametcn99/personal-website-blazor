@@ -3,12 +3,21 @@
 @inject IGitHubService GitHubService
 @inject ISocialLinkProvider SocialLinks
 @inject IJSRuntime JS
-@inject NavigationManager Navigation
 @inject ILogger<HomeSearchSection> Logger
 
-<section class="flow mb-section home-section">
-    <h2 class="text-section-title">Search</h2>
-    <div class="flow home-search-panel">
+<dialog id="archive-search-dialog" class="search-dialog" aria-labelledby="home-search-title">
+    <div class="search-dialog-panel">
+        <div class="search-dialog-header">
+            <div>
+                <h2 id="home-search-title">Search the archive</h2>
+                <p>Posts, gists, projects, repositories, and links in one index.</p>
+            </div>
+            <button type="button" class="icon-button" @onclick="CloseSearchAsync" aria-label="Close search dialog">
+                <AppIcon Name="close" />
+            </button>
+        </div>
+
+        <div class="home-search-panel">
         <div class="input-shell search-input-shell">
             <AppIcon Name="search" />
             <input id="home-search-input"
@@ -22,7 +31,7 @@
 
         @if (_isSearching)
         {
-            <div class="row text-muted" style="margin-top: 0.5rem;">
+            <div class="search-status text-muted">
                 <div class="spinner"></div>
                 <span class="text-caption">Searching...</span>
             </div>
@@ -32,19 +41,19 @@
         {
             @if (_filteredResults.Count > 0)
             {
-                <div class="posts-stack">
+                <div class="search-result-list">
                     @foreach (var item in _filteredResults)
                     {
-                        <a class="link-plain post-card-link"
+                        <a class="search-result-entry"
                            href="@item.Href"
                            target="@(item.External ? "_blank" : null)"
                            rel="@(item.External ? "noreferrer noopener" : null)"
                            data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                            <article class="hover-card post-card flow-sm" style="margin-bottom: 0.75rem;">
+                            <article>
                                 <p class="text-heading">@item.Title</p>
                                 @if (!string.IsNullOrWhiteSpace(item.MatchSnippet))
                                 {
-                                    <p class="text-caption text-muted" style="opacity: 0.85; line-height: 1.4;"><i>@item.MatchSnippet</i></p>
+                                    <p class="text-caption text-muted search-match"><i>@item.MatchSnippet</i></p>
                                 }
                                 else if (!string.IsNullOrWhiteSpace(item.Summary))
                                 {
@@ -63,16 +72,13 @@
                 <p class="text-body text-muted search-empty-state">No results found.</p>
             }
         }
+        </div>
     </div>
-</section>
+</dialog>
 
 @code {
     private const int MaxSearchResults = 10;
     private const int DebounceMs = 250;
-
-    [Parameter] public List<ContentMetadata> BlogPosts { get; set; } = new();
-    [Parameter] public List<ContentMetadata> GistPosts { get; set; } = new();
-    [Parameter] public List<ContentMetadata> ProjectPosts { get; set; } = new();
 
     private bool _isSearching;
     private bool _repoFetchStarted;
@@ -84,42 +90,6 @@
     private readonly List<SearchEntry> _cachedRepos = new();
     private List<SearchEntry> _filteredResults = new();
     private DotNetObjectReference<HomeSearchSection>? _dotNetRef;
-    private string _contentHash = string.Empty;
-
-    protected override void OnParametersSet()
-    {
-        var nextHash = $"{BlogPosts.Count}:{GistPosts.Count}:{ProjectPosts.Count}";
-        if (string.Equals(_contentHash, nextHash, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _contentHash = nextHash;
-        _localSearchSource.Clear();
-        _searchIndexByHref.Clear();
-
-        BuildLocalSearchSource(BlogPosts, "Blog");
-        BuildLocalSearchSource(GistPosts, "Gist");
-        BuildLocalSearchSource(ProjectPosts, "Project");
-
-        foreach (var link in SocialLinks.Links)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = link.Label,
-                Summary = link.Category,
-                Href = link.Link,
-                TypeLabel = "Link",
-                External = link.External,
-            });
-        }
-
-        if (!string.IsNullOrWhiteSpace(_searchQuery))
-        {
-            _ = PerformSearchAsync();
-        }
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (_hotkeyRegistered)
@@ -150,6 +120,7 @@
         if (key == "Escape")
         {
             await ClearSearchAsync();
+            await CloseSearchAsync();
             return;
         }
 
@@ -162,6 +133,7 @@
 
             _searchQuery = _searchQuery[..^1];
             DebounceSearch();
+            await OpenSearchAsync();
             await FocusSearchInputAsync();
             await InvokeAsync(StateHasChanged);
             return;
@@ -170,6 +142,8 @@
         if (key.Length == 1)
         {
             _searchQuery += key;
+
+            await OpenSearchAsync();
 
             if (!_repoFetchStarted && _searchQuery.Length > 0)
             {
@@ -303,6 +277,28 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task OpenSearchAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("openArchiveSearch");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    private async Task CloseSearchAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("closeArchiveSearch");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
     private async Task FocusSearchInputAsync()
     {
         if (!_hotkeyRegistered)
@@ -316,22 +312,6 @@
         }
         catch (JSDisconnectedException)
         {
-        }
-    }
-
-    private void BuildLocalSearchSource(List<ContentMetadata> items, string typeLabel)
-    {
-        foreach (var item in items)
-        {
-            AddSearchEntry(new SearchEntry
-            {
-                Title = item.Title,
-                Summary = item.Summary,
-                Href = item.Href,
-                TypeLabel = typeLabel,
-                PublishedAt = item.PublishedAt,
-                UpdatedAt = item.UpdatedAt,
-            });
         }
     }
 

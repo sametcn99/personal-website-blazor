@@ -1,0 +1,223 @@
+@page "/content"
+@inject IContentService ContentService
+@inject PersistentComponentState ApplicationState
+@implements IDisposable
+
+<PageTitle>All Content | Samet Can Cıncık</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Browse all writing, technical gists, and documented software projects by Samet Can Cincik." />
+</HeadContent>
+
+@{
+    var visibleEntries = FilteredEntries;
+}
+
+<div class="page-container content-list-page">
+    <div class="content-index-layout">
+        <aside class="content-index-sidebar">
+            <BackToHome />
+
+            <header class="content-index-header">
+                <h1>All content</h1>
+                <p>Writing, field notes, and built work in one searchable archive.</p>
+                <div class="content-index-tally" aria-label="@($"{_entries.Count} entries")">
+                    <strong>@_entries.Count.ToString("00")</strong>
+                    <span>records</span>
+                </div>
+            </header>
+
+            <div class="content-list-controls">
+                <div class="input-shell">
+                    <AppIcon Name="search" />
+                    <input class="input-native"
+                           @bind="_searchQuery"
+                           @bind:event="oninput"
+                           placeholder="Search all content..."
+                           data-umami-event="all-content-search-click" />
+                </div>
+
+                <select class="select-native" @bind="_typeFilter" data-umami-event="all-content-type-filter-click">
+                    <option value="all">All types</option>
+                    <option value="writing">Writing</option>
+                    <option value="gist">Gists</option>
+                    <option value="project">Projects</option>
+                </select>
+
+                <div class="content-index-selects">
+                    <select class="select-native" @bind="_sortBy" data-umami-event="all-content-sort-by-click">
+                        <option value="date">Date</option>
+                        <option value="title">Title</option>
+                    </select>
+                    <select class="select-native" @bind="_sortOrder" data-umami-event="all-content-sort-order-click">
+                        <option value="desc">@(_sortBy == "date" ? "Newest" : "Z → A")</option>
+                        <option value="asc">@(_sortBy == "date" ? "Oldest" : "A → Z")</option>
+                    </select>
+                </div>
+            </div>
+
+            @if ((!string.IsNullOrWhiteSpace(_searchQuery) || _typeFilter != "all") && !_isLoading)
+            {
+                <p class="text-caption text-muted content-list-result-row">
+                    @visibleEntries.Count result@(visibleEntries.Count != 1 ? "s" : "") found
+                </p>
+            }
+        </aside>
+
+        <main class="content-index-main">
+            @if (_isLoading)
+            {
+                <div class="content-index-loading">
+                    @for (var index = 0; index < 5; index++)
+                    {
+                        <div class="skeleton"></div>
+                    }
+                </div>
+            }
+            else if (visibleEntries.Count == 0)
+            {
+                <div class="content-index-empty">
+                    <p>No content matched the current filters.</p>
+                </div>
+            }
+            else
+            {
+                <div class="content-index-list">
+                    @for (var index = 0; index < visibleEntries.Count; index++)
+                    {
+                        var entry = visibleEntries[index];
+                        <a class="content-list-card-link" href="@entry.Href"
+                           data-umami-event='@UmamiEvent.ClickValue(entry.Post.Title, "all-content")'>
+                            <article class="content-list-card">
+                                <div class="content-list-card-main">
+                                    <div class="content-list-title-row">
+                                        <span class="content-list-number">@((index + 1).ToString("00"))</span>
+                                        <h2>@entry.Post.Title</h2>
+                                    </div>
+                                    <p class="content-list-summary">@entry.Post.Description</p>
+                                    <div class="content-list-tags" aria-label="Content type and tags">
+                                        <span class="content-type-label">#@entry.Label</span>
+                                        @foreach (var tag in entry.Post.Tags.Take(2))
+                                        {
+                                            <span>#@tag</span>
+                                        }
+                                    </div>
+                                </div>
+                                <time class="content-list-card-date">@GetDateLabel(entry.Post)</time>
+                            </article>
+                        </a>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+@code {
+    private List<ContentEntry> _entries = [];
+    private string _searchQuery = string.Empty;
+    private string _typeFilter = "all";
+    private string _sortBy = "date";
+    private string _sortOrder = "desc";
+    private bool _isLoading = true;
+    private PersistingComponentStateSubscription? _persistSubscription;
+
+    private List<ContentEntry> FilteredEntries
+    {
+        get
+        {
+            IEnumerable<ContentEntry> entries = _entries;
+
+            if (_typeFilter != "all")
+            {
+                entries = entries.Where(entry => entry.Type == _typeFilter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_searchQuery))
+            {
+                var query = _searchQuery.Trim();
+                entries = entries.Where(entry =>
+                    entry.Post.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    entry.Post.Description.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    entry.Post.Tags.Any(tag => tag.Contains(query, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            entries = _sortBy switch
+            {
+                "title" => _sortOrder == "asc"
+                    ? entries.OrderBy(entry => entry.Post.Title)
+                    : entries.OrderByDescending(entry => entry.Post.Title),
+                _ => _sortOrder == "asc"
+                    ? entries.OrderBy(entry => GetEffectiveDate(entry.Post))
+                    : entries.OrderByDescending(entry => GetEffectiveDate(entry.Post)),
+            };
+
+            return entries.ToList();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (ApplicationState.TryTakeFromJson<List<ContentEntry>>(nameof(AllContentList), out var entries) && entries is not null)
+        {
+            _entries = entries;
+            _isLoading = false;
+        }
+
+        _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!_isLoading)
+        {
+            return;
+        }
+
+        var writingTask = ContentService.GetPostMetadataListAsync("posts");
+        var gistTask = ContentService.GetPostMetadataListAsync("gists");
+        var projectTask = ContentService.GetPostMetadataListAsync("projects");
+
+        await Task.WhenAll(writingTask, gistTask, projectTask);
+
+        _entries = [
+            .. CreateEntries(await writingTask, "writing", "Writing", "blog"),
+            .. CreateEntries(await gistTask, "gist", "Gist", "gist"),
+            .. CreateEntries(await projectTask, "project", "Project", "project"),
+        ];
+        _isLoading = false;
+    }
+
+    private static IEnumerable<ContentEntry> CreateEntries(
+        IEnumerable<PostModel> posts,
+        string type,
+        string label,
+        string routePrefix) => posts.Select(post => new ContentEntry
+        {
+            Post = post,
+            Type = type,
+            Label = label,
+            Href = $"/{routePrefix}/{post.Slug}",
+        });
+
+    private static DateTime? GetEffectiveDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static string GetDateLabel(PostModel post) =>
+        GetEffectiveDate(post)?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+    private Task PersistStateAsync()
+    {
+        ApplicationState.PersistAsJson(nameof(AllContentList), _entries);
+        return Task.CompletedTask;
+    }
+
+    public void Dispose() => _persistSubscription?.Dispose();
+
+    private sealed class ContentEntry
+    {
+        public PostModel Post { get; set; } = new();
+        public string Type { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+        public string Href { get; set; } = string.Empty;
+    }
+}

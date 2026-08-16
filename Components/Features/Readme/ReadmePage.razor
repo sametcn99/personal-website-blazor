@@ -13,7 +13,7 @@
     <meta name="description" content="Read my GitHub profile README with background, interests, and current focus areas." />
 </HeadContent>
 
-<div class="page-container page-section">
+<div class="page-container page-section article-shell">
     <BackToHome />
 
     @if (_loading)
@@ -48,6 +48,11 @@
             _htmlContent = state.HtmlContent;
             _error = state.Error;
             _loading = string.IsNullOrWhiteSpace(_htmlContent);
+
+            if (!_loading)
+            {
+                _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
+            }
         }
 
         _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);

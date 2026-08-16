@@ -13,7 +13,7 @@
     <meta name="description" content="View my CV, experience, skills, and downloadable resume files in Turkish and English." />
 </HeadContent>
 
-<div class="page-container page-section">
+<div class="page-container page-section article-shell">
     <BackToHome />
 
     <article class="readme-article">
@@ -49,6 +49,7 @@
         if (ApplicationState.TryTakeFromJson<string>(nameof(CvPage), out var html) && !string.IsNullOrWhiteSpace(html))
         {
             _htmlContent = html;
+            _tocItems = HtmlUtility.ExtractHeadings(_htmlContent).ToArray();
         }
 
         _persistSubscription = ApplicationState.RegisterOnPersisting(PersistStateAsync);

@@ -6,38 +6,120 @@
 <PageTitle>Samet Can Cıncık</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="Personal website of Samet Can Cincik featuring blog posts, projects, gists, and links." />
+    <meta name="description"
+          content="Software engineering essays, practical technical references, and project notes by Samet Can Cincik." />
 </HeadContent>
 
-<div class="page-container page-section flow-xl home-shell">
-    <HomeSearchSection
-                       BlogPosts="_blogPosts"
-                       GistPosts="_gistPosts"
-                       ProjectPosts="_projectPosts" />
+<div class="page-container home-shell">
+    <section class="home-intro" aria-labelledby="home-title">
+        <div class="home-intro-copy">
+            <h1 id="home-title">Building software,<br />keeping notes.</h1>
+            <p>
+                I’m Samet. This is where I publish essays, practical references, thoughts
+                and records from the software I build.
+            </p>
+            <div class="home-actions">
+                @if (LatestContent is not null)
+                {
+                    <a class="button button-solid" href="@LatestContent.Href" data-umami-event="home-latest-click">Read the
+                        latest content</a>
+                    }
+                    <a class="text-link" href="/content" data-umami-event="home-archive-click">Browse all content</a>
+                </div>
+            </div>
 
-    <ContentSection Title="Blog Posts"
-                    Description="A collection of my thoughts on development and the passions that keep me inspired."
-                    Posts="_blogPosts"
-                    Total="_blogTotal"
-                    ViewAllHref="/blog"
-                    IsLoading="_isLoading" />
+            <aside class="archive-ledger" aria-label="Archive contents">
+                <p class="archive-ledger-title">Archive contents</p>
+                <a href="/content"><span>All content</span><strong>@(_blogTotal + _gistTotal + _projectTotal)</strong></a>
+                <a href="/blog"><span>Long-form writing</span><strong>@_blogTotal</strong></a>
+                <a href="/gist"><span>Technical gists</span><strong>@_gistTotal</strong></a>
+                <a href="/project"><span>Built projects</span><strong>@_projectTotal</strong></a>
+                <p class="archive-ledger-status"><span class="status-mark"></span> Updated as the work changes</p>
+            </aside>
+        </section>
 
-    <ContentSection Title="Technical Gists"
-                    Description="Code snippets, tutorials, and technical documentation."
-                    Posts="_gistPosts"
-                    Total="_gistTotal"
-                    ViewAllHref="/gist"
-                    IsLoading="_isLoading" />
+        <section id="search" class="home-search-launcher" aria-labelledby="home-search-launcher-title">
+            <button type="button" onclick="window.openArchiveSearch()" data-umami-event="home-search-open-click">
+                <span class="home-search-launcher-copy">
+                    <strong id="home-search-launcher-title">Search the archive</strong>
+                    <small>Posts, gists, projects, repositories, and links in one index.</small>
+                </span>
+                <span class="home-search-launcher-action">
+                    <AppIcon Name="search" />
+                    Open search
+                </span>
+            </button>
+        </section>
 
-    <ContentSection Title="Projects"
-                    Description="A showcase of my personal projects and contributions to the developer community."
-                    Posts="_projectPosts"
-                    Total="_projectTotal"
-                    ViewAllHref="/project"
-                    IsLoading="_isLoading" />
+        @if (_isLoading)
+        {
+            <div class="home-loading" aria-label="Loading recent entries">
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+        }
+        else
+        {
+            <div class="home-register">
+                <section class="register-section" aria-labelledby="recent-writing-title">
+                    <div class="register-heading">
+                        <h2 id="recent-writing-title">Recent writing</h2>
+                        <a href="/blog">Writing index</a>
+                    </div>
+                    <div class="register-list">
+                        @foreach (var post in MoreBlogPosts)
+                        {
+                            <a class="register-entry" href="@post.Href">
+                                <time>@GetShortDate(post)</time>
+                                <span>
+                                    <strong>@post.Title</strong>
+                                    <small>@post.Summary</small>
+                                </span>
+                            </a>
+                        }
+                    </div>
+                </section>
 
-    <LinksSection />
-</div>
+                <aside class="register-section field-notes" aria-labelledby="field-notes-title">
+                    <div class="register-heading">
+                        <h2 id="field-notes-title">Field notes</h2>
+                        <a href="/gist">Gist index</a>
+                    </div>
+                    <div class="field-note-list">
+                        @foreach (var gist in _gistPosts.Take(5))
+                        {
+                            <a href="@gist.Href">
+                                <span>@gist.Title</span>
+                                <time>@GetShortDate(gist)</time>
+                            </a>
+                        }
+                    </div>
+                </aside>
+            </div>
+
+            <section class="project-register" aria-labelledby="project-register-title">
+                <div class="register-heading">
+                    <div>
+                        <h2 id="project-register-title">Built work</h2>
+                        <p>Experiments and tools documented from the inside.</p>
+                    </div>
+                    <a href="/project">Project index</a>
+                </div>
+                <div class="project-register-grid">
+                    @foreach (var project in _projectPosts.Take(3))
+                    {
+                        <a href="@project.Href">
+                            <span class="project-register-mark"></span>
+                            <strong>@project.Title</strong>
+                            <p>@project.Summary</p>
+                            <small>@GetShortDate(project)</small>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    </div>
 
 @code {
     private List<ContentMetadata> _blogPosts = new();
@@ -48,6 +130,13 @@
     private int _projectTotal;
     private bool _isLoading = true;
     private PersistingComponentStateSubscription? _persistSubscription;
+
+    private ContentMetadata? LatestContent => new[] { _blogPosts.FirstOrDefault(), _gistPosts.FirstOrDefault(),
+_projectPosts.FirstOrDefault() }
+        .Where(post => post is not null)
+        .OrderByDescending(post => GetEffectiveDate(post!))
+        .FirstOrDefault();
+    private IEnumerable<ContentMetadata> MoreBlogPosts => _blogPosts.Take(5);
 
     protected override void OnInitialized()
     {
@@ -99,6 +188,18 @@
     };
 
     private static DateTime? GetEffectiveDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static string GetShortDate(ContentMetadata post)
+    {
+        var value = !string.IsNullOrWhiteSpace(post.UpdatedAt) ? post.UpdatedAt : post.PublishedAt;
+        return DateTime.TryParse(value, out var date) ? date.ToString("MMM dd, yyyy") : value ?? string.Empty;
+    }
+
+    private static DateTime GetEffectiveDate(ContentMetadata post)
+    {
+        var value = !string.IsNullOrWhiteSpace(post.UpdatedAt) ? post.UpdatedAt : post.PublishedAt;
+        return DateTime.TryParse(value, out var date) ? date : DateTime.MinValue;
+    }
 
     private Task PersistStateAsync()
     {

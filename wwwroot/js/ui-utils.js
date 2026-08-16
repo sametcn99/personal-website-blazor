@@ -5,20 +5,46 @@ window.focusElementById = (elementId) => {
   }
 };
 
+window.openArchiveSearch = () => {
+  const dialog = document.getElementById("archive-search-dialog");
+
+  if (!dialog) {
+    window.location.href = "/#search";
+    return;
+  }
+
+  if (!dialog.open) {
+    dialog.showModal();
+    window.lockBodyScroll();
+  }
+
+  if (!dialog.dataset.archiveSearchReady) {
+    dialog.dataset.archiveSearchReady = "true";
+    dialog.addEventListener("close", window.unlockBodyScroll);
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  requestAnimationFrame(() => {
+    document.getElementById("home-search-input")?.focus();
+  });
+};
+
+window.closeArchiveSearch = () => {
+  const dialog = document.getElementById("archive-search-dialog");
+  if (dialog?.open) dialog.close();
+};
+
 window.scrollToElementId = (elementId) => {
-  console.log('scrollToElementId called with:', elementId);
   const element = document.getElementById(elementId) || document.getElementById(decodeURIComponent(elementId));
   if (element) {
-    console.log('Element found, scrolling...');
-    // Add small timeout to ensure layout is complete
-    setTimeout(() => {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Update URL hash without causing navigation reload
-      const newUrl = window.location.pathname + window.location.search + '#' + elementId;
-      window.history.pushState(null, '', newUrl);
-    }, 50);
-  } else {
-    console.warn(`scrollToElementId: Element with id '${elementId}' not found.`);
+    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height ?? 0;
+    const top = element.getBoundingClientRect().top + window.scrollY - headerHeight - 24;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? "auto" : "smooth" });
+    const newUrl = `${window.location.pathname}${window.location.search}#${encodeURIComponent(elementId)}`;
+    window.history.pushState(null, "", newUrl);
   }
 };
 

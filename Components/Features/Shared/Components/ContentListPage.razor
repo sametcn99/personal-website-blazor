@@ -1,80 +1,105 @@
 @* ContentListPage.razor - Reusable content listing with search and sort *@
 
-<div class="page-container page-section content-list-page">
-    <BackToHome />
+@{
+    var visiblePosts = FilteredPosts;
+}
 
-    <div class="flow-lg readme-article content-list-shell">
-        <div class="flow-sm content-list-hero">
-            <h1 class="text-page-title">@Title</h1>
-            <p class="text-body text-muted content-list-description">@Description</p>
-        </div>
+<div class="page-container content-list-page">
+    <div class="content-index-layout">
+        <aside class="content-index-sidebar">
+            <BackToHome />
 
-        <div class="controls-row content-list-controls">
-            <div class="input-shell">
-                <AppIcon Name="search" />
-                <input class="input-native"
-                       @bind="_searchQuery"
-                       @bind:event="oninput"
-                       @bind:after="OnSearchChanged"
-                       placeholder="@($"Search {Title.ToLowerInvariant()}...")"
-                       data-umami-event='@UmamiEvent.Click("content-list-search", Title)' />
+            <header class="content-index-header">
+                <h1>@Title</h1>
+                <p>@Description</p>
+                <div class="content-index-tally" aria-label="@($"{Posts.Count} entries")">
+                    <strong>@Posts.Count.ToString("00")</strong>
+                    <span>records</span>
+                </div>
+            </header>
+
+            <div class="content-list-controls">
+                <div class="input-shell">
+                    <AppIcon Name="search" />
+                    <input class="input-native"
+                           @bind="_searchQuery"
+                           @bind:event="oninput"
+                           @bind:after="OnSearchChanged"
+                           placeholder="@($"Search {Title.ToLowerInvariant()}...")"
+                           data-umami-event='@UmamiEvent.Click("content-list-search", Title)' />
+                </div>
+                <div class="content-index-selects">
+                    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)'>
+                        <option value="date">Date</option>
+                        <option value="title">Title</option>
+                    </select>
+                    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)'>
+                        <option value="desc">@(_sortBy == "date" ? "Newest" : "Z → A")</option>
+                        <option value="asc">@(_sortBy == "date" ? "Oldest" : "A → Z")</option>
+                    </select>
+                </div>
             </div>
-            <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)'>
-                <option value="date">Date</option>
-                <option value="title">Title</option>
-            </select>
-            <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)'>
-                <option value="desc">@(_sortBy == "date" ? "Newest First" : "Z → A")</option>
-                <option value="asc">@(_sortBy == "date" ? "Oldest First" : "A → Z")</option>
-            </select>
-        </div>
 
-        @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
-        {
-            <p class="text-caption text-muted result-row content-list-result-row">
-                @FilteredPosts.Count result@(FilteredPosts.Count != 1 ? "s" : "") found
-            </p>
-        }
-
-        @if (IsLoading)
-        {
-            <div class="flow-sm">
-                @for (int i = 0; i < 5; i++)
-                {
-                    <div class="flow-sm" style="margin-bottom: 1rem;">
-                        <div class="skeleton" style="width: 40%; height: 24px;"></div>
-                        <div class="skeleton" style="width: 90%; height: 18px;"></div>
-                        <div class="skeleton" style="width: 20%; height: 14px;"></div>
-                    </div>
-                }
-            </div>
-        }
-        else if (FilteredPosts.Count == 0)
-        {
-            <p class="text-body text-muted text-center" style="padding: 1rem 0;">
-                No posts found@(!string.IsNullOrWhiteSpace(_searchQuery) ? $" for \"{_searchQuery}\"" : "").
-            </p>
-        }
-        else
-        {
-            @foreach (var post in FilteredPosts)
+            @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
             {
-                <a class="link-plain content-list-card-link" href="@($"/{UrlPrefix}/{post.Slug}")"
-                   data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
-                    <article class="hover-card content-list-card flow-sm" style="margin-bottom: 0.75rem;">
-                        <p class="text-heading">@post.Title</p>
-                        <p class="text-body text-muted">@post.Description</p>
-                        @if (!string.IsNullOrWhiteSpace(GetMatchSnippet(post)))
-                        {
-                            <p class="text-caption text-muted" style="opacity: 0.8;">@GetMatchSnippet(post)</p>
-                        }
-                        <p class="text-caption text-muted">
-                            @GetDateLabel(post)
-                        </p>
-                    </article>
-                </a>
+                <p class="text-caption text-muted content-list-result-row">
+                    @visiblePosts.Count result@(visiblePosts.Count != 1 ? "s" : "") found
+                </p>
             }
-        }
+        </aside>
+
+        <main class="content-index-main">
+            @if (IsLoading)
+            {
+                <div class="content-index-loading">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="skeleton"></div>
+                    }
+                </div>
+            }
+            else if (visiblePosts.Count == 0)
+            {
+                <div class="content-index-empty">
+                    <p>No posts found@(!string.IsNullOrWhiteSpace(_searchQuery) ? $" for \"{_searchQuery}\"" : "").</p>
+                </div>
+            }
+            else
+            {
+                <div class="content-index-list">
+                @for (var index = 0; index < visiblePosts.Count; index++)
+                {
+                    var post = visiblePosts[index];
+                    <a class="content-list-card-link" href="@($"/{UrlPrefix}/{post.Slug}")"
+                       data-umami-event='@UmamiEvent.ClickValue(post.Title, "post")'>
+                        <article class="content-list-card">
+                            <div class="content-list-card-main">
+                                <div class="content-list-title-row">
+                                    <span class="content-list-number">@((index + 1).ToString("00"))</span>
+                                    <h2>@post.Title</h2>
+                                </div>
+                                <p class="content-list-summary">@post.Description</p>
+                                @if (post.Tags.Length > 0)
+                                {
+                                    <div class="content-list-tags" aria-label="Tags">
+                                        @foreach (var tag in post.Tags.Take(3))
+                                        {
+                                            <span>#@tag</span>
+                                        }
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(GetMatchSnippet(post)))
+                                {
+                                    <p class="content-match-snippet">@GetMatchSnippet(post)</p>
+                                }
+                            </div>
+                            <time class="content-list-card-date">@GetDateLabel(post)</time>
+                        </article>
+                    </a>
+                }
+                </div>
+            }
+        </main>
     </div>
 </div>
 
@@ -144,13 +169,7 @@
 
     private static string GetDateLabel(PostModel post)
     {
-        if (post.UpdatedAt.HasValue)
-        {
-            return $"Updated {post.UpdatedAt.Value.ToString("ddd MMM dd yyyy")}";
-        }
-
-        return post.PublishDate.HasValue
-            ? $"Published {post.PublishDate.Value.ToString("ddd MMM dd yyyy")}"
-            : string.Empty;
+        var date = post.UpdatedAt ?? post.PublishDate;
+        return date?.ToString("yyyy-MM-dd") ?? string.Empty;
     }
 }

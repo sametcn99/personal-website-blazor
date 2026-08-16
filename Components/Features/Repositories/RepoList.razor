@@ -9,29 +9,7 @@
     <meta name="description" content="See my public GitHub repositories with live data and quick access links." />
 </HeadContent>
 
-<div class="page-container page-section">
-    <BackToHome />
-    <h1 class="text-page-title">Repositories</h1>
-    <p class="text-body text-muted" style="margin-bottom: 0.75rem;">
-        A live list of my GitHub repositories.
-    </p>
-
-    @if (_loading)
-    {
-        <div class="center-stack" style="padding: 2rem 0;">
-            <div class="spinner"></div>
-            <p class="text-caption text-muted">Loading repositories...</p>
-        </div>
-    }
-    else if (_error != null)
-    {
-        <div class="alert alert-error">@_error</div>
-    }
-    else
-    {
-        <InteractiveRepoList Repos="_repos" />
-    }
-</div>
+<InteractiveRepoList Repos="_repos" IsLoading="_loading" Error="@_error" />
 
 @code {
     private bool _loading = true;

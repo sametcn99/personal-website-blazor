@@ -3,6 +3,8 @@
 
 @code {
     [Parameter] public List<GitHubRepository> Repos { get; set; } = new();
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? Error { get; set; }
 
     private string _search = string.Empty;
     private string _sortBy = "updated";
@@ -71,78 +73,132 @@
     }
 }
 
-<div class="controls-row content-list-controls" style="margin-bottom: 0.75rem;">
-    <div class="input-shell">
-        <AppIcon Name="search" />
-        <input class="input-native"
-               @bind="_search"
-               @bind:event="oninput"
-               placeholder="Search repositories..."
-               data-umami-event="repo-search-input-click" />
+@{
+    var visibleRepos = FilteredRepos;
+}
+
+<div class="page-container content-list-page">
+    <div class="content-index-layout">
+        <aside class="content-index-sidebar">
+            <BackToHome />
+
+            <header class="content-index-header">
+                <h1>Repositories</h1>
+                <p>A live list of my public GitHub repositories.</p>
+                <div class="content-index-tally" aria-label="@($"{Repos.Count} entries")">
+                    <strong>@Repos.Count.ToString("00")</strong>
+                    <span>records</span>
+                </div>
+            </header>
+
+            <div class="content-list-controls">
+                <div class="input-shell">
+                    <AppIcon Name="search" />
+                    <input class="input-native"
+                           @bind="_search"
+                           @bind:event="oninput"
+                           placeholder="Search repositories..."
+                           data-umami-event="repo-search-input-click" />
+                </div>
+                <div class="content-index-selects">
+                    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)'>
+                        <option value="updated">Updated</option>
+                        <option value="created">Created</option>
+                        <option value="stars">Stars</option>
+                        <option value="name">Name</option>
+                    </select>
+                    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)'>
+                        <option value="desc">@(_sortBy == "name" ? "Z → A" : "Newest")</option>
+                        <option value="asc">@(_sortBy == "name" ? "A → Z" : "Oldest")</option>
+                    </select>
+                </div>
+                @if (AvailableLanguages.Count > 1)
+                {
+                    <select class="select-native" @bind="_languageFilter" data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)'>
+                        <option value="">All languages</option>
+                        @foreach (var lang in AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase))
+                        {
+                            <option value="@lang">@lang</option>
+                        }
+                    </select>
+                }
+            </div>
+
+            @if ((!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrEmpty(_languageFilter)) && !IsLoading)
+            {
+                <p class="text-caption text-muted content-list-result-row">
+                    @visibleRepos.Count result@(visibleRepos.Count != 1 ? "s" : "") found
+                </p>
+            }
+        </aside>
+
+        <main class="content-index-main">
+            @if (IsLoading)
+            {
+                <div class="content-index-loading">
+                    @for (var index = 0; index < 5; index++)
+                    {
+                        <div class="skeleton"></div>
+                    }
+                </div>
+            }
+            else if (!string.IsNullOrWhiteSpace(Error))
+            {
+                <div class="content-index-empty"><p>@Error</p></div>
+            }
+            else if (visibleRepos.Count == 0)
+            {
+                <div class="content-index-empty">
+                    <p>No repositories found@(!string.IsNullOrWhiteSpace(_search) ? $" for \"{_search}\"" : "").</p>
+                </div>
+            }
+            else
+            {
+                <div class="content-index-list">
+                    @for (var index = 0; index < visibleRepos.Count; index++)
+                    {
+                        var repo = visibleRepos[index];
+                        <a class="content-list-card-link" href="@($"/repo/{repo.Name}")" data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
+                            <article class="content-list-card">
+                                <div class="content-list-card-main">
+                                    <div class="content-list-title-row">
+                                        <span class="content-list-number">@((index + 1).ToString("00"))</span>
+                                        <h2>@repo.Name</h2>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(repo.Description))
+                                    {
+                                        <p class="content-list-summary">@repo.Description</p>
+                                    }
+                                    <div class="content-list-tags" aria-label="Repository details">
+                                        @if (!string.IsNullOrEmpty(repo.Language))
+                                        {
+                                            <span>@repo.Language</span>
+                                        }
+                                        @if (repo.Fork)
+                                        {
+                                            <span>Fork</span>
+                                        }
+                                        @if (repo.StargazersCount > 0)
+                                        {
+                                            <span>@repo.StargazersCount stars</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="content-list-card-date">
+                                    @if (repo.UpdatedAt.HasValue)
+                                    {
+                                        <span>Updated @FormatDate(repo.UpdatedAt)</span>
+                                    }
+                                    @if (repo.CreatedAt.HasValue)
+                                    {
+                                        <span>Created @FormatDate(repo.CreatedAt)</span>
+                                    }
+                                </div>
+                            </article>
+                        </a>
+                    }
+                </div>
+            }
+        </main>
     </div>
-    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)'>
-        <option value="updated">Updated</option>
-        <option value="created">Created</option>
-        <option value="stars">Stars</option>
-        <option value="name">Name</option>
-    </select>
-    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)'>
-        <option value="desc">@(_sortBy == "name" ? "Z → A" : "Newest First")</option>
-        <option value="asc">@(_sortBy == "name" ? "A → Z" : "Oldest First")</option>
-    </select>
-    @if (AvailableLanguages.Count > 1)
-    {
-        <select class="select-native" @bind="_languageFilter" data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)'>
-            <option value="">All Languages</option>
-            @foreach (var lang in AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase))
-            {
-                <option value="@lang">@lang</option>
-            }
-        </select>
-    }
 </div>
-
-@if (!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrEmpty(_languageFilter))
-{
-    <p class="text-caption text-muted result-row">@FilteredRepos.Count result@(FilteredRepos.Count != 1 ? "s" : "") found</p>
-}
-
-@foreach (var repo in FilteredRepos)
-{
-    <a class="link-plain" href="@($"/repo/{repo.Name}")" data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
-        <div class="hover-card flow-sm repo-card" style="margin-bottom: 0.75rem;">
-            <div class="row" style="gap: 0.35rem; flex-wrap: wrap; align-items: center;">
-                <span class="text-heading">@repo.Name</span>
-                @if (repo.Fork)
-                {
-                    <span class="badge badge-muted">Fork</span>
-                }
-                @if (repo.StargazersCount > 0)
-                {
-                    <span class="badge badge-primary">★ @repo.StargazersCount</span>
-                }
-            </div>
-            @if (!string.IsNullOrEmpty(repo.Description))
-            {
-                <p class="text-body text-muted">@repo.Description</p>
-            }
-            <div class="row text-caption text-muted" style="gap: 0.75rem; flex-wrap: wrap;">
-                @if (!string.IsNullOrEmpty(repo.Language))
-                {
-                    <span class="repo-lang-dot">
-                        <span class="repo-lang-dot-indicator" style="background: @LanguageColor.GetColor(repo.Language);"></span>
-                        @repo.Language
-                    </span>
-                }
-                @if (repo.UpdatedAt.HasValue)
-                {
-                    <span>Updated @FormatDate(repo.UpdatedAt)</span>
-                }
-                @if (repo.CreatedAt.HasValue)
-                {
-                    <span>Created @FormatDate(repo.CreatedAt)</span>
-                }
-            </div>
-        </div>
-    </a>
-}
