@@ -71,6 +71,7 @@ export function mount(host) {
   let pipes = []
   let buildings = []
   let shrubs = []
+  let fireworks = []
   let spawnAfter = 0
   let hasSpawnedOpeningPipe = false
   let skyGradient
@@ -101,6 +102,7 @@ export function mount(host) {
   const reset = () => {
     bird = { x: Math.max(88, width * 0.22), y: Math.max(70, (height - groundHeight) * 0.47), velocity: 0, radius: 12, wing: 0 }
     pipes.length = 0
+    fireworks.length = 0
     score = 0
     spawnAfter = 0.3
     hasSpawnedOpeningPipe = false
@@ -148,6 +150,7 @@ export function mount(host) {
   const showGameOver = () => {
     if (state !== "playing") return
     state = "over"
+    fireworks.length = 0
     scoreHud.hidden = true
     overlay.innerHTML = `<strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span></strong><span>Game over · Score: ${score}</span><small>You cleared ${score} ${score === 1 ? "pipe" : "pipes"}.</small><button type="button" data-umami-event="sloppy-bird-play-again-click">Play again</button>`
     overlay.hidden = false
@@ -169,6 +172,46 @@ export function mount(host) {
     bird.wing = 1
   }
 
+  const celebrateMilestone = () => {
+    const reducedMotion = prefersReducedMotion.matches
+    const colors = [palette.pipeEdge, palette.birdLight, palette.foliageLight, palette.eye]
+    const burstCount = width <= 640 || reducedMotion ? 2 : 4
+    const burstZones = [0.2, 0.4, 0.6, 0.8]
+    for (let index = burstZones.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1))
+      const zone = burstZones[index]
+      burstZones[index] = burstZones[swapIndex]
+      burstZones[swapIndex] = zone
+    }
+
+    for (let burst = 0; burst < burstCount; burst += 1) {
+      const centerX = width * (burstZones[burst] + (Math.random() - 0.5) * 0.1)
+      const centerY = height - groundHeight - (94 + Math.random() * Math.min(108, height * 0.27))
+      const particleCount = reducedMotion ? 10 : width <= 640 ? 16 : 22
+      const primaryColor = colors[burst % (colors.length - 1)]
+      const delay = burst === 0 ? 0 : burst * (reducedMotion ? 0.08 : 0.12) + Math.random() * (reducedMotion ? 0.04 : 0.14)
+
+      for (let index = 0; index < particleCount; index += 1) {
+        const angle = (Math.PI * 2 * index) / particleCount + (Math.random() - 0.5) * 0.2
+        const speed = reducedMotion ? 0 : 54 + Math.random() * 52
+        const startRadius = reducedMotion ? 10 : 3
+        fireworks.push({
+          x: centerX + Math.cos(angle) * startRadius,
+          y: centerY + Math.sin(angle) * startRadius,
+          velocityX: Math.cos(angle) * speed,
+          velocityY: Math.sin(angle) * speed,
+          age: 0,
+          delay,
+          life: reducedMotion ? 0.72 : 1.02 + Math.random() * 0.42,
+          color: index % 6 === 0 ? colors[3] : primaryColor,
+          size: 1.15 + Math.random() * 0.75,
+          twinkle: Math.random() * Math.PI * 2,
+          reducedMotion,
+        })
+      }
+    }
+  }
+
   const update = (delta) => {
     const backgroundSpeed = state === "playing" ? 30 : 9
     if (!prefersReducedMotion.matches || state === "playing") sceneOffset = (sceneOffset + backgroundSpeed * delta) % Math.max(1, width + 240)
@@ -177,6 +220,24 @@ export function mount(host) {
     bird.velocity += 810 * delta
     bird.y += bird.velocity * delta
     bird.wing = Math.max(0, bird.wing - delta * 5.5)
+
+    for (let index = fireworks.length - 1; index >= 0; index -= 1) {
+      const particle = fireworks[index]
+      particle.age += delta
+      if (particle.age >= particle.delay + particle.life) {
+        fireworks.splice(index, 1)
+        continue
+      }
+      if (particle.age < particle.delay) continue
+
+      particle.x += particle.velocityX * delta
+      particle.y += particle.velocityY * delta
+      if (!particle.reducedMotion) {
+        const drag = Math.pow(0.982, delta * 60)
+        particle.velocityX *= drag
+        particle.velocityY = particle.velocityY * drag + 26 * delta
+      }
+    }
 
     let pipeSpeed = 145
     const openingPipe = pipes[0]?.isOpeningPipe ? pipes[0] : null
@@ -207,6 +268,7 @@ export function mount(host) {
         pipe.scored = true
         score += 1
         scoreValue.textContent = String(score)
+        if (score % 10 === 0) celebrateMilestone()
       }
       const overlaps = bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + 48
       const insideGap = bird.y - bird.radius > pipe.opening - pipe.gap / 2 && bird.y + bird.radius < pipe.opening + pipe.gap / 2
@@ -328,6 +390,34 @@ export function mount(host) {
     context.fillRect(pipe.x - 5, gapBottom, pipeWidth + 10, capHeight)
   }
 
+  const drawFireworks = () => {
+    if (!fireworks.length) return
+
+    context.save()
+    context.lineCap = "round"
+    for (const particle of fireworks) {
+      const elapsed = particle.age - particle.delay
+      if (elapsed < 0) continue
+
+      const progress = elapsed / particle.life
+      const ignition = Math.min(1, progress / 0.07)
+      const fade = Math.pow(1 - progress, 1.25)
+      const twinkle = 0.82 + Math.sin(elapsed * 24 + particle.twinkle) * 0.18
+      context.globalAlpha = ignition * fade * twinkle * 0.88
+      context.lineWidth = particle.size
+      context.strokeStyle = particle.color
+      context.beginPath()
+      context.moveTo(particle.x, particle.y)
+      context.lineTo(particle.x - particle.velocityX * 0.075, particle.y - particle.velocityY * 0.075)
+      context.stroke()
+      context.fillStyle = particle.color
+      context.beginPath()
+      context.arc(particle.x, particle.y, particle.reducedMotion ? 1.8 : Math.max(0.65, particle.size * fade), 0, Math.PI * 2)
+      context.fill()
+    }
+    context.restore()
+  }
+
   const drawBird = () => {
     if (!bird) return
     context.save()
@@ -384,6 +474,7 @@ export function mount(host) {
 
   const draw = () => {
     drawBackground()
+    drawFireworks()
     for (const pipe of pipes) drawPipe(pipe)
     drawBird()
   }
