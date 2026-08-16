@@ -1,14 +1,39 @@
 window.__mermaidReadyPromise = null;
 window.__mermaidInitialized = window.__mermaidInitialized || false;
 window.__mermaidModuleUrl = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+window.__mermaidThemeConfig = {
+  startOnLoad: false,
+  theme: "base",
+  themeVariables: {
+    darkMode: true,
+    background: "#0d0e0c",
+    primaryColor: "#24251f",
+    primaryTextColor: "#eee9dc",
+    primaryBorderColor: "#c89a49",
+    secondaryColor: "#202019",
+    secondaryTextColor: "#eee9dc",
+    secondaryBorderColor: "#48483c",
+    tertiaryColor: "#141512",
+    tertiaryTextColor: "#eee9dc",
+    tertiaryBorderColor: "#303129",
+    lineColor: "#aaa99e",
+    textColor: "#eee9dc",
+    mainBkg: "#24251f",
+    nodeBorder: "#c89a49",
+    clusterBkg: "#141512",
+    clusterBorder: "#48483c",
+    noteBkgColor: "#202019",
+    noteTextColor: "#eee9dc",
+    noteBorderColor: "#c89a49",
+    edgeLabelBackground: "#141512",
+    fontFamily: '"Familjen Grotesk", "Segoe UI", sans-serif',
+  },
+};
 
 window.ensureMermaidReady = async () => {
   if (window.mermaid) {
     if (!window.__mermaidInitialized) {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: "dark",
-      });
+      window.mermaid.initialize(window.__mermaidThemeConfig);
       window.__mermaidInitialized = true;
     }
 
@@ -20,10 +45,7 @@ window.ensureMermaidReady = async () => {
       import(window.__mermaidModuleUrl)
         .then((module) => {
           const mermaid = module.default;
-          mermaid.initialize({
-            startOnLoad: false,
-            theme: "dark",
-          });
+          mermaid.initialize(window.__mermaidThemeConfig);
           window.mermaid = mermaid;
           window.__mermaidInitialized = true;
           return mermaid;
@@ -430,17 +452,31 @@ window.renderMonacoEditor = async (containerId, code, language) => {
     monaco.editor.defineTheme('personal-website-theme', {
       base: 'vs-dark',
       inherit: true,
-      rules: [],
+      rules: [
+        { token: 'comment', foreground: '7F9870' },
+        { token: 'keyword', foreground: 'E0B661' },
+        { token: 'string', foreground: 'C7B17A' },
+        { token: 'number', foreground: 'A8AA9F' },
+        { token: 'type', foreground: 'D3C7A2' },
+        { token: 'delimiter', foreground: 'AAA99E' }
+      ],
       colors: {
-        'editor.background': '#171c25',              // --color-surface-elevated
-        'editor.foreground': '#dbe7f3',              // customized for pre-block code
-        'editorLineNumber.foreground': '#9ea8b7',    // --color-text-secondary
-        'editor.selectionBackground': '#8ecbff38',   // --color-primary with opacity
-        'editor.lineHighlightBackground': '#ffffff0a',
-        'minimap.background': '#171c25',
-        'scrollbarSlider.background': '#8ecbff15',
-        'scrollbarSlider.hoverBackground': '#8ecbff30',
-        'scrollbarSlider.activeBackground': '#8ecbff50'
+        'editor.background': '#10110f',
+        'editor.foreground': '#eee9dc',
+        'editorCursor.foreground': '#e0b661',
+        'editorLineNumber.foreground': '#74746b',
+        'editorLineNumber.activeForeground': '#c89a49',
+        'editor.selectionBackground': '#c89a4938',
+        'editor.inactiveSelectionBackground': '#c89a4924',
+        'editor.lineHighlightBackground': '#20201966',
+        'editorWhitespace.foreground': '#48483c',
+        'editorIndentGuide.background1': '#303129',
+        'editorIndentGuide.activeBackground1': '#48483c',
+        'editorGutter.background': '#10110f',
+        'minimap.background': '#10110f',
+        'scrollbarSlider.background': '#aaa99e20',
+        'scrollbarSlider.hoverBackground': '#c89a4940',
+        'scrollbarSlider.activeBackground': '#e0b66155'
       }
     });
 
@@ -453,7 +489,7 @@ window.renderMonacoEditor = async (containerId, code, language) => {
       theme: "personal-website-theme",
       readOnly: true,
       minimap: { enabled: false },
-      fontFamily: '"JetBrains Mono", Consolas, Monaco, "Courier New", monospace',
+      fontFamily: '"Azeret Mono", Consolas, Monaco, "Courier New", monospace',
       fontLigatures: true,
       fontSize: 14,
       scrollBeyondLastLine: false,

@@ -365,6 +365,7 @@
 }
 .monaco-code-container {
   min-height: 12rem;
+  background: #10110f;
 }
 
 .html-list {
