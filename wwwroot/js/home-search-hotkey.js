@@ -22,7 +22,7 @@ window.homeSearchHotkey = {
         return
       }
 
-      const isCharacter = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
+      const isCharacter = event.key.length === 1 && event.key !== " " && !event.ctrlKey && !event.metaKey && !event.altKey
       const isBackspace = event.key === "Backspace"
       const isEscape = event.key === "Escape"
 
