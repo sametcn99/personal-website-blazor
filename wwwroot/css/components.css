@@ -229,8 +229,9 @@
 .sloppy-bird-hud {
   position: absolute;
   top: 0.7rem;
-  right: clamp(1rem, 3vw, 2.5rem);
-  display: flex;
+  right: 1rem;
+  z-index: 1;
+  display: none;
   align-items: baseline;
   gap: 0.45rem;
   color: rgba(238, 233, 220, 0.72);
@@ -240,11 +241,13 @@
   text-transform: uppercase;
   pointer-events: none;
 }
+.sloppy-bird-hud[hidden] {
+  display: none;
+}
 .sloppy-bird-hud strong {
   color: var(--color-primary-strong);
   font-size: 1.15rem;
 }
-
 @media (prefers-reduced-motion: reduce) {
   .sloppy-bird-overlay {
     cursor: default;
@@ -677,6 +680,9 @@
 }
 
 @media (max-width: 640px) {
+  .sloppy-bird-hud:not([hidden]) {
+    display: flex;
+  }
   .site-mark-note {
     display: none;
   }

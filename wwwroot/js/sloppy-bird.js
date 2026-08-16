@@ -32,11 +32,12 @@ const randomFrom = (seed) => {
 export function mount(host) {
   host.innerHTML = `
     <canvas aria-label="Sloppy Bird game. Click, tap, or press Space to fly." role="application" tabindex="0"></canvas>
-    <div class="sloppy-bird-hud" aria-live="off"><span>Score</span><strong>0</strong></div>
+    <div class="sloppy-bird-hud" aria-live="off" hidden><span>Score</span><strong>0</strong></div>
     <div class="sloppy-bird-overlay">
       <strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span></strong>
       <span>Click, tap, or press Space to fly</span>
       <small>Clear the pipes. Stay off the ground.</small>
+      <button type="button" data-umami-event="sloppy-bird-play-click">Play</button>
     </div>`
 
   const canvas = host.querySelector("canvas")
@@ -52,7 +53,8 @@ export function mount(host) {
     height: "100%",
   })
   const context = canvas.getContext("2d", { alpha: false })
-  const scoreValue = host.querySelector(".sloppy-bird-hud strong")
+  const scoreHud = host.querySelector(".sloppy-bird-hud")
+  const scoreValue = scoreHud.querySelector("strong")
   const overlay = host.querySelector(".sloppy-bird-overlay")
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
   const groundHeight = 34
@@ -146,7 +148,8 @@ export function mount(host) {
   const showGameOver = () => {
     if (state !== "playing") return
     state = "over"
-    overlay.innerHTML = `<strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span></strong><span>Game over · Score: ${score}</span><small>You cleared ${score} ${score === 1 ? "pipe" : "pipes"}.</small><button type="button">Play again</button>`
+    scoreHud.hidden = true
+    overlay.innerHTML = `<strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span></strong><span>Game over · Score: ${score}</span><small>You cleared ${score} ${score === 1 ? "pipe" : "pipes"}.</small><button type="button" data-umami-event="sloppy-bird-play-again-click">Play again</button>`
     overlay.hidden = false
     overlay.querySelector("button").focus({ preventScroll: true })
   }
@@ -154,6 +157,7 @@ export function mount(host) {
   const start = () => {
     reset()
     state = "playing"
+    scoreHud.hidden = false
     overlay.hidden = true
     canvas.focus({ preventScroll: true })
   }
@@ -233,6 +237,18 @@ export function mount(host) {
     context.lineTo(width, height)
     context.lineTo(0, height)
     context.fill()
+
+    if (state === "playing" && width > 640) {
+      const scoreSize = Math.max(88, Math.min(156, height * 0.38))
+      context.save()
+      context.globalAlpha = 0.13
+      context.fillStyle = palette.eye
+      context.font = `700 ${scoreSize}px "Familjen Grotesk", sans-serif`
+      context.textAlign = "center"
+      context.textBaseline = "middle"
+      context.fillText(String(score), width * 0.5, height * 0.48)
+      context.restore()
+    }
 
     const cityLoop = width + 240
     for (let repeat = -1; repeat <= 1; repeat += 1) {
