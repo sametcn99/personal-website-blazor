@@ -15,12 +15,12 @@ public class RssFeedService : IRssFeedService
 
     public async Task<string> BuildFeedAsync(Uri baseUri)
     {
-        var posts = await _contentService.GetPostsAsync("posts");
+        var contents = await _contentService.GetAllContentsAsync();
 
-        var lastBuildDate = posts
-            .Select(post => post.UpdatedAt ?? post.PublishDate)
+        var lastBuildDate = contents
+            .Select(content => ParseDate(content.UpdatedAt) ?? ParseDate(content.PublishedAt))
             .Where(date => date.HasValue)
-            .Select(date => new DateTimeOffset(date!.Value))
+            .Select(date => date!.Value)
             .DefaultIfEmpty(DateTimeOffset.UtcNow)
             .Max();
         var channelTitle = "Samet Can Cıncık - Blog";
@@ -37,7 +37,7 @@ public class RssFeedService : IRssFeedService
                     new XElement("link", baseUri.ToString().TrimEnd('/')),
                     new XElement("description", channelDescription),
                     new XElement("lastBuildDate", lastBuildDate.ToString("r")),
-                    posts.Select(post => BuildItem(post, baseUri, lastBuildDate))
+                    contents.Select(content => BuildItem(content, baseUri, lastBuildDate))
                 )
             )
         );
@@ -45,18 +45,21 @@ public class RssFeedService : IRssFeedService
         return document.ToString(SaveOptions.DisableFormatting);
     }
 
-    private static XElement BuildItem(PostModel post, Uri baseUri, DateTimeOffset fallbackDate)
+    private static XElement BuildItem(ContentMetadata content, Uri baseUri, DateTimeOffset fallbackDate)
     {
-        var itemLink = new Uri(baseUri, $"/blog/{post.Slug}").ToString();
-        var publishDate = (post.PublishDate ?? fallbackDate).ToUniversalTime().ToString("r");
+        var itemLink = new Uri(baseUri, content.Href).ToString();
+        var publishDate = (ParseDate(content.PublishedAt) ?? fallbackDate).ToUniversalTime().ToString("r");
 
         return new XElement(
             "item",
-            new XElement("title", post.Title),
+            new XElement("title", content.Title),
             new XElement("link", itemLink),
             new XElement("guid", itemLink),
             new XElement("pubDate", publishDate),
-            new XElement("description", new XCData(post.Description))
+            new XElement("description", new XCData(content.Summary))
         );
     }
+
+    private static DateTimeOffset? ParseDate(string? value) =>
+        DateTimeOffset.TryParse(value, out var date) ? date : null;
 }
