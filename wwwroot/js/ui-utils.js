@@ -1,4 +1,5 @@
-const sloppyBirdModuleUrl = document.currentScript?.dataset.sloppyBirdSrc || "/js/sloppy-bird.js"
+const sloppyBirdModulePath = document.currentScript?.dataset.sloppyBirdSrc || "/js/sloppy-bird.js"
+const sloppyBirdModuleUrl = new URL(sloppyBirdModulePath, document.baseURI).href
 
 window.focusElementById = (elementId) => {
   const element = document.getElementById(elementId)

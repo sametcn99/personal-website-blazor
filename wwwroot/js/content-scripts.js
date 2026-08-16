@@ -144,7 +144,6 @@ function decorateCodeBlocks() {
   const codeBlocks = document.querySelectorAll("pre code")
 
   if (codeBlocks.length === 0) {
-    console.log("No code blocks found.")
   }
 
   codeBlocks.forEach((block) => {
@@ -354,7 +353,6 @@ window.initContent = () => {
   window.__contentInitState.lastPath = currentPath
   window.__contentInitState.lastRunAt = now
 
-  console.log("Initializing content...")
   decorateCodeBlocks()
   window.__tocRailCleanup?.()
   window.__tocRailCleanup = null
