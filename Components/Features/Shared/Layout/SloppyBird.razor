@@ -1,0 +1,36 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<section class="sloppy-bird" aria-label="Sloppy Bird game">
+    <div id="@_gameId" class="sloppy-bird-game" aria-live="polite">
+        <p class="sloppy-bird-placeholder">Loading Sloppy Bird…</p>
+    </div>
+</section>
+
+@code {
+    private readonly string _gameId = $"sloppy-bird-{Guid.NewGuid():N}";
+    private bool _isClientInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("sloppyBird.observe", _gameId);
+            _isClientInitialized = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_isClientInitialized)
+            return;
+
+        try
+        {
+            await JS.InvokeVoidAsync("sloppyBird.dispose", _gameId);
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+}
