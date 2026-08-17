@@ -1,0 +1,48 @@
+@implements IDisposable
+
+<button type="button" class="footer-hire-me" aria-label="Show hire me message" @onclick="ShowBubbleAsync">
+    <span class="footer-hire-me-art">
+        <img src="/uploads/media/hire-me.png"
+             width="554"
+             height="476"
+             loading="lazy"
+             decoding="async"
+             fetchpriority="low"
+             alt="" />
+        @foreach (var bubble in _bubbles.Select((id, index) => (id, index)))
+        {
+            <span @key="bubble.id"
+                  class="footer-hire-me-bubble"
+                  style="--bubble-stack-index: @bubble.index;">HIRE ME!</span>
+        }
+    </span>
+</button>
+
+@code {
+    private readonly List<int> _bubbles = [];
+    private readonly CancellationTokenSource _disposeCts = new();
+    private int _bubbleKey;
+
+    private async Task ShowBubbleAsync()
+    {
+        var bubbleId = ++_bubbleKey;
+        _bubbles.Add(bubbleId);
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            await Task.Delay(2100, _disposeCts.Token);
+            _bubbles.Remove(bubbleId);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposeCts.Cancel();
+        _disposeCts.Dispose();
+    }
+}
