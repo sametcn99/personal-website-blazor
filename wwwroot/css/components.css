@@ -202,6 +202,15 @@
   letter-spacing: -0.055em;
   transform: translateY(-0.04em) rotate(-4deg);
 }
+.sloppy-bird-overlay strong .sloppy-bird-title-status {
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 0.52em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transform: translateY(0.18em);
+}
 .sloppy-bird-overlay span {
   color: #d2d0c5;
   max-width: 30ch;

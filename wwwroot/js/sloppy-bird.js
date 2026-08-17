@@ -15,13 +15,18 @@ const palette = {
   pipeLight: "#849775",
   pipeDark: "#35402f",
   pipeEdge: "#c89a49",
-  birdBody: "#d9a84e",
-  birdLight: "#f0cc75",
-  birdWing: "#9c6d2f",
-  birdDark: "#4a321c",
-  beak: "#e0b661",
-  eye: "#eee9dc",
-  pupil: "#141512",
+  birdBody: "#a87a3f",
+  birdBack: "#735538",
+  birdChest: "#d7c28f",
+  birdLight: "#ead9aa",
+  birdWing: "#654b31",
+  birdFeather: "#3f3123",
+  birdDark: "#30251a",
+  birdCrown: "#57402b",
+  birdLeg: "#9c7548",
+  beak: "#bd9046",
+  eye: "#c9b983",
+  pupil: "#0e0f0d",
 }
 
 const randomFrom = (seed) => {
@@ -72,6 +77,7 @@ export function mount(host) {
   let buildings = []
   let shrubs = []
   let fireworks = []
+  let freedomFlight = null
   let spawnAfter = 0
   let hasSpawnedOpeningPipe = false
   let skyGradient
@@ -100,7 +106,7 @@ export function mount(host) {
   }
 
   const reset = () => {
-    bird = { x: Math.max(88, width * 0.22), y: Math.max(70, (height - groundHeight) * 0.47), velocity: 0, radius: 12, wing: 0 }
+    bird = { x: Math.max(88, width * 0.22), y: Math.max(70, (height - groundHeight) * 0.47), velocity: 0, radius: 12, wingPhase: 0 }
     pipes.length = 0
     fireworks.length = 0
     score = 0
@@ -128,7 +134,7 @@ export function mount(host) {
     skyGradient.addColorStop(0.66, palette.skyBottom)
     skyGradient.addColorStop(1, palette.haze)
     buildScenery()
-    if (state !== "playing") reset()
+    if (state === "ready" || state === "over") reset()
     draw()
   }
 
@@ -157,10 +163,30 @@ export function mount(host) {
     overlay.querySelector("button").focus({ preventScroll: true })
   }
 
+  const freeBird = () => {
+    if (state !== "playing" || score !== 0 || !bird) return
+
+    const canvasRect = canvas.getBoundingClientRect()
+    const startPoint = { x: canvasRect.left + bird.x, y: canvasRect.top + Math.max(8, bird.y) }
+    state = "freed"
+    pipes.length = 0
+    fireworks.length = 0
+    scoreHud.hidden = true
+    overlay.hidden = true
+    bird = null
+
+    freedomFlight = startFreedomFlight(startPoint, () => {
+      freedomFlight = null
+      overlay.innerHTML = `<strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span><span class="sloppy-bird-title-status">is free.</span></strong><span>Thank you for setting Sloppy Bird free.</span><button type="button" data-umami-event="sloppy-bird-play-again-click">Play again</button>`
+      overlay.hidden = false
+    })
+  }
+
   const start = () => {
     reset()
     state = "playing"
     scoreHud.hidden = false
+    overlay.style.cursor = ""
     overlay.hidden = true
     canvas.focus({ preventScroll: true })
   }
@@ -169,7 +195,6 @@ export function mount(host) {
     if (state === "ready") start()
     if (state !== "playing") return
     bird.velocity = -292
-    bird.wing = 1
   }
 
   const celebrateMilestone = () => {
@@ -219,7 +244,7 @@ export function mount(host) {
 
     bird.velocity += 810 * delta
     bird.y += bird.velocity * delta
-    bird.wing = Math.max(0, bird.wing - delta * 5.5)
+    bird.wingPhase = (bird.wingPhase + delta * (bird.velocity < 0 ? 27 : 22)) % (Math.PI * 2)
 
     for (let index = fireworks.length - 1; index >= 0; index -= 1) {
       const particle = fireworks[index]
@@ -276,7 +301,12 @@ export function mount(host) {
       if (pipe.x + 48 < -8) pipes.splice(index, 1)
     }
 
-    if (bird.y - bird.radius < 0 || bird.y + bird.radius > height - groundHeight) showGameOver()
+    if (bird.y - bird.radius < 0) {
+      if (score === 0) freeBird()
+      else showGameOver()
+    } else if (bird.y + bird.radius > height - groundHeight) {
+      showGameOver()
+    }
   }
 
   const drawBackground = () => {
@@ -418,58 +448,373 @@ export function mount(host) {
     context.restore()
   }
 
+  const drawBirdShape = (targetContext, x, y, tilt, wing, scale = 1, facing = 1) => {
+    targetContext.save()
+    targetContext.translate(x, y)
+    targetContext.rotate(tilt)
+    targetContext.scale(facing * scale, scale)
+
+    if (wing === null) {
+      targetContext.strokeStyle = palette.birdLeg
+      targetContext.lineWidth = 1.15
+      targetContext.lineCap = "round"
+      for (const legX of [-3, 4]) {
+        targetContext.beginPath()
+        targetContext.moveTo(legX, 8)
+        targetContext.lineTo(legX + 0.5, 15)
+        targetContext.moveTo(legX + 0.5, 15)
+        targetContext.lineTo(legX - 3, 16.5)
+        targetContext.moveTo(legX + 0.5, 15)
+        targetContext.lineTo(legX + 4, 16.2)
+        targetContext.stroke()
+      }
+    }
+
+    targetContext.fillStyle = palette.birdDark
+    targetContext.beginPath()
+    targetContext.moveTo(-12, -3)
+    targetContext.lineTo(-29, -8)
+    targetContext.lineTo(-23, -1)
+    targetContext.lineTo(-29, 5)
+    targetContext.lineTo(-11, 5)
+    targetContext.closePath()
+    targetContext.fill()
+
+    targetContext.fillStyle = palette.birdFeather
+    targetContext.beginPath()
+    targetContext.moveTo(-13, 0)
+    targetContext.lineTo(-27, -3)
+    targetContext.lineTo(-19, 4)
+    targetContext.closePath()
+    targetContext.fill()
+
+    const bodyGradient = targetContext.createLinearGradient(-12, -8, 12, 10)
+    bodyGradient.addColorStop(0, palette.birdBack)
+    bodyGradient.addColorStop(0.48, palette.birdBody)
+    bodyGradient.addColorStop(1, palette.birdChest)
+    targetContext.fillStyle = bodyGradient
+    targetContext.beginPath()
+    targetContext.ellipse(-1.5, 1.5, 17, 10.5, -0.08, 0, Math.PI * 2)
+    targetContext.fill()
+
+    targetContext.fillStyle = palette.birdChest
+    targetContext.globalAlpha = 0.78
+    targetContext.beginPath()
+    targetContext.ellipse(4, 4.2, 10.5, 5.5, -0.12, 0, Math.PI * 2)
+    targetContext.fill()
+    targetContext.globalAlpha = 1
+
+    targetContext.fillStyle = palette.birdBody
+    targetContext.beginPath()
+    targetContext.arc(10, -4.5, 8.2, 0, Math.PI * 2)
+    targetContext.fill()
+    targetContext.fillStyle = palette.birdCrown
+    targetContext.beginPath()
+    targetContext.ellipse(8.2, -8.2, 7.3, 3.8, -0.08, Math.PI, Math.PI * 2)
+    targetContext.fill()
+    targetContext.fillStyle = palette.birdLight
+    targetContext.beginPath()
+    targetContext.ellipse(12, -2.6, 5.3, 4.6, -0.14, 0, Math.PI * 2)
+    targetContext.fill()
+
+    targetContext.fillStyle = palette.birdWing
+    targetContext.strokeStyle = palette.birdFeather
+    if (wing === null) {
+      targetContext.beginPath()
+      targetContext.ellipse(-4, 2, 9.5, 5.5, -0.24, 0, Math.PI * 2)
+      targetContext.fill()
+      targetContext.fillStyle = palette.birdBack
+      targetContext.globalAlpha = 0.72
+      targetContext.beginPath()
+      targetContext.ellipse(-5.5, -0.2, 6.2, 3.2, -0.28, 0, Math.PI * 2)
+      targetContext.fill()
+      targetContext.globalAlpha = 0.42
+      targetContext.strokeStyle = palette.birdLight
+      targetContext.beginPath()
+      targetContext.moveTo(-10, 1)
+      targetContext.quadraticCurveTo(-4, 2, 3, 5)
+      targetContext.moveTo(-9, 3)
+      targetContext.quadraticCurveTo(-3, 4, 2, 6)
+      targetContext.stroke()
+      targetContext.globalAlpha = 1
+    } else {
+      const wingPose = Math.max(0, Math.min(1, wing))
+      const wingSpread = Math.sin(wingPose * Math.PI)
+      const wingTipX = -14 - wingSpread * 5
+      const wingTipY = 11 - wingPose * 31
+      const wingShoulderY = -1 - wingPose * 4
+      targetContext.beginPath()
+      targetContext.moveTo(-7, 1)
+      targetContext.bezierCurveTo(-12, wingShoulderY, wingTipX - 5, wingTipY + 4, wingTipX, wingTipY)
+      targetContext.bezierCurveTo(wingTipX + 6, wingTipY + 3, 1, -8 + wingPose * 4, 6, -2)
+      targetContext.quadraticCurveTo(2, 6, -7, 7)
+      targetContext.closePath()
+      targetContext.fill()
+
+      targetContext.fillStyle = palette.birdBack
+      targetContext.globalAlpha = 0.62
+      targetContext.beginPath()
+      targetContext.moveTo(-6, 0)
+      targetContext.quadraticCurveTo(-9, wingShoulderY, wingTipX + 2, wingTipY + 5)
+      targetContext.quadraticCurveTo(-2, -5 + wingPose * 3, 4, -2)
+      targetContext.closePath()
+      targetContext.fill()
+
+      targetContext.globalAlpha = 0.46
+      targetContext.strokeStyle = palette.birdLight
+      targetContext.lineWidth = 0.9
+      for (let feather = 0; feather < 3; feather += 1) {
+        const featherOffset = feather * 0.19
+        targetContext.beginPath()
+        targetContext.moveTo(-5 + feather * 2.2, 1)
+        targetContext.quadraticCurveTo(
+          wingTipX * (0.64 + featherOffset),
+          wingTipY * (0.58 + featherOffset),
+          wingTipX + 2.5 + feather * 3,
+          wingTipY + 4 + feather * 2.4,
+        )
+        targetContext.stroke()
+      }
+      targetContext.globalAlpha = 1
+    }
+
+    targetContext.fillStyle = palette.birdCrown
+    targetContext.globalAlpha = 0.7
+    targetContext.beginPath()
+    targetContext.moveTo(5, -2)
+    targetContext.quadraticCurveTo(8, 2, 13, 3)
+    targetContext.quadraticCurveTo(8, 5, 4, 2)
+    targetContext.closePath()
+    targetContext.fill()
+    targetContext.globalAlpha = 1
+
+    targetContext.fillStyle = palette.beak
+    targetContext.beginPath()
+    targetContext.moveTo(16, -4.5)
+    targetContext.lineTo(25, -2.2)
+    targetContext.lineTo(16, -0.6)
+    targetContext.closePath()
+    targetContext.fill()
+    targetContext.strokeStyle = palette.birdDark
+    targetContext.globalAlpha = 0.45
+    targetContext.lineWidth = 0.7
+    targetContext.beginPath()
+    targetContext.moveTo(16.5, -2.6)
+    targetContext.lineTo(23, -2.1)
+    targetContext.stroke()
+    targetContext.globalAlpha = 1
+
+    targetContext.fillStyle = palette.eye
+    targetContext.beginPath()
+    targetContext.arc(12.6, -6.3, 2.4, 0, Math.PI * 2)
+    targetContext.fill()
+    targetContext.fillStyle = palette.pupil
+    targetContext.beginPath()
+    targetContext.arc(13.1, -6.4, 1.35, 0, Math.PI * 2)
+    targetContext.fill()
+    targetContext.fillStyle = palette.eye
+    targetContext.beginPath()
+    targetContext.arc(13.55, -6.85, 0.42, 0, Math.PI * 2)
+    targetContext.fill()
+    targetContext.restore()
+  }
+
+  const startFreedomFlight = (startPoint, onComplete) => {
+    const flightCanvas = document.createElement("canvas")
+    flightCanvas.setAttribute("aria-hidden", "true")
+    Object.assign(flightCanvas.style, {
+      position: "fixed",
+      inset: "0",
+      width: "100vw",
+      height: "100vh",
+      pointerEvents: "none",
+      zIndex: "10000",
+    })
+    document.body.append(flightCanvas)
+
+    const flightContext = flightCanvas.getContext("2d")
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const flightRatio = Math.min(window.devicePixelRatio || 1, 1.5)
+    flightCanvas.width = Math.round(viewportWidth * flightRatio)
+    flightCanvas.height = Math.round(viewportHeight * flightRatio)
+    flightContext.setTransform(flightRatio, 0, 0, flightRatio, 0, 0)
+
+    const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value))
+    const randomPoint = () => ({
+      x: 42 + Math.random() * Math.max(1, viewportWidth - 84),
+      y: 58 + Math.random() * Math.max(1, viewportHeight * 0.58),
+    })
+    const isVisiblePerchElement = (element, minimumWidth = 28) => {
+      if (host.contains(element)) return false
+      const rect = element.getBoundingClientRect()
+      const position = window.getComputedStyle(element).position
+      return (
+        position !== "fixed" &&
+        position !== "sticky" &&
+        rect.width > minimumWidth &&
+        rect.width < viewportWidth * 0.94 &&
+        rect.height > 10 &&
+        rect.height < viewportHeight * 0.55 &&
+        rect.top > 52 &&
+        rect.top < viewportHeight - 36 &&
+        rect.right > 20 &&
+        rect.left < viewportWidth - 20
+      )
+    }
+    const textPerches = Array.from(document.querySelectorAll("a, button, p, h1, h2, h3, h4, li, strong"))
+      .filter((element) => element.textContent?.trim() && isVisiblePerchElement(element))
+      .map((element) => ({ element, edge: "top" }))
+    const borderedDivPerches = Array.from(document.querySelectorAll("div"))
+      .filter((element) => isVisiblePerchElement(element, 56))
+      .map((element) => {
+        const style = window.getComputedStyle(element)
+        const hasTopBorder = style.borderTopStyle !== "none" && Number.parseFloat(style.borderTopWidth) > 0
+        const hasBottomBorder = style.borderBottomStyle !== "none" && Number.parseFloat(style.borderBottomWidth) > 0
+        if (!hasTopBorder && !hasBottomBorder) return null
+        return { element, edge: hasTopBorder ? "top" : "bottom" }
+      })
+      .filter(Boolean)
+    const perchCandidates = [...textPerches, ...borderedDivPerches]
+    const perchTarget = perchCandidates.length ? perchCandidates[Math.floor(Math.random() * perchCandidates.length)] : null
+    const perchElement = perchTarget?.element || null
+    const perchEdge = perchTarget?.edge || "top"
+    const perchAnchor = 0.28 + Math.random() * 0.44
+    let lastPerchPoint = { x: viewportWidth * (0.25 + Math.random() * 0.5), y: clamp(startPoint.y - 90, 80, viewportHeight * 0.7) }
+    const getPerchPoint = () => {
+      if (!perchElement?.isConnected) return lastPerchPoint
+      const rect = perchElement.getBoundingClientRect()
+      lastPerchPoint = { x: rect.left + rect.width * perchAnchor, y: (perchEdge === "bottom" ? rect.bottom : rect.top) - 14 }
+      return lastPerchPoint
+    }
+    const perchPoint = getPerchPoint()
+    const exitSide = Math.floor(Math.random() * 3)
+    const exitPoint =
+      exitSide === 0
+        ? { x: 30 + Math.random() * Math.max(1, viewportWidth - 60), y: -54 }
+        : exitSide === 1
+          ? { x: -54, y: 60 + Math.random() * Math.max(1, viewportHeight * 0.48) }
+          : { x: viewportWidth + 54, y: 60 + Math.random() * Math.max(1, viewportHeight * 0.48) }
+    const reducedMotion = prefersReducedMotion.matches
+    const points = reducedMotion ? [startPoint, exitPoint] : [startPoint, randomPoint(), randomPoint(), perchPoint, randomPoint(), exitPoint]
+    const perchSegment = reducedMotion ? -1 : 2
+    const segments = []
+
+    for (let index = 0; index < points.length - 1; index += 1) {
+      const from = points[index]
+      const to = points[index + 1]
+      const distance = Math.hypot(to.x - from.x, to.y - from.y)
+      const midpointX = (from.x + to.x) * 0.5
+      const midpointY = (from.y + to.y) * 0.5
+      const bend = (Math.random() - 0.5) * Math.min(190, distance * 0.6)
+      const normalX = distance ? -(to.y - from.y) / distance : 0
+      const normalY = distance ? (to.x - from.x) / distance : 0
+      segments.push({
+        from,
+        to,
+        control: {
+          x: clamp(midpointX + normalX * bend, -24, viewportWidth + 24),
+          y: clamp(midpointY + normalY * bend - 25 - Math.random() * 38, -24, viewportHeight + 24),
+        },
+        duration: reducedMotion ? 900 : clamp(distance / 270, 0.72, 1.42) * 1000,
+      })
+    }
+
+    let flightFrame = 0
+    let segmentIndex = 0
+    let segmentStartedAt = 0
+    let perchUntil = 0
+    let facing = 1
+    let destroyed = false
+
+    const finish = () => {
+      if (destroyed) return
+      destroyed = true
+      if (flightFrame) cancelAnimationFrame(flightFrame)
+      flightCanvas.remove()
+      onComplete()
+    }
+
+    const animateFlight = (time) => {
+      if (destroyed) return
+      if (!segmentStartedAt) segmentStartedAt = time
+      const segment = segments[segmentIndex]
+      if (!segment) {
+        finish()
+        return
+      }
+
+      flightContext.clearRect(0, 0, viewportWidth, viewportHeight)
+
+      if (perchUntil) {
+        const trackedPerch = getPerchPoint()
+        segment.from.x = trackedPerch.x
+        segment.from.y = trackedPerch.y
+        const perchBob = Math.sin(time * 0.008) * 0.7
+        drawBirdShape(flightContext, segment.from.x, segment.from.y + perchBob, 0, null, 1.22, facing)
+        if (time >= perchUntil) {
+          perchUntil = 0
+          segmentStartedAt = time
+          const takeoffDistance = Math.hypot(segment.to.x - segment.from.x, segment.to.y - segment.from.y)
+          const takeoffBend = (Math.random() - 0.5) * Math.min(190, takeoffDistance * 0.6)
+          const takeoffNormalX = takeoffDistance ? -(segment.to.y - segment.from.y) / takeoffDistance : 0
+          const takeoffNormalY = takeoffDistance ? (segment.to.x - segment.from.x) / takeoffDistance : 0
+          segment.control.x = clamp((segment.from.x + segment.to.x) * 0.5 + takeoffNormalX * takeoffBend, -24, viewportWidth + 24)
+          segment.control.y = clamp(
+            (segment.from.y + segment.to.y) * 0.5 + takeoffNormalY * takeoffBend - 25 - Math.random() * 38,
+            -24,
+            viewportHeight + 24,
+          )
+          segment.duration = clamp(takeoffDistance / 270, 0.72, 1.42) * 1000
+        }
+        flightFrame = requestAnimationFrame(animateFlight)
+        return
+      }
+
+      if (segmentIndex === perchSegment && perchElement) {
+        const trackedPerch = getPerchPoint()
+        segment.to.x = trackedPerch.x
+        segment.to.y = trackedPerch.y
+        if (segments[segmentIndex + 1]) {
+          segments[segmentIndex + 1].from.x = trackedPerch.x
+          segments[segmentIndex + 1].from.y = trackedPerch.y
+        }
+      }
+
+      const progress = Math.min(1, (time - segmentStartedAt) / segment.duration)
+      const inverse = 1 - progress
+      const x = inverse * inverse * segment.from.x + 2 * inverse * progress * segment.control.x + progress * progress * segment.to.x
+      const y = inverse * inverse * segment.from.y + 2 * inverse * progress * segment.control.y + progress * progress * segment.to.y
+      const velocityX = 2 * inverse * (segment.control.x - segment.from.x) + 2 * progress * (segment.to.x - segment.control.x)
+      const velocityY = 2 * inverse * (segment.control.y - segment.from.y) + 2 * progress * (segment.to.y - segment.control.y)
+      if (Math.abs(velocityX) > 1) facing = velocityX < 0 ? -1 : 1
+      const tilt = clamp(Math.atan2(velocityY, Math.max(30, Math.abs(velocityX))) * 0.52, -0.5, 0.5)
+      const wing = (Math.sin(time * 0.026 + segmentIndex * 0.7) + 1) * 0.5
+      drawBirdShape(flightContext, x, y, tilt, wing, 1.22, facing)
+
+      if (progress >= 1) {
+        segmentIndex += 1
+        segmentStartedAt = time
+        if (segmentIndex - 1 === perchSegment) perchUntil = time + 2200 + Math.random() * 1200
+      }
+      flightFrame = requestAnimationFrame(animateFlight)
+    }
+
+    flightFrame = requestAnimationFrame(animateFlight)
+    return {
+      destroy() {
+        if (destroyed) return
+        destroyed = true
+        if (flightFrame) cancelAnimationFrame(flightFrame)
+        flightCanvas.remove()
+      },
+    }
+  }
+
   const drawBird = () => {
     if (!bird) return
-    context.save()
-    context.translate(bird.x, bird.y)
-    context.rotate(Math.max(-0.42, Math.min(0.72, bird.velocity / 470)))
-    context.fillStyle = palette.birdDark
-    context.beginPath()
-    context.moveTo(-11, 0)
-    context.lineTo(-22, -7)
-    context.lineTo(-19, 3)
-    context.lineTo(-23, 9)
-    context.closePath()
-    context.fill()
-    context.fillStyle = palette.birdBody
-    context.beginPath()
-    context.ellipse(-1, 1, 16, 11.5, -0.08, 0, Math.PI * 2)
-    context.fill()
-    context.fillStyle = palette.birdLight
-    context.beginPath()
-    context.ellipse(3, -3, 10, 6, -0.1, 0, Math.PI * 2)
-    context.fill()
-    const wingLift = bird.wing * 7
-    context.fillStyle = palette.birdWing
-    context.beginPath()
-    context.moveTo(-7, 1)
-    context.quadraticCurveTo(-10, -13 - wingLift, 5, -5 - wingLift * 0.3)
-    context.quadraticCurveTo(2, 6, -7, 7)
-    context.closePath()
-    context.fill()
-    context.strokeStyle = palette.birdDark
-    context.globalAlpha = 0.5
-    context.beginPath()
-    context.moveTo(-5, 1)
-    context.quadraticCurveTo(-2, -3 - wingLift * 0.35, 4, -4 - wingLift * 0.25)
-    context.stroke()
-    context.globalAlpha = 1
-    context.fillStyle = palette.beak
-    context.beginPath()
-    context.moveTo(13, -1)
-    context.lineTo(24, 2)
-    context.lineTo(13, 6)
-    context.closePath()
-    context.fill()
-    context.fillStyle = palette.eye
-    context.beginPath()
-    context.arc(8, -6, 4.2, 0, Math.PI * 2)
-    context.fill()
-    context.fillStyle = palette.pupil
-    context.beginPath()
-    context.arc(9.4, -6.1, 1.8, 0, Math.PI * 2)
-    context.fill()
-    context.restore()
+    const wing = (Math.sin(bird.wingPhase) + 1) * 0.5
+    drawBirdShape(context, bird.x, bird.y, Math.max(-0.42, Math.min(0.72, bird.velocity / 470)), wing)
   }
 
   const draw = () => {
@@ -544,6 +889,8 @@ export function mount(host) {
   return {
     destroy() {
       pause()
+      freedomFlight?.destroy()
+      freedomFlight = null
       resizeObserver.disconnect()
       visibilityObserver?.disconnect()
       canvas.removeEventListener("pointerdown", onPointerDown)
