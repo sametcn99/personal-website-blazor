@@ -9,7 +9,7 @@
     <div class="page-content">
         <div class="content-body">@Body</div>
 
-        @if (!ShouldHideChrome() && !ShouldHideFooter())
+        @if (!ShouldHideChrome())
         {
             <SiteFooter />
         }
@@ -27,15 +27,11 @@
     private bool ShouldHideChrome() =>
         CurrentPath.StartsWith("link/", StringComparison.Ordinal) ||
         CurrentPath.StartsWith("repo/", StringComparison.Ordinal);
-
-    private bool ShouldHideFooter()
-    {
-        return CurrentPath.StartsWith("privacy", StringComparison.Ordinal);
-    }
 }
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload" data-umami-event="blazor-error-reload-click">Reload</a>
-    <button type="button" class="dismiss" data-umami-event="blazor-error-dismiss-click" aria-label="Dismiss error">✕</button>
+    <button type="button" class="dismiss" data-umami-event="blazor-error-dismiss-click"
+            aria-label="Dismiss error">✕</button>
 </div>

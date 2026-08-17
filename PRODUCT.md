@@ -18,7 +18,7 @@ Success means a visitor can quickly understand what Samet writes about, find a r
 
 ## Positioning
 
-The site brings long-form writing, practical technical references, software experiments, and project records into one searchable first-party archive rather than splitting them across a conventional portfolio and external publishing platforms.
+The site brings blog posts, practical technical references, software experiments, and project records into one searchable first-party archive rather than splitting them across a conventional portfolio and external publishing platforms.
 
 ## Operating Context
 
