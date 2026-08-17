@@ -261,6 +261,9 @@ app.Map("/umami/script.js", async (HttpContext context, IHttpClientFactory httpC
 // ── Controllers ────────────────────────────────────────────────────────
 app.MapControllers();
 
+// ── Container Health ───────────────────────────────────────────────────
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
 // ── Razor Components ──────────────────────────────────────────────────
 app.MapStaticAssets();
 app.MapRazorComponents<personal_website_blazor.Components.App>()
