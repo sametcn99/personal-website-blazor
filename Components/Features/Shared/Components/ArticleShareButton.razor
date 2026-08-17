@@ -1,0 +1,66 @@
+@implements IDisposable
+@inject IJSRuntime JS
+
+<div class="article-share">
+    <button type="button"
+            class="icon-button article-share-button"
+            @onclick="ShareAsync"
+            data-umami-event="article-share-click"
+            title="Share this page"
+            aria-label="Share this page">
+        <AppIcon Name="share" />
+        <span>Share</span>
+    </button>
+
+    @if (_linkCopied)
+    {
+        <div class="article-share-toast" role="status" aria-live="polite">Link copied</div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+
+    private bool _linkCopied;
+    private CancellationTokenSource? _toastCts;
+
+    private async Task ShareAsync()
+    {
+        try
+        {
+            var result = await JS.InvokeAsync<string>("shareCurrentPage", Title, Description ?? string.Empty);
+            if (!string.Equals(result, "copied", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+            _toastCts = new CancellationTokenSource();
+            var token = _toastCts.Token;
+            _linkCopied = true;
+
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(2400, token);
+
+            if (!token.IsCancellationRequested)
+            {
+                _linkCopied = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (JSException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        _toastCts?.Cancel();
+        _toastCts?.Dispose();
+    }
+}

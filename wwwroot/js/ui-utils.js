@@ -80,6 +80,40 @@ window.downloadFile = (url, fileName) => {
   document.body.removeChild(link)
 }
 
+window.shareCurrentPage = async (title, text) => {
+  const url = window.location.href
+
+  if (typeof navigator.share === "function") {
+    try {
+      await navigator.share({ title, text, url })
+      return "shared"
+    } catch (error) {
+      if (error?.name === "AbortError") return "cancelled"
+      return "failed"
+    }
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url)
+    } else {
+      const textarea = document.createElement("textarea")
+      textarea.value = url
+      textarea.style.position = "fixed"
+      textarea.style.opacity = "0"
+      document.body.appendChild(textarea)
+      textarea.select()
+      const copied = document.execCommand("copy")
+      textarea.remove()
+      if (!copied) return "failed"
+    }
+
+    return "copied"
+  } catch {
+    return "failed"
+  }
+}
+
 window.sloppyBird =
   window.sloppyBird ||
   (() => {

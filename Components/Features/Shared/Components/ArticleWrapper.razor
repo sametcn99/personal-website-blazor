@@ -7,37 +7,41 @@
     @if (Post != null)
     {
         <header class="article-record-header">
-            <div class="flow-sm">
-                <div class="meta-list text-muted text-caption">
-                    @if (Post.PublishDate.HasValue)
+            <div class="article-record-header-inner">
+                <div class="flow-sm">
+                    <div class="meta-list text-muted text-caption">
+                        @if (Post.PublishDate.HasValue)
+                        {
+                            <span>
+                                @PublishedLabel: @FormatDate(Post.PublishDate)
+                            </span>
+                        }
+                        @if (HasDistinctUpdatedDate(Post))
+                        {
+                            <span>
+                                @UpdatedLabel: @FormatDate(Post.UpdatedAt)
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(Post.Language))
+                        {
+                            <span>
+                                @Post.Language.ToUpperInvariant()
+                            </span>
+                        }
+                    </div>
+
+                    @if (Post.Tags.Length > 0)
                     {
-                        <span>
-                            @PublishedLabel: @FormatDate(Post.PublishDate)
-                        </span>
-                    }
-                    @if (HasDistinctUpdatedDate(Post))
-                    {
-                        <span>
-                            @UpdatedLabel: @FormatDate(Post.UpdatedAt)
-                        </span>
-                    }
-                    @if (!string.IsNullOrEmpty(Post.Language))
-                    {
-                        <span>
-                            @Post.Language.ToUpperInvariant()
-                        </span>
+                        <div class="tag-list text-caption text-muted">
+                            @foreach (var tag in Post.Tags)
+                            {
+                                <span>#@tag</span>
+                            }
+                        </div>
                     }
                 </div>
 
-                @if (Post.Tags.Length > 0)
-                {
-                    <div class="tag-list text-caption text-muted">
-                        @foreach (var tag in Post.Tags)
-                        {
-                            <span>#@tag</span>
-                        }
-                    </div>
-                }
+                <ArticleShareButton Title="@Post.Title" Description="@Post.Description" />
             </div>
         </header>
 
