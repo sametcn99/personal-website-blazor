@@ -29,9 +29,24 @@ const palette = {
   pupil: "#0e0f0d",
 }
 
+const TAU = Math.PI * 2
+const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value))
+const smoothstep = (value) => {
+  const t = clamp(value, 0, 1)
+  return t * t * (3 - 2 * t)
+}
+
 const randomFrom = (seed) => {
   const value = Math.sin(seed * 12.9898) * 43758.5453
   return value - Math.floor(value)
+}
+
+// Birds do not move their wings with a sine wave: the power stroke is fast,
+// while the recovery stroke is slower and more controlled.
+const wingPoseFromPhase = (phase) => {
+  const cycle = (((phase / TAU) % 1) + 1) % 1
+  if (cycle < 0.36) return 1 - smoothstep(cycle / 0.36)
+  return smoothstep((cycle - 0.36) / 0.64)
 }
 
 export function mount(host) {
@@ -57,7 +72,7 @@ export function mount(host) {
     width: "100%",
     height: "100%",
   })
-  const context = canvas.getContext("2d", { alpha: false })
+  const context = canvas.getContext("2d", { alpha: false, desynchronized: true })
   const scoreHud = host.querySelector(".sloppy-bird-hud")
   const scoreValue = scoreHud.querySelector("strong")
   const overlay = host.querySelector(".sloppy-bird-overlay")
@@ -106,7 +121,14 @@ export function mount(host) {
   }
 
   const reset = () => {
-    bird = { x: Math.max(88, width * 0.22), y: Math.max(70, (height - groundHeight) * 0.47), velocity: 0, radius: 12, wingPhase: 0 }
+    bird = {
+      x: Math.max(88, width * 0.22),
+      y: Math.max(70, (height - groundHeight) * 0.47),
+      velocity: 0,
+      radius: 12,
+      wingPhase: Math.random() * TAU,
+      flapEnergy: 0,
+    }
     pipes.length = 0
     fireworks.length = 0
     score = 0
@@ -175,11 +197,7 @@ export function mount(host) {
     overlay.hidden = true
     bird = null
 
-    freedomFlight = startFreedomFlight(startPoint, () => {
-      freedomFlight = null
-      overlay.innerHTML = `<strong><span class="sloppy-bird-title-word">Sloppy</span><span class="sloppy-bird-title-accent">Bird</span><span class="sloppy-bird-title-status">is free.</span></strong><span>Thank you for setting Sloppy Bird free.</span><button type="button" data-umami-event="sloppy-bird-play-again-click">Play again</button>`
-      overlay.hidden = false
-    })
+    freedomFlight = startFreedomFlight(startPoint)
   }
 
   const start = () => {
@@ -189,12 +207,14 @@ export function mount(host) {
     overlay.style.cursor = ""
     overlay.hidden = true
     canvas.focus({ preventScroll: true })
+    resume()
   }
 
   const flap = () => {
     if (state === "ready") start()
     if (state !== "playing") return
     bird.velocity = -292
+    bird.flapEnergy = 1
   }
 
   const celebrateMilestone = () => {
@@ -238,13 +258,18 @@ export function mount(host) {
   }
 
   const update = (delta) => {
-    const backgroundSpeed = state === "playing" ? 30 : 9
-    if (!prefersReducedMotion.matches || state === "playing") sceneOffset = (sceneOffset + backgroundSpeed * delta) % Math.max(1, width + 240)
+    // Keep the game world's parallax alive after Sloppy Bird is freed.
+    // Gameplay physics still run only while actively playing.
+    if (state === "playing" || state === "freed") {
+      sceneOffset = (sceneOffset + 30 * delta) % Math.max(1, width + 240)
+    }
     if (state !== "playing") return
 
     bird.velocity += 810 * delta
     bird.y += bird.velocity * delta
-    bird.wingPhase = (bird.wingPhase + delta * (bird.velocity < 0 ? 27 : 22)) % (Math.PI * 2)
+    bird.flapEnergy = Math.max(0, bird.flapEnergy - delta * 3.4)
+    const wingCadence = 18 + bird.flapEnergy * 9 + Math.max(0, -bird.velocity) * 0.012
+    bird.wingPhase = (bird.wingPhase + delta * wingCadence) % TAU
 
     for (let index = fireworks.length - 1; index >= 0; index -= 1) {
       const particle = fireworks[index]
@@ -348,6 +373,7 @@ export function mount(host) {
         const item = buildings[index]
         const x = item.x - ((sceneOffset * 0.34) % cityLoop) + repeat * cityLoop
         const y = height - groundHeight - item.height - 18
+        if (x + item.width < -2 || x > width + 2) continue
         context.fillStyle = index % 2 ? palette.cityFar : palette.cityNear
         context.fillRect(x, y, item.width, item.height + 18)
         if (item.lit) {
@@ -378,6 +404,7 @@ export function mount(host) {
       for (const shrub of shrubs) {
         const x = shrub.x - ((sceneOffset * 0.82) % shrubLoop) + repeat * shrubLoop
         const y = height - groundHeight + shrub.lift
+        if (x + shrub.radius < -2 || x - shrub.radius > width + 2) continue
         context.fillStyle = palette.foliage
         context.beginPath()
         context.arc(x, y, shrub.radius, Math.PI, Math.PI * 2)
@@ -448,178 +475,218 @@ export function mount(host) {
     context.restore()
   }
 
-  const drawBirdShape = (targetContext, x, y, tilt, wing, scale = 1, facing = 1) => {
+  const drawBirdShape = (targetContext, x, y, tilt, wing, scale = 1, facing = 1, options = {}) => {
+    const perched = wing === null
+    const gliding = typeof wing === "number" && wing < 0
+    const wingPose = perched || gliding ? 0.5 : clamp(wing, 0, 1)
+    const headPitch = clamp(options.headPitch || 0, -0.28, 0.28)
+    const tailFan = clamp(options.tailFan || 0, 0, 1)
+    const bodyLift = perched ? 0 : Math.sin((options.wingPhase || 0) + 0.7) * 0.55
+
     targetContext.save()
-    targetContext.translate(x, y)
+    targetContext.translate(x, y + bodyLift)
     targetContext.rotate(tilt)
     targetContext.scale(facing * scale, scale)
+    targetContext.lineJoin = "round"
+    targetContext.lineCap = "round"
 
-    if (wing === null) {
+    // Legs sit behind the body and only drop into a weight-bearing pose while perched.
+    if (perched) {
       targetContext.strokeStyle = palette.birdLeg
-      targetContext.lineWidth = 1.15
-      targetContext.lineCap = "round"
-      for (const legX of [-3, 4]) {
+      targetContext.lineWidth = 1.05
+      for (const legX of [-3.2, 3.4]) {
         targetContext.beginPath()
-        targetContext.moveTo(legX, 8)
-        targetContext.lineTo(legX + 0.5, 15)
-        targetContext.moveTo(legX + 0.5, 15)
-        targetContext.lineTo(legX - 3, 16.5)
-        targetContext.moveTo(legX + 0.5, 15)
-        targetContext.lineTo(legX + 4, 16.2)
+        targetContext.moveTo(legX, 7.2)
+        targetContext.lineTo(legX + 0.2, 13.5)
+        targetContext.lineTo(legX - 1.1, 15.6)
+        targetContext.stroke()
+
+        targetContext.beginPath()
+        targetContext.moveTo(legX - 1.1, 15.5)
+        targetContext.quadraticCurveTo(legX - 4.4, 16.2, legX - 5.2, 15.5)
+        targetContext.moveTo(legX - 1.0, 15.5)
+        targetContext.quadraticCurveTo(legX + 2.4, 16.7, legX + 4.2, 15.8)
+        targetContext.moveTo(legX - 0.8, 15.1)
+        targetContext.quadraticCurveTo(legX + 0.2, 17.3, legX + 1.5, 17.5)
         targetContext.stroke()
       }
     }
 
+    // Three overlapping rectrices make the tail read as feathers instead of one polygon.
+    const tailSpread = 2.2 + tailFan * 3.8
     targetContext.fillStyle = palette.birdDark
-    targetContext.beginPath()
-    targetContext.moveTo(-12, -3)
-    targetContext.lineTo(-29, -8)
-    targetContext.lineTo(-23, -1)
-    targetContext.lineTo(-29, 5)
-    targetContext.lineTo(-11, 5)
-    targetContext.closePath()
-    targetContext.fill()
-
+    for (let feather = -1; feather <= 1; feather += 1) {
+      const offset = feather * tailSpread
+      targetContext.beginPath()
+      targetContext.moveTo(-11.5, -1 + feather * 1.5)
+      targetContext.lineTo(-29.5, offset - 3.3)
+      targetContext.quadraticCurveTo(-31, offset, -28.6, offset + 2.5)
+      targetContext.lineTo(-10.5, 4.2 + feather * 0.7)
+      targetContext.closePath()
+      targetContext.fill()
+    }
     targetContext.fillStyle = palette.birdFeather
+    targetContext.globalAlpha = 0.72
     targetContext.beginPath()
     targetContext.moveTo(-13, 0)
-    targetContext.lineTo(-27, -3)
-    targetContext.lineTo(-19, 4)
+    targetContext.lineTo(-27, -1.8)
+    targetContext.lineTo(-19, 4.5)
     targetContext.closePath()
-    targetContext.fill()
-
-    const bodyGradient = targetContext.createLinearGradient(-12, -8, 12, 10)
-    bodyGradient.addColorStop(0, palette.birdBack)
-    bodyGradient.addColorStop(0.48, palette.birdBody)
-    bodyGradient.addColorStop(1, palette.birdChest)
-    targetContext.fillStyle = bodyGradient
-    targetContext.beginPath()
-    targetContext.ellipse(-1.5, 1.5, 17, 10.5, -0.08, 0, Math.PI * 2)
-    targetContext.fill()
-
-    targetContext.fillStyle = palette.birdChest
-    targetContext.globalAlpha = 0.78
-    targetContext.beginPath()
-    targetContext.ellipse(4, 4.2, 10.5, 5.5, -0.12, 0, Math.PI * 2)
     targetContext.fill()
     targetContext.globalAlpha = 1
 
+    // Torso: a tapered dorsal line, rounded breast and narrower rump give a sparrow-like anatomy.
+    targetContext.fillStyle = palette.birdBack
+    targetContext.beginPath()
+    targetContext.moveTo(-13.5, -3.5)
+    targetContext.bezierCurveTo(-8.5, -9.7, 2.5, -10.2, 10.4, -5.3)
+    targetContext.bezierCurveTo(15.3, -2.2, 14.3, 5.6, 7.3, 9.2)
+    targetContext.bezierCurveTo(-0.8, 13.6, -10.5, 8.7, -14.6, 3.2)
+    targetContext.bezierCurveTo(-16, 1, -15.5, -1.7, -13.5, -3.5)
+    targetContext.closePath()
+    targetContext.fill()
+
     targetContext.fillStyle = palette.birdBody
     targetContext.beginPath()
-    targetContext.arc(10, -4.5, 8.2, 0, Math.PI * 2)
+    targetContext.moveTo(-9.5, -5.1)
+    targetContext.bezierCurveTo(-1.5, -7.8, 7.4, -6.9, 11.5, -2)
+    targetContext.bezierCurveTo(14.5, 1.5, 11.7, 8.2, 5, 10.1)
+    targetContext.bezierCurveTo(-2.8, 12.2, -10.5, 7.2, -12.4, 2.4)
+    targetContext.bezierCurveTo(-13.3, 0, -12.1, -3.8, -9.5, -5.1)
     targetContext.fill()
-    targetContext.fillStyle = palette.birdCrown
+
+    targetContext.fillStyle = palette.birdChest
     targetContext.beginPath()
-    targetContext.ellipse(8.2, -8.2, 7.3, 3.8, -0.08, Math.PI, Math.PI * 2)
+    targetContext.ellipse(5.4, 4.3, 8.1, 5.9, -0.18, -0.2, Math.PI * 1.08)
     targetContext.fill()
     targetContext.fillStyle = palette.birdLight
+    targetContext.globalAlpha = 0.42
     targetContext.beginPath()
-    targetContext.ellipse(12, -2.6, 5.3, 4.6, -0.14, 0, Math.PI * 2)
+    targetContext.ellipse(7.4, 3.7, 4.8, 3.5, -0.22, -0.4, Math.PI * 1.1)
     targetContext.fill()
+    targetContext.globalAlpha = 1
 
+    // Wing grows from the shoulder/scapular area. During a glide the primaries stay splayed.
     targetContext.fillStyle = palette.birdWing
     targetContext.strokeStyle = palette.birdFeather
-    if (wing === null) {
+    targetContext.lineWidth = 0.8
+    if (perched) {
       targetContext.beginPath()
-      targetContext.ellipse(-4, 2, 9.5, 5.5, -0.24, 0, Math.PI * 2)
+      targetContext.moveTo(-7.8, -3.1)
+      targetContext.bezierCurveTo(-2.5, -5.6, 6.5, -1.4, 4.6, 3.8)
+      targetContext.bezierCurveTo(1.5, 7.9, -8.8, 7.4, -11.1, 2.2)
+      targetContext.bezierCurveTo(-12.2, -0.2, -10.5, -2.3, -7.8, -3.1)
       targetContext.fill()
-      targetContext.fillStyle = palette.birdBack
-      targetContext.globalAlpha = 0.72
+    } else if (gliding) {
       targetContext.beginPath()
-      targetContext.ellipse(-5.5, -0.2, 6.2, 3.2, -0.28, 0, Math.PI * 2)
+      targetContext.moveTo(-7.5, -2.5)
+      targetContext.bezierCurveTo(-10.8, -8.5, -24.8, -9.8, -31.5, -5.2)
+      targetContext.bezierCurveTo(-25, -2.8, -20.8, 1.2, -17.4, 5.3)
+      targetContext.bezierCurveTo(-9.2, 6.7, -1.4, 4.5, 4.8, -1.5)
+      targetContext.closePath()
       targetContext.fill()
-      targetContext.globalAlpha = 0.42
-      targetContext.strokeStyle = palette.birdLight
-      targetContext.beginPath()
-      targetContext.moveTo(-10, 1)
-      targetContext.quadraticCurveTo(-4, 2, 3, 5)
-      targetContext.moveTo(-9, 3)
-      targetContext.quadraticCurveTo(-3, 4, 2, 6)
-      targetContext.stroke()
+      targetContext.globalAlpha = 0.62
+      for (let feather = 0; feather < 4; feather += 1) {
+        targetContext.beginPath()
+        targetContext.moveTo(-17 + feather * 2.3, -3.2 + feather * 0.65)
+        targetContext.lineTo(-31 + feather * 3.5, -5.4 + feather * 2.1)
+        targetContext.stroke()
+      }
       targetContext.globalAlpha = 1
     } else {
-      const wingPose = Math.max(0, Math.min(1, wing))
-      const wingSpread = Math.sin(wingPose * Math.PI)
-      const wingTipX = -14 - wingSpread * 5
-      const wingTipY = 11 - wingPose * 31
-      const wingShoulderY = -1 - wingPose * 4
+      const up = wingPose
+      const tipX = -18 - Math.sin(up * Math.PI) * 5.5
+      const tipY = 11.5 - up * 34
+      const wristX = -11.5 - Math.sin(up * Math.PI) * 4
+      const wristY = 5.5 - up * 23
       targetContext.beginPath()
-      targetContext.moveTo(-7, 1)
-      targetContext.bezierCurveTo(-12, wingShoulderY, wingTipX - 5, wingTipY + 4, wingTipX, wingTipY)
-      targetContext.bezierCurveTo(wingTipX + 6, wingTipY + 3, 1, -8 + wingPose * 4, 6, -2)
-      targetContext.quadraticCurveTo(2, 6, -7, 7)
+      targetContext.moveTo(-7.4, -2.4)
+      targetContext.bezierCurveTo(-11.2, -4.4 - up * 3, wristX - 4, wristY, tipX, tipY)
+      targetContext.bezierCurveTo(tipX + 5.2, tipY + 1.8, wristX + 5.3, wristY + 4.4, 3.8, -1.8)
+      targetContext.quadraticCurveTo(0.5, 5.9, -8.6, 5.8)
       targetContext.closePath()
       targetContext.fill()
 
-      targetContext.fillStyle = palette.birdBack
-      targetContext.globalAlpha = 0.62
-      targetContext.beginPath()
-      targetContext.moveTo(-6, 0)
-      targetContext.quadraticCurveTo(-9, wingShoulderY, wingTipX + 2, wingTipY + 5)
-      targetContext.quadraticCurveTo(-2, -5 + wingPose * 3, 4, -2)
-      targetContext.closePath()
-      targetContext.fill()
-
-      targetContext.globalAlpha = 0.46
+      targetContext.globalAlpha = 0.5
       targetContext.strokeStyle = palette.birdLight
-      targetContext.lineWidth = 0.9
-      for (let feather = 0; feather < 3; feather += 1) {
-        const featherOffset = feather * 0.19
+      for (let feather = 0; feather < 4; feather += 1) {
+        const f = feather / 3
         targetContext.beginPath()
-        targetContext.moveTo(-5 + feather * 2.2, 1)
-        targetContext.quadraticCurveTo(
-          wingTipX * (0.64 + featherOffset),
-          wingTipY * (0.58 + featherOffset),
-          wingTipX + 2.5 + feather * 3,
-          wingTipY + 4 + feather * 2.4,
-        )
+        targetContext.moveTo(-7 + feather * 1.8, -0.2)
+        targetContext.quadraticCurveTo(wristX - 2 + feather * 1.3, wristY + feather * 1.6, tipX + feather * 3.2, tipY + 3.4 + feather * 1.8)
         targetContext.stroke()
       }
       targetContext.globalAlpha = 1
     }
 
-    targetContext.fillStyle = palette.birdCrown
-    targetContext.globalAlpha = 0.7
+    // Scapulars visually lock the wing to the torso.
+    targetContext.fillStyle = palette.birdBack
+    targetContext.globalAlpha = 0.82
     targetContext.beginPath()
-    targetContext.moveTo(5, -2)
-    targetContext.quadraticCurveTo(8, 2, 13, 3)
-    targetContext.quadraticCurveTo(8, 5, 4, 2)
-    targetContext.closePath()
+    targetContext.ellipse(-4.5, -2.7, 6.7, 3.2, -0.2, 0, TAU)
+    targetContext.fill()
+    targetContext.globalAlpha = 1
+
+    // Neck and head are slightly decoupled from body pitch, as in real flight stabilization.
+    targetContext.save()
+    targetContext.translate(9.5, -4.6)
+    targetContext.rotate(headPitch)
+    targetContext.fillStyle = palette.birdBody
+    targetContext.beginPath()
+    targetContext.ellipse(2.2, -0.4, 8.1, 7.1, -0.08, 0, TAU)
+    targetContext.fill()
+
+    targetContext.fillStyle = palette.birdCrown
+    targetContext.beginPath()
+    targetContext.ellipse(1, -4.2, 7.1, 3.4, -0.1, Math.PI, TAU)
+    targetContext.fill()
+
+    targetContext.fillStyle = palette.birdLight
+    targetContext.beginPath()
+    targetContext.ellipse(4.5, 1.5, 5.5, 4.3, -0.24, -0.4, Math.PI * 1.35)
+    targetContext.fill()
+
+    // Subtle cheek/auricular patch helps the head read anatomically at very small sizes.
+    targetContext.fillStyle = palette.birdCrown
+    targetContext.globalAlpha = 0.58
+    targetContext.beginPath()
+    targetContext.ellipse(0.2, 0.7, 3.1, 2.5, -0.15, 0, TAU)
     targetContext.fill()
     targetContext.globalAlpha = 1
 
     targetContext.fillStyle = palette.beak
     targetContext.beginPath()
-    targetContext.moveTo(16, -4.5)
-    targetContext.lineTo(25, -2.2)
-    targetContext.lineTo(16, -0.6)
-    targetContext.closePath()
+    targetContext.moveTo(9.1, -1.8)
+    targetContext.lineTo(18.2, 0.25)
+    targetContext.lineTo(9, 2.2)
+    targetContext.quadraticCurveTo(10.3, 0.15, 9.1, -1.8)
     targetContext.fill()
     targetContext.strokeStyle = palette.birdDark
-    targetContext.globalAlpha = 0.45
-    targetContext.lineWidth = 0.7
+    targetContext.globalAlpha = 0.5
     targetContext.beginPath()
-    targetContext.moveTo(16.5, -2.6)
-    targetContext.lineTo(23, -2.1)
+    targetContext.moveTo(9.6, 0.15)
+    targetContext.lineTo(16.5, 0.35)
     targetContext.stroke()
     targetContext.globalAlpha = 1
 
     targetContext.fillStyle = palette.eye
     targetContext.beginPath()
-    targetContext.arc(12.6, -6.3, 2.4, 0, Math.PI * 2)
+    targetContext.arc(5.6, -3.1, 2.1, 0, TAU)
     targetContext.fill()
     targetContext.fillStyle = palette.pupil
     targetContext.beginPath()
-    targetContext.arc(13.1, -6.4, 1.35, 0, Math.PI * 2)
+    targetContext.arc(6, -3.15, 1.15, 0, TAU)
     targetContext.fill()
     targetContext.fillStyle = palette.eye
     targetContext.beginPath()
-    targetContext.arc(13.55, -6.85, 0.42, 0, Math.PI * 2)
+    targetContext.arc(6.35, -3.55, 0.34, 0, TAU)
     targetContext.fill()
+    targetContext.restore()
+
     targetContext.restore()
   }
 
-  const startFreedomFlight = (startPoint, onComplete) => {
+  const startFreedomFlight = (startPoint) => {
     const flightCanvas = document.createElement("canvas")
     flightCanvas.setAttribute("aria-hidden", "true")
     Object.assign(flightCanvas.style, {
@@ -632,189 +699,529 @@ export function mount(host) {
     })
     document.body.append(flightCanvas)
 
-    const flightContext = flightCanvas.getContext("2d")
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    const flightRatio = Math.min(window.devicePixelRatio || 1, 1.5)
-    flightCanvas.width = Math.round(viewportWidth * flightRatio)
-    flightCanvas.height = Math.round(viewportHeight * flightRatio)
-    flightContext.setTransform(flightRatio, 0, 0, flightRatio, 0, 0)
-
-    const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value))
-    const randomPoint = () => ({
-      x: 42 + Math.random() * Math.max(1, viewportWidth - 84),
-      y: 58 + Math.random() * Math.max(1, viewportHeight * 0.58),
-    })
-    const isVisiblePerchElement = (element, minimumWidth = 28) => {
-      if (host.contains(element)) return false
-      const rect = element.getBoundingClientRect()
-      const position = window.getComputedStyle(element).position
-      return (
-        position !== "fixed" &&
-        position !== "sticky" &&
-        rect.width > minimumWidth &&
-        rect.width < viewportWidth * 0.94 &&
-        rect.height > 10 &&
-        rect.height < viewportHeight * 0.55 &&
-        rect.top > 52 &&
-        rect.top < viewportHeight - 36 &&
-        rect.right > 20 &&
-        rect.left < viewportWidth - 20
-      )
-    }
-    const textPerches = Array.from(document.querySelectorAll("a, button, p, h1, h2, h3, h4, li, strong"))
-      .filter((element) => element.textContent?.trim() && isVisiblePerchElement(element))
-      .map((element) => ({ element, edge: "top" }))
-    const borderedDivPerches = Array.from(document.querySelectorAll("div"))
-      .filter((element) => isVisiblePerchElement(element, 56))
-      .map((element) => {
-        const style = window.getComputedStyle(element)
-        const hasTopBorder = style.borderTopStyle !== "none" && Number.parseFloat(style.borderTopWidth) > 0
-        const hasBottomBorder = style.borderBottomStyle !== "none" && Number.parseFloat(style.borderBottomWidth) > 0
-        if (!hasTopBorder && !hasBottomBorder) return null
-        return { element, edge: hasTopBorder ? "top" : "bottom" }
-      })
-      .filter(Boolean)
-    const perchCandidates = [...textPerches, ...borderedDivPerches]
-    const perchTarget = perchCandidates.length ? perchCandidates[Math.floor(Math.random() * perchCandidates.length)] : null
-    const perchElement = perchTarget?.element || null
-    const perchEdge = perchTarget?.edge || "top"
-    const perchAnchor = 0.28 + Math.random() * 0.44
-    let lastPerchPoint = { x: viewportWidth * (0.25 + Math.random() * 0.5), y: clamp(startPoint.y - 90, 80, viewportHeight * 0.7) }
-    const getPerchPoint = () => {
-      if (!perchElement?.isConnected) return lastPerchPoint
-      const rect = perchElement.getBoundingClientRect()
-      lastPerchPoint = { x: rect.left + rect.width * perchAnchor, y: (perchEdge === "bottom" ? rect.bottom : rect.top) - 14 }
-      return lastPerchPoint
-    }
-    const perchPoint = getPerchPoint()
-    const exitSide = Math.floor(Math.random() * 3)
-    const exitPoint =
-      exitSide === 0
-        ? { x: 30 + Math.random() * Math.max(1, viewportWidth - 60), y: -54 }
-        : exitSide === 1
-          ? { x: -54, y: 60 + Math.random() * Math.max(1, viewportHeight * 0.48) }
-          : { x: viewportWidth + 54, y: 60 + Math.random() * Math.max(1, viewportHeight * 0.48) }
+    const flightContext = flightCanvas.getContext("2d", { alpha: true, desynchronized: true })
     const reducedMotion = prefersReducedMotion.matches
-    const points = reducedMotion ? [startPoint, exitPoint] : [startPoint, randomPoint(), randomPoint(), perchPoint, randomPoint(), exitPoint]
-    const perchSegment = reducedMotion ? -1 : 2
-    const segments = []
+    const randomRange = (minimum, maximum) => minimum + Math.random() * (maximum - minimum)
+    const ignoredTags = new Set(["SCRIPT", "STYLE", "LINK", "META", "NOSCRIPT", "TEMPLATE", "BR", "WBR", "OPTION", "SVG", "PATH"])
 
-    for (let index = 0; index < points.length - 1; index += 1) {
-      const from = points[index]
-      const to = points[index + 1]
-      const distance = Math.hypot(to.x - from.x, to.y - from.y)
-      const midpointX = (from.x + to.x) * 0.5
-      const midpointY = (from.y + to.y) * 0.5
-      const bend = (Math.random() - 0.5) * Math.min(190, distance * 0.6)
-      const normalX = distance ? -(to.y - from.y) / distance : 0
-      const normalY = distance ? (to.x - from.x) / distance : 0
-      segments.push({
-        from,
-        to,
-        control: {
-          x: clamp(midpointX + normalX * bend, -24, viewportWidth + 24),
-          y: clamp(midpointY + normalY * bend - 25 - Math.random() * 38, -24, viewportHeight + 24),
-        },
-        duration: reducedMotion ? 900 : clamp(distance / 270, 0.72, 1.42) * 1000,
-      })
+    let viewportWidth = Math.max(1, window.innerWidth)
+    let viewportHeight = Math.max(1, window.innerHeight)
+    let flightRatio = 1
+    let flightFrame = 0
+    let destroyed = false
+    let suspended = document.hidden
+    let previousFlightTime = 0
+    let lastPerchSearchAt = -Infinity
+    let lastScrollAt = -Infinity
+    let lastScrollY = window.scrollY
+    let scrollDirection = 0
+    let scrollActiveUntil = -Infinity
+    let lastScrollRetargetAt = -Infinity
+    let perchElement = null
+    let lastSelectedPerchElement = null
+    let perchAnchor = 0.5
+    let perchUntil = 0
+    let perchRevision = 0
+    let targetRevision = -1
+    let smoothedPerchPoint = null
+
+    const resizeFlightCanvas = () => {
+      viewportWidth = Math.max(1, window.innerWidth)
+      viewportHeight = Math.max(1, window.innerHeight)
+      flightRatio = Math.min(window.devicePixelRatio || 1, viewportWidth * viewportHeight > 1000000 ? 1.1 : 1.35)
+      flightCanvas.width = Math.round(viewportWidth * flightRatio)
+      flightCanvas.height = Math.round(viewportHeight * flightRatio)
+      flightContext.setTransform(flightRatio, 0, 0, flightRatio, 0, 0)
+      perchRevision += 1
+    }
+    resizeFlightCanvas()
+
+    const randomFlightPoint = (upperBias = false) => ({
+      x: randomRange(46, Math.max(47, viewportWidth - 46)),
+      y: randomRange(upperBias ? 54 : 72, Math.max(73, viewportHeight * (upperBias ? 0.46 : 0.7))),
+    })
+
+    const isRectInViewport = (rect, margin = 0) =>
+      rect.bottom >= -margin && rect.top <= viewportHeight + margin && rect.right >= -margin && rect.left <= viewportWidth + margin
+
+    const isPerchUsable = (element, rect = element?.getBoundingClientRect()) => {
+      if (
+        !(element instanceof HTMLElement) ||
+        !element.isConnected ||
+        element === document.body ||
+        host.contains(element) ||
+        element === flightCanvas
+      )
+        return false
+      if (ignoredTags.has(element.tagName) || !rect) return false
+      if (rect.width < 26 || rect.width > viewportWidth * 0.985 || rect.height < 7 || rect.height > viewportHeight * 0.78) return false
+      if (!isRectInViewport(rect, 8) || rect.top < 34 || rect.top > viewportHeight - 26 || rect.right < 16 || rect.left > viewportWidth - 16)
+        return false
+
+      const style = window.getComputedStyle(element)
+      if (style.display === "none" || style.visibility === "hidden" || Number.parseFloat(style.opacity || "1") <= 0.02) return false
+      return true
     }
 
-    let flightFrame = 0
-    let segmentIndex = 0
-    let segmentStartedAt = 0
-    let perchUntil = 0
-    let facing = 1
-    let destroyed = false
+    const discoverPerch = (time = performance.now()) => {
+      const candidates = []
+      const candidateElements = document.body?.querySelectorAll("*") || []
+      const scrollFreshness = clamp(1 - (time - lastScrollAt) / 1800, 0, 1)
+      const focusY = viewportHeight * (scrollFreshness > 0 ? (scrollDirection > 0 ? 0.58 : scrollDirection < 0 ? 0.36 : 0.48) : 0.48)
+      const focusX = viewportWidth * 0.5
 
-    const finish = () => {
-      if (destroyed) return
-      destroyed = true
-      if (flightFrame) cancelAnimationFrame(flightFrame)
-      flightCanvas.remove()
-      onComplete()
+      for (const element of candidateElements) {
+        if (!(element instanceof HTMLElement)) continue
+        const rect = element.getBoundingClientRect()
+        if (!isPerchUsable(element, rect)) continue
+
+        const style = window.getComputedStyle(element)
+        const anchor = randomRange(0.18, 0.82)
+        const sampleX = clamp(rect.left + rect.width * anchor, 2, viewportWidth - 2)
+        const sampleY = clamp(rect.top + Math.min(3, rect.height * 0.22), 2, viewportHeight - 2)
+        const frontElements = document.elementsFromPoint(sampleX, sampleY)
+        const isActuallyVisible = frontElements.some(
+          (front) => front === element || element.contains(front) || (front instanceof Element && front.contains(element)),
+        )
+        if (!isActuallyVisible) continue
+
+        const tag = element.tagName
+        const semanticBonus =
+          tag === "BUTTON" || tag === "IMG" || tag === "HR"
+            ? 36
+            : tag === "ARTICLE" || tag === "SECTION" || tag === "NAV" || tag === "FOOTER" || tag === "ASIDE"
+              ? 28
+              : tag === "H1" || tag === "H2" || tag === "H3" || tag === "H4" || tag === "P" || tag === "LI"
+                ? 21
+                : tag === "A" || tag === "STRONG" || tag === "SPAN"
+                  ? 15
+                  : 8
+        const borderBonus =
+          (Number.parseFloat(style.borderTopWidth) > 0 && style.borderTopStyle !== "none") ||
+          (Number.parseFloat(style.borderBottomWidth) > 0 && style.borderBottomStyle !== "none")
+            ? 24
+            : 0
+        const widthFitness = 28 - Math.min(28, Math.abs(Math.min(rect.width, 440) - 180) * 0.075)
+        const candidateX = rect.left + rect.width * anchor
+        const centerDistance = Math.hypot((candidateX - focusX) * 0.55, rect.top - focusY)
+        const viewportFocusBonus = 34 - Math.min(34, centerDistance * 0.07)
+        const recentScrollBonus = scrollFreshness * (32 - Math.min(32, Math.abs(rect.top - focusY) * 0.075))
+        const positioningPenalty = style.position === "fixed" || style.position === "sticky" ? 10 : 0
+
+        candidates.push({
+          element,
+          anchor,
+          score: semanticBonus + borderBonus + widthFitness + viewportFocusBonus + recentScrollBonus - positioningPenalty + Math.random() * 10,
+        })
+      }
+
+      if (!candidates.length) return false
+      candidates.sort((a, b) => b.score - a.score)
+      const shortlist = candidates.slice(0, Math.min(14, candidates.length))
+      const freshShortlist = shortlist.filter((candidate) => candidate.element !== lastSelectedPerchElement)
+      const selectionPool = freshShortlist.length ? freshShortlist : shortlist
+      const selected = selectionPool[Math.floor(Math.random() * Math.min(7, selectionPool.length))]
+      perchElement = selected.element
+      lastSelectedPerchElement = selected.element
+      perchAnchor = selected.anchor
+      lastPerchSearchAt = time
+      targetRevision = perchRevision
+      return true
+    }
+
+    const invalidatePerch = () => {
+      perchElement = null
+      targetRevision = -1
+      smoothedPerchPoint = null
+    }
+
+    const ensurePerch = (time = performance.now(), force = false) => {
+      if (!force && perchElement?.isConnected && isPerchUsable(perchElement)) return true
+      if (!force && time - lastPerchSearchAt < 180) return false
+      return discoverPerch(time)
+    }
+
+    const getPerchPoint = (time) => {
+      if (!ensurePerch(time)) return null
+      const rect = perchElement.getBoundingClientRect()
+      if (!isPerchUsable(perchElement, rect)) {
+        invalidatePerch()
+        return null
+      }
+      return {
+        x: clamp(rect.left + rect.width * perchAnchor, 28, viewportWidth - 28),
+        y: clamp(rect.top - 14, 38, viewportHeight - 34),
+      }
+    }
+
+    // DOM geometry can move by several pixels between frames because of font
+    // rendering, responsive layout, sticky content or scroll. Never feed those
+    // jumps directly into the flight controller: move the perceived perch target
+    // continuously instead. This makes the final approach immune to layout snaps.
+    const trackPerchPoint = (rawPoint, delta, responsiveness = 11, maxSpeed = 260) => {
+      if (!rawPoint) {
+        smoothedPerchPoint = null
+        return null
+      }
+      if (!smoothedPerchPoint) {
+        smoothedPerchPoint = { x: rawPoint.x, y: rawPoint.y }
+        return smoothedPerchPoint
+      }
+
+      const dx = rawPoint.x - smoothedPerchPoint.x
+      const dy = rawPoint.y - smoothedPerchPoint.y
+      const distance = Math.hypot(dx, dy)
+      if (distance < 0.001) return smoothedPerchPoint
+
+      const blend = 1 - Math.exp(-responsiveness * Math.max(delta, 0.001))
+      const wantedStep = distance * blend
+      const maxStep = Math.max(0.5, maxSpeed * Math.max(delta, 0.001))
+      const step = Math.min(wantedStep, maxStep)
+      smoothedPerchPoint.x += (dx / distance) * step
+      smoothedPerchPoint.y += (dy / distance) * step
+      return smoothedPerchPoint
+    }
+
+    const position = {
+      x: clamp(startPoint.x, 28, viewportWidth - 28),
+      y: clamp(startPoint.y, 44, viewportHeight - 36),
+    }
+    const initialFacing = Math.random() < 0.5 ? -1 : 1
+    const velocity = { x: initialFacing * randomRange(75, 120), y: randomRange(-190, -145) }
+    let facing = initialFacing
+    let wingPhase = Math.random() * TAU
+    let state = "launch"
+    let stateStartedAt = 0
+    let roamTarget = randomFlightPoint(true)
+    let roamUntil = 0
+    let nextPerchSearchAt = 0
+    const wanderSeed = Math.random() * 1000
+
+    const setState = (nextState, time) => {
+      state = nextState
+      stateStartedAt = time
+    }
+
+    const chooseRoamTarget = (time, upperBias = false) => {
+      roamTarget = randomFlightPoint(upperBias)
+      roamUntil = time + randomRange(reducedMotion ? 500 : 900, reducedMotion ? 900 : 1900)
+    }
+
+    const steerToward = (target, delta, time, settings = {}) => {
+      const dx = target.x - position.x
+      const dy = target.y - position.y
+      const distance = Math.max(0.001, Math.hypot(dx, dy))
+      const arrivalRadius = settings.arrivalRadius ?? 80
+      const cruiseSpeed = settings.speed ?? 190
+      const minimumSpeed = settings.minimumSpeed ?? 70
+      const arrivalScale = clamp(distance / arrivalRadius, 0, 1)
+      const desiredSpeed = minimumSpeed + (cruiseSpeed - minimumSpeed) * smoothstep(arrivalScale)
+      let desiredX = (dx / distance) * desiredSpeed
+      let desiredY = (dy / distance) * desiredSpeed
+
+      if (settings.wander) {
+        const normalX = -dy / distance
+        const normalY = dx / distance
+        const wander = (Math.sin(time * 0.0017 + wanderSeed) + Math.sin(time * 0.0031 + wanderSeed * 0.37) * 0.45) * settings.wander
+        desiredX += normalX * wander
+        desiredY += normalY * wander
+      }
+
+      let accelerationX = desiredX - velocity.x
+      let accelerationY = desiredY - velocity.y
+      const accelerationLength = Math.max(0.001, Math.hypot(accelerationX, accelerationY))
+      const maxAcceleration = settings.acceleration || 430
+      if (accelerationLength > maxAcceleration) {
+        accelerationX = (accelerationX / accelerationLength) * maxAcceleration
+        accelerationY = (accelerationY / accelerationLength) * maxAcceleration
+      }
+
+      velocity.x += accelerationX * delta
+      velocity.y += accelerationY * delta
+      position.x += velocity.x * delta
+      position.y += velocity.y * delta
+      return distance
+    }
+
+    const keepInsideViewport = (delta) => {
+      const marginX = 22
+      const marginTop = 38
+      const marginBottom = 30
+      const right = viewportWidth - marginX
+      const bottom = viewportHeight - marginBottom
+      const boundaryForce = 24
+
+      if (position.x < marginX) velocity.x += (marginX - position.x) * boundaryForce * delta
+      else if (position.x > right) velocity.x -= (position.x - right) * boundaryForce * delta
+
+      if (position.y < marginTop) velocity.y += (marginTop - position.y) * boundaryForce * delta
+      else if (position.y > bottom) velocity.y -= (position.y - bottom) * boundaryForce * delta
+
+      // Catastrophic recovery only if a resize/layout discontinuity placed the
+      // canvas sprite far outside the viewport. Normal flight never hits this.
+      position.x = clamp(position.x, -48, viewportWidth + 48)
+      position.y = clamp(position.y, -48, viewportHeight + 48)
     }
 
     const animateFlight = (time) => {
-      if (destroyed) return
-      if (!segmentStartedAt) segmentStartedAt = time
-      const segment = segments[segmentIndex]
-      if (!segment) {
-        finish()
-        return
+      if (destroyed || suspended) return
+      if (!stateStartedAt) {
+        stateStartedAt = time
+        chooseRoamTarget(time, true)
+        nextPerchSearchAt = time + randomRange(700, 1300)
       }
 
+      const delta = Math.min((time - previousFlightTime) / 1000 || 0, 0.034)
+      previousFlightTime = time
       flightContext.clearRect(0, 0, viewportWidth, viewportHeight)
 
-      if (perchUntil) {
-        const trackedPerch = getPerchPoint()
-        segment.from.x = trackedPerch.x
-        segment.from.y = trackedPerch.y
-        const perchBob = Math.sin(time * 0.008) * 0.7
-        drawBirdShape(flightContext, segment.from.x, segment.from.y + perchBob, 0, null, 1.22, facing)
-        if (time >= perchUntil) {
-          perchUntil = 0
-          segmentStartedAt = time
-          const takeoffDistance = Math.hypot(segment.to.x - segment.from.x, segment.to.y - segment.from.y)
-          const takeoffBend = (Math.random() - 0.5) * Math.min(190, takeoffDistance * 0.6)
-          const takeoffNormalX = takeoffDistance ? -(segment.to.y - segment.from.y) / takeoffDistance : 0
-          const takeoffNormalY = takeoffDistance ? (segment.to.x - segment.from.x) / takeoffDistance : 0
-          segment.control.x = clamp((segment.from.x + segment.to.x) * 0.5 + takeoffNormalX * takeoffBend, -24, viewportWidth + 24)
-          segment.control.y = clamp(
-            (segment.from.y + segment.to.y) * 0.5 + takeoffNormalY * takeoffBend - 25 - Math.random() * 38,
-            -24,
-            viewportHeight + 24,
-          )
-          segment.duration = clamp(takeoffDistance / 270, 0.72, 1.42) * 1000
+      let gliding = false
+      let perched = false
+      let distance = Infinity
+      const scrolling = time < scrollActiveUntil
+
+      if (state === "launch") {
+        distance = steerToward(roamTarget, delta, time, { speed: 225, minimumSpeed: 130, acceleration: 560, wander: 14 })
+        if (time - stateStartedAt > 700 || distance < 65) {
+          chooseRoamTarget(time)
+          setState("roam", time)
         }
-        flightFrame = requestAnimationFrame(animateFlight)
-        return
-      }
+      } else if (state === "roam") {
+        distance = steerToward(roamTarget, delta, time, {
+          speed: reducedMotion ? 145 : 192,
+          minimumSpeed: reducedMotion ? 86 : 96,
+          acceleration: reducedMotion ? 300 : 390,
+          wander: reducedMotion ? 7 : 34,
+          arrivalRadius: 110,
+        })
+        gliding =
+          !reducedMotion && Math.hypot(velocity.x, velocity.y) > 145 && Math.abs(velocity.y) < 85 && Math.sin(time * 0.0015 + wanderSeed) > 0.4
 
-      if (segmentIndex === perchSegment && perchElement) {
-        const trackedPerch = getPerchPoint()
-        segment.to.x = trackedPerch.x
-        segment.to.y = trackedPerch.y
-        if (segments[segmentIndex + 1]) {
-          segments[segmentIndex + 1].from.x = trackedPerch.x
-          segments[segmentIndex + 1].from.y = trackedPerch.y
+        if (distance < 46 || time >= roamUntil) chooseRoamTarget(time)
+        if (time >= nextPerchSearchAt) {
+          invalidatePerch()
+          if (ensurePerch(time, true)) {
+            setState("approach", time)
+            if (scrolling) lastScrollRetargetAt = time
+          } else {
+            nextPerchSearchAt = time + (scrolling ? 160 : 500)
+          }
+        }
+      } else if (state === "approach") {
+        // While the page is moving, keep reconsidering the landing target from
+        // the currently visible viewport. We intentionally never allow touchdown
+        // until scrolling has been quiet for a short settling window.
+        if (scrolling && time - lastScrollRetargetAt >= 150) {
+          invalidatePerch()
+          ensurePerch(time, true)
+          lastScrollRetargetAt = time
+        }
+
+        const rawTarget = getPerchPoint(time)
+        const target = rawTarget ? trackPerchPoint(rawTarget, delta, 10, 235) : null
+        if (!target) {
+          chooseRoamTarget(time)
+          nextPerchSearchAt = time + 350
+          setState("roam", time)
+        } else {
+          const dx = target.x - position.x
+          const dy = target.y - position.y
+          const beforeDistance = Math.hypot(dx, dy)
+
+          // The last part of a landing is a flare, not a snap. Far away we use
+          // the normal steering model; close to the perch we switch to a
+          // critically damped proportional controller so speed naturally tends
+          // to zero at the exact contact point.
+          if (beforeDistance > 58) {
+            distance = steerToward(target, delta, time, {
+              speed: 132,
+              minimumSpeed: 34,
+              acceleration: 330,
+              arrivalRadius: 180,
+            })
+          } else {
+            const landingGain = reducedMotion ? 5.2 : 4.4
+            const desiredX = dx * landingGain
+            const desiredY = dy * landingGain
+            const desiredLength = Math.hypot(desiredX, desiredY)
+            const maxLandingSpeed = reducedMotion ? 76 : 92
+            const speedScale = desiredLength > maxLandingSpeed ? maxLandingSpeed / desiredLength : 1
+            const targetVelocityX = desiredX * speedScale
+            const targetVelocityY = desiredY * speedScale
+            const damping = 1 - Math.exp(-(reducedMotion ? 15 : 12) * delta)
+
+            velocity.x += (targetVelocityX - velocity.x) * damping
+            velocity.y += (targetVelocityY - velocity.y) * damping
+            position.x += velocity.x * delta
+            position.y += velocity.y * delta
+            distance = Math.hypot(target.x - position.x, target.y - position.y)
+          }
+
+          const approachAge = time - stateStartedAt
+          const approachSpeed = Math.hypot(velocity.x, velocity.y)
+          const canLand = !scrolling && distance < 0.65 && approachSpeed < 10
+
+          if (canLand) {
+            // Do not snap to the perch. The bird enters its resting state from
+            // the exact position reached by the flight integrator; the resting
+            // spring below settles the remaining sub-pixel error continuously.
+            perchUntil = time + randomRange(reducedMotion ? 2600 : 3100, reducedMotion ? 3800 : 5200)
+            setState("perched", time)
+          } else if (approachAge > 7500 && distance > 42) {
+            // If layout movement made this approach awkward, abandon it and
+            // pick another visible perch instead of teleporting to finish.
+            invalidatePerch()
+            chooseRoamTarget(time)
+            nextPerchSearchAt = time + 180
+            setState("roam", time)
+          }
+        }
+      } else if (state === "perched") {
+        perched = true
+        const rawTracked = getPerchPoint(time)
+        const tracked = rawTracked ? trackPerchPoint(rawTracked, delta, 14, 420) : null
+        if (!tracked) {
+          velocity.x = facing * randomRange(72, 108)
+          velocity.y = randomRange(-190, -145)
+          chooseRoamTarget(time, true)
+          nextPerchSearchAt = time + randomRange(800, 1500)
+          setState("takeoff", time)
+        } else {
+          const takeoffAnticipation = clamp((time - (perchUntil - 500)) / 500, 0, 1)
+          const restTargetX = tracked.x + Math.sin(time * 0.0037 + wanderSeed) * 0.28
+          const restTargetY = tracked.y + Math.sin(time * 0.0059 + wanderSeed * 0.41) * 0.18 + takeoffAnticipation * 0.85
+
+          // Resting uses a damped spring instead of assigning DOM coordinates
+          // directly. There is therefore no frame in which the bird can teleport
+          // when the target element shifts or the landing state changes.
+          const restDx = restTargetX - position.x
+          const restDy = restTargetY - position.y
+          const spring = reducedMotion ? 50 : 64
+          const damping = reducedMotion ? 13 : 15
+          velocity.x += (restDx * spring - velocity.x * damping) * delta
+          velocity.y += (restDy * spring - velocity.y * damping) * delta
+          position.x += velocity.x * delta
+          position.y += velocity.y * delta
+
+          if (time >= perchUntil) {
+            facing = Math.random() < 0.5 ? -1 : 1
+            velocity.x = facing * randomRange(82, 118)
+            velocity.y = randomRange(-210, -160)
+            chooseRoamTarget(time, true)
+            nextPerchSearchAt = time + randomRange(1100, 2300)
+            setState("takeoff", time)
+          }
+        }
+      } else if (state === "takeoff") {
+        distance = steerToward(roamTarget, delta, time, { speed: 226, minimumSpeed: 138, acceleration: 565, wander: 10 })
+        if (time - stateStartedAt > 720 || distance < 62) {
+          chooseRoamTarget(time)
+          setState("roam", time)
         }
       }
 
-      const progress = Math.min(1, (time - segmentStartedAt) / segment.duration)
-      const inverse = 1 - progress
-      const x = inverse * inverse * segment.from.x + 2 * inverse * progress * segment.control.x + progress * progress * segment.to.x
-      const y = inverse * inverse * segment.from.y + 2 * inverse * progress * segment.control.y + progress * progress * segment.to.y
-      const velocityX = 2 * inverse * (segment.control.x - segment.from.x) + 2 * progress * (segment.to.x - segment.control.x)
-      const velocityY = 2 * inverse * (segment.control.y - segment.from.y) + 2 * progress * (segment.to.y - segment.control.y)
-      if (Math.abs(velocityX) > 1) facing = velocityX < 0 ? -1 : 1
-      const tilt = clamp(Math.atan2(velocityY, Math.max(30, Math.abs(velocityX))) * 0.52, -0.5, 0.5)
-      const wing = (Math.sin(time * 0.026 + segmentIndex * 0.7) + 1) * 0.5
-      drawBirdShape(flightContext, x, y, tilt, wing, 1.22, facing)
+      keepInsideViewport(delta)
+      if (Math.abs(velocity.x) > 18) facing = velocity.x < 0 ? -1 : 1
+      const speed = Math.hypot(velocity.x, velocity.y)
+      const flightAngle = Math.atan2(velocity.y, Math.max(35, Math.abs(velocity.x)))
+      const tilt = perched ? 0 : clamp(flightAngle * 0.48, -0.48, 0.42)
+      const cadence = perched ? 0 : clamp(13 + speed * 0.028 + Math.max(0, -velocity.y) * 0.018, 13, 22)
+      wingPhase = (wingPhase + cadence * delta) % TAU
+      const wing = perched ? null : gliding ? -1 : wingPoseFromPhase(wingPhase)
+      const perchedHeadMotion = Math.sin(time * 0.0024 + wanderSeed) * 0.105 + Math.sin(time * 0.0068 + wanderSeed * 0.73) * 0.035
+      const headPitch = perched ? perchedHeadMotion : clamp(-tilt * 0.46, -0.2, 0.2)
+      const tailFan = perched
+        ? 0.12 + (Math.sin(time * 0.0031 + wanderSeed) + 1) * 0.025
+        : clamp(Math.abs(flightAngle) * 0.9 + (state === "approach" ? 0.45 : 0.08), 0.06, 0.8)
+      const perchBob = perched ? Math.sin(time * 0.0048 + wanderSeed * 0.6) * 0.16 : 0
+      const restingTilt = perched ? Math.sin(time * 0.0029 + wanderSeed) * 0.018 : tilt
 
-      if (progress >= 1) {
-        segmentIndex += 1
-        segmentStartedAt = time
-        if (segmentIndex - 1 === perchSegment) perchUntil = time + 2200 + Math.random() * 1200
-      }
+      drawBirdShape(flightContext, position.x, position.y + perchBob, restingTilt, wing, 1.24, facing, {
+        headPitch,
+        tailFan,
+        wingPhase,
+      })
+
       flightFrame = requestAnimationFrame(animateFlight)
     }
 
-    flightFrame = requestAnimationFrame(animateFlight)
+    const onScroll = () => {
+      const nextScrollY = window.scrollY
+      const deltaY = nextScrollY - lastScrollY
+      if (Math.abs(deltaY) > 1) scrollDirection = Math.sign(deltaY)
+      lastScrollY = nextScrollY
+      lastScrollAt = performance.now()
+      scrollActiveUntil = lastScrollAt + 360
+      perchRevision += 1
+
+      if (state === "perched") {
+        // Any real page movement scares the bird off the perch. Never drag a
+        // resting bird along with getBoundingClientRect() while the user scrolls.
+        velocity.x = facing * randomRange(82, 118)
+        velocity.y = randomRange(-215, -165)
+        invalidatePerch()
+        chooseRoamTarget(lastScrollAt, true)
+        nextPerchSearchAt = lastScrollAt + 110
+        setState("takeoff", lastScrollAt)
+      } else if (state === "approach") {
+        // Do not commit to a moving viewport. The animation loop retargets at a
+        // throttled cadence while scroll events keep arriving, so the bird keeps
+        // searching but cannot finish a landing until the page settles.
+        nextPerchSearchAt = Math.min(nextPerchSearchAt, lastScrollAt + 90)
+      } else if (state === "roam" || state === "takeoff") {
+        // Bias the next search toward whatever section is currently visible.
+        nextPerchSearchAt = Math.min(nextPerchSearchAt, lastScrollAt + 140)
+      }
+    }
+
+    const onResize = () => {
+      resizeFlightCanvas()
+      position.x = clamp(position.x, 28, viewportWidth - 28)
+      position.y = clamp(position.y, 44, viewportHeight - 34)
+      invalidatePerch()
+      chooseRoamTarget(performance.now())
+    }
+
+    const onVisibilityChange = () => {
+      suspended = document.hidden
+      if (suspended) {
+        if (flightFrame) cancelAnimationFrame(flightFrame)
+        flightFrame = 0
+        return
+      }
+      if (!flightFrame && !destroyed) {
+        previousFlightTime = performance.now()
+        flightFrame = requestAnimationFrame(animateFlight)
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onResize, { passive: true })
+    document.addEventListener("visibilitychange", onVisibilityChange)
+
+    ensurePerch(performance.now(), true)
+    if (!suspended) flightFrame = requestAnimationFrame(animateFlight)
+
     return {
       destroy() {
         if (destroyed) return
         destroyed = true
         if (flightFrame) cancelAnimationFrame(flightFrame)
+        window.removeEventListener("scroll", onScroll)
+        window.removeEventListener("resize", onResize)
+        document.removeEventListener("visibilitychange", onVisibilityChange)
         flightCanvas.remove()
       },
     }
   }
-
   const drawBird = () => {
     if (!bird) return
-    const wing = (Math.sin(bird.wingPhase) + 1) * 0.5
-    drawBirdShape(context, bird.x, bird.y, Math.max(-0.42, Math.min(0.72, bird.velocity / 470)), wing)
+    const tilt = clamp(bird.velocity / 470, -0.42, 0.72)
+    drawBirdShape(context, bird.x, bird.y, tilt, wingPoseFromPhase(bird.wingPhase), 1, 1, {
+      headPitch: clamp(-tilt * 0.32, -0.16, 0.16),
+      tailFan: clamp(Math.abs(bird.velocity) / 620, 0.05, 0.42),
+      wingPhase: bird.wingPhase,
+    })
   }
 
   const draw = () => {
@@ -829,11 +1236,11 @@ export function mount(host) {
     previousTime = time
     update(delta)
     draw()
-    frame = isVisible ? requestAnimationFrame(loop) : 0
+    frame = isVisible && (state === "playing" || state === "freed") ? requestAnimationFrame(loop) : 0
   }
 
   const resume = () => {
-    if (frame || !isVisible || document.hidden) return
+    if (frame || (state !== "playing" && state !== "freed") || !isVisible || document.hidden) return
     previousTime = performance.now()
     frame = requestAnimationFrame(loop)
   }
