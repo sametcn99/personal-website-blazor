@@ -65,3 +65,7 @@ nunit-*.xml
 personal-website-blazor.csproj.user
 .codex-build
 .codex-verify
+
+# Frontend build output and dependencies
+node_modules/
+wwwroot/dist/

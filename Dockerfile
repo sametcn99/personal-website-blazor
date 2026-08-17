@@ -1,4 +1,13 @@
-# Build stage
+# Frontend asset build stage
+FROM oven/bun:latest AS assets
+WORKDIR /src
+
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+COPY wwwroot ./wwwroot
+RUN bun run build:assets
+
+# .NET build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
@@ -8,7 +17,8 @@ RUN dotnet restore
 
 # Copy everything else and publish
 COPY . .
-RUN dotnet publish "personal-website-blazor.csproj" -c Release -o /app/publish /p:UseAppHost=false
+COPY --from=assets /src/wwwroot/dist ./wwwroot/dist
+RUN dotnet publish "personal-website-blazor.csproj" -c Release -o /app/publish /p:UseAppHost=false /p:SkipClientAssetBuild=true
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final

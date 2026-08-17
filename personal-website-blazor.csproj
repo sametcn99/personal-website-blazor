@@ -19,4 +19,12 @@
   <ItemGroup>
     <Content Include="content/**/*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="BuildClientAssets"
+          BeforeTargets="Build"
+          Condition="'$(SkipClientAssetBuild)' != 'true' and '$(DesignTimeBuild)' != 'true'">
+    <Exec Command="bun install --frozen-lockfile"
+          Condition="!Exists('node_modules/esbuild/bin/esbuild')" />
+    <Exec Command="bun run build:assets" />
+  </Target>
 </Project>
