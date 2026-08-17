@@ -111,11 +111,20 @@
   color: var(--color-primary-strong);
 }
 
+.footer-hire-me-wrap {
+  position: relative;
+  display: inline-block;
+  width: 3.5rem;
+  margin-top: 0.65rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
 .footer-hire-me {
   display: flex;
   justify-content: flex-start;
-  width: auto;
-  margin-top: 0.65rem;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 0;
   border: 0;
   background: transparent;

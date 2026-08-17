@@ -1,22 +1,24 @@
 @implements IDisposable
 
-<button type="button" class="footer-hire-me" aria-label="Show hire me message" @onclick="ShowBubbleAsync">
-    <span class="footer-hire-me-art">
-        <img src="/uploads/media/hire-me.png"
-             width="554"
-             height="476"
-             loading="lazy"
-             decoding="async"
-             fetchpriority="low"
-             alt="" />
-        @foreach (var bubble in _bubbles.Select((id, index) => (id, index)))
-        {
-            <span @key="bubble.id"
-                  class="footer-hire-me-bubble"
-                  style="--bubble-stack-index: @bubble.index;">HIRE ME!</span>
-        }
-    </span>
-</button>
+<span class="footer-hire-me-wrap">
+    <button type="button" class="footer-hire-me" aria-label="Show hire me message" @onclick="ShowBubbleAsync">
+        <span class="footer-hire-me-art">
+            <img src="/uploads/media/hire-me.png"
+                 width="554"
+                 height="476"
+                 loading="lazy"
+                 decoding="async"
+                 fetchpriority="low"
+                 alt="" />
+        </span>
+    </button>
+    @foreach (var bubble in _bubbles.Select((id, index) => (id, index)))
+    {
+        <span @key="bubble.id"
+              class="footer-hire-me-bubble"
+              style="--bubble-stack-index: @bubble.index;">HIRE ME!</span>
+    }
+</span>
 
 @code {
     private readonly List<int> _bubbles = [];
