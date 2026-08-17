@@ -86,6 +86,7 @@ export function mount(host) {
   let score = 0
   let state = "ready"
   let sceneOffset = 0
+  let ambientTime = 0
   let isVisible = true
   let bird
   let pipes = []
@@ -93,6 +94,8 @@ export function mount(host) {
   let shrubs = []
   let fireworks = []
   let freedomFlight = null
+  let gameOverPipe = null
+  let gameOverBirdOffsetX = 0
   let spawnAfter = 0
   let hasSpawnedOpeningPipe = false
   let skyGradient
@@ -131,7 +134,10 @@ export function mount(host) {
     }
     pipes.length = 0
     fireworks.length = 0
+    gameOverPipe = null
+    gameOverBirdOffsetX = 0
     score = 0
+    ambientTime = 0
     spawnAfter = 0.3
     hasSpawnedOpeningPipe = false
     scoreValue.textContent = "0"
@@ -175,8 +181,10 @@ export function mount(host) {
     hasSpawnedOpeningPipe = true
   }
 
-  const showGameOver = () => {
+  const showGameOver = (collisionPipe = null) => {
     if (state !== "playing") return
+    gameOverPipe = collisionPipe
+    gameOverBirdOffsetX = collisionPipe && bird ? bird.x - collisionPipe.x : 0
     state = "over"
     fireworks.length = 0
     scoreHud.hidden = true
@@ -258,10 +266,34 @@ export function mount(host) {
   }
 
   const update = (delta) => {
-    // Keep the game world's parallax alive after Sloppy Bird is freed.
+    const isAmbient = state === "ready" || state === "over"
+
+    // Keep the scenery moving while the game is idle or after a round ends.
     // Gameplay physics still run only while actively playing.
-    if (state === "playing" || state === "freed") {
+    if (state === "playing" || state === "freed" || isAmbient) {
       sceneOffset = (sceneOffset + 30 * delta) % Math.max(1, width + 240)
+    }
+    if (isAmbient) {
+      ambientTime += delta
+      if (bird) {
+        if (state === "ready") {
+          bird.wingPhase = (bird.wingPhase + delta * 11) % TAU
+          bird.y = Math.max(70, (height - groundHeight) * 0.47) + Math.sin(ambientTime * 2.4) * 3
+        }
+      }
+      if (state === "over") {
+        const pipeSpeed = 145
+        for (let index = pipes.length - 1; index >= 0; index -= 1) {
+          const pipe = pipes[index]
+          pipe.x -= pipeSpeed * delta
+          if (pipe.x + 48 < -8) pipes.splice(index, 1)
+        }
+        if (bird) {
+          if (gameOverPipe) bird.x = gameOverPipe.x + gameOverBirdOffsetX
+          else bird.x -= pipeSpeed * delta
+        }
+      }
+      return
     }
     if (state !== "playing") return
 
@@ -322,7 +354,7 @@ export function mount(host) {
       }
       const overlaps = bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + 48
       const insideGap = bird.y - bird.radius > pipe.opening - pipe.gap / 2 && bird.y + bird.radius < pipe.opening + pipe.gap / 2
-      if (overlaps && !insideGap) showGameOver()
+      if (overlaps && !insideGap) showGameOver(pipe)
       if (pipe.x + 48 < -8) pipes.splice(index, 1)
     }
 
@@ -1236,11 +1268,11 @@ export function mount(host) {
     previousTime = time
     update(delta)
     draw()
-    frame = isVisible && (state === "playing" || state === "freed") ? requestAnimationFrame(loop) : 0
+    frame = isVisible && (state === "ready" || state === "playing" || state === "over" || state === "freed") ? requestAnimationFrame(loop) : 0
   }
 
   const resume = () => {
-    if (frame || (state !== "playing" && state !== "freed") || !isVisible || document.hidden) return
+    if (frame || (state !== "ready" && state !== "playing" && state !== "over" && state !== "freed") || !isVisible || document.hidden) return
     previousTime = performance.now()
     frame = requestAnimationFrame(loop)
   }
