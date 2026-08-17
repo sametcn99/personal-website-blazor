@@ -199,7 +199,6 @@ export function mount(host) {
     const canvasRect = canvas.getBoundingClientRect()
     const startPoint = { x: canvasRect.left + bird.x, y: canvasRect.top + Math.max(8, bird.y) }
     state = "freed"
-    pipes.length = 0
     fireworks.length = 0
     scoreHud.hidden = true
     overlay.hidden = true
@@ -292,6 +291,15 @@ export function mount(host) {
           if (gameOverPipe) bird.x = gameOverPipe.x + gameOverBirdOffsetX
           else bird.x -= pipeSpeed * delta
         }
+      }
+      return
+    }
+    if (state === "freed") {
+      const pipeSpeed = 145
+      for (let index = pipes.length - 1; index >= 0; index -= 1) {
+        const pipe = pipes[index]
+        pipe.x -= pipeSpeed * delta
+        if (pipe.x + 48 < -8) pipes.splice(index, 1)
       }
       return
     }
