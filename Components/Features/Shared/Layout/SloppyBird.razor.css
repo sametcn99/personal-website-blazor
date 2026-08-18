@@ -18,7 +18,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.sloppy-bird-game canvas {
+.sloppy-bird-game ::deep canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -29,13 +29,13 @@
   touch-action: manipulation;
 }
 
-.sloppy-bird-game canvas:focus-visible {
+.sloppy-bird-game ::deep canvas:focus-visible {
   outline: 2px solid var(--color-primary-strong);
   outline-offset: -4px;
 }
 
-.sloppy-bird-placeholder,
-.sloppy-bird-overlay {
+.sloppy-bird-game ::deep .sloppy-bird-placeholder,
+.sloppy-bird-game ::deep .sloppy-bird-overlay {
   position: absolute;
   inset: 0;
   display: grid;
@@ -46,7 +46,7 @@
   font-size: 0.72rem;
 }
 
-.sloppy-bird-overlay {
+.sloppy-bird-game ::deep .sloppy-bird-overlay {
   gap: 0.55rem;
   align-content: center;
   padding: 1rem;
@@ -58,11 +58,11 @@
   touch-action: manipulation;
 }
 
-.sloppy-bird-overlay[hidden] {
+.sloppy-bird-game ::deep .sloppy-bird-overlay[hidden] {
   display: none;
 }
 
-.sloppy-bird-overlay strong {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong {
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
@@ -75,8 +75,8 @@
   text-wrap: balance;
 }
 
-.sloppy-bird-overlay strong::before,
-.sloppy-bird-overlay strong::after {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong::before,
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong::after {
   width: clamp(1.4rem, 5vw, 3.5rem);
   height: 1px;
   background: var(--color-primary);
@@ -84,26 +84,26 @@
   opacity: 0.72;
 }
 
-.sloppy-bird-overlay strong .sloppy-bird-title-word,
-.sloppy-bird-overlay strong .sloppy-bird-title-accent {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong .sloppy-bird-title-word,
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong .sloppy-bird-title-accent {
   max-width: none;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
 }
 
-.sloppy-bird-overlay strong .sloppy-bird-title-word {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong .sloppy-bird-title-word {
   color: var(--color-text-primary);
 }
 
-.sloppy-bird-overlay strong .sloppy-bird-title-accent {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong .sloppy-bird-title-accent {
   color: var(--color-primary-strong);
   font-style: italic;
   letter-spacing: -0.055em;
   transform: translateY(-0.04em) rotate(-4deg);
 }
 
-.sloppy-bird-overlay strong .sloppy-bird-title-status {
+.sloppy-bird-game ::deep .sloppy-bird-overlay strong .sloppy-bird-title-status {
   color: var(--color-text-secondary);
   font-family: inherit;
   font-size: 0.52em;
@@ -113,7 +113,7 @@
   transform: translateY(0.18em);
 }
 
-.sloppy-bird-overlay span {
+.sloppy-bird-game ::deep .sloppy-bird-overlay span {
   max-width: 30ch;
   color: #d2d0c5;
   font-family: var(--font-sans);
@@ -121,7 +121,7 @@
   line-height: 1.45;
 }
 
-.sloppy-bird-overlay small {
+.sloppy-bird-game ::deep .sloppy-bird-overlay small {
   color: var(--color-primary-strong);
   font-size: 0.65rem;
   letter-spacing: 0.08em;
@@ -129,7 +129,7 @@
   text-transform: uppercase;
 }
 
-.sloppy-bird-overlay button {
+.sloppy-bird-game ::deep .sloppy-bird-overlay button {
   min-height: 2.75rem;
   margin-top: 0.35rem;
   padding-inline: 1rem;
@@ -142,16 +142,16 @@
   cursor: pointer;
 }
 
-.sloppy-bird-overlay button:hover {
+.sloppy-bird-game ::deep .sloppy-bird-overlay button:hover {
   background: var(--color-primary-strong);
 }
 
-.sloppy-bird-overlay button:focus-visible {
+.sloppy-bird-game ::deep .sloppy-bird-overlay button:focus-visible {
   outline: 2px solid var(--color-text-primary);
   outline-offset: 3px;
 }
 
-.sloppy-bird-hud {
+.sloppy-bird-game ::deep .sloppy-bird-hud {
   position: absolute;
   top: 0.7rem;
   right: 1rem;
@@ -167,23 +167,23 @@
   pointer-events: none;
 }
 
-.sloppy-bird-hud[hidden] {
+.sloppy-bird-game ::deep .sloppy-bird-hud[hidden] {
   display: none;
 }
 
-.sloppy-bird-hud strong {
+.sloppy-bird-game ::deep .sloppy-bird-hud strong {
   color: var(--color-primary-strong);
   font-size: 1.15rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sloppy-bird-overlay {
+  .sloppy-bird-game ::deep .sloppy-bird-overlay {
     cursor: default;
   }
 }
 
 @media (max-width: 640px) {
-  .sloppy-bird-hud:not([hidden]) {
+  .sloppy-bird-game ::deep .sloppy-bird-hud:not([hidden]) {
     display: flex;
   }
 }
