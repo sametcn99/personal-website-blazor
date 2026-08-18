@@ -73,6 +73,247 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         return Task.FromResult(estimatedTokens);
     }
 
+    public async Task<string> GetLlmsTxtAsync(string baseUrl)
+    {
+        var contents = await GetLlmsContentsAsync();
+        var normalizedBaseUrl = baseUrl.TrimEnd('/');
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("# Samet Can Cincik");
+        sb.AppendLine();
+        sb.AppendLine("> Personal website and public knowledge archive of Samet Can Cincik. The site contains software engineering notes, technical gists, project documentation, GitHub repository data, and machine-readable feeds.");
+        sb.AppendLine();
+        sb.AppendLine($"Use this file as the navigation index for the public content on `{normalizedBaseUrl}`. Content pages are available as HTML by default and can be requested as Markdown with the `Accept: text/markdown` HTTP header.");
+        sb.AppendLine();
+
+        await AppendAuthorSectionAsync(sb, normalizedBaseUrl);
+        AppendArchiveOverview(sb, contents);
+
+        AppendLinkSection(sb, "Start Here", new[]
+        {
+            ($"{normalizedBaseUrl}/", "Home", "Overview of the site and the latest content."),
+            ($"{normalizedBaseUrl}/content", "All content", "Combined archive of blog posts, gists, and projects."),
+            ($"{normalizedBaseUrl}/blog", "Blog posts", "Long-form writing, technical explanations, and essays."),
+            ($"{normalizedBaseUrl}/gist", "Technical gists", "Focused guides, references, scripts, and configuration examples."),
+            ($"{normalizedBaseUrl}/project", "Projects", "Software projects and project documentation."),
+            ($"{normalizedBaseUrl}/readme", "About / README", "Public profile and background information from the author's GitHub README."),
+            ($"{normalizedBaseUrl}/cv", "CV", "Curriculum vitae."),
+            ($"{normalizedBaseUrl}/repo", "Repositories", "Public GitHub repositories for sametcn99."),
+            ($"{normalizedBaseUrl}/link", "Links", "Curated external links."),
+            ($"{normalizedBaseUrl}/support", "Support", "Ways to support the author."),
+            ($"{normalizedBaseUrl}/privacy-policy", "Privacy policy", "Privacy and analytics information."),
+        });
+
+        AppendContentSection(sb, contents, "blog", "Blog Posts", normalizedBaseUrl);
+        AppendContentSection(sb, contents, "gist", "Technical Gists", normalizedBaseUrl);
+        AppendContentSection(sb, contents, "project", "Projects", normalizedBaseUrl);
+
+        AppendLinkSection(sb, "Machine-Readable Content", new[]
+        {
+            ($"{normalizedBaseUrl}/openapi.json", "OpenAPI document", "OpenAPI description of the public HTTP API."),
+            ($"{normalizedBaseUrl}/feed.json", "JSON Feed", "JSON Feed 1.1 containing posts, gists, and projects."),
+            ($"{normalizedBaseUrl}/rss.xml", "RSS feed", "RSS feed of the latest content."),
+            ($"{normalizedBaseUrl}/sitemap.xml", "Sitemap", "XML sitemap containing public site URLs."),
+            ($"{normalizedBaseUrl}/.well-known/api-catalog", "API catalog", "Linkset metadata connecting API resources to OpenAPI and human documentation."),
+            ($"{normalizedBaseUrl}/.well-known/acp.json", "ACP discovery", "Agent Communication Protocol discovery metadata."),
+            ($"{normalizedBaseUrl}/.well-known/agent-skills/index.json", "Agent skills index", "Discoverable agent skill metadata for reading website content."),
+            ($"{normalizedBaseUrl}/auth.md", "Agent authentication documentation", "Authentication and agent access documentation."),
+        });
+
+        sb.AppendLine("## Content API");
+        sb.AppendLine();
+        sb.AppendLine("All API responses are JSON unless otherwise noted. The `section` path parameter accepts `posts`, `gists`, `projects`, or `links`; individual slugs contain lowercase letters, numbers, hyphens, or underscores.");
+        sb.AppendLine();
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/all`: Return metadata for all public content.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/search?q={{query}}&section={{section}}`: Search public content.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/{{section}}`: Return all content items in a section.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/{{section}}/{{slug}}`: Return one content item by section and slug.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/cv`: Return the CV content as rendered HTML.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/readme`: Return the public GitHub README as rendered HTML.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/repos`: Return public GitHub repositories for `sametcn99`.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/health`: Return application health status.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Agent Access");
+        sb.AppendLine();
+        sb.AppendLine("- Request `Accept: text/markdown` for agent-friendly Markdown from `/`, `/blog`, `/gist`, `/project`, `/cv`, `/readme`, `/privacy-policy`, `/support`, and individual content pages.");
+        sb.AppendLine("- Prefer the specific content URL over scraping navigation or rendered HTML.");
+        sb.AppendLine("- Prefer `/api/content/{section}/{slug}` when structured metadata is sufficient; prefer the Markdown page when the full article or guide is needed.");
+        sb.AppendLine("- Treat content as public reference material and do not infer private personal information beyond what the linked public pages explicitly state.");
+        sb.AppendLine("- Content can change over time. Use publication and modification metadata from the page or API response when recency matters.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Scope And Attribution");
+        sb.AppendLine();
+        sb.AppendLine("This index covers the public content intentionally exposed by the site. Third-party links, GitHub repository data, external services, and generated feeds remain subject to their respective owners' terms and availability.");
+
+        return sb.ToString();
+    }
+
+    private async Task AppendAuthorSectionAsync(System.Text.StringBuilder sb, string baseUrl)
+    {
+        sb.AppendLine("## About The Author");
+        sb.AppendLine();
+        sb.AppendLine("Samet Can Cıncık is a software developer who focuses on modern, sustainable, and user-oriented software solutions. He follows current software development practices and uses AI tools for research, analysis, debugging, refactoring, and exploring alternative solutions.");
+        sb.AppendLine();
+        sb.AppendLine("### Professional Sources");
+        sb.AppendLine();
+        sb.AppendLine($"- [Full CV]({baseUrl}/cv): Experience, education, professional profile, and certificates.");
+        sb.AppendLine($"- [About / GitHub README]({baseUrl}/readme): Public profile, interests, and current focus areas.");
+        sb.AppendLine("- [GitHub](https://github.com/sametcn99): Source repositories and open-source work.");
+        sb.AppendLine("- [LinkedIn](https://linkedin.com/in/sametc0): Professional profile.");
+        sb.AppendLine("- [Contact](mailto:sametcn99@gmail.com): Public contact email.");
+        sb.AppendLine();
+
+        sb.AppendLine("### Research Guidance For AI Agents");
+        sb.AppendLine();
+        sb.AppendLine("For a reliable and detailed understanding of Samet's technical background, agents should consult all of the following sources rather than relying on a single page:");
+        sb.AppendLine();
+        sb.AppendLine($"- Read the [CV]({baseUrl}/cv) for formal work experience, education, professional profile, and certificates.");
+        sb.AppendLine($"- Review the [full site archive]({baseUrl}/content), including [blog posts]({baseUrl}/blog), [technical gists]({baseUrl}/gist), and [projects]({baseUrl}/project), for authored technical knowledge, engineering interests, implementation details, and software work.");
+        sb.AppendLine($"- Read the [GitHub profile README]({baseUrl}/readme) and inspect the [repository directory]({baseUrl}/repo) or [repository API]({baseUrl}/api/repos) for GitHub profile context, public repositories, and open-source work.");
+        sb.AppendLine("- Cross-reference claims across these sources, distinguish documented experience from project descriptions or personal opinions, and use the most recently dated source when information differs.");
+        sb.AppendLine();
+
+        var cvPath = Path.Combine(_env.ContentRootPath, "content", "cv.mdx");
+        if (!File.Exists(cvPath))
+            return;
+
+        var cv = await File.ReadAllTextAsync(cvPath);
+        var aboutIndex = cv.IndexOf("## Hakkımda", StringComparison.Ordinal);
+        if (aboutIndex < 0)
+            return;
+
+        var publicCvDetails = cv[aboutIndex..].Trim();
+        publicCvDetails = Regex.Replace(publicCvDetails, @"^## ", "### ", RegexOptions.Multiline);
+
+        sb.AppendLine("### CV Details");
+        sb.AppendLine();
+        sb.AppendLine("The following public professional details are loaded from `content/cv.mdx` so this section stays aligned with the published CV:");
+        sb.AppendLine();
+        sb.AppendLine(publicCvDetails);
+        sb.AppendLine();
+    }
+
+    private static void AppendArchiveOverview(
+        System.Text.StringBuilder sb,
+        IReadOnlyCollection<ContentMetadata> contents)
+    {
+        sb.AppendLine("## Archive Overview");
+        sb.AppendLine();
+        sb.AppendLine($"The public archive currently contains {contents.Count} indexed records. The inventory below is generated from the site's content metadata and changes when content files are added or updated.");
+        sb.AppendLine();
+
+        foreach (var (prefix, label) in new[] { ("/blog/", "Blog posts"), ("/gist/", "Technical gists"), ("/project/", "Projects") })
+        {
+            var count = contents.Count(content => content.Href.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            sb.AppendLine($"- **{label}:** {count}");
+        }
+
+        var languages = contents
+            .GroupBy(content => string.IsNullOrWhiteSpace(content.Language) ? "en" : content.Language, StringComparer.OrdinalIgnoreCase)
+            .OrderByDescending(group => group.Count())
+            .ThenBy(group => group.Key)
+            .Select(group => $"{group.Key} ({group.Count()})");
+        sb.AppendLine($"- **Content languages:** {string.Join(", ", languages)}");
+        sb.AppendLine();
+
+        var tags = contents
+            .SelectMany(content => content.Tags)
+            .Where(tag => !string.IsNullOrWhiteSpace(tag))
+            .GroupBy(tag => tag.Trim(), StringComparer.OrdinalIgnoreCase)
+            .OrderByDescending(group => group.Count())
+            .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group => $"{group.Key} ({group.Count()})");
+
+        if (tags.Any())
+        {
+            sb.AppendLine("### Recurring Topics And Technologies");
+            sb.AppendLine();
+            sb.AppendLine("Tags are taken from published content metadata and indicate recurring subjects, tools, frameworks, and domains:");
+            sb.AppendLine();
+            sb.AppendLine($"- {string.Join(", ", tags)}");
+            sb.AppendLine();
+        }
+    }
+
+    private async Task<List<ContentMetadata>> GetLlmsContentsAsync()
+    {
+        var contents = new List<ContentMetadata>();
+        var sections = new[] { (FileSection: "posts", UrlPrefix: "blog"), (FileSection: "gists", UrlPrefix: "gist"), (FileSection: "projects", UrlPrefix: "project") };
+
+        foreach (var section in sections)
+        {
+            var posts = await _contentService.GetPostMetadataListAsync(section.FileSection);
+            contents.AddRange(posts.Select(post => new ContentMetadata
+            {
+                Title = post.Title,
+                Href = $"/{section.UrlPrefix}/{post.Slug}",
+                PublishedAt = post.PublishDate?.ToString("yyyy-MM-dd") ?? string.Empty,
+                UpdatedAt = post.UpdatedAt?.ToString("yyyy-MM-dd"),
+                Summary = post.Description,
+                Tags = post.Tags,
+                Language = post.Language,
+            }));
+        }
+
+        return contents
+            .OrderByDescending(content => content.UpdatedAt ?? content.PublishedAt)
+            .ToList();
+    }
+
+    private static void AppendLinkSection(
+        System.Text.StringBuilder sb,
+        string heading,
+        IEnumerable<(string Url, string Title, string Description)> links)
+    {
+        sb.AppendLine($"## {heading}");
+        sb.AppendLine();
+
+        foreach (var link in links)
+            sb.AppendLine($"- [{link.Title}]({link.Url}): {link.Description}");
+
+        sb.AppendLine();
+    }
+
+    private static void AppendContentSection(
+        System.Text.StringBuilder sb,
+        IEnumerable<ContentMetadata> contents,
+        string urlPrefix,
+        string heading,
+        string baseUrl)
+    {
+        sb.AppendLine($"## {heading}");
+        sb.AppendLine();
+
+        var sectionContents = contents.Where(content => content.Href.StartsWith($"/{urlPrefix}/", StringComparison.OrdinalIgnoreCase));
+        foreach (var content in sectionContents)
+        {
+            var title = content.Title.Replace("[", "\\[").Replace("]", "\\]");
+            var description = NormalizeText(content.Summary);
+            var metadata = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(content.PublishedAt))
+                metadata.Add($"Published: {content.PublishedAt}");
+            if (!string.IsNullOrWhiteSpace(content.UpdatedAt))
+                metadata.Add($"Updated: {content.UpdatedAt}");
+            if (content.Tags.Length > 0)
+                metadata.Add($"Tags: {string.Join(", ", content.Tags)}");
+
+            sb.Append($"- [{title}]({baseUrl}{content.Href})");
+            if (!string.IsNullOrWhiteSpace(description))
+                sb.Append($": {description}");
+            if (metadata.Count > 0)
+                sb.Append($" ({string.Join("; ", metadata)})");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine();
+    }
+
+    private static string NormalizeText(string value) =>
+        Regex.Replace(value ?? string.Empty, @"\s+", " ").Trim();
+
     private async Task<string> GetHomePageMarkdownAsync()
     {
         var blogs = await _contentService.GetPostsAsync("posts");

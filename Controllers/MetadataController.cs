@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using personal_website_blazor.Interfaces;
 using personal_website_blazor.Models;
 
 namespace personal_website_blazor.Controllers;
@@ -11,10 +12,24 @@ namespace personal_website_blazor.Controllers;
 public class MetadataController : ControllerBase
 {
     private readonly IOptions<CachePolicyOptions> _cacheOptions;
+    private readonly IMarkdownForAgentsService _markdownForAgentsService;
 
-    public MetadataController(IOptions<CachePolicyOptions> cacheOptions)
+    public MetadataController(
+        IOptions<CachePolicyOptions> cacheOptions,
+        IMarkdownForAgentsService markdownForAgentsService)
     {
         _cacheOptions = cacheOptions;
+        _markdownForAgentsService = markdownForAgentsService;
+    }
+
+    [HttpGet("llms.txt")]
+    public async Task<ActionResult> GetLlmsTxt()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var llmsTxt = await _markdownForAgentsService.GetLlmsTxtAsync(baseUrl);
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        return Content(llmsTxt, "text/plain; charset=utf-8");
     }
 
     [HttpGet(".well-known/api-catalog")]
