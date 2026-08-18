@@ -15,19 +15,19 @@
   gap: 2rem;
 }
 
-.site-mark {
+.site-header ::deep .site-mark {
   display: flex;
   align-items: baseline;
   gap: 0.7rem;
   text-decoration: none;
 }
 
-.site-mark-name {
+.site-header ::deep .site-mark-name {
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-.site-mark-note {
+.site-header ::deep .site-mark-note {
   color: var(--color-text-secondary);
   font-family: var(--font-measure);
   font-size: 0.62rem;
@@ -67,7 +67,7 @@
   color: var(--color-primary-strong);
 }
 
-.site-nav a,
+.site-nav ::deep a,
 .site-nav button {
   border: 0;
   background: transparent;
@@ -77,16 +77,14 @@
   text-decoration: none;
 }
 
-.site-nav a:hover,
-.site-nav a.active,
+.site-nav ::deep a:hover,
+.site-nav ::deep a.active,
 .site-nav button:hover {
   color: var(--color-text-primary);
 }
 
-.site-nav a.active {
-  text-decoration: underline;
-  text-decoration-color: var(--color-primary);
-  text-underline-offset: 0.45rem;
+.site-nav ::deep a.active {
+  text-decoration: none;
 }
 
 .site-search-link {
@@ -192,7 +190,7 @@
     animation: site-nav-backdrop-in 360ms ease both;
   }
 
-  .site-nav a,
+  .site-nav ::deep a,
   .site-nav button {
     display: flex;
     min-height: 2.75rem;
@@ -201,7 +199,7 @@
     white-space: nowrap;
   }
 
-  .site-nav a.active {
+  .site-nav ::deep a.active {
     text-decoration: none;
     background: rgba(200, 154, 73, 0.1);
   }
@@ -226,7 +224,7 @@
 }
 
 @media (max-width: 640px) {
-  .site-mark-note {
+  .site-header ::deep .site-mark-note {
     display: none;
   }
 }

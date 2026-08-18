@@ -1,4 +1,4 @@
-@implements IDisposable
+@implements IAsyncDisposable
 @inject IJSRuntime JS
 
 <div class="article-share">
@@ -24,12 +24,30 @@
 
     private bool _linkCopied;
     private CancellationTokenSource? _toastCts;
+    private IJSObjectReference? _domModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
 
     private async Task ShareAsync()
     {
         try
         {
-            var result = await JS.InvokeAsync<string>("shareCurrentPage", Title, Description ?? string.Empty);
+            if (_domModule is null)
+                return;
+
+            var result = await _domModule.InvokeAsync<string>("shareCurrentPage", Title, Description ?? string.Empty);
             if (!string.Equals(result, "copied", StringComparison.Ordinal))
             {
                 return;
@@ -58,9 +76,11 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         _toastCts?.Cancel();
         _toastCts?.Dispose();
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

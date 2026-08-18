@@ -57,6 +57,21 @@
     private double _dragStartX;
     private double _dragStartY;
     private bool _scrollLocked;
+    private IJSObjectReference? _domModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
 
     private async Task OpenViewer()
     {
@@ -129,34 +144,37 @@
     {
         if (shouldLock && !_scrollLocked)
         {
-            await JSRuntime.InvokeVoidAsync("lockBodyScroll");
+            if (_domModule is null)
+                return;
+
+            await _domModule.InvokeVoidAsync("lockBodyScroll");
             _scrollLocked = true;
             return;
         }
 
         if (!shouldLock && _scrollLocked)
         {
-            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("unlockBodyScroll");
             _scrollLocked = false;
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (!_scrollLocked)
-        {
-            return;
-        }
-
         try
         {
-            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            if (_scrollLocked && _domModule is not null)
+                await _domModule.InvokeVoidAsync("unlockBodyScroll");
             _scrollLocked = false;
         }
         catch
         {
             _scrollLocked = false;
         }
+
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 
     private string GetTransformStyle() =>

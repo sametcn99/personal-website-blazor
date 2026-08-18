@@ -1,7 +1,8 @@
 ﻿@page "/"
 @inject IContentService ContentService
 @inject PersistentComponentState ApplicationState
-@implements IDisposable
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>Samet Can Cıncık — Web Developer Notes &amp; Projects</PageTitle>
 
@@ -40,7 +41,7 @@
         </section>
 
         <section id="search" class="home-search-launcher" aria-labelledby="home-search-launcher-title">
-            <button type="button" onclick="window.openArchiveSearch()" data-umami-event="home-search-open-click">
+            <button type="button" @onclick="OpenSearchAsync" data-umami-event="home-search-open-click">
                 <span class="home-search-launcher-copy">
                     <strong id="home-search-launcher-title">Search the archive</strong>
                     <small>Posts, gists, projects, repositories, and links in one index.</small>
@@ -131,6 +132,7 @@
     private int _projectTotal;
     private bool _isLoading = true;
     private PersistingComponentStateSubscription? _persistSubscription;
+    private IJSObjectReference? _domModule;
 
     private ContentMetadata? LatestContent => new[] { _blogPosts.FirstOrDefault(), _gistPosts.FirstOrDefault(),
 _projectPosts.FirstOrDefault() }
@@ -217,7 +219,32 @@ _projectPosts.FirstOrDefault() }
         return Task.CompletedTask;
     }
 
-    public void Dispose() => _persistSubscription?.Dispose();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    private async Task OpenSearchAsync()
+    {
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("openArchiveSearch");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _persistSubscription?.Dispose();
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
+    }
 
     private sealed class HomePageState
     {

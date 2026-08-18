@@ -2,13 +2,16 @@
 @implements IAsyncDisposable
 
 <section class="sloppy-bird" aria-label="Sloppy Bird game">
-    <div id="@_gameId" class="sloppy-bird-game" aria-live="polite">
+    <div @ref="_host" id="@_gameId" class="sloppy-bird-game" aria-live="polite">
         <p class="sloppy-bird-placeholder">Loading Sloppy Bird…</p>
     </div>
 </section>
 
 @code {
     private readonly string _gameId = $"sloppy-bird-{Guid.NewGuid():N}";
+    private ElementReference _host;
+    private IJSObjectReference? _module;
+    private IJSObjectReference? _game;
     private bool _isClientInitialized;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -17,7 +20,8 @@
         {
             try
             {
-                await JS.InvokeVoidAsync("sloppyBird.observe", _gameId);
+                _module = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/sloppy-bird.min.js");
+                _game = await _module.InvokeAsync<IJSObjectReference>("mount", _host);
                 _isClientInitialized = true;
             }
             catch (JSException)
@@ -34,10 +38,18 @@
 
         try
         {
-            await JS.InvokeVoidAsync("sloppyBird.dispose", _gameId);
+            if (_isClientInitialized && _game is not null)
+                await _game.InvokeVoidAsync("destroy");
         }
         catch (JSException)
         {
+        }
+        finally
+        {
+            if (_game is not null)
+                await _game.DisposeAsync();
+            if (_module is not null)
+                await _module.DisposeAsync();
         }
     }
 }

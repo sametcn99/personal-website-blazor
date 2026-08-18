@@ -1,6 +1,7 @@
 @page "/cv/download/{Language}"
 @inject IJSRuntime Js
 @inject NavigationManager Navigation
+@implements IAsyncDisposable
 
 <PageTitle>Downloading CV... | Samet Can Cıncık</PageTitle>
 
@@ -19,6 +20,7 @@
 
     private string _fileUrl = string.Empty;
     private string _fileName = string.Empty;
+    private IJSObjectReference? _domModule;
 
     protected override void OnInitialized()
     {
@@ -47,7 +49,8 @@
             await Task.Delay(500);
             try
             {
-                await Js.InvokeVoidAsync("downloadFile", _fileUrl, _fileName);
+                _domModule = await Js.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+                await _domModule.InvokeVoidAsync("downloadFile", _fileUrl, _fileName);
             }
             catch (JSDisconnectedException)
             {
@@ -58,5 +61,11 @@
             await Task.Delay(2000);
             Navigation.NavigateTo("/cv");
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

@@ -90,9 +90,11 @@
     private readonly List<SearchEntry> _cachedRepos = new();
     private List<SearchEntry> _filteredResults = new();
     private DotNetObjectReference<HomeSearchSection>? _dotNetRef;
+    private IJSObjectReference? _domModule;
+    private IJSObjectReference? _hotkeyModule;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_hotkeyRegistered)
+        if (!firstRender || _hotkeyRegistered)
         {
             return;
         }
@@ -101,7 +103,9 @@
 
         try
         {
-            await JS.InvokeVoidAsync("registerHomeSearchKeyHandler", _dotNetRef);
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+            _hotkeyModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/home-search-hotkey.min.js");
+            await _hotkeyModule.InvokeVoidAsync("register", _dotNetRef);
             _hotkeyRegistered = true;
         }
         catch (JSDisconnectedException)
@@ -281,7 +285,8 @@
     {
         try
         {
-            await JS.InvokeVoidAsync("openArchiveSearch");
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("openArchiveSearch");
         }
         catch (JSDisconnectedException)
         {
@@ -292,7 +297,8 @@
     {
         try
         {
-            await JS.InvokeVoidAsync("closeArchiveSearch");
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("closeArchiveSearch");
         }
         catch (JSDisconnectedException)
         {
@@ -308,7 +314,8 @@
 
         try
         {
-            await JS.InvokeVoidAsync("focusElementById", "home-search-input");
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("focusElementById", "home-search-input");
         }
         catch (JSDisconnectedException)
         {
@@ -425,7 +432,8 @@
         {
             try
             {
-                await JS.InvokeVoidAsync("unregisterHomeSearchKeyHandler");
+                if (_hotkeyModule is not null)
+                    await _hotkeyModule.InvokeVoidAsync("unregister");
             }
             catch (JSDisconnectedException)
             {
@@ -433,6 +441,10 @@
         }
 
         _dotNetRef?.Dispose();
+        if (_hotkeyModule is not null)
+            await _hotkeyModule.DisposeAsync();
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 
     private sealed class SearchEntry

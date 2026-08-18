@@ -1,4 +1,5 @@
 @inject IJSRuntime Js
+@implements IAsyncDisposable
 
 <div class="row-end d-print-none">
     <div class="download-menu">
@@ -44,18 +45,41 @@
 
 @code {
     private bool _isOpen;
+    private IJSObjectReference? _domModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await Js.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
 
     private void ToggleMenu() => _isOpen = !_isOpen;
 
     private async Task DownloadTrCv()
     {
         _isOpen = false;
-        await Js.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_TR.pdf", "Samet_Can_Cincik_CV_TR.pdf");
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_TR.pdf", "Samet_Can_Cincik_CV_TR.pdf");
     }
 
     private async Task DownloadEnCv()
     {
         _isOpen = false;
-        await Js.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_EN.pdf", "Samet_Can_Cincik_CV_EN.pdf");
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("downloadFile", "/Samet_Can_Cincik_CV_EN.pdf", "Samet_Can_Cincik_CV_EN.pdf");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

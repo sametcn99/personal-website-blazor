@@ -2,56 +2,33 @@ function isEditableTarget(target) {
   if (!target) return false
 
   const tagName = target.tagName
-  const editableTags = ["INPUT", "TEXTAREA", "SELECT"]
-
-  if (editableTags.includes(tagName)) return true
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(tagName)) return true
   if (target.isContentEditable) return true
-  if (target.closest('[contenteditable="true"]')) return true
-
-  return false
+  return !!target.closest('[contenteditable="true"]')
 }
 
-window.homeSearchHotkey = {
-  keydownHandler: null,
+let keydownHandler = null
 
-  register(dotNetRef) {
-    this.unregister()
+export const register = (dotNetRef) => {
+  unregister()
 
-    this.keydownHandler = (event) => {
-      if (event.defaultPrevented || isEditableTarget(event.target) || event.target?.closest?.(".sloppy-bird-game")) {
-        return
-      }
+  keydownHandler = (event) => {
+    if (event.defaultPrevented || isEditableTarget(event.target) || event.target?.closest?.(".sloppy-bird-game")) return
 
-      const isCharacter = event.key.length === 1 && event.key !== " " && !event.ctrlKey && !event.metaKey && !event.altKey
-      const isBackspace = event.key === "Backspace"
-      const isEscape = event.key === "Escape"
+    const isCharacter = event.key.length === 1 && event.key !== " " && !event.ctrlKey && !event.metaKey && !event.altKey
+    const isBackspace = event.key === "Backspace"
+    const isEscape = event.key === "Escape"
+    if (!isCharacter && !isBackspace && !isEscape) return
 
-      if (!isCharacter && !isBackspace && !isEscape) {
-        return
-      }
+    event.preventDefault()
+    dotNetRef.invokeMethodAsync("HandleGlobalKeyInput", event.key, event.ctrlKey, event.metaKey, event.altKey).catch(unregister)
+  }
 
-      event.preventDefault()
-
-      dotNetRef.invokeMethodAsync("HandleGlobalKeyInput", event.key, event.ctrlKey, event.metaKey, event.altKey).catch(() => {
-        this.unregister()
-      })
-    }
-
-    window.addEventListener("keydown", this.keydownHandler)
-  },
-
-  unregister() {
-    if (this.keydownHandler) {
-      window.removeEventListener("keydown", this.keydownHandler)
-      this.keydownHandler = null
-    }
-  },
+  window.addEventListener("keydown", keydownHandler)
 }
 
-window.registerHomeSearchKeyHandler = (dotNetRef) => {
-  window.homeSearchHotkey.register(dotNetRef)
-}
-
-window.unregisterHomeSearchKeyHandler = () => {
-  window.homeSearchHotkey.unregister()
+export const unregister = () => {
+  if (!keydownHandler) return
+  window.removeEventListener("keydown", keydownHandler)
+  keydownHandler = null
 }

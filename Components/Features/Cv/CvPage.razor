@@ -5,7 +5,7 @@
 @inject IWebHostEnvironment Environment
 @inject IJSRuntime Runtime
 @inject PersistentComponentState ApplicationState
-@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>CV | Samet Can Cıncık</PageTitle>
 
@@ -43,6 +43,7 @@
     private TocItem[] _tocItems = Array.Empty<TocItem>();
     private bool _contentInitialized;
     private PersistingComponentStateSubscription? _persistSubscription;
+    private IJSObjectReference? _contentModule;
 
     protected override void OnInitialized()
     {
@@ -90,7 +91,8 @@
 
         try
         {
-            await Runtime.InvokeVoidAsync("initContent");
+            _contentModule ??= await Runtime.InvokeAsync<IJSObjectReference>("import", "/dist/js/content-scripts.min.js");
+            await _contentModule.InvokeVoidAsync("initContent");
             _contentInitialized = true;
         }
         catch (Exception ex)
@@ -105,5 +107,10 @@
         return Task.CompletedTask;
     }
 
-    public void Dispose() => _persistSubscription?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        _persistSubscription?.Dispose();
+        if (_contentModule is not null)
+            await _contentModule.DisposeAsync();
+    }
 }

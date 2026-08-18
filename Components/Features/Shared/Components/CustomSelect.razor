@@ -1,4 +1,5 @@
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <div id="@selectId" class="custom-select @(isOpen ? "custom-select-open" : null)" @attributes="AdditionalAttributes">
     <button type="button"
@@ -41,6 +42,21 @@
 
     private bool isOpen;
     private readonly string selectId = $"custom-select-{Guid.NewGuid():N}";
+    private IJSObjectReference? _domModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
 
     private CustomSelectOption SelectedOption =>
         Options.FirstOrDefault(option => option.Value == Value) ??
@@ -51,7 +67,8 @@
     {
         if (!isOpen)
         {
-            await JS.InvokeVoidAsync("window.closeOtherCustomSelects", selectId);
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("closeOtherCustomSelects", selectId);
         }
 
         isOpen = !isOpen;
@@ -73,5 +90,11 @@
         {
             isOpen = false;
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

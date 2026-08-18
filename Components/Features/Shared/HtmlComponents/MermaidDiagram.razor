@@ -110,6 +110,8 @@
     private double _dragStartY;
 
     private bool _scrollLocked;
+    private IJSObjectReference? _domModule;
+    private IJSObjectReference? _contentModule;
 
     protected override void OnParametersSet()
     {
@@ -128,6 +130,22 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            try
+            {
+                _domModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+                _contentModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "/dist/js/content-scripts.min.js");
+            }
+            catch (JSDisconnectedException)
+            {
+                return;
+            }
+        }
+
+        if (_contentModule is null || _domModule is null)
+            return;
+
         if (_renderRequested && !string.IsNullOrWhiteSpace(Definition))
         {
             _renderRequested = false;
@@ -139,7 +157,7 @@
             _diagramDomNeedsRefresh = false;
             try
             {
-                await JSRuntime.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
+                await _contentModule.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
                 HasSvg = true;
             }
             catch
@@ -153,7 +171,7 @@
             _focusFullscreenRequested = false;
             try
             {
-                await JSRuntime.InvokeVoidAsync("focusElementById", _fullscreenId);
+                await _domModule.InvokeVoidAsync("focusElementById", _fullscreenId);
             }
             catch (Exception ex)
             {
@@ -166,7 +184,10 @@
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
+            if (_contentModule is null)
+                return;
+
+            await _contentModule.InvokeVoidAsync("renderMermaidDiagram", _diagramId, Definition);
             HasSvg = true;
             SvgMarkup = string.Empty;
         }
@@ -196,7 +217,10 @@
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Definition.Trim());
+            if (_domModule is null)
+                return;
+
+            await _domModule.InvokeVoidAsync("copyToClipboard", Definition.Trim());
             Copied = true;
             await InvokeAsync(StateHasChanged);
 
@@ -225,7 +249,10 @@
             Downloading = true;
             await InvokeAsync(StateHasChanged);
             await EnsureSvgMarkupLoaded();
-            await JSRuntime.InvokeVoidAsync("downloadSvgMarkup", SvgMarkup, "mermaid-diagram");
+            if (_contentModule is null)
+                return;
+
+            await _contentModule.InvokeVoidAsync("downloadSvgMarkup", SvgMarkup, "mermaid-diagram");
 
             await Task.Delay(800);
             Downloading = false;
@@ -260,7 +287,8 @@
             return;
         }
 
-        SvgMarkup = await JSRuntime.InvokeAsync<string>("getElementInnerHtml", _diagramId);
+        if (_contentModule is not null)
+            SvgMarkup = await _contentModule.InvokeAsync<string>("getElementInnerHtml", _diagramId);
     }
 
     private async Task CloseFullscreen()
@@ -356,33 +384,38 @@
     {
         if (shouldLock && !_scrollLocked)
         {
-            await JSRuntime.InvokeVoidAsync("lockBodyScroll");
+            if (_domModule is null)
+                return;
+
+            await _domModule.InvokeVoidAsync("lockBodyScroll");
             _scrollLocked = true;
             return;
         }
 
         if (!shouldLock && _scrollLocked)
         {
-            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("unlockBodyScroll");
             _scrollLocked = false;
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (!_scrollLocked)
-        {
-            return;
-        }
-
         try
         {
-            await JSRuntime.InvokeVoidAsync("unlockBodyScroll");
+            if (_scrollLocked && _domModule is not null)
+                await _domModule.InvokeVoidAsync("unlockBodyScroll");
             _scrollLocked = false;
         }
         catch
         {
             _scrollLocked = false;
         }
+
+        if (_contentModule is not null)
+            await _contentModule.DisposeAsync();
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

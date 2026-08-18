@@ -4,7 +4,7 @@
 @inject IJSRuntime Runtime
 @inject NavigationManager Navigation
 @inject PersistentComponentState ApplicationState
-@implements IDisposable
+@implements IAsyncDisposable
 
 <PageTitle>@(Post?.Title ?? "Loading...") | Samet Can Cıncık</PageTitle>
 
@@ -62,6 +62,7 @@ else
     private bool IsLoading = true;
     private string? _initializedSlug;
     private PersistingComponentStateSubscription? _persistSubscription;
+    private IJSObjectReference? _contentModule;
 
     private string UrlSection => Section switch
     {
@@ -132,7 +133,8 @@ else
         {
             try
             {
-                await Runtime.InvokeVoidAsync("initContent");
+                _contentModule ??= await Runtime.InvokeAsync<IJSObjectReference>("import", "/dist/js/content-scripts.min.js");
+                await _contentModule.InvokeVoidAsync("initContent");
                 _initializedSlug = Slug;
             }
             catch (Exception ex)
@@ -176,7 +178,12 @@ else
         return Navigation.ToAbsoluteUri("/opengraph-image").ToString();
     }
 
-    public void Dispose() => _persistSubscription?.Dispose();
+    public async ValueTask DisposeAsync()
+    {
+        _persistSubscription?.Dispose();
+        if (_contentModule is not null)
+            await _contentModule.DisposeAsync();
+    }
 
     private sealed class PostViewerState
     {

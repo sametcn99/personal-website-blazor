@@ -1,7 +1,7 @@
-window.__mermaidReadyPromise = null
-window.__mermaidInitialized = window.__mermaidInitialized || false
-window.__mermaidModuleUrl = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"
-window.__mermaidThemeConfig = {
+let mermaidReadyPromise = null
+let mermaidInstance = null
+const mermaidModuleUrl = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"
+const mermaidThemeConfig = {
   startOnLoad: false,
   theme: "base",
   themeVariables: {
@@ -30,43 +30,36 @@ window.__mermaidThemeConfig = {
   },
 }
 
-window.ensureMermaidReady = async () => {
-  if (window.mermaid) {
-    if (!window.__mermaidInitialized) {
-      window.mermaid.initialize(window.__mermaidThemeConfig)
-      window.__mermaidInitialized = true
-    }
-
-    return window.mermaid
+export const ensureMermaidReady = async () => {
+  if (mermaidInstance) {
+    return mermaidInstance
   }
 
-  if (!window.__mermaidReadyPromise) {
-    window.__mermaidReadyPromise = import(window.__mermaidModuleUrl)
+  if (!mermaidReadyPromise) {
+    mermaidReadyPromise = import(mermaidModuleUrl)
       .then((module) => {
-        const mermaid = module.default
-        mermaid.initialize(window.__mermaidThemeConfig)
-        window.mermaid = mermaid
-        window.__mermaidInitialized = true
-        return mermaid
+        mermaidInstance = module.default
+        mermaidInstance.initialize(mermaidThemeConfig)
+        return mermaidInstance
       })
       .catch((error) => {
-        window.__mermaidReadyPromise = null
-        window.__mermaidInitialized = false
+        mermaidReadyPromise = null
+        mermaidInstance = null
         throw error
       })
   }
 
-  return window.__mermaidReadyPromise
+  return mermaidReadyPromise
 }
 
-window.renderMermaidDiagram = async (containerId, definition) => {
+export const renderMermaidDiagram = async (containerId, definition) => {
   const container = document.getElementById(containerId)
   if (!container || !definition) {
     return false
   }
 
   try {
-    const mermaid = await window.ensureMermaidReady()
+    const mermaid = await ensureMermaidReady()
     const renderId = `mermaid-svg-${containerId}-${Date.now()}`
     const result = await mermaid.render(renderId, definition)
     container.innerHTML = result.svg
@@ -78,18 +71,18 @@ window.renderMermaidDiagram = async (containerId, definition) => {
   }
 }
 
-window.renderMermaidToSvg = async (definition, diagramId) => {
+export const renderMermaidToSvg = async (definition, diagramId) => {
   if (!definition) {
     return ""
   }
 
-  const mermaid = await window.ensureMermaidReady()
+  const mermaid = await ensureMermaidReady()
   const renderId = diagramId || `mermaid-svg-${Date.now()}`
   const result = await mermaid.render(renderId, definition.trim())
   return result.svg || ""
 }
 
-window.downloadSvgMarkup = (svgMarkup, filenamePrefix = "mermaid-diagram") => {
+export const downloadSvgMarkup = (svgMarkup, filenamePrefix = "mermaid-diagram") => {
   if (!svgMarkup) {
     return
   }
@@ -129,12 +122,12 @@ window.downloadSvgMarkup = (svgMarkup, filenamePrefix = "mermaid-diagram") => {
   URL.revokeObjectURL(url)
 }
 
-window.getElementInnerHtml = (elementId) => {
+export const getElementInnerHtml = (elementId) => {
   const element = document.getElementById(elementId)
   return element?.innerHTML || ""
 }
 
-window.hasSvgContent = (elementId) => {
+export const hasSvgContent = (elementId) => {
   const element = document.getElementById(elementId)
   return !!element?.querySelector("svg")
 }
@@ -204,15 +197,13 @@ function decorateCodeBlocks() {
   })
 }
 
-window.__contentInitState = window.__contentInitState || {
+let contentInitState = {
   lastPath: "",
   lastRunAt: 0,
 }
 
-window.__tocRailCleanup?.()
-window.__tocRailCleanup = null
-window.__inlineTocCleanup?.()
-window.__inlineTocCleanup = null
+let tocRailCleanup = null
+let inlineTocCleanup = null
 
 function scrollToContentHeading(id) {
   if (!id) return false
@@ -249,7 +240,7 @@ function initInlineToc() {
   }
 
   toc.addEventListener("click", onClick)
-  window.__inlineTocCleanup = () => toc.removeEventListener("click", onClick)
+  inlineTocCleanup = () => toc.removeEventListener("click", onClick)
 }
 
 function initTocRail() {
@@ -330,7 +321,7 @@ function initTocRail() {
   window.addEventListener("resize", updateActiveHeading, { passive: true })
   updateActiveHeading()
 
-  window.__tocRailCleanup = () => {
+  tocRailCleanup = () => {
     if (frame) cancelAnimationFrame(frame)
     rail.removeEventListener("pointermove", onPointerMove)
     rail.removeEventListener("pointerleave", resetProximity)
@@ -341,55 +332,53 @@ function initTocRail() {
   }
 }
 
-window.initContent = () => {
+export const initContent = () => {
   const currentPath = `${window.location.pathname}${window.location.search}`
   const now = Date.now()
 
   // Prevent duplicate init runs caused by rapid consecutive renders.
-  if (window.__contentInitState.lastPath === currentPath && now - window.__contentInitState.lastRunAt < 1000) {
+  if (contentInitState.lastPath === currentPath && now - contentInitState.lastRunAt < 1000) {
     return
   }
 
-  window.__contentInitState.lastPath = currentPath
-  window.__contentInitState.lastRunAt = now
+  contentInitState.lastPath = currentPath
+  contentInitState.lastRunAt = now
 
   decorateCodeBlocks()
-  window.__tocRailCleanup?.()
-  window.__tocRailCleanup = null
-  window.__inlineTocCleanup?.()
-  window.__inlineTocCleanup = null
+  tocRailCleanup?.()
+  tocRailCleanup = null
+  inlineTocCleanup?.()
+  inlineTocCleanup = null
   initTocRail()
   initInlineToc()
 }
 
-window.highlightCode = (elementId) => {
+export const highlightCode = (elementId) => {
   const element = document.getElementById(elementId)
-  if (element && window.Prism) {
-    window.Prism.highlightElement(element)
+  if (element && globalThis.Prism) {
+    globalThis.Prism.highlightElement(element)
   }
 }
 
-window.__monacoReadyPromise = null
-window.__monacoInitialized = false
+let monacoReadyPromise = null
 
-window.ensureMonacoReady = async () => {
-  if (window.monaco) {
-    return window.monaco
+export const ensureMonacoReady = async () => {
+  if (globalThis.monaco) {
+    return globalThis.monaco
   }
 
-  if (!window.__monacoReadyPromise) {
-    window.__monacoReadyPromise = new Promise((resolve, reject) => {
+  if (!monacoReadyPromise) {
+    monacoReadyPromise = new Promise((resolve, reject) => {
       const script = document.createElement("script")
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"
       script.onload = () => {
-        window.require.config({
+        globalThis.require.config({
           paths: {
             vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs",
           },
         })
-        window.require(["vs/editor/editor.main"], function () {
-          window.__monacoInitialized = true
-          resolve(window.monaco)
+        globalThis.require(["vs/editor/editor.main"], function () {
+          resolve(globalThis.monaco)
         })
       }
       script.onerror = reject
@@ -397,15 +386,15 @@ window.ensureMonacoReady = async () => {
     })
   }
 
-  return window.__monacoReadyPromise
+  return monacoReadyPromise
 }
 
-window.renderMonacoEditor = async (containerId, code, language) => {
+export const renderMonacoEditor = async (containerId, code, language) => {
   const container = document.getElementById(containerId)
   if (!container) return
 
   try {
-    const monaco = await window.ensureMonacoReady()
+    const monaco = await ensureMonacoReady()
 
     let monacoLang = "plaintext"
     if (language) {

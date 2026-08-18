@@ -3,7 +3,7 @@
   "scripts": {
     "build:assets": "bun run build:css && bun run build:js",
     "build:css": "esbuild wwwroot/app.css wwwroot/css/*.css --outdir=wwwroot/dist/css --entry-names=[name].min --minify",
-    "build:js": "esbuild wwwroot/js/*.js --outdir=wwwroot/dist/js --entry-names=[name].min --minify"
+    "build:js": "esbuild wwwroot/js/*.js --outdir=wwwroot/dist/js --entry-names=[name].min --bundle --format=esm --minify"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

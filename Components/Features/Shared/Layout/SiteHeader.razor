@@ -1,4 +1,5 @@
 @inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <header class="site-header">
     <div class="page-container site-header-inner">
@@ -37,6 +38,21 @@
 
 @code {
     private bool isMenuOpen;
+    private IJSObjectReference? _domModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
 
     private async Task ToggleMenu()
     {
@@ -47,7 +63,8 @@
         }
 
         isMenuOpen = true;
-        await JS.InvokeVoidAsync("window.lockBodyScroll");
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("lockBodyScroll");
     }
 
     private async Task CloseMenu()
@@ -58,12 +75,22 @@
         }
 
         isMenuOpen = false;
-        await JS.InvokeVoidAsync("window.unlockBodyScroll");
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("unlockBodyScroll");
     }
 
     private async Task OpenSearch()
     {
         await CloseMenu();
-        await JS.InvokeVoidAsync("window.openArchiveSearch");
+        if (_domModule is not null)
+            await _domModule.InvokeVoidAsync("openArchiveSearch");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isMenuOpen && _domModule is not null)
+            await _domModule.InvokeVoidAsync("unlockBodyScroll");
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }

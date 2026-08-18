@@ -1,4 +1,5 @@
 @inject IJSRuntime JsRuntime
+@implements IAsyncDisposable
 
 <div class="code-component-container">
     <div class="code-component-toolbar">
@@ -31,6 +32,8 @@
 
     private string _codeElementId = Guid.NewGuid().ToString();
     private bool _copied;
+    private IJSObjectReference? _domModule;
+    private IJSObjectReference? _contentModule;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -38,7 +41,9 @@
         {
             try
             {
-                await JsRuntime.InvokeVoidAsync("renderMonacoEditor", _codeElementId, Code, Language);
+                _domModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+                _contentModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/dist/js/content-scripts.min.js");
+                await _contentModule.InvokeVoidAsync("renderMonacoEditor", _codeElementId, Code, Language);
             }
             catch (Exception ex)
             {
@@ -51,7 +56,10 @@
     {
         try
         {
-            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+            if (_domModule is null)
+                return;
+
+            await _domModule.InvokeVoidAsync("copyToClipboard", Code);
             _copied = true;
             StateHasChanged();
 
@@ -82,5 +90,13 @@
         }
 
         return Language.ToUpperInvariant();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_contentModule is not null)
+            await _contentModule.DisposeAsync();
+        if (_domModule is not null)
+            await _domModule.DisposeAsync();
     }
 }
