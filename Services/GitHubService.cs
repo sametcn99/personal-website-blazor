@@ -54,7 +54,18 @@ public class GitHubService : IGitHubService
                 Description = repo.Description,
                 Language = repo.Language,
                 Fork = repo.Fork,
+                Archived = repo.Archived,
                 StargazersCount = repo.StargazersCount,
+                ForksCount = repo.ForksCount,
+                OpenIssuesCount = repo.OpenIssuesCount,
+                WatchersCount = repo.SubscribersCount,
+                Size = repo.Size,
+                Homepage = repo.Homepage,
+                DefaultBranch = repo.DefaultBranch,
+                License = repo.License?.Name,
+                CloneUrl = repo.CloneUrl,
+                SshUrl = repo.SshUrl,
+                Topics = repo.Topics?.ToArray() ?? Array.Empty<string>(),
                 HtmlUrl = repo.HtmlUrl,
                 CreatedAt = repo.CreatedAt,
                 UpdatedAt = repo.UpdatedAt,
@@ -65,5 +76,36 @@ public class GitHubService : IGitHubService
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
 
         return result;
+    }
+
+    public async Task<GitHubProfile?> GetUserProfileAsync(string username)
+    {
+        var cacheKey = $"profile:{username}";
+        if (_cache.TryGetValue(cacheKey, out GitHubProfile? cached))
+            return cached;
+
+        var user = await _gitHubClient.User.Get(username);
+        if (user is null)
+            return null;
+
+        var profile = new GitHubProfile
+        {
+            Login = user.Login,
+            Name = user.Name,
+            Bio = user.Bio,
+            Company = user.Company,
+            Location = user.Location,
+            Blog = user.Blog,
+            AvatarUrl = user.AvatarUrl,
+            HtmlUrl = user.HtmlUrl,
+            PublicRepos = user.PublicRepos,
+            Followers = user.Followers,
+            Following = user.Following,
+            CreatedAt = user.CreatedAt,
+            UpdatedAt = user.UpdatedAt,
+        };
+
+        _cache.Set(cacheKey, profile, TimeSpan.FromMinutes(15));
+        return profile;
     }
 }

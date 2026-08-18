@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using personal_website_blazor.Interfaces;
 using personal_website_blazor.Models;
 using Markdig;
@@ -12,7 +13,7 @@ public class ContentController : ControllerBase
 {
     private static readonly Regex ValidSlugRegex = new(@"^[a-z0-9_-]+$", RegexOptions.Compiled);
     private static readonly HashSet<string> ValidSections = new(StringComparer.OrdinalIgnoreCase)
-        { "posts", "gists", "projects", "links" };
+        { "posts", "gists", "projects" };
 
     private static readonly MarkdownPipeline CvPipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
@@ -22,17 +23,20 @@ public class ContentController : ControllerBase
     private readonly IGitHubService _gitHubService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWebHostEnvironment _env;
+    private readonly IMemoryCache _cache;
 
     public ContentController(
         IContentService contentService,
         IGitHubService gitHubService,
         IHttpClientFactory httpClientFactory,
-        IWebHostEnvironment env)
+        IWebHostEnvironment env,
+        IMemoryCache cache)
     {
         _contentService = contentService;
         _gitHubService = gitHubService;
         _httpClientFactory = httpClientFactory;
         _env = env;
+        _cache = cache;
     }
 
     [HttpGet("content/all")]
@@ -86,10 +90,27 @@ public class ContentController : ControllerBase
     [HttpGet("readme")]
     public async Task<ActionResult> GetReadme()
     {
-        var client = _httpClientFactory.CreateClient("GitHub");
-        var markdown = await client.GetStringAsync(
-            "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
-        return Ok(new { html = Markdown.ToHtml(markdown, CvPipeline) });
+        const string cacheKey = "github-profile-readme";
+        if (!_cache.TryGetValue(cacheKey, out string? markdown))
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient("GitHub");
+                markdown = await client.GetStringAsync(
+                    "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
+                _cache.Set(cacheKey, markdown, TimeSpan.FromHours(12));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+                {
+                    error = "GitHub profile README is temporarily unavailable.",
+                    source = "https://github.com/sametcn99",
+                });
+            }
+        }
+
+        return Ok(new { html = Markdown.ToHtml(markdown!, CvPipeline) });
     }
 
     [HttpGet("repos")]

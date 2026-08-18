@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Caching.Memory;
 using personal_website_blazor.Interfaces;
 using personal_website_blazor.Models;
 
@@ -10,6 +11,9 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
     private readonly IWebHostEnvironment _env;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<MarkdownForAgentsService> _logger;
+    private readonly IProfileService _profileService;
+    private readonly IGitHubService _gitHubService;
+    private readonly IMemoryCache _cache;
 
     private static readonly Regex ValidSlugRegex = new(@"^[a-z0-9_-]+$", RegexOptions.Compiled);
     private static readonly HashSet<string> ValidSections = new(StringComparer.OrdinalIgnoreCase)
@@ -21,8 +25,14 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         "/blog",
         "/gist",
         "/project",
+        "/content",
+        "/repo",
         "/cv",
         "/readme",
+        "/about",
+        "/profile",
+        "/timeline",
+        "/skills",
         "/privacy-policy",
         "/support"
     };
@@ -31,17 +41,23 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         IContentService contentService,
         IWebHostEnvironment env,
         IHttpClientFactory httpClientFactory,
-        ILogger<MarkdownForAgentsService> logger)
+        ILogger<MarkdownForAgentsService> logger,
+        IProfileService profileService,
+        IGitHubService gitHubService,
+        IMemoryCache cache)
     {
         _contentService = contentService;
         _env = env;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
+        _profileService = profileService;
+        _gitHubService = gitHubService;
+        _cache = cache;
     }
 
     public async Task<string?> GetPageMarkdownAsync(string path)
     {
-        var normalizedPath = path.TrimStart('/').ToLowerInvariant();
+        var normalizedPath = NormalizeMarkdownPath(path);
 
         if (string.IsNullOrEmpty(normalizedPath))
             return await GetHomePageMarkdownAsync();
@@ -53,11 +69,16 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
             1 when segments[0] == "blog" => await GetBlogListMarkdownAsync(),
             1 when segments[0] == "gist" => await GetGistListMarkdownAsync(),
             1 when segments[0] == "project" => await GetProjectListMarkdownAsync(),
+            1 when segments[0] == "content" => await GetAllContentListMarkdownAsync(),
+            1 when segments[0] == "repo" => await GetRepositoriesMarkdownAsync(),
             1 when segments[0] == "cv" => await GetCvMarkdownAsync(),
             1 when segments[0] == "readme" => await GetReadmeMarkdownAsync(),
+            1 when segments[0] is "about" or "profile" => await _profileService.GetProfileMarkdownAsync(string.Empty),
+            1 when segments[0] == "timeline" => await GetTimelineMarkdownAsync(),
+            1 when segments[0] == "skills" => await GetSkillsMarkdownAsync(),
             1 when segments[0] == "privacy-policy" => GetStaticPageMarkdown("privacy-policy", "Privacy Policy"),
             1 when segments[0] == "support" => GetStaticPageMarkdown("support", "Support"),
-            2 when IsValidSection(segments[0]) && IsValidSlug(segments[1])
+            2 when IsValidRouteSection(segments[0]) && IsValidSlug(segments[1])
                 => await GetContentPostMarkdownAsync(segments[0], segments[1]),
             _ => null
         };
@@ -71,6 +92,204 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         var wordCount = markdown.Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
         var estimatedTokens = (int)Math.Ceiling(wordCount * 1.3);
         return Task.FromResult(estimatedTokens);
+    }
+
+    private static string NormalizeMarkdownPath(string path)
+    {
+        var normalizedPath = path.Trim().TrimStart('/').ToLowerInvariant();
+        if (normalizedPath.EndsWith(".md", StringComparison.Ordinal))
+            normalizedPath = normalizedPath[..^3].TrimEnd('/');
+
+        return normalizedPath == "index" ? string.Empty : normalizedPath;
+    }
+
+    private async Task<string> GetTimelineMarkdownAsync()
+    {
+        var profile = await _profileService.GetProfileAsync();
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("---");
+        sb.AppendLine("title: Timeline | Samet Can Cıncık");
+        sb.AppendLine("description: Career and education timeline for Samet Can Cıncık.");
+        sb.AppendLine("type: timeline");
+        sb.AppendLine($"lastUpdated: {profile.LastUpdated}");
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine("# Timeline");
+        sb.AppendLine();
+
+        foreach (var item in profile.Experience)
+        {
+            sb.AppendLine($"## {item.Role} — {item.Organization}");
+            sb.AppendLine();
+            sb.AppendLine($"**Period:** {item.StartDate} to {item.EndDate}");
+            sb.AppendLine($"**Location:** {item.Location}");
+            sb.AppendLine();
+            foreach (var highlight in item.Highlights)
+                sb.AppendLine($"- {highlight}");
+            sb.AppendLine();
+        }
+
+        foreach (var item in profile.Education)
+        {
+            sb.AppendLine($"## {item.Program} — {item.Institution}");
+            sb.AppendLine();
+            sb.AppendLine($"**Type:** {item.Level}");
+            sb.AppendLine($"**Period:** {item.StartDate} to {item.EndDate}");
+            sb.AppendLine();
+            foreach (var highlight in item.Highlights)
+                sb.AppendLine($"- {highlight}");
+            sb.AppendLine();
+        }
+
+        return sb.ToString();
+    }
+
+    private async Task<string> GetSkillsMarkdownAsync()
+    {
+        var profile = await _profileService.GetProfileAsync();
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("---");
+        sb.AppendLine("title: Skills | Samet Can Cıncık");
+        sb.AppendLine("description: Technical skills, areas of interest, and languages.");
+        sb.AppendLine("type: skills");
+        sb.AppendLine($"lastUpdated: {profile.LastUpdated}");
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine("# Skills");
+        sb.AppendLine();
+        AppendBulletSection(sb, "Technical Skills", profile.Skills);
+        AppendBulletSection(sb, "Areas Of Interest", profile.AreasOfInterest);
+        AppendBulletSection(sb, "Languages", profile.Languages);
+
+        return sb.ToString();
+    }
+
+    private async Task<string> GetAllContentListMarkdownAsync()
+    {
+        var contents = await GetLlmsContentsAsync();
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("---");
+        sb.AppendLine("title: All Content | Samet Can Cıncık");
+        sb.AppendLine("description: Complete index of published blog posts, technical gists, and project records.");
+        sb.AppendLine("type: content-index");
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine("# All Content");
+        sb.AppendLine();
+        AppendContentSection(sb, contents, "blog", "Blog Posts", string.Empty);
+        AppendContentSection(sb, contents, "gist", "Technical Gists", string.Empty);
+        AppendContentSection(sb, contents, "project", "Projects", string.Empty);
+        return sb.ToString();
+    }
+
+    private async Task<string> GetRepositoriesMarkdownAsync()
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("---");
+        sb.AppendLine("title: GitHub Repositories | Samet Can Cıncık");
+        sb.AppendLine("description: Public GitHub repositories for sametcn99.");
+        sb.AppendLine("type: repository-index");
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine("# GitHub Repositories");
+        sb.AppendLine();
+
+        try
+        {
+            var repositories = await _gitHubService.GetUserRepositoriesAsync("sametcn99");
+            foreach (var repository in repositories)
+            {
+                sb.AppendLine($"## [{repository.Name}]({repository.HtmlUrl})");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(repository.Description))
+                    sb.AppendLine(repository.Description);
+                sb.AppendLine();
+                sb.AppendLine($"- Language: {repository.Language ?? "Not specified"}");
+                sb.AppendLine($"- Stars: {repository.StargazersCount}");
+                sb.AppendLine($"- Forks: {repository.ForksCount}");
+                sb.AppendLine($"- Archived: {repository.Archived}");
+                sb.AppendLine($"- Topics: {(repository.Topics.Length > 0 ? string.Join(", ", repository.Topics) : "None listed")}");
+                sb.AppendLine($"- Last pushed: {repository.PushedAt?.ToString("yyyy-MM-dd") ?? "Unknown"}");
+                sb.AppendLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to generate repository Markdown");
+            sb.AppendLine("GitHub repository data is temporarily unavailable.");
+        }
+
+        return sb.ToString();
+    }
+
+    public async Task<string> GetLlmsFullTxtAsync(string baseUrl)
+    {
+        var normalizedBaseUrl = baseUrl.TrimEnd('/');
+        var contents = await GetLlmsContentsAsync();
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("# Samet Can Cincik — Full Agent Context");
+        sb.AppendLine();
+        sb.AppendLine("> Full Markdown context for researching Samet Can Cıncık's professional profile, authored content, projects, and public GitHub work.");
+        sb.AppendLine();
+        sb.AppendLine("This document is generated from the profile source, content metadata, published Markdown files, and the public GitHub repository snapshot. Prefer the individual linked pages when citing a specific claim.");
+        sb.AppendLine();
+
+        sb.AppendLine("## Author Profile");
+        sb.AppendLine();
+        sb.AppendLine(await _profileService.GetProfileMarkdownAsync(normalizedBaseUrl));
+
+        sb.AppendLine("## GitHub Profile README");
+        sb.AppendLine();
+        sb.AppendLine(await GetReadmeMarkdownAsync() ?? "GitHub profile README is temporarily unavailable.");
+
+        sb.AppendLine("## Published Content");
+        sb.AppendLine();
+        foreach (var content in contents)
+        {
+            var routeParts = content.Href.Trim('/').Split('/');
+            if (routeParts.Length != 2)
+                continue;
+
+            sb.AppendLine($"### [{content.Title}]({normalizedBaseUrl}{content.Href})");
+            sb.AppendLine();
+            var markdown = await GetContentPostMarkdownAsync(routeParts[0], routeParts[1]);
+            sb.AppendLine(markdown ?? content.Summary);
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("## GitHub Repository Snapshot");
+        sb.AppendLine();
+        try
+        {
+            var repositories = await _gitHubService.GetUserRepositoriesAsync("sametcn99");
+            foreach (var repository in repositories)
+            {
+                sb.AppendLine($"### [{repository.Name}]({repository.HtmlUrl})");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(repository.Description))
+                    sb.AppendLine(repository.Description);
+                sb.AppendLine();
+                sb.AppendLine($"- Language: {repository.Language ?? "Not specified"}");
+                sb.AppendLine($"- Stars: {repository.StargazersCount}");
+                sb.AppendLine($"- Forks: {repository.ForksCount}");
+                sb.AppendLine($"- Archived: {repository.Archived}");
+                sb.AppendLine($"- Topics: {(repository.Topics.Length > 0 ? string.Join(", ", repository.Topics) : "None listed")}");
+                sb.AppendLine($"- Fork: {repository.Fork}");
+                sb.AppendLine($"- Last pushed: {repository.PushedAt?.ToString("yyyy-MM-dd") ?? "Unknown"}");
+                sb.AppendLine();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to include GitHub repositories in llms-full.txt");
+            sb.AppendLine("GitHub repository data is temporarily unavailable. Use the public GitHub profile link in the main index.");
+        }
+
+        return sb.ToString();
     }
 
     public async Task<string> GetLlmsTxtAsync(string baseUrl)
@@ -91,17 +310,20 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
         AppendLinkSection(sb, "Start Here", new[]
         {
-            ($"{normalizedBaseUrl}/", "Home", "Overview of the site and the latest content."),
-            ($"{normalizedBaseUrl}/content", "All content", "Combined archive of blog posts, gists, and projects."),
-            ($"{normalizedBaseUrl}/blog", "Blog posts", "Long-form writing, technical explanations, and essays."),
-            ($"{normalizedBaseUrl}/gist", "Technical gists", "Focused guides, references, scripts, and configuration examples."),
-            ($"{normalizedBaseUrl}/project", "Projects", "Software projects and project documentation."),
-            ($"{normalizedBaseUrl}/readme", "About / README", "Public profile and background information from the author's GitHub README."),
-            ($"{normalizedBaseUrl}/cv", "CV", "Curriculum vitae."),
-            ($"{normalizedBaseUrl}/repo", "Repositories", "Public GitHub repositories for sametcn99."),
+            ($"{normalizedBaseUrl}/index.md", "Home", "Overview of the site and the latest content."),
+            ($"{normalizedBaseUrl}/content.md", "All content", "Combined archive of blog posts, gists, and projects."),
+            ($"{normalizedBaseUrl}/blog.md", "Blog posts", "Long-form writing, technical explanations, and essays."),
+            ($"{normalizedBaseUrl}/gist.md", "Technical gists", "Focused guides, references, scripts, and configuration examples."),
+            ($"{normalizedBaseUrl}/project.md", "Projects", "Software projects and project documentation."),
+            ($"{normalizedBaseUrl}/about.md", "About", "Canonical structured profile of Samet Can Cıncık."),
+            ($"{normalizedBaseUrl}/timeline.md", "Timeline", "Career and education timeline."),
+            ($"{normalizedBaseUrl}/skills.md", "Skills", "Technical skills, interests, and languages."),
+            ($"{normalizedBaseUrl}/readme.md", "About / README", "Public profile and background information from the author's GitHub README."),
+            ($"{normalizedBaseUrl}/cv.md", "CV", "Curriculum vitae."),
+            ($"{normalizedBaseUrl}/repo.md", "Repositories", "Public GitHub repositories for sametcn99."),
             ($"{normalizedBaseUrl}/link", "Links", "Curated external links."),
             ($"{normalizedBaseUrl}/support", "Support", "Ways to support the author."),
-            ($"{normalizedBaseUrl}/privacy-policy", "Privacy policy", "Privacy and analytics information."),
+            ($"{normalizedBaseUrl}/privacy-policy.md", "Privacy policy", "Privacy and analytics information."),
         });
 
         AppendContentSection(sb, contents, "blog", "Blog Posts", normalizedBaseUrl);
@@ -116,13 +338,15 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
             ($"{normalizedBaseUrl}/sitemap.xml", "Sitemap", "XML sitemap containing public site URLs."),
             ($"{normalizedBaseUrl}/.well-known/api-catalog", "API catalog", "Linkset metadata connecting API resources to OpenAPI and human documentation."),
             ($"{normalizedBaseUrl}/.well-known/acp.json", "ACP discovery", "Agent Communication Protocol discovery metadata."),
+            ($"{normalizedBaseUrl}/.well-known/mcp/server-card.json", "MCP Server Card", "MCP HTTP server discovery metadata."),
             ($"{normalizedBaseUrl}/.well-known/agent-skills/index.json", "Agent skills index", "Discoverable agent skill metadata for reading website content."),
             ($"{normalizedBaseUrl}/auth.md", "Agent authentication documentation", "Authentication and agent access documentation."),
+            ($"{normalizedBaseUrl}/llms-full.txt", "Full agent context", "Full Markdown context containing profile, published content, and a GitHub repository snapshot."),
         });
 
         sb.AppendLine("## Content API");
         sb.AppendLine();
-        sb.AppendLine("All API responses are JSON unless otherwise noted. The `section` path parameter accepts `posts`, `gists`, `projects`, or `links`; individual slugs contain lowercase letters, numbers, hyphens, or underscores.");
+        sb.AppendLine("All API responses are JSON unless otherwise noted. The `section` path parameter accepts `posts`, `gists`, or `projects`; individual slugs contain lowercase letters, numbers, hyphens, or underscores.");
         sb.AppendLine();
         sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/all`: Return metadata for all public content.");
         sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/search?q={{query}}&section={{section}}`: Search public content.");
@@ -131,12 +355,19 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         sb.AppendLine($"- `GET {normalizedBaseUrl}/api/content/cv`: Return the CV content as rendered HTML.");
         sb.AppendLine($"- `GET {normalizedBaseUrl}/api/readme`: Return the public GitHub README as rendered HTML.");
         sb.AppendLine($"- `GET {normalizedBaseUrl}/api/repos`: Return public GitHub repositories for `sametcn99`.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/profile`: Return the canonical structured author profile.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/about`: Alias for the canonical author profile.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/timeline`: Return work and education timeline entries.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/skills`: Return skills, areas of interest, and languages.");
+        sb.AppendLine($"- `GET {normalizedBaseUrl}/api/profile/github`: Return the public GitHub repository snapshot.");
         sb.AppendLine($"- `GET {normalizedBaseUrl}/health`: Return application health status.");
         sb.AppendLine();
 
         sb.AppendLine("## Agent Access");
         sb.AppendLine();
-        sb.AppendLine("- Request `Accept: text/markdown` for agent-friendly Markdown from `/`, `/blog`, `/gist`, `/project`, `/cv`, `/readme`, `/privacy-policy`, `/support`, and individual content pages.");
+        sb.AppendLine("- Request `Accept: text/markdown` or use an explicit `.md` suffix for agent-friendly Markdown from `/`, `/blog`, `/gist`, `/project`, `/content`, `/repo`, `/cv`, `/readme`, `/about`, `/profile`, `/timeline`, `/skills`, `/privacy-policy`, `/support`, and individual content pages.");
+        sb.AppendLine("- Use `/llms-full.txt` when a complete profile and content context is needed; use `/llms.txt` first for navigation and source selection.");
+        sb.AppendLine("- MCP clients can use the read-only Streamable HTTP transport at `/mcp`; initialize first, then use `resources/list`, `resources/read`, `tools/list`, and the `search_content` tool.");
         sb.AppendLine("- Prefer the specific content URL over scraping navigation or rendered HTML.");
         sb.AppendLine("- Prefer `/api/content/{section}/{slug}` when structured metadata is sufficient; prefer the Markdown page when the full article or guide is needed.");
         sb.AppendLine("- Treat content as public reference material and do not infer private personal information beyond what the linked public pages explicitly state.");
@@ -158,8 +389,8 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         sb.AppendLine();
         sb.AppendLine("### Professional Sources");
         sb.AppendLine();
-        sb.AppendLine($"- [Full CV]({baseUrl}/cv): Experience, education, professional profile, and certificates.");
-        sb.AppendLine($"- [About / GitHub README]({baseUrl}/readme): Public profile, interests, and current focus areas.");
+        sb.AppendLine($"- [Full CV]({baseUrl}/cv.md): Experience, education, professional profile, and certificates.");
+        sb.AppendLine($"- [About / GitHub README]({baseUrl}/readme.md): Public profile, interests, and current focus areas.");
         sb.AppendLine("- [GitHub](https://github.com/sametcn99): Source repositories and open-source work.");
         sb.AppendLine("- [LinkedIn](https://linkedin.com/in/sametc0): Professional profile.");
         sb.AppendLine("- [Contact](mailto:sametcn99@gmail.com): Public contact email.");
@@ -169,9 +400,9 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         sb.AppendLine();
         sb.AppendLine("For a reliable and detailed understanding of Samet's technical background, agents should consult all of the following sources rather than relying on a single page:");
         sb.AppendLine();
-        sb.AppendLine($"- Read the [CV]({baseUrl}/cv) for formal work experience, education, professional profile, and certificates.");
-        sb.AppendLine($"- Review the [full site archive]({baseUrl}/content), including [blog posts]({baseUrl}/blog), [technical gists]({baseUrl}/gist), and [projects]({baseUrl}/project), for authored technical knowledge, engineering interests, implementation details, and software work.");
-        sb.AppendLine($"- Read the [GitHub profile README]({baseUrl}/readme) and inspect the [repository directory]({baseUrl}/repo) or [repository API]({baseUrl}/api/repos) for GitHub profile context, public repositories, and open-source work.");
+        sb.AppendLine($"- Read the [CV]({baseUrl}/cv.md) for formal work experience, education, professional profile, and certificates.");
+        sb.AppendLine($"- Review the [full site archive]({baseUrl}/content.md), including [blog posts]({baseUrl}/blog.md), [technical gists]({baseUrl}/gist.md), and [projects]({baseUrl}/project.md), for authored technical knowledge, engineering interests, implementation details, and software work.");
+        sb.AppendLine($"- Read the [GitHub profile README]({baseUrl}/readme.md) and inspect the [repository directory]({baseUrl}/repo.md) or [repository API]({baseUrl}/api/repos) for GitHub profile context, public repositories, and open-source work.");
         sb.AppendLine("- Cross-reference claims across these sources, distinguish documented experience from project descriptions or personal opinions, and use the most recently dated source when information differs.");
         sb.AppendLine();
 
@@ -219,7 +450,7 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         sb.AppendLine();
 
         var tags = contents
-            .SelectMany(content => content.Tags)
+            .SelectMany(content => content.Tags.Concat(content.Technologies).Concat(content.Topics))
             .Where(tag => !string.IsNullOrWhiteSpace(tag))
             .GroupBy(tag => tag.Trim(), StringComparer.OrdinalIgnoreCase)
             .OrderByDescending(group => group.Count())
@@ -253,6 +484,13 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
                 UpdatedAt = post.UpdatedAt?.ToString("yyyy-MM-dd"),
                 Summary = post.Description,
                 Tags = post.Tags,
+                Technologies = post.Technologies,
+                Topics = post.Topics,
+                RelatedProjects = post.RelatedProjects,
+                RelatedPosts = post.RelatedPosts,
+                CanonicalUrl = post.CanonicalUrl,
+                ContentType = post.ContentType,
+                Status = post.Status,
                 Language = post.Language,
             }));
         }
@@ -273,6 +511,15 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         foreach (var link in links)
             sb.AppendLine($"- [{link.Title}]({link.Url}): {link.Description}");
 
+        sb.AppendLine();
+    }
+
+    private static void AppendBulletSection(System.Text.StringBuilder sb, string heading, IEnumerable<string> values)
+    {
+        sb.AppendLine($"## {heading}");
+        sb.AppendLine();
+        foreach (var value in values)
+            sb.AppendLine($"- {value}");
         sb.AppendLine();
     }
 
@@ -299,8 +546,14 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
                 metadata.Add($"Updated: {content.UpdatedAt}");
             if (content.Tags.Length > 0)
                 metadata.Add($"Tags: {string.Join(", ", content.Tags)}");
+            if (content.Technologies.Length > 0)
+                metadata.Add($"Technologies: {string.Join(", ", content.Technologies)}");
+            if (content.Topics.Length > 0)
+                metadata.Add($"Topics: {string.Join(", ", content.Topics)}");
+            if (content.RelatedProjects.Length > 0)
+                metadata.Add($"Related projects: {string.Join(", ", content.RelatedProjects)}");
 
-            sb.Append($"- [{title}]({baseUrl}{content.Href})");
+            sb.Append($"- [{title}]({baseUrl}{content.Href}.md)");
             if (!string.IsNullOrWhiteSpace(description))
                 sb.Append($": {description}");
             if (metadata.Count > 0)
@@ -426,10 +679,6 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
     private async Task<string?> GetContentPostMarkdownAsync(string section, string slug)
     {
-        var post = await _contentService.GetPostAsync(section, slug);
-        if (post is null)
-            return null;
-
         var fsSection = section switch
         {
             "blog" => "posts",
@@ -437,6 +686,10 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
             "project" => "projects",
             _ => section
         };
+
+        var post = await _contentService.GetPostAsync(fsSection, slug);
+        if (post is null)
+            return null;
 
         var filePath = Path.Combine(_env.ContentRootPath, "content", fsSection, $"{slug}.mdx");
         if (!File.Exists(filePath))
@@ -471,27 +724,34 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
     private async Task<string?> GetReadmeMarkdownAsync()
     {
-        try
+        const string cacheKey = "github-profile-readme-markdown";
+        string? markdown;
+        if (!_cache.TryGetValue(cacheKey, out markdown))
         {
-            var client = _httpClientFactory.CreateClient("GitHub");
-            var markdown = await client.GetStringAsync(
-                "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
+            try
+            {
+                var client = _httpClientFactory.CreateClient("GitHub");
+                markdown = await client.GetStringAsync(
+                    "https://raw.githubusercontent.com/sametcn99/sametcn99/main/README.md");
 
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("---");
-            sb.AppendLine("title: README | Samet Can Cıncık");
-            sb.AppendLine("description: GitHub profile README with background, interests, and current focus areas.");
-            sb.AppendLine("---");
-            sb.AppendLine();
-            sb.AppendLine(markdown);
+                _cache.Set(cacheKey, markdown, TimeSpan.FromHours(12));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch README for markdown negotiation");
+                return null;
+            }
+        }
 
-            return sb.ToString();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to fetch README for markdown negotiation");
-            return null;
-        }
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("---");
+        sb.AppendLine("title: README | Samet Can Cıncık");
+        sb.AppendLine("description: GitHub profile README with background, interests, and current focus areas.");
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine(markdown);
+
+        return sb.ToString();
     }
 
     private static string GetStaticPageMarkdown(string slug, string title)
@@ -501,6 +761,9 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
     private static bool IsValidSection(string section) =>
         ValidSections.Contains(section);
+
+    private static bool IsValidRouteSection(string section) =>
+        section is "blog" or "gist" or "project";
 
     private static bool IsValidSlug(string slug) =>
         ValidSlugRegex.IsMatch(slug);

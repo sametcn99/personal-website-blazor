@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IContentService ContentService
+@inject personal_website_blazor.Interfaces.IProfileService ProfileService
 @inject PersistentComponentState ApplicationState
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -10,6 +11,8 @@
     <meta property="og:title" content="Samet Can Cıncık — Web Developer Notes &amp; Projects" />
     <meta name="description"
           content="Software engineering essays, practical technical references, and project notes by Samet Can Cincik." />
+    <link rel="canonical" href="https://sametcc.me/" />
+    <StructuredData Data="@PersonStructuredData" />
 </HeadContent>
 
 <div class="page-container home-shell">
@@ -127,6 +130,7 @@
     private List<ContentMetadata> _blogPosts = new();
     private List<ContentMetadata> _gistPosts = new();
     private List<ContentMetadata> _projectPosts = new();
+    private ProfileDocument? _profile;
     private int _blogTotal;
     private int _gistTotal;
     private int _projectTotal;
@@ -159,6 +163,8 @@ _projectPosts.FirstOrDefault() }
 
     protected override async Task OnInitializedAsync()
     {
+        _profile = await ProfileService.GetProfileAsync();
+
         if (!_isLoading)
         {
             return;
@@ -177,6 +183,21 @@ _projectPosts.FirstOrDefault() }
         _projectPosts = projects.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("project")).ToList();
         _isLoading = false;
     }
+
+    private object? PersonStructuredData => _profile is null
+        ? null
+        : new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "Person",
+            ["name"] = _profile.Name,
+            ["jobTitle"] = _profile.JobTitle,
+            ["description"] = _profile.Summary,
+            ["url"] = "https://sametcc.me/",
+            ["sameAs"] = _profile.Links.Where(link => link.Type is "github" or "linkedin").Select(link => link.Url),
+            ["knowsAbout"] = _profile.Skills.Concat(_profile.AreasOfInterest),
+            ["knowsLanguage"] = _profile.Languages,
+        };
 
     private static Func<PostModel, ContentMetadata> ToMeta(string prefix) => p => new ContentMetadata
     {

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="content/**/*" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="content/**/*" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="BuildClientAssets"

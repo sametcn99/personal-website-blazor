@@ -1,0 +1,175 @@
+@page "/about"
+@page "/timeline"
+@page "/skills"
+@using personal_website_blazor.Models
+@inject personal_website_blazor.Interfaces.IProfileService ProfileService
+@inject NavigationManager Navigation
+
+<PageTitle>@PageTitle | Samet Can Cıncık</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="@Description" />
+    <link rel="canonical" href="@CanonicalUrl" />
+    <StructuredData Data="@StructuredData" />
+</HeadContent>
+
+<div class="page-container page-section">
+    <article class="article-content">
+        @if (_profile is null)
+        {
+            <p>Loading profile...</p>
+        }
+        else if (PageKind == "about")
+        {
+            <h1>@_profile.Name</h1>
+            <p><strong>@_profile.JobTitle</strong> · @_profile.Location</p>
+            <p>@_profile.Summary</p>
+            <p>@_profile.Biography</p>
+
+            @if (_profile.PublicNotes.Length > 0)
+            {
+                <h2>Additional Notes</h2>
+                <ul>
+                    @foreach (var note in _profile.PublicNotes)
+                    {
+                        <li>@note</li>
+                    }
+                </ul>
+            }
+
+            <h2>Skills</h2>
+            <ul>
+                @foreach (var skill in _profile.Skills)
+                {
+                    <li>@skill</li>
+                }
+            </ul>
+
+            <h2>Experience</h2>
+            @foreach (var experience in _profile.Experience)
+            {
+                <h3>@experience.Role — @experience.Organization</h3>
+                <p><strong>@experience.StartDate to @experience.EndDate</strong> · @experience.Location</p>
+                <ul>
+                    @foreach (var highlight in experience.Highlights)
+                    {
+                        <li>@highlight</li>
+                    }
+                </ul>
+            }
+        }
+        else if (PageKind == "timeline")
+        {
+            <h1>Timeline</h1>
+            <p>Career and education timeline for @_profile.Name.</p>
+
+            <h2>Experience</h2>
+            @foreach (var experience in _profile.Experience)
+            {
+                <h3>@experience.Role — @experience.Organization</h3>
+                <p><strong>@experience.StartDate to @experience.EndDate</strong> · @experience.Location</p>
+                <ul>
+                    @foreach (var highlight in experience.Highlights)
+                    {
+                        <li>@highlight</li>
+                    }
+                </ul>
+            }
+
+            <h2>Education</h2>
+            @foreach (var education in _profile.Education)
+            {
+                <h3>@education.Program — @education.Institution</h3>
+                <p><strong>@education.Level</strong> · @education.StartDate to @education.EndDate</p>
+                <ul>
+                    @foreach (var highlight in education.Highlights)
+                    {
+                        <li>@highlight</li>
+                    }
+                </ul>
+            }
+        }
+        else
+        {
+            <h1>Skills</h1>
+            <p>Technical skills, areas of interest, and languages for @_profile.Name.</p>
+
+            <h2>Technical Skills</h2>
+            <ul>
+                @foreach (var skill in _profile.Skills)
+                {
+                    <li>@skill</li>
+                }
+            </ul>
+
+            <h2>Areas Of Interest</h2>
+            <ul>
+                @foreach (var area in _profile.AreasOfInterest)
+                {
+                    <li>@area</li>
+                }
+            </ul>
+
+            <h2>Languages</h2>
+            <ul>
+                @foreach (var language in _profile.Languages)
+                {
+                    <li>@language</li>
+                }
+            </ul>
+        }
+    </article>
+</div>
+
+@code {
+    private ProfileDocument? _profile;
+
+    private string PageKind => Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/').ToLowerInvariant() switch
+    {
+        "timeline" => "timeline",
+        "skills" => "skills",
+        _ => "about",
+    };
+
+    private string PageTitle => PageKind switch
+    {
+        "timeline" => "Timeline",
+        "skills" => "Skills",
+        _ => "About",
+    };
+
+    private string Description => PageKind switch
+    {
+        "timeline" => "Career and education timeline for Samet Can Cıncık.",
+        "skills" => "Technical skills, areas of interest, and languages for Samet Can Cıncık.",
+        _ => "Professional profile, experience, education, skills, and interests of Samet Can Cıncık.",
+    };
+
+    private string CanonicalUrl => Navigation.ToAbsoluteUri($"/{PageKind}").ToString();
+
+    private object? StructuredData => _profile is null
+        ? null
+        : new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "ProfilePage",
+            ["mainEntity"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "Person",
+                ["@id"] = "https://sametcc.me/#samet-can-cincik",
+                ["name"] = _profile.Name,
+                ["alternateName"] = _profile.AlternateName,
+                ["jobTitle"] = _profile.JobTitle,
+                ["description"] = _profile.Summary,
+                ["url"] = "https://sametcc.me/about",
+                ["sameAs"] = _profile.Links.Where(link => link.Type is "github" or "linkedin").Select(link => link.Url),
+                ["knowsAbout"] = _profile.Skills.Concat(_profile.AreasOfInterest),
+                ["knowsLanguage"] = _profile.Languages,
+            },
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _profile = await ProfileService.GetProfileAsync();
+    }
+}

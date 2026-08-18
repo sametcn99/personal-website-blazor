@@ -6,6 +6,9 @@ This service supports the Auth.md standard for agent authentication and registra
 The intended audience is software agents acting on behalf of users who need access
 to this site's public APIs.
 
+This site advertises anonymous agent registration. Agents should use the published
+OAuth metadata rather than probing registration or authorization endpoints.
+
 ### OAuth Protected Resource Metadata
 
 This resource server publishes OAuth Protected Resource Metadata at
@@ -27,6 +30,20 @@ payload and returns the client credentials issued by the authorization server.
 The authorization endpoint is `/agent/auth` and the token endpoint is
 `/agent/token`. Present the resulting access token as an HTTP
 `Authorization: Bearer <token>` header when calling protected APIs.
+
+### Agent Metadata
+
+- **Identity types:** `anonymous`
+- **Credential types:** `client_secret_basic`, `client_secret_post`, `bearer`
+- **Profile claim URI:** `/api/profile`
+- **Revocation URI:** `/agent/revoke`
+- **Registration URI:** `/agent/register`
+- **Authorization server metadata:** `/.well-known/oauth-authorization-server`
+- **Protected resource metadata:** `/.well-known/oauth-protected-resource`
+
+The profile claim URI contains public identity and professional context for the
+website owner. It is not an authorization decision and must not be treated as a
+trust signal for arbitrary external agents.
 
 ### Supported Methods
 

@@ -138,8 +138,9 @@ tags: ["csharp", "blazor"]
 
 | Controller              | Routes                                        | Purpose                                         |
 |-------------------------|-----------------------------------------------|-------------------------------------------------|
-| `ContentController`     | `/api/content/*`, `/api/readme`, `/api/repos` | Content CRUD, GitHub README, repository listing |
-| `MetadataController`    | `/manifest.webmanifest`, `/opengraph-image`   | PWA manifest, Open Graph SVG image              |
+| `ContentController`     | `/api/content/*`, `/api/readme`, `/api/repos` | Published content, GitHub README, repository listing |
+| `ProfileController`     | `/api/profile`, `/api/about`, `/api/timeline`, `/api/skills`, `/api/profile/github` | Structured author and GitHub profile data |
+| `MetadataController`    | `/llms.txt`, `/llms-full.txt`, `/auth.md`, `/.well-known/*`, `/manifest.webmanifest`, `/opengraph-image` | Agent discovery, Auth.md/OAuth metadata, MCP Server Card, PWA manifest, Open Graph SVG image |
 | `SyndicationController` | `/rss.xml`, `/sitemap.xml`, `/feed.json`      | RSS feed, sitemap, JSON feed                    |
 
 ### Middleware Pipeline (Program.cs)

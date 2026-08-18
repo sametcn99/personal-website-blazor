@@ -1,497 +1,145 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Personal Website API",
-    "version": "1.0.0",
-    "description": "Public API endpoints for blog, gist, project, and repository content."
+    "title": "Samet Can Cıncık Personal Website API",
+    "version": "2.0.0",
+    "description": "Public structured access to Samet Can Cıncık's profile, published content, and GitHub repository data."
   },
-  "servers": [
-    {
-      "url": "/",
-      "description": "Same-origin server"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Blog",
-      "description": "Endpoints for blog post listings"
-    },
-    {
-      "name": "Gists",
-      "description": "Endpoints for technical gist listings"
-    },
-    {
-      "name": "Projects",
-      "description": "Endpoints for project listings"
-    },
-    {
-      "name": "Repos",
-      "description": "Endpoints for GitHub repository listings"
-    }
-  ],
+  "servers": [{ "url": "/", "description": "Same-origin server" }],
   "paths": {
-    "/api/blog": {
+    "/api/content/all": {
       "get": {
-        "tags": ["Blog"],
-        "operationId": "getBlogPosts",
-        "summary": "List blog posts",
-        "description": "Returns blog posts with optional pagination and filtering by search query or tag.",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Maximum number of posts to return.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "example": 10
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "description": "Number of posts to skip before returning data.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "example": 0
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "description": "Case-insensitive text search over title and summary.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "next.js"
-            }
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "description": "Case-insensitive tag filter.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "typescript"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Blog posts fetched successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BlogListResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
+        "summary": "List all published content metadata",
+        "responses": { "200": { "description": "Content metadata", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/ContentMetadata" } } } } } }
       }
     },
-    "/api/gists": {
+    "/api/content/search": {
       "get": {
-        "tags": ["Gists"],
-        "operationId": "getGistPosts",
-        "summary": "List gist posts",
-        "description": "Returns gist posts with optional pagination and filtering by search query or tag.",
+        "summary": "Search published content",
         "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Maximum number of posts to return.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "example": 10
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "description": "Number of posts to skip before returning data.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "example": 0
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "description": "Case-insensitive text search over title and summary.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "tutorial"
-            }
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "description": "Case-insensitive tag filter.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "api"
-            }
-          }
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string", "maxLength": 200 } },
+          { "name": "section", "in": "query", "required": false, "schema": { "type": "string", "enum": ["posts", "gists", "projects"] } }
         ],
-        "responses": {
-          "200": {
-            "description": "Gist posts fetched successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GistListResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
+        "responses": { "200": { "description": "Search results", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/SearchResult" } } } } } }
       }
     },
-    "/api/projects": {
+    "/api/content/{section}": {
       "get": {
-        "tags": ["Projects"],
-        "operationId": "getProjectPosts",
-        "summary": "List project posts",
-        "description": "Returns project posts with optional pagination and filtering by search query or tag.",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "Maximum number of posts to return.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "example": 10
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "description": "Number of posts to skip before returning data.",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "example": 0
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "description": "Case-insensitive text search over title and summary.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "react"
-            }
-          },
-          {
-            "name": "tag",
-            "in": "query",
-            "description": "Case-insensitive tag filter.",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "open-source"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Project posts fetched successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectListResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
+        "summary": "List content in a section",
+        "parameters": [{ "$ref": "#/components/parameters/Section" }],
+        "responses": { "200": { "description": "Content records", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Post" } } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/content/{section}/{slug}": {
+      "get": {
+        "summary": "Get one content record",
+        "parameters": [{ "$ref": "#/components/parameters/Section" }, { "$ref": "#/components/parameters/Slug" }],
+        "responses": { "200": { "description": "Content record", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Post" } } } }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/content/cv": {
+      "get": {
+        "summary": "Get the CV as rendered HTML",
+        "responses": { "200": { "$ref": "#/components/responses/HtmlDocument" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/api/readme": {
+      "get": {
+        "summary": "Get the public GitHub profile README as rendered HTML",
+        "responses": { "200": { "$ref": "#/components/responses/HtmlDocument" }, "503": { "$ref": "#/components/responses/Unavailable" } }
       }
     },
     "/api/repos": {
       "get": {
-        "tags": ["Repos"],
-        "operationId": "getRepos",
-        "summary": "List repositories",
-        "description": "Returns repository metadata mapped from GitHub.",
-        "responses": {
-          "200": {
-            "description": "Repositories fetched successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RepoListResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
+        "summary": "List public GitHub repositories",
+        "responses": { "200": { "description": "Repository snapshot", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/GitHubRepository" } } } } }, "503": { "$ref": "#/components/responses/Unavailable" } }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "summary": "Get the canonical structured author profile",
+        "responses": { "200": { "description": "Author profile", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileDocument" } } } } }
+      }
+    },
+    "/api/about": {
+      "get": {
+        "summary": "Get the canonical author profile alias",
+        "responses": { "200": { "description": "Author profile", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProfileDocument" } } } } }
+      }
+    },
+    "/api/timeline": {
+      "get": {
+        "summary": "Get career and education timeline",
+        "responses": { "200": { "description": "Timeline entries", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/TimelineEntry" } } } } } }
+      }
+    },
+    "/api/skills": {
+      "get": {
+        "summary": "Get skills, interests, and languages",
+        "responses": { "200": { "description": "Skills document", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SkillsDocument" } } } } }
+      }
+    },
+    "/api/profile/github": {
+      "get": {
+        "summary": "Get GitHub profile and repository snapshot",
+        "responses": { "200": { "description": "GitHub profile document", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GitHubProfileDocument" } } } }, "503": { "$ref": "#/components/responses/Unavailable" } }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Get application health",
+        "responses": { "200": { "description": "Healthy", "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string", "example": "ok" } } } } } } }
       }
     }
   },
   "components": {
+    "parameters": {
+      "Section": { "name": "section", "in": "path", "required": true, "schema": { "type": "string", "enum": ["posts", "gists", "projects"] } },
+      "Slug": { "name": "slug", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[a-z0-9_-]+$" } }
+    },
+    "responses": {
+      "NotFound": { "description": "Resource not found" },
+      "Unavailable": { "description": "Upstream data is temporarily unavailable" },
+      "HtmlDocument": { "description": "Rendered HTML document", "content": { "application/json": { "schema": { "type": "object", "required": ["html"], "properties": { "html": { "type": "string" } } } } } }
+    },
     "schemas": {
-      "ListContentItem": {
+      "ContentMetadata": {
         "type": "object",
-        "required": [
-          "title",
-          "href",
-          "publishedAt",
-          "summary",
-          "tags",
-          "language"
-        ],
         "properties": {
-          "title": {
-            "type": "string",
-            "example": "Building APIs with Next.js"
-          },
-          "href": {
-            "type": "string",
-            "example": "/blog/building-apis-with-nextjs"
-          },
-          "publishedAt": {
-            "type": "string",
-            "description": "Publication date in ISO-8601 format.",
-            "example": "2026-01-10"
-          },
-          "updatedAt": {
-            "type": "string",
-            "nullable": true,
-            "description": "Last modification date in ISO-8601 format when the content has been updated after publication.",
-            "example": "2026-04-27"
-          },
-          "summary": {
-            "type": "string",
-            "example": "A practical guide to building APIs with route handlers."
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": ["nextjs", "api"]
-          },
-          "language": {
-            "type": "string",
-            "example": "en"
-          }
+          "title": { "type": "string" },
+          "href": { "type": "string" },
+          "publishedAt": { "type": "string" },
+          "updatedAt": { "type": ["string", "null"] },
+          "summary": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "technologies": { "type": "array", "items": { "type": "string" } },
+          "topics": { "type": "array", "items": { "type": "string" } },
+          "relatedProjects": { "type": "array", "items": { "type": "string" } },
+          "relatedPosts": { "type": "array", "items": { "type": "string" } },
+          "canonicalUrl": { "type": ["string", "null"] },
+          "contentType": { "type": "string" },
+          "status": { "type": "string" },
+          "language": { "type": "string" }
         }
       },
-      "RepoContentItem": {
-        "type": "object",
-        "required": [
-          "title",
-          "href",
-          "publishedAt",
-          "summary",
-          "tags",
-          "language"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "example": "personal-website"
-          },
-          "href": {
-            "type": "string",
-            "example": "/repo/personal-website"
-          },
-          "publishedAt": {
-            "type": "string",
-            "description": "Best available activity date derived from pushed_at, updated_at, or created_at.",
-            "example": "2026-02-10T12:00:00Z"
-          },
-          "createdAt": {
-            "type": "string",
-            "nullable": true,
-            "example": "2025-04-01T09:00:00Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "nullable": true,
-            "example": "2026-02-10T12:00:00Z"
-          },
-          "summary": {
-            "type": "string",
-            "example": "GitHub repository"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": ["nextjs", "typescript"]
-          },
-          "language": {
-            "type": "string",
-            "example": "TypeScript"
-          }
-        }
-      },
-      "PaginationMeta": {
-        "type": "object",
-        "required": ["total", "offset", "hasMore"],
-        "properties": {
-          "total": {
-            "type": "integer",
-            "example": 42
-          },
-          "limit": {
-            "type": "integer",
-            "nullable": true,
-            "example": 10
-          },
-          "offset": {
-            "type": "integer",
-            "example": 0
-          },
-          "hasMore": {
-            "type": "boolean",
-            "example": true
-          }
-        }
-      },
-      "BlogListResponse": {
+      "Post": {
         "allOf": [
-          {
-            "$ref": "#/components/schemas/PaginationMeta"
-          },
-          {
-            "type": "object",
-            "required": ["blogPosts"],
-            "properties": {
-              "blogPosts": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ListContentItem"
-                }
-              }
-            }
-          }
+          { "$ref": "#/components/schemas/ContentMetadata" },
+          { "type": "object", "properties": { "content": { "type": "string" }, "slug": { "type": "string" }, "section": { "type": "string" }, "tocItems": { "type": "array", "items": { "$ref": "#/components/schemas/TocItem" } } } }
         ]
       },
-      "GistListResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PaginationMeta"
-          },
-          {
-            "type": "object",
-            "required": ["gistPosts"],
-            "properties": {
-              "gistPosts": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ListContentItem"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "ProjectListResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PaginationMeta"
-          },
-          {
-            "type": "object",
-            "required": ["projectPosts"],
-            "properties": {
-              "projectPosts": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ListContentItem"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "RepoListResponse": {
-        "type": "object",
-        "required": ["repos", "total"],
-        "properties": {
-          "repos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RepoContentItem"
-            }
-          },
-          "total": {
-            "type": "integer",
-            "example": 20
-          }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "required": ["error"],
-        "properties": {
-          "error": {
-            "type": "string",
-            "example": "Failed to fetch content"
-          }
-        }
-      }
+      "TocItem": { "type": "object", "properties": { "id": { "type": "string" }, "text": { "type": "string" }, "level": { "type": "integer" } } },
+      "SearchResult": { "type": "object", "properties": { "title": { "type": "string" }, "summary": { "type": "string" }, "href": { "type": "string" }, "typeLabel": { "type": "string" }, "publishedAt": { "type": ["string", "null"] }, "updatedAt": { "type": ["string", "null"] }, "matchSnippet": { "type": "string" }, "tags": { "type": "array", "items": { "type": "string" } } } },
+      "ProfileLink": { "type": "object", "properties": { "label": { "type": "string" }, "url": { "type": "string" }, "type": { "type": "string" } } },
+      "ExperienceEntry": { "type": "object", "properties": { "organization": { "type": "string" }, "role": { "type": "string" }, "location": { "type": "string" }, "startDate": { "type": "string" }, "endDate": { "type": "string" }, "highlights": { "type": "array", "items": { "type": "string" } } } },
+      "EducationEntry": { "type": "object", "properties": { "institution": { "type": "string" }, "program": { "type": "string" }, "level": { "type": "string" }, "startDate": { "type": "string" }, "endDate": { "type": "string" }, "highlights": { "type": "array", "items": { "type": "string" } } } },
+      "CertificationEntry": { "type": "object", "properties": { "name": { "type": "string" }, "issuer": { "type": "string" }, "url": { "type": ["string", "null"] } } },
+      "ProfileDocument": { "type": "object", "properties": { "name": { "type": "string" }, "alternateName": { "type": "string" }, "jobTitle": { "type": "string" }, "location": { "type": "string" }, "summary": { "type": "string" }, "biography": { "type": "string" }, "skills": { "type": "array", "items": { "type": "string" } }, "areasOfInterest": { "type": "array", "items": { "type": "string" } }, "languages": { "type": "array", "items": { "type": "string" } }, "publicNotes": { "type": "array", "items": { "type": "string" } }, "links": { "type": "array", "items": { "$ref": "#/components/schemas/ProfileLink" } }, "experience": { "type": "array", "items": { "$ref": "#/components/schemas/ExperienceEntry" } }, "education": { "type": "array", "items": { "$ref": "#/components/schemas/EducationEntry" } }, "certifications": { "type": "array", "items": { "$ref": "#/components/schemas/CertificationEntry" } }, "lastUpdated": { "type": "string" } } },
+      "TimelineEntry": { "type": "object", "properties": { "type": { "type": "string" }, "organization": { "type": "string" }, "role": { "type": "string" }, "level": { "type": "string" }, "location": { "type": "string" }, "startDate": { "type": "string" }, "endDate": { "type": "string" }, "highlights": { "type": "array", "items": { "type": "string" } } } },
+      "SkillsDocument": { "type": "object", "properties": { "skills": { "type": "array", "items": { "type": "string" } }, "areasOfInterest": { "type": "array", "items": { "type": "string" } }, "languages": { "type": "array", "items": { "type": "string" } }, "publicNotes": { "type": "array", "items": { "type": "string" } }, "source": { "type": "string" }, "lastUpdated": { "type": "string" } } },
+      "GitHubProfile": { "type": "object", "properties": { "login": { "type": "string" }, "name": { "type": ["string", "null"] }, "bio": { "type": ["string", "null"] }, "company": { "type": ["string", "null"] }, "location": { "type": ["string", "null"] }, "blog": { "type": ["string", "null"] }, "avatarUrl": { "type": ["string", "null"] }, "htmlUrl": { "type": "string" }, "publicRepos": { "type": "integer" }, "followers": { "type": "integer" }, "following": { "type": "integer" } } },
+      "GitHubRepository": { "type": "object", "properties": { "name": { "type": "string" }, "description": { "type": ["string", "null"] }, "language": { "type": ["string", "null"] }, "fork": { "type": "boolean" }, "archived": { "type": "boolean" }, "stargazersCount": { "type": "integer" }, "forksCount": { "type": "integer" }, "openIssuesCount": { "type": "integer" }, "watchersCount": { "type": "integer" }, "size": { "type": "integer", "format": "int64" }, "homepage": { "type": ["string", "null"] }, "defaultBranch": { "type": ["string", "null"] }, "license": { "type": ["string", "null"] }, "cloneUrl": { "type": ["string", "null"] }, "sshUrl": { "type": ["string", "null"] }, "topics": { "type": "array", "items": { "type": "string" } }, "htmlUrl": { "type": "string" }, "createdAt": { "type": ["string", "null"], "format": "date-time" }, "updatedAt": { "type": ["string", "null"], "format": "date-time" }, "pushedAt": { "type": ["string", "null"], "format": "date-time" } } },
+      "GitHubProfileDocument": { "type": "object", "properties": { "profile": { "$ref": "#/components/schemas/GitHubProfile" }, "repositories": { "type": "array", "items": { "$ref": "#/components/schemas/GitHubRepository" } }, "source": { "type": "string" }, "retrievedAt": { "type": "string", "format": "date-time" } } }
     }
   }
 }

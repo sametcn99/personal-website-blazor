@@ -7,6 +7,13 @@ public class PostModel
     public DateTime? PublishDate { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string[] Tags { get; set; } = Array.Empty<string>();
+    public string[] Technologies { get; set; } = Array.Empty<string>();
+    public string[] Topics { get; set; } = Array.Empty<string>();
+    public string[] RelatedProjects { get; set; } = Array.Empty<string>();
+    public string[] RelatedPosts { get; set; } = Array.Empty<string>();
+    public string? CanonicalUrl { get; set; }
+    public string ContentType { get; set; } = string.Empty;
+    public string Status { get; set; } = "published";
     public string Content { get; set; } = string.Empty;
     public string SearchableText { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
@@ -33,6 +40,13 @@ public class ContentMetadata
     public string Summary { get; set; } = string.Empty;
     public string SearchableText { get; set; } = string.Empty;
     public string[] Tags { get; set; } = Array.Empty<string>();
+    public string[] Technologies { get; set; } = Array.Empty<string>();
+    public string[] Topics { get; set; } = Array.Empty<string>();
+    public string[] RelatedProjects { get; set; } = Array.Empty<string>();
+    public string[] RelatedPosts { get; set; } = Array.Empty<string>();
+    public string? CanonicalUrl { get; set; }
+    public string ContentType { get; set; } = string.Empty;
+    public string Status { get; set; } = "published";
     public string Language { get; set; } = "en";
 }
 

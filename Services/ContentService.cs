@@ -118,10 +118,21 @@ public class ContentService : IContentService
                     if (metadata.TryGetValue("author", out var author))
                         post.Author = author.ToString();
                     if (metadata.TryGetValue("tags", out var tags))
-                    {
-                        if (tags is List<object> tagsList)
-                            post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
-                    }
+                        post.Tags = ReadStringArray(tags);
+                    if (metadata.TryGetValue("technologies", out var technologies))
+                        post.Technologies = ReadStringArray(technologies);
+                    if (metadata.TryGetValue("topics", out var topics))
+                        post.Topics = ReadStringArray(topics);
+                    if (metadata.TryGetValue("relatedProjects", out var relatedProjects))
+                        post.RelatedProjects = ReadStringArray(relatedProjects);
+                    if (metadata.TryGetValue("relatedPosts", out var relatedPosts))
+                        post.RelatedPosts = ReadStringArray(relatedPosts);
+                    if (metadata.TryGetValue("canonicalUrl", out var canonicalUrl))
+                        post.CanonicalUrl = canonicalUrl?.ToString();
+                    if (metadata.TryGetValue("type", out var contentType))
+                        post.ContentType = contentType?.ToString() ?? string.Empty;
+                    if (metadata.TryGetValue("status", out var status))
+                        post.Status = status?.ToString() ?? "published";
                     if (metadata.TryGetValue("language", out var lang))
                         post.Language = lang.ToString()!;
                 }
@@ -230,8 +241,22 @@ public class ContentService : IContentService
                             post.Image = img.ToString();
                         if (metadata.TryGetValue("author", out var author))
                             post.Author = author.ToString();
-                        if (metadata.TryGetValue("tags", out var tags) && tags is List<object> tagsList)
-                            post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
+                        if (metadata.TryGetValue("tags", out var tags))
+                            post.Tags = ReadStringArray(tags);
+                        if (metadata.TryGetValue("technologies", out var technologies))
+                            post.Technologies = ReadStringArray(technologies);
+                        if (metadata.TryGetValue("topics", out var topics))
+                            post.Topics = ReadStringArray(topics);
+                        if (metadata.TryGetValue("relatedProjects", out var relatedProjects))
+                            post.RelatedProjects = ReadStringArray(relatedProjects);
+                        if (metadata.TryGetValue("relatedPosts", out var relatedPosts))
+                            post.RelatedPosts = ReadStringArray(relatedPosts);
+                        if (metadata.TryGetValue("canonicalUrl", out var canonicalUrl))
+                            post.CanonicalUrl = canonicalUrl?.ToString();
+                        if (metadata.TryGetValue("type", out var contentType))
+                            post.ContentType = contentType?.ToString() ?? string.Empty;
+                        if (metadata.TryGetValue("status", out var status))
+                            post.Status = status?.ToString() ?? "published";
                         if (metadata.TryGetValue("language", out var lang))
                             post.Language = lang.ToString()!;
                     }
@@ -270,6 +295,13 @@ public class ContentService : IContentService
                     Summary = p.Description ?? string.Empty,
                     SearchableText = p.SearchableText,
                     Tags = p.Tags,
+                    Technologies = p.Technologies,
+                    Topics = p.Topics,
+                    RelatedProjects = p.RelatedProjects,
+                    RelatedPosts = p.RelatedPosts,
+                    CanonicalUrl = p.CanonicalUrl,
+                    ContentType = p.ContentType,
+                    Status = p.Status,
                     Language = p.Language,
                 })
             );
@@ -390,8 +422,22 @@ public class ContentService : IContentService
                             post.Image = img.ToString();
                         if (metadata.TryGetValue("author", out var author))
                             post.Author = author.ToString();
-                        if (metadata.TryGetValue("tags", out var tags) && tags is List<object> tagsList)
-                            post.Tags = tagsList.Select(x => x.ToString()!).ToArray();
+                    if (metadata.TryGetValue("tags", out var tags) && tags is List<object> tagsList)
+                            post.Tags = ReadStringArray(tags);
+                        if (metadata.TryGetValue("technologies", out var technologies))
+                            post.Technologies = ReadStringArray(technologies);
+                        if (metadata.TryGetValue("topics", out var topics))
+                            post.Topics = ReadStringArray(topics);
+                        if (metadata.TryGetValue("relatedProjects", out var relatedProjects))
+                            post.RelatedProjects = ReadStringArray(relatedProjects);
+                        if (metadata.TryGetValue("relatedPosts", out var relatedPosts))
+                            post.RelatedPosts = ReadStringArray(relatedPosts);
+                        if (metadata.TryGetValue("canonicalUrl", out var canonicalUrl))
+                            post.CanonicalUrl = canonicalUrl?.ToString();
+                        if (metadata.TryGetValue("type", out var contentType))
+                            post.ContentType = contentType?.ToString() ?? string.Empty;
+                        if (metadata.TryGetValue("status", out var status))
+                            post.Status = status?.ToString() ?? "published";
                         if (metadata.TryGetValue("language", out var lang))
                             post.Language = lang.ToString()!;
                     }
@@ -427,4 +473,11 @@ public class ContentService : IContentService
 
     private static string? GetMetadataDate(string? date) =>
         !string.IsNullOrWhiteSpace(date) ? date : null;
+
+    private static string[] ReadStringArray(object? value) => value switch
+    {
+        List<object> list => list.Select(item => item.ToString() ?? string.Empty).Where(item => item.Length > 0).ToArray(),
+        string text when !string.IsNullOrWhiteSpace(text) => new[] { text },
+        _ => Array.Empty<string>(),
+    };
 }

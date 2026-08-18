@@ -30,9 +30,12 @@ public class SitemapService : ISitemapService
             ("blog", "weekly", "0.9"),
             ("project", "weekly", "0.8"),
             ("gist", "monthly", "0.7"),
-            ("rss", "monthly", "0.4"),
+            ("rss.xml", "monthly", "0.4"),
             ("support", "yearly", "0.3"),
             ("readme", "weekly", "0.5"),
+            ("about", "monthly", "0.6"),
+            ("timeline", "monthly", "0.5"),
+            ("skills", "monthly", "0.5"),
             ("cv", "monthly", "0.5"),
             ("link", "weekly", "0.5"),
             ("repo", "weekly", "0.6"),
@@ -40,6 +43,7 @@ public class SitemapService : ISitemapService
         };
 
         var urlElements = new List<XElement>();
+        var knownPaths = new HashSet<string>(staticPages.Select(page => page.path.Trim('/')), StringComparer.OrdinalIgnoreCase);
 
         foreach (var (path, changefreq, priority) in staticPages)
         {
@@ -82,23 +86,21 @@ public class SitemapService : ISitemapService
             }
         }
 
-        foreach (var link in _socialLinks.Links)
+        foreach (var link in _socialLinks.Links.Where(link => !link.External && link.Link.StartsWith('/')))
         {
-            foreach (var type in link.Type)
-            {
-                if (link.External)
-                    continue;
+            var path = link.Link.Trim('/');
+            if (!knownPaths.Add(path))
+                continue;
 
-                var loc = new Uri(baseUri, type.TrimStart('/')).ToString();
-                var url = new XElement(
-                    ns + "url",
-                    new XElement(ns + "loc", loc),
-                    new XElement(ns + "changefreq", "monthly"),
-                    new XElement(ns + "priority", "0.5")
-                );
+            var loc = new Uri(baseUri, path).ToString();
+            var url = new XElement(
+                ns + "url",
+                new XElement(ns + "loc", loc),
+                new XElement(ns + "changefreq", "monthly"),
+                new XElement(ns + "priority", "0.5")
+            );
 
-                urlElements.Add(url);
-            }
+            urlElements.Add(url);
         }
 
         try

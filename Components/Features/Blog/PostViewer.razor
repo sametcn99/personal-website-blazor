@@ -38,10 +38,12 @@ else
         <meta property="og:description" content="@Post.Description" />
         <meta property="og:url" content="@GetCanonicalUrl()" />
         <meta property="og:image" content="@GetOgImageUrl()" />
+        <link rel="canonical" href="@GetCanonicalUrl()" />
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content="@Post.Title" />
         <meta property="twitter:description" content="@Post.Description" />
         <meta property="twitter:image" content="@GetOgImageUrl()" />
+        <StructuredData Data="@ArticleStructuredData" />
     </HeadContent>
 
     <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost" RandomPost="RandomPost">
@@ -144,7 +146,36 @@ else
         }
     }
 
-    private string GetCanonicalUrl() => Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
+    private string GetCanonicalUrl()
+    {
+        if (Post is not null && !string.IsNullOrWhiteSpace(Post.CanonicalUrl))
+            return Post.CanonicalUrl;
+
+        return Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
+    }
+
+    private object? ArticleStructuredData => Post is null
+        ? null
+        : new Dictionary<string, object?>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = UrlSection == "project" ? "SoftwareSourceCode" : "BlogPosting",
+            ["headline"] = Post.Title,
+            ["description"] = Post.Description,
+            ["url"] = GetCanonicalUrl(),
+            ["mainEntityOfPage"] = GetCanonicalUrl(),
+            ["datePublished"] = Post.PublishDate?.ToString("O"),
+            ["dateModified"] = (Post.UpdatedAt ?? Post.PublishDate)?.ToString("O"),
+            ["inLanguage"] = Post.Language,
+            ["keywords"] = Post.Tags,
+            ["author"] = new Dictionary<string, object?>
+            {
+                ["@type"] = "Person",
+                ["@id"] = "https://sametcc.me/#samet-can-cincik",
+                ["name"] = "Samet Can Cıncık",
+                ["url"] = "https://sametcc.me/about",
+            },
+        };
 
     private string GetStateKey() => $"{nameof(PostViewer)}:{FsSection}:{Slug}";
 

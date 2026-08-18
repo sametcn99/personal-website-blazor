@@ -73,6 +73,7 @@ builder.Services.AddScoped<IRssFeedService, RssFeedService>();
 builder.Services.AddScoped<ISitemapService, SitemapService>();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
 builder.Services.AddScoped<IMarkdownForAgentsService, MarkdownForAgentsService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 builder.Services.AddHttpClient(
     "GitHub", client =>
@@ -142,13 +143,30 @@ app.Use(async (context, next) =>
 // ── Link Headers (RFC 8288 / RFC 9727) ────────────────────────────────
 app.Use(async (context, next) =>
 {
-    if (context.Request.Path == "/")
+    if (IsAgentDiscoverablePage(context.Request.Path))
     {
         context.Response.OnStarting(() =>
         {
             if (context.Response.StatusCode == StatusCodes.Status200OK)
             {
-                context.Response.Headers.Link = $"</.well-known/api-catalog>; rel=\"api-catalog\", </openapi.json>; rel=\"describedby\"";
+                var path = context.Request.Path.Value ?? "/";
+                var markdownPath = path == "/"
+                    ? "/index.md"
+                    : $"{path.TrimEnd('/')}.md";
+                var links = new List<string>
+                {
+                    $"<{markdownPath}>; rel=\"alternate\"; type=\"text/markdown\"",
+                    "</llms.txt>; rel=\"describedby\"",
+                    "</openapi.json>; rel=\"describedby\"",
+                };
+
+                if (path == "/")
+                    links.Insert(2, "</.well-known/api-catalog>; rel=\"api-catalog\"");
+
+                var existing = context.Response.Headers.Link.ToString();
+                context.Response.Headers.Link = string.IsNullOrWhiteSpace(existing)
+                    ? string.Join(", ", links)
+                    : $"{existing}, {string.Join(", ", links)}";
             }
             return Task.CompletedTask;
         });
@@ -214,7 +232,9 @@ app.Use(async (context, next) =>
         if (path.Equals("/rss.xml", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/sitemap.xml", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/feed.json", StringComparison.OrdinalIgnoreCase)
-            || path.Equals("/manifest.webmanifest", StringComparison.OrdinalIgnoreCase))
+            || path.Equals("/manifest.webmanifest", StringComparison.OrdinalIgnoreCase)
+            || path.Equals("/llms.txt", StringComparison.OrdinalIgnoreCase)
+            || path.Equals("/llms-full.txt", StringComparison.OrdinalIgnoreCase))
         {
             return Task.CompletedTask;
         }
@@ -272,6 +292,30 @@ app.MapRazorComponents<personal_website_blazor.Components.App>()
 app.Run();
 
 // ── Helpers ───────────────────────────────────────────────────────────
+static bool IsAgentDiscoverablePage(PathString path)
+{
+    var value = path.Value ?? "/";
+    if (value == "/" || value.Contains('.', StringComparison.Ordinal))
+        return value == "/";
+
+    return value.Equals("/blog", StringComparison.OrdinalIgnoreCase)
+        || value.StartsWith("/blog/", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/gist", StringComparison.OrdinalIgnoreCase)
+        || value.StartsWith("/gist/", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/project", StringComparison.OrdinalIgnoreCase)
+        || value.StartsWith("/project/", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/content", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/repo", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/cv", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/readme", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/about", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/profile", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/timeline", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/skills", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/privacy-policy", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("/support", StringComparison.OrdinalIgnoreCase);
+}
+
 static bool IsStaticExtension(string ext)
     => ext.Equals(".css", StringComparison.OrdinalIgnoreCase)
     || ext.Equals(".js", StringComparison.OrdinalIgnoreCase)

@@ -9,4 +9,5 @@ public sealed class CachePolicyOptions
     public int SitemapMaxAgeSeconds { get; set; } = 86400;
     public int FeedJsonMaxAgeSeconds { get; set; } = 1800;
     public int ManifestMaxAgeSeconds { get; set; } = 600;
+    public int LlmsMaxAgeSeconds { get; set; } = 300;
 }

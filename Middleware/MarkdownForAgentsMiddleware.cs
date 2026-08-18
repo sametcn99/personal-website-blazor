@@ -52,6 +52,9 @@ public class MarkdownForAgentsMiddleware
         if (request.Method != HttpMethods.Get)
             return false;
 
+        if (request.Path.Value?.EndsWith(".md", StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+
         var acceptHeader = request.Headers.Accept.ToString();
         if (string.IsNullOrEmpty(acceptHeader))
             return false;

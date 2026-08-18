@@ -1,0 +1,117 @@
+{
+  "name": "Samet Can Cıncık",
+  "alternateName": "Samet Can Cincik",
+  "jobTitle": "Software Developer",
+  "location": "Ankara, Türkiye",
+  "summary": "Software developer focused on modern, sustainable, and user-oriented software solutions.",
+  "biography": "Samet follows current software development practices and values problem solving, continuous learning, fast adaptation to new technologies, and practical engineering. He actively uses AI tools for research, analysis, debugging, refactoring, and exploring alternative solutions.",
+  "skills": [
+    "C#",
+    ".NET",
+    "ASP.NET Core",
+    "Blazor",
+    "React",
+    "TypeScript",
+    "JavaScript",
+    "Next.js",
+    "Node.js",
+    "NestJS",
+    "Kotlin",
+    "Android",
+    "OpenCV",
+    "TensorFlow Lite",
+    "Google ML Kit",
+    "Docker",
+    "GitHub Actions",
+    "PostgreSQL",
+    "SQL Server",
+    "Bun",
+    "Go",
+    "WPF",
+    "Electron",
+    "AI-assisted development"
+  ],
+  "areasOfInterest": [
+    "Full-stack web development",
+    "Developer experience",
+    "AI-assisted software engineering",
+    "Open-source software",
+    "Self-hosted applications",
+    "Technical documentation",
+    "Software architecture",
+    "Automation and DevOps",
+    "Real-time interfaces",
+    "Developer tools"
+  ],
+  "languages": ["Turkish", "English"],
+  "publicNotes": [
+    "Completed military service in November 2025."
+  ],
+  "links": [
+    { "label": "Website", "url": "https://sametcc.me", "type": "website" },
+    { "label": "GitHub", "url": "https://github.com/sametcn99", "type": "github" },
+    { "label": "LinkedIn", "url": "https://linkedin.com/in/sametc0", "type": "linkedin" },
+    { "label": "Email", "url": "mailto:sametcn99@gmail.com", "type": "email" }
+  ],
+  "experience": [
+    {
+      "organization": "Mekanet Enerji Otomasyon",
+      "role": "Full Stack Developer",
+      "location": "İzmir, Türkiye",
+      "startDate": "2024-10",
+      "endDate": "2025-09",
+      "highlights": [
+        "Led the redesign and development of the corporate website with Next.js, TypeScript, and Node.js.",
+        "Contributed to a web-based HMI platform for energy automation systems.",
+        "Built frontend modules with React.js and backend modules with NestJS for real-time data tracking, authorization, and alarm management.",
+        "Managed GitHub Actions CI/CD, Docker containerization, and deployment automation."
+      ]
+    },
+    {
+      "organization": "Boru Hatları İle Petrol Taşıma Anonim Şirketi (BOTAŞ)",
+      "role": "Software Development Intern",
+      "location": "Ankara, Türkiye",
+      "startDate": "2022-07",
+      "endDate": "2022-08",
+      "highlights": [
+        "Worked on an Android application focused on artificial intelligence and image processing with Kotlin.",
+        "Used OpenCV, TensorFlow Lite, and Google ML Kit for image processing and model integration.",
+        "Gained practical experience in mobile development and AI/ML model deployment."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Gazi University",
+      "program": "Computer Programming",
+      "level": "Associate degree",
+      "startDate": "2019-08-17",
+      "endDate": "2022-06-27",
+      "highlights": [
+        "Object-oriented programming and algorithm design with C# and Java.",
+        "Relational database design and T-SQL with Microsoft SQL Server.",
+        "Foundations for adapting to modern software architectures."
+      ]
+    },
+    {
+      "institution": "Fatma Yaşar Önen Vocational and Technical Anatolian High School",
+      "program": "Accounting and Finance",
+      "level": "High school",
+      "startDate": "2013",
+      "endDate": "2017",
+      "highlights": []
+    }
+  ],
+  "certifications": [
+    { "name": "Frontend Developer (React)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/48d222ff5e54" },
+    { "name": "Node.js (Intermediate)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/9a63aba196f9" },
+    { "name": "JavaScript (Intermediate)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/00d65b004f0d" },
+    { "name": "REST API (Intermediate)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/602684d7fe43" },
+    { "name": "Software Architecture Foundations", "issuer": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/certificates/7d3aeb5b229707c0e31cfdf59a66a52a816e1d8d135c91643efcff7372472423" },
+    { "name": "Hands-On AI: Implementing Agentic Systems", "issuer": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/certificates/55ca2c12bb36682cdcf7f7f64b9d0ef84bd81deb094d88507b6780ff1a83a4ea" },
+    { "name": "CSS (Basic)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/2f51117fa2cf" },
+    { "name": "C# (Basic)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/7ac7d1982705" },
+    { "name": "Learning Design Thinking", "issuer": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/certificates/af61a5d6a352975bf8bccdb9b77b08034773ccfb6da5b5991448c689461617d1" }
+  ],
+  "lastUpdated": "2026-08-19"
+}
