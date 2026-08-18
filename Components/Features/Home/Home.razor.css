@@ -34,7 +34,8 @@
   flex-wrap: wrap;
   gap: 1rem 1.5rem;
 }
-.text-link {
+
+.home-actions .text-link {
   color: var(--color-text-secondary);
   font-weight: 600;
 }
@@ -75,14 +76,17 @@
   border-top: 1px solid var(--color-divider);
   text-decoration: none;
 }
+
 .archive-ledger > a:hover span {
   color: var(--color-primary-strong);
 }
+
 .archive-ledger strong {
   font-family: var(--font-measure);
   font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
 }
+
 .archive-ledger-status {
   display: flex;
   align-items: center;
@@ -91,6 +95,7 @@
   color: var(--color-text-secondary);
   font-size: 0.78rem;
 }
+
 .status-mark {
   width: 0.5rem;
   height: 0.5rem;
@@ -129,10 +134,12 @@
 .home-search-launcher-copy strong {
   font-size: 1.2rem;
 }
+
 .home-search-launcher-copy small {
   color: var(--color-text-secondary);
   font-size: 0.92rem;
 }
+
 .home-search-launcher-action {
   display: inline-flex;
   flex: 0 0 auto;
@@ -142,126 +149,9 @@
   font-family: var(--font-measure);
   font-size: 0.68rem;
 }
+
 .home-search-launcher > button:hover .home-search-launcher-copy strong {
   color: var(--color-primary-strong);
-}
-
-.search-dialog {
-  width: min(calc(100% - 2rem), 42rem);
-  max-height: min(38rem, calc(100dvh - 3rem));
-  margin: auto;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--color-divider-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
-}
-
-.search-dialog::backdrop {
-  background: rgba(5, 6, 5, 0.82);
-  backdrop-filter: blur(5px);
-}
-
-.search-dialog[open] {
-  animation: search-dialog-in 280ms var(--ease-out);
-}
-
-.search-dialog-panel {
-  display: flex;
-  max-height: min(38rem, calc(100dvh - 3rem));
-  flex-direction: column;
-  padding: clamp(1rem, 2.5vw, 1.4rem);
-}
-
-.search-dialog-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 1rem;
-}
-.search-dialog-header h2 {
-  margin-bottom: 0.15rem;
-  font-size: clamp(1.35rem, 3vw, 1.8rem);
-}
-.search-dialog-header p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.88rem;
-}
-.home-search-panel {
-  min-width: 0;
-}
-.search-input-shell {
-  border-bottom: 1px solid var(--color-divider-strong);
-}
-.search-input-shell .input-native {
-  min-height: 2.85rem;
-  padding-left: 2.6rem;
-  border: 0;
-  background: transparent;
-  font-size: 1rem;
-}
-.search-input-shell:focus-within {
-  border-color: var(--color-primary);
-}
-.search-status {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding-top: 0.75rem;
-}
-.search-result-list {
-  border-top: 1px solid var(--color-divider);
-}
-.search-result-list {
-  max-height: min(21rem, 48dvh);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.search-result-entry {
-  display: block;
-  padding-block: 0.75rem;
-  border-bottom: 1px solid var(--color-divider);
-  text-decoration: none;
-}
-.search-result-entry article {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.25rem 2rem;
-}
-.search-result-entry .text-body,
-.search-result-entry .search-match {
-  grid-column: 1;
-  margin: 0;
-}
-.search-result-entry .text-caption:last-child {
-  grid-column: 2;
-  grid-row: 1;
-  white-space: nowrap;
-}
-.search-result-entry:hover .text-heading {
-  color: var(--color-primary-strong);
-}
-.search-match {
-  line-height: 1.45;
-}
-.search-empty-state {
-  margin: 0;
-  padding-top: 1rem;
-}
-
-@keyframes search-dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(1rem) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .home-loading {
@@ -270,6 +160,7 @@
   gap: 1rem;
   padding-block: 5rem;
 }
+
 .home-loading .skeleton {
   min-height: 12rem;
 }
@@ -282,6 +173,7 @@
   margin-bottom: clamp(1.5rem, 3vw, 3rem);
   border-bottom: 1px solid var(--color-divider);
 }
+
 .register-heading {
   display: flex;
   align-items: flex-end;
@@ -289,22 +181,27 @@
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
+
 .register-heading h2 {
   margin: 0;
   font-size: 1.45rem;
 }
+
 .register-heading p {
   margin: 0.25rem 0 0;
   color: var(--color-text-secondary);
 }
+
 .register-heading > a {
   color: var(--color-text-secondary);
   font-size: 0.82rem;
   text-underline-offset: 0.3rem;
 }
+
 .register-list {
   border-top: 1px solid var(--color-divider-strong);
 }
+
 .register-entry {
   display: grid;
   grid-template-columns: 7.5rem minmax(0, 1fr);
@@ -314,6 +211,7 @@
   border-bottom: 1px solid var(--color-divider);
   text-decoration: none;
 }
+
 .register-entry time,
 .register-entry small,
 .field-note-list time,
@@ -323,16 +221,19 @@
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
 }
+
 .register-entry > span {
   display: flex;
   min-width: 0;
   flex-direction: column;
   gap: 0.3rem;
 }
+
 .register-entry strong {
   font-size: 1.08rem;
   line-height: 1.3;
 }
+
 .register-entry small {
   overflow: hidden;
   font-family: var(--font-sans);
@@ -340,6 +241,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .register-entry:hover strong {
   color: var(--color-primary-strong);
 }
@@ -348,9 +250,11 @@
   padding: 1.4rem;
   background: var(--color-surface);
 }
+
 .field-note-list {
   border-top: 1px solid var(--color-divider-strong);
 }
+
 .field-note-list a {
   display: flex;
   justify-content: space-between;
@@ -359,9 +263,11 @@
   border-bottom: 1px solid var(--color-divider);
   text-decoration: none;
 }
+
 .field-note-list a:hover span {
   color: var(--color-primary-strong);
 }
+
 .field-note-list time {
   flex: 0 0 auto;
 }
@@ -369,11 +275,13 @@
 .project-register {
   padding-top: clamp(2rem, 8vw, 2rem);
 }
+
 .project-register-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-block: 1px solid var(--color-divider-strong);
 }
+
 .project-register-grid > a {
   position: relative;
   display: flex;
@@ -383,31 +291,40 @@
   border-right: 1px solid var(--color-divider);
   text-decoration: none;
 }
+
 .project-register-grid > a:last-child {
   border-right: 0;
 }
+
 .project-register-mark {
-  width: 1.8rem;
+  width: 4rem;
   height: 0.28rem;
   margin-bottom: 3.5rem;
   background: var(--color-primary);
-  transition: width 260ms var(--ease-out);
+  transform: scaleX(0.45);
+  transform-origin: left center;
+  transition: transform 260ms var(--ease-out);
 }
+
 .project-register-grid strong {
   margin-bottom: 0.8rem;
   font-size: 1.4rem;
 }
+
 .project-register-grid p {
   color: var(--color-text-secondary);
 }
+
 .project-register-grid small {
   margin-top: auto;
 }
+
 .project-register-grid > a:hover {
   background: var(--color-surface);
 }
+
 .project-register-grid > a:hover .project-register-mark {
-  width: 4rem;
+  transform: scaleX(1);
 }
 
 @media (max-width: 900px) {
@@ -415,23 +332,29 @@
     grid-template-columns: 1fr;
     min-height: auto;
   }
+
   .archive-ledger {
     max-width: 30rem;
   }
+
   .home-register {
     grid-template-columns: 1fr;
   }
+
   .project-register-grid {
     grid-template-columns: 1fr;
   }
+
   .project-register-grid > a {
     min-height: auto;
     border-right: 0;
     border-bottom: 1px solid var(--color-divider);
   }
+
   .project-register-grid > a:last-child {
     border-bottom: 0;
   }
+
   .project-register-mark {
     margin-bottom: 2rem;
   }
@@ -441,45 +364,37 @@
   .home-shell {
     padding-top: 1rem;
   }
+
   .home-intro-copy h1 {
     font-size: clamp(2.65rem, 12vw, 3.8rem);
     white-space: normal;
   }
+
   .home-search-launcher-copy {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.15rem;
   }
+
   .home-search-launcher-action {
     font-size: 0;
   }
+
   .home-search-launcher-action .app-icon {
     width: 1.2rem;
     height: 1.2rem;
   }
-  .search-dialog {
-    width: calc(100% - 1rem);
-    max-height: calc(100dvh - 1rem);
-  }
-  .search-dialog-panel {
-    max-height: calc(100dvh - 1rem);
-  }
-  .search-result-entry article {
-    display: block;
-  }
-  .search-result-entry article > * {
-    margin-bottom: 0.35rem;
-  }
+
   .register-entry {
     grid-template-columns: 1fr;
     gap: 0.4rem;
   }
-  .register-entry time {
-    grid-column: 1;
-  }
+
+  .register-entry time,
   .register-entry > span {
     grid-column: 1;
   }
+
   .register-entry small {
     white-space: normal;
   }

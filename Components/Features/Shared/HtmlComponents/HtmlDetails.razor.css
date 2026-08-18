@@ -1,0 +1,16 @@
+.html-details {
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.html-details-content {
+  padding: 1rem;
+  border-top: 1px solid var(--color-divider);
+}
+
+.html-details-content ::deep :last-child {
+  margin-bottom: 0;
+}

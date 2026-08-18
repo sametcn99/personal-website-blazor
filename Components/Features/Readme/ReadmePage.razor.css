@@ -1,0 +1,13 @@
+.article-shell {
+  width: min(calc(100% - 3rem), var(--reading-width));
+}
+
+.readme-article {
+  margin-top: 1rem;
+}
+
+@media (max-width: 720px) {
+  .article-shell {
+    width: min(calc(100% - 1.5rem), var(--reading-width));
+  }
+}

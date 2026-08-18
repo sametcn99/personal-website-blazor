@@ -1,0 +1,16 @@
+.code-component-loading {
+  padding: 1rem;
+}
+
+.code-component-loading-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.code-component-loading-line {
+  height: 0.75rem;
+  border-radius: 3px;
+  background: var(--color-divider);
+  animation: shimmer 1.3s linear infinite;
+}

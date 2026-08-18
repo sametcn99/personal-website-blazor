@@ -1,0 +1,31 @@
+.html-table-wrapper {
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  border-block: 1px solid var(--color-divider-strong);
+}
+
+.html-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.html-table ::deep th,
+.html-table ::deep td {
+  padding: 0.8rem 0.9rem;
+  border-bottom: 1px solid var(--color-divider);
+  text-align: left;
+}
+
+.html-table ::deep th {
+  color: var(--color-text-primary);
+  font-family: var(--font-measure);
+  font-size: 0.72rem;
+}
+
+.html-table ::deep td {
+  color: #c4c1b6;
+}
+
+.html-table ::deep tbody tr:hover {
+  background: var(--color-surface);
+}

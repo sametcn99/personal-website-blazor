@@ -1,0 +1,28 @@
+.article-shell {
+  width: min(calc(100% - 3rem), var(--reading-width));
+}
+
+.article-record-header {
+  padding-block: 0.5rem 1rem;
+}
+
+.article-record-header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.article-divider {
+  margin: 1rem 0 2rem;
+}
+
+.article-document {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .article-shell {
+    width: min(calc(100% - 1.5rem), var(--reading-width));
+  }
+}

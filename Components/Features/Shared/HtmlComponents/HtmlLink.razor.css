@@ -1,0 +1,11 @@
+.html-link {
+  color: var(--color-primary-strong);
+  font-weight: 500;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(224, 182, 97, 0.55);
+  text-underline-offset: 0.22em;
+}
+
+.html-link:hover {
+  text-decoration-color: currentColor;
+}

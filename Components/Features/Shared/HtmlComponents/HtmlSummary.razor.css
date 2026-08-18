@@ -1,0 +1,24 @@
+.html-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.html-summary::-webkit-details-marker {
+  display: none;
+}
+
+.html-summary::before {
+  content: "+";
+  color: var(--color-primary-strong);
+  font-family: var(--font-measure);
+}
+
+.html-summary:hover {
+  background: var(--color-surface-elevated);
+}
