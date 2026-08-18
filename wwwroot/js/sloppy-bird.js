@@ -739,7 +739,9 @@ export function mount(host) {
     })
     document.body.append(flightCanvas)
 
-    const flightContext = flightCanvas.getContext("2d", { alpha: true, desynchronized: true })
+    // Mobile WebKit can composite a desynchronized transparent canvas as opaque.
+    // This short-lived overlay favors reliable transparency over lower latency.
+    const flightContext = flightCanvas.getContext("2d", { alpha: true })
     const reducedMotion = prefersReducedMotion.matches
     const randomRange = (minimum, maximum) => minimum + Math.random() * (maximum - minimum)
     const ignoredTags = new Set(["SCRIPT", "STYLE", "LINK", "META", "NOSCRIPT", "TEMPLATE", "BR", "WBR", "OPTION", "SVG", "PATH"])
