@@ -119,26 +119,18 @@
                            data-umami-event="repo-search-input-click" />
                 </div>
                 <div class="content-index-selects">
-                    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)'>
-                        <option value="updated">Updated</option>
-                        <option value="created">Created</option>
-                        <option value="stars">Stars</option>
-                        <option value="name">Name</option>
-                    </select>
-                    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)'>
-                        <option value="desc">@(_sortBy == "name" ? "Z → A" : "Newest")</option>
-                        <option value="asc">@(_sortBy == "name" ? "A → Z" : "Oldest")</option>
-                    </select>
+                    <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
+                                  Options="@(new[] { new CustomSelectOption("updated", "Updated"), new CustomSelectOption("created", "Created"), new CustomSelectOption("stars", "Stars"), new CustomSelectOption("name", "Name") })"
+                                  data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)' />
+                    <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "name" ? "Z → A" : "Newest"), new CustomSelectOption("asc", _sortBy == "name" ? "A → Z" : "Oldest") })"
+                                  data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)' />
                 </div>
                 @if (AvailableLanguages.Count > 1)
                 {
-                    <select class="select-native" @bind="_languageFilter" data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)'>
-                        <option value="">All languages</option>
-                        @foreach (var lang in AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase))
-                        {
-                            <option value="@lang">@lang</option>
-                        }
-                    </select>
+                    <CustomSelect Value="@_languageFilter" ValueChanged="value => _languageFilter = value"
+                                  Options="@(new[] { new CustomSelectOption("", "All languages") }.Concat(AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase).Select(lang => new CustomSelectOption(lang, lang))).ToArray())"
+                                  data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)' />
                 }
             </div>
 

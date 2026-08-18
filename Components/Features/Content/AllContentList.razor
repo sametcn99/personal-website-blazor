@@ -37,22 +37,17 @@
                            data-umami-event="all-content-search-click" />
                 </div>
 
-                <select class="select-native" @bind="_typeFilter" data-umami-event="all-content-type-filter-click">
-                    <option value="all">All types</option>
-                    <option value="writing">Writing</option>
-                    <option value="gist">Gists</option>
-                    <option value="project">Projects</option>
-                </select>
+                <CustomSelect Value="@_typeFilter" ValueChanged="value => _typeFilter = value"
+                              Options="@(new[] { new CustomSelectOption("all", "All types"), new CustomSelectOption("writing", "Writing"), new CustomSelectOption("gist", "Gists"), new CustomSelectOption("project", "Projects") })"
+                              data-umami-event="all-content-type-filter-click" />
 
                 <div class="content-index-selects">
-                    <select class="select-native" @bind="_sortBy" data-umami-event="all-content-sort-by-click">
-                        <option value="date">Date</option>
-                        <option value="title">Title</option>
-                    </select>
-                    <select class="select-native" @bind="_sortOrder" data-umami-event="all-content-sort-order-click">
-                        <option value="desc">@(_sortBy == "date" ? "Newest" : "Z → A")</option>
-                        <option value="asc">@(_sortBy == "date" ? "Oldest" : "A → Z")</option>
-                    </select>
+                    <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
+                                  Options="@(new[] { new CustomSelectOption("date", "Date"), new CustomSelectOption("title", "Title") })"
+                                  data-umami-event="all-content-sort-by-click" />
+                    <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? "Newest" : "Z → A"), new CustomSelectOption("asc", _sortBy == "date" ? "Oldest" : "A → Z") })"
+                                  data-umami-event="all-content-sort-order-click" />
                 </div>
             </div>
 

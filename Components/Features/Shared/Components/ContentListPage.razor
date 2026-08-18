@@ -29,14 +29,12 @@
                            data-umami-event='@UmamiEvent.Click("content-list-search", Title)' />
                 </div>
                 <div class="content-index-selects">
-                    <select class="select-native" @bind="_sortBy" data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)'>
-                        <option value="date">Date</option>
-                        <option value="title">Title</option>
-                    </select>
-                    <select class="select-native" @bind="_sortOrder" data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)'>
-                        <option value="desc">@(_sortBy == "date" ? "Newest" : "Z → A")</option>
-                        <option value="asc">@(_sortBy == "date" ? "Oldest" : "A → Z")</option>
-                    </select>
+                    <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
+                                  Options="@(new[] { new CustomSelectOption("date", "Date"), new CustomSelectOption("title", "Title") })"
+                                  data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)' />
+                    <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? "Newest" : "Z → A"), new CustomSelectOption("asc", _sortBy == "date" ? "Oldest" : "A → Z") })"
+                                  data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)' />
                 </div>
             </div>
 

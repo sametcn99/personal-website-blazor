@@ -1,0 +1,77 @@
+@inject IJSRuntime JS
+
+<div id="@selectId" class="custom-select @(isOpen ? "custom-select-open" : null)" @attributes="AdditionalAttributes">
+    <button type="button"
+            class="custom-select-trigger"
+            aria-haspopup="listbox"
+            aria-expanded="@isOpen"
+            @onclick="ToggleOpen"
+            @onkeydown="HandleKeyDown">
+        <span>@SelectedOption.Label</span>
+        <AppIcon Name="chevron-down" />
+    </button>
+
+    @if (isOpen)
+    {
+        <div class="custom-select-menu" role="listbox" tabindex="-1">
+            @foreach (var option in Options)
+            {
+                <button type="button"
+                        class="custom-select-option @(option.Value == Value ? "custom-select-option-selected" : null)"
+                        role="option"
+                        aria-selected="@(option.Value == Value)"
+                        @onclick="() => SelectOption(option.Value)">
+                    <span>@option.Label</span>
+                    @if (option.Value == Value)
+                    {
+                        <AppIcon Name="check" />
+                    }
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public IReadOnlyList<CustomSelectOption> Options { get; set; } = Array.Empty<CustomSelectOption>();
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool isOpen;
+    private readonly string selectId = $"custom-select-{Guid.NewGuid():N}";
+
+    private CustomSelectOption SelectedOption =>
+        Options.FirstOrDefault(option => option.Value == Value) ??
+        Options.FirstOrDefault() ??
+        new CustomSelectOption(string.Empty, "Select");
+
+    private async Task ToggleOpen()
+    {
+        if (!isOpen)
+        {
+            await JS.InvokeVoidAsync("window.closeOtherCustomSelects", selectId);
+        }
+
+        isOpen = !isOpen;
+    }
+
+    private async Task SelectOption(string value)
+    {
+        isOpen = false;
+        if (value != Value)
+        {
+            Value = value;
+            await ValueChanged.InvokeAsync(value);
+        }
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key is "Escape" or "Tab")
+        {
+            isOpen = false;
+        }
+    }
+}

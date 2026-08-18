@@ -39,6 +39,13 @@ window.closeArchiveSearch = () => {
   if (dialog?.open) dialog.close()
 }
 
+window.closeOtherCustomSelects = (activeId) => {
+  document.querySelectorAll(".custom-select.custom-select-open").forEach((select) => {
+    if (select.id === activeId) return
+    select.querySelector(".custom-select-trigger")?.click()
+  })
+}
+
 window.scrollToElementId = (elementId) => {
   const element = document.getElementById(elementId) || document.getElementById(decodeURIComponent(elementId))
   if (element) {

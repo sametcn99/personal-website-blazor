@@ -28,18 +28,12 @@
                            data-umami-event="links-search-input-click" />
                 </div>
                 <div class="content-index-selects">
-                    <select class="select-native" @bind="_selectedCategory" data-umami-event="links-category-select">
-                        <option value="">All categories</option>
-                        @foreach (var category in _categories)
-                        {
-                            <option value="@category">@category</option>
-                        }
-                    </select>
-                    <select class="select-native" @bind="_sort" data-umami-event="links-sort-select">
-                        <option value="category">Category</option>
-                        <option value="asc">A → Z</option>
-                        <option value="desc">Z → A</option>
-                    </select>
+                    <CustomSelect Value="@_selectedCategory" ValueChanged="value => _selectedCategory = value"
+                                  Options="@(new[] { new CustomSelectOption("", "All categories") }.Concat(_categories.Select(category => new CustomSelectOption(category, category))).ToArray())"
+                                  data-umami-event="links-category-select" />
+                    <CustomSelect Value="@_sort" ValueChanged="value => _sort = value"
+                                  Options="@(new[] { new CustomSelectOption("category", "Category"), new CustomSelectOption("asc", "A → Z"), new CustomSelectOption("desc", "Z → A") })"
+                                  data-umami-event="links-sort-select" />
                 </div>
             </div>
 
