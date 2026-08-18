@@ -6,41 +6,98 @@
     <meta name="description" content="Support my open-source work and technical content through Buy Me a Coffee or GitHub Sponsors." />
 </HeadContent>
 
-<div class="page-container page-section flow-lg article-shell">
+<div class="page-container page-section support-page">
     <BackToHome />
-    <h1 class="text-page-title">Support My Work</h1>
 
-    <p class="text-body text-muted">
-        Creating open-source projects, writing technical articles, and sharing
-        knowledge takes a lot of time and effort. If you find my content helpful
-        or have used my projects in your work, consider supporting me. Your
-        support helps me keep doing what I love and sharing it with the community.
-    </p>
+    <header class="support-intro">
+        <div class="support-intro-copy">
+            <h1 class="text-page-title">Support the archive</h1>
+            <p class="text-body text-muted">
+                If the writing, projects, or references here have been useful,
+                you can help keep this independent archive moving.
+            </p>
+        </div>
+        <p class="support-intro-note text-caption">
+            The support goes toward the time behind open-source projects,
+            technical writing, and shared references.
+        </p>
+    </header>
 
-    <div class="flow">
-        <div class="card card-outline support-card">
-            <div class="support-avatar support-avatar-coffee">
-                <AppIcon Name="coffee" Class="icon-lg" />
-            </div>
-            <div class="flow-sm" style="flex: 1 1 18rem;">
-                <h2 class="text-heading">Buy Me a Coffee</h2>
-                <p class="text-body text-muted">A simple way to say thanks. You can buy me a coffee to fuel my next coding session.</p>
-                <a class="button button-soft" href="https://buymeacoffee.com/sametcn99" target="_blank" rel="noreferrer noopener" data-umami-event="support-buymeacoffee-click">Support on Buy Me a Coffee</a>
-            </div>
+    <section class="support-options" aria-labelledby="support-options-title">
+        <div class="support-section-heading">
+            <h2 id="support-options-title" class="text-section-title">Choose a support path</h2>
+            <span class="text-caption text-muted">2 options</span>
         </div>
 
-        <div class="card card-outline support-card">
-            <div class="support-avatar support-avatar-heart">
-                <AppIcon Name="heart" Class="icon-lg" />
-            </div>
-            <div class="flow-sm" style="flex: 1 1 18rem;">
-                <h2 class="text-heading">GitHub Sponsors</h2>
-                <p class="text-body text-muted">Support my open-source work directly on GitHub. Monthly and one-time sponsorships are available.</p>
-                <a class="button button-outline" href="https://github.com/sponsors/sametcn99" target="_blank" rel="noreferrer noopener" data-umami-event="support-github-sponsor-click">
-                    <AppIcon Name="heart" />
-                    <span>Sponsor on GitHub</span>
+        <div class="support-ledger">
+            <article class="support-option">
+                <span class="support-option-index" aria-hidden="true">01</span>
+                <span class="support-option-icon" aria-hidden="true">
+                    <AppIcon Name="coffee" />
+                </span>
+                <div class="support-option-copy">
+                    <p class="support-option-type">A simple thank you</p>
+                    <h3 class="text-heading">Buy Me a Coffee</h3>
+                    <p class="text-body text-muted">Support the time behind the next coding session with a simple thank you.</p>
+                </div>
+                <a class="button button-solid support-option-action" href="https://buymeacoffee.com/sametcn99" target="_blank" rel="noreferrer noopener" @onclick="NoteExternalSupportLink" data-umami-event="support-buymeacoffee-click">
+                    <span>Support on Buy Me a Coffee</span>
+                    <AppIcon Name="external-link" />
                 </a>
-            </div>
+            </article>
+
+            <article class="support-option">
+                <span class="support-option-index" aria-hidden="true">02</span>
+                <span class="support-option-icon support-option-icon-sage" aria-hidden="true">
+                    <AppIcon Name="heart" />
+                </span>
+                <div class="support-option-copy">
+                    <p class="support-option-type">Open-source support</p>
+                    <h3 class="text-heading">GitHub Sponsors</h3>
+                    <p class="text-body text-muted">Support the open-source work directly through GitHub with monthly or one-time sponsorship.</p>
+                </div>
+                <a class="button button-solid support-option-action" href="https://github.com/sponsors/sametcn99" target="_blank" rel="noreferrer noopener" @onclick="NoteExternalSupportLink" data-umami-event="support-github-sponsor-click">
+                    <span>Sponsor on GitHub</span>
+                    <AppIcon Name="external-link" />
+                </a>
+            </article>
         </div>
-    </div>
+
+        @if (supportLinkOpened)
+        {
+            <p class="support-link-notice text-caption" role="status">
+                <AppIcon Name="external-link" /> Support page opened in a new tab.
+            </p>
+        }
+    </section>
+
+    <section class="support-impact" aria-labelledby="support-impact-title">
+        <div class="support-section-heading">
+            <h2 id="support-impact-title" class="text-section-title">What support makes possible</h2>
+            <span class="text-caption text-muted">Ongoing work</span>
+        </div>
+        <ul class="support-impact-list">
+            <li class="support-impact-item">
+                <h3 class="text-heading">Open-source projects</h3>
+                <p class="text-body text-muted">Software experiments and tools that stay available to the community.</p>
+            </li>
+            <li class="support-impact-item">
+                <h3 class="text-heading">Technical writing</h3>
+                <p class="text-body text-muted">Practical articles that turn solved problems into reusable notes.</p>
+            </li>
+            <li class="support-impact-item">
+                <h3 class="text-heading">Shared references</h3>
+                <p class="text-body text-muted">A maintained archive of guides, links, and working examples.</p>
+            </li>
+        </ul>
+    </section>
 </div>
+
+@code {
+    private bool supportLinkOpened;
+
+    private void NoteExternalSupportLink()
+    {
+        supportLinkOpened = true;
+    }
+}

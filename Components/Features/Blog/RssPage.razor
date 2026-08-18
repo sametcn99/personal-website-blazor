@@ -6,59 +6,77 @@
     <meta name="description" content="Subscribe to RSS or JSON feeds to follow the latest posts, projects, and gists." />
 </HeadContent>
 
-<div class="page-container page-section flow-lg article-shell">
+<div class="page-container page-section rss-page">
     <BackToHome />
 
-    <div class="center-stack" style="margin-top: 1rem; margin-bottom: 1.5rem;">
-        <h1 class="text-page-title text-gradient">Subscribe to Updates</h1>
-        <p class="text-body text-muted" style="max-width: 600px;">
-            Stay up-to-date with the latest blog posts, gists, and projects.
-            Choose your preferred feed format below.
-        </p>
-    </div>
-
-    <div class="row wrap" style="align-items: stretch; gap: 1rem; margin-bottom: 1rem;">
-        <section class="card card-outline flow" style="flex: 1 1 18rem;">
-            <div class="row">
-                <AppIcon Name="rss" Class="icon-lg text-primary" />
-                <h2 class="text-section-title">RSS Feed</h2>
-            </div>
-            <p class="text-body text-muted" style="flex: 1 1 auto;">
-                        Standard RSS 2.0 format. Compatible with Feedly, Inoreader, and most classic feed readers.
+    <header class="rss-intro">
+        <div class="rss-intro-copy">
+            <h1 class="text-page-title">Subscribe to updates</h1>
+            <p class="text-body text-muted">
+                Follow the latest blog posts, gists, and projects from a feed reader
+                instead of checking the archive manually.
             </p>
-            <div class="row">
-                <a class="button button-outline button-small" href="/rss.xml" target="_blank" data-umami-event="feed-open-rss-xml-click">Open</a>
-            </div>
-        </section>
-        <section class="card card-outline flow" style="flex: 1 1 18rem;">
-            <div class="row">
-                <AppIcon Name="code" Class="icon-lg text-muted" />
-                <h2 class="text-section-title">JSON Feed</h2>
-            </div>
-            <p class="text-body text-muted" style="flex: 1 1 auto;">
-                        Modern JSON format. Ideal for developers and programmatic consumption of the content.
-            </p>
-            <div class="row">
-                <a class="button button-outline button-small" href="/feed.json" target="_blank" data-umami-event="feed-open-feed-json-click">Open</a>
-            </div>
-        </section>
-    </div>
-
-    <section class="card card-outline flow" style="background: var(--color-surface-muted);">
-        <h2 class="text-heading">Quick Start Guide</h2>
-        <div class="flow">
-            <div class="row" style="align-items: flex-start;">
-                <span class="guide-index">1</span>
-                <p class="text-body text-muted">
-                    Click <b>"Open"</b> to preview the feed in your browser, or copy the URL from the address bar.
-                </p>
-            </div>
-            <div class="row" style="align-items: flex-start;">
-                <span class="guide-index">2</span>
-                <p class="text-body text-muted">
-                    Paste the URL into your favorite feed reader (e.g., Feedly, Inoreader, NetNewsWire).
-                </p>
-            </div>
         </div>
+        <p class="rss-intro-note text-caption">
+            Two machine-readable formats, one quiet way to keep up with new work.
+        </p>
+    </header>
+
+    <section class="rss-formats" aria-labelledby="rss-formats-title">
+        <div class="rss-section-heading">
+            <h2 id="rss-formats-title" class="text-section-title">Choose a feed format</h2>
+            <span class="text-caption text-muted">2 formats</span>
+        </div>
+
+        <div class="rss-ledger">
+            <article class="rss-format">
+                <span class="rss-format-index" aria-hidden="true">01</span>
+                <span class="rss-format-icon" aria-hidden="true">
+                    <AppIcon Name="rss" />
+                </span>
+                <div class="rss-format-copy">
+                    <p class="rss-format-type">RSS 2.0</p>
+                    <h3 class="text-heading">RSS Feed</h3>
+                    <p class="text-body text-muted">A standard format compatible with Feedly, Inoreader, and most classic feed readers.</p>
+                </div>
+                <a class="button button-outline rss-format-action" href="/rss.xml" target="_blank" rel="noopener" data-umami-event="feed-open-rss-xml-click">
+                    <span>Open RSS feed</span>
+                    <AppIcon Name="external-link" />
+                </a>
+            </article>
+
+            <article class="rss-format">
+                <span class="rss-format-index" aria-hidden="true">02</span>
+                <span class="rss-format-icon rss-format-icon-sage" aria-hidden="true">
+                    <AppIcon Name="code" />
+                </span>
+                <div class="rss-format-copy">
+                    <p class="rss-format-type">JSON Feed</p>
+                    <h3 class="text-heading">JSON Feed</h3>
+                    <p class="text-body text-muted">A modern JSON format for developers and programmatic consumption of the content.</p>
+                </div>
+                <a class="button button-outline rss-format-action" href="/feed.json" target="_blank" rel="noopener" data-umami-event="feed-open-feed-json-click">
+                    <span>Open JSON feed</span>
+                    <AppIcon Name="external-link" />
+                </a>
+            </article>
+        </div>
+    </section>
+
+    <section class="rss-guide" aria-labelledby="rss-guide-title">
+        <div class="rss-section-heading">
+            <h2 id="rss-guide-title" class="text-section-title">Add it to your reader</h2>
+            <span class="text-caption text-muted">Quick start</span>
+        </div>
+        <ol class="rss-guide-list">
+            <li class="rss-guide-item">
+                <span class="rss-guide-index" aria-hidden="true">01</span>
+                <p class="text-body text-muted">Open a feed above to preview it in your browser, then copy the URL from the address bar.</p>
+            </li>
+            <li class="rss-guide-item">
+                <span class="rss-guide-index" aria-hidden="true">02</span>
+                <p class="text-body text-muted">Paste the URL into your preferred feed reader, such as Feedly, Inoreader, or NetNewsWire.</p>
+            </li>
+        </ol>
     </section>
 </div>
