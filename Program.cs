@@ -74,6 +74,7 @@ builder.Services.AddScoped<ISitemapService, SitemapService>();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
 builder.Services.AddScoped<IMarkdownForAgentsService, MarkdownForAgentsService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IMcpQueryService, McpQueryService>();
 
 builder.Services.AddHttpClient(
     "GitHub", client =>
@@ -180,7 +181,8 @@ var rateLimitStore = new ConcurrentDictionary<string, RateLimitEntry>(StringComp
 
 app.Use(async (context, next) =>
 {
-    if (!context.Request.Path.StartsWithSegments("/api"))
+    if (!context.Request.Path.StartsWithSegments("/api")
+        && !context.Request.Path.StartsWithSegments("/mcp"))
     {
         await next();
         return;

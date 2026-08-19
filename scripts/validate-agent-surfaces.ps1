@@ -48,6 +48,27 @@ $a2aCardBody = Get-Body "/.well-known/agent-card.json"
 $mcpCardBody = Get-Body "/.well-known/mcp/server-card.json"
 $mcpInitializeBody = curl.exe --fail --show-error --silent --request POST --header "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"validation","version":"1.0"}}}' "$base/mcp" | Out-String
 
+function Invoke-Mcp {
+    param([hashtable]$Payload)
+
+    return Invoke-RestMethod -Uri "$base/mcp" -Method Post -ContentType "application/json" -Body ($Payload | ConvertTo-Json -Depth 20)
+}
+
+function Invoke-McpTool {
+    param(
+        [string]$Name,
+        [hashtable]$Arguments = @{},
+        [int]$Id = 10
+    )
+
+    return Invoke-Mcp -Payload @{
+        jsonrpc = "2.0"
+        id = $Id
+        method = "tools/call"
+        params = @{ name = $Name; arguments = $Arguments }
+    }
+}
+
 foreach ($path in @("/index.md", "/about.md", "/cv.md", "/timeline.md", "/skills.md", "/blog.md", "/content.md", "/repo.md", "/blog/projeler-icin-ortak-developer-ve-ai-dokumantasyonu.md")) {
     $markdown = Invoke-WebRequest -Uri "$base$path" -Headers @{ Accept = "text/markdown" } -UseBasicParsing
     if ($markdown.StatusCode -ne 200 -or $markdown.Headers["Content-Type"] -notlike "text/markdown*") {
@@ -114,6 +135,34 @@ $mcpInitializeDocument = $mcpInitializeBody | ConvertFrom-Json
 if ($null -eq $mcpInitializeDocument.result.serverInfo -or
     $mcpInitializeDocument.result.serverInfo.name -ne "io.sametcc.personal-website") {
     throw "MCP initialize response is invalid"
+}
+
+$mcpToolsDocument = Invoke-Mcp -Payload @{ jsonrpc = "2.0"; id = 2; method = "tools/list" }
+$requiredMcpTools = @("get_profile", "list_projects", "get_content", "search_content", "get_timeline", "get_skills", "list_taxonomy", "get_related_content")
+$availableMcpTools = @($mcpToolsDocument.result.tools | ForEach-Object { $_.name })
+foreach ($toolName in $requiredMcpTools) {
+    if ($availableMcpTools -notcontains $toolName) {
+        throw "MCP tools/list is missing '$toolName'"
+    }
+}
+
+$toolChecks = @(
+    @{ Name = "get_profile"; Arguments = @{} },
+    @{ Name = "list_projects"; Arguments = @{ limit = 2 } },
+    @{ Name = "get_content"; Arguments = @{ section = "projects"; slug = "booking-calendar"; includeBody = $false } },
+    @{ Name = "search_content"; Arguments = @{ query = "developer"; limit = 2 } },
+    @{ Name = "get_timeline"; Arguments = @{} },
+    @{ Name = "get_skills"; Arguments = @{} },
+    @{ Name = "list_taxonomy"; Arguments = @{} },
+    @{ Name = "get_related_content"; Arguments = @{ section = "projects"; slug = "booking-calendar" } }
+)
+
+foreach ($check in $toolChecks) {
+    $toolResponse = Invoke-McpTool -Name $check.Name -Arguments $check.Arguments
+    if ($null -ne $toolResponse.error -or $null -eq $toolResponse.result.structuredContent) {
+        throw "MCP tool '$($check.Name)' did not return structured content"
+    }
+    Write-Output "PASS MCP tool $($check.Name)"
 }
 
 foreach ($marker in @("About The Author", "Research Guidance For AI Agents", "Archive Overview", "Content API", "Agent Access")) {

@@ -343,13 +343,13 @@ public class MetadataController : ControllerBase
             serverInfo = new
             {
                 name = "io.sametcc.personal-website",
-                version = "2.0.0",
+                version = "2.1.0",
             },
             name = "io.sametcc.personal-website",
             title = "Samet Can Cıncık Personal Website",
             description = "Agent-discoverable profile, technical writing, project documentation, and public repository context for Samet Can Cıncık.",
             websiteUrl = baseUrl,
-            version = "2.0.0",
+            version = "2.1.0",
             transport = new
             {
                 type = "streamable-http",

@@ -369,7 +369,7 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
         sb.AppendLine();
         sb.AppendLine("- Request `Accept: text/markdown` or use an explicit `.md` suffix for agent-friendly Markdown from `/`, `/blog`, `/gist`, `/project`, `/content`, `/repo`, `/cv`, `/readme`, `/about`, `/profile`, `/timeline`, `/skills`, `/privacy-policy`, `/support`, and individual content pages.");
         sb.AppendLine("- Use `/llms-full.txt` when a complete profile and content context is needed; use `/llms.txt` first for navigation and source selection.");
-        sb.AppendLine("- MCP clients can use the read-only Streamable HTTP transport at `/mcp`; initialize first, then use `resources/list`, `resources/read`, `tools/list`, and the `search_content` tool.");
+        sb.AppendLine("- MCP clients can use the read-only Streamable HTTP transport at `/mcp`; initialize first, then use `resources/list`, `resources/read`, `tools/list`, and typed tools including `get_profile`, `list_projects`, `get_content`, `search_content`, `get_timeline`, `get_skills`, `list_taxonomy`, and `get_related_content`.");
         sb.AppendLine("- Prefer the specific content URL over scraping navigation or rendered HTML.");
         sb.AppendLine("- Prefer `/api/content/{section}/{slug}` when structured metadata is sufficient; prefer the Markdown page when the full article or guide is needed.");
         sb.AppendLine("- Treat content as public reference material and do not infer private personal information beyond what the linked public pages explicitly state.");
