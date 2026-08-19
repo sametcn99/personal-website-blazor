@@ -482,7 +482,7 @@ public class MetadataController : ControllerBase
     [HttpGet("favicon.svg")]
     public ActionResult GetFavicon()
     {
-        Response.Headers.CacheControl = "public, max-age=86400, stale-while-revalidate=604800";
+        Response.Headers.CacheControl = "public, max-age=3600, stale-while-revalidate=86400";
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return Content(FaviconSvgBuilder.Build(), "image/svg+xml; charset=utf-8");
     }
@@ -510,7 +510,7 @@ public class MetadataController : ControllerBase
 
     private ActionResult RasterIcon(byte[] content, string contentType)
     {
-        Response.Headers.CacheControl = "public, max-age=86400, stale-while-revalidate=604800";
+        Response.Headers.CacheControl = "public, max-age=3600, stale-while-revalidate=86400";
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return File(content, contentType);
     }
@@ -533,29 +533,29 @@ public class MetadataController : ControllerBase
             categories = new[] { "education", "productivity", "developer" },
             icons = new[]
             {
-                new { src = "/favicon.svg", sizes = "any", type = "image/svg+xml", purpose = "any" },
-                new { src = "/favicon-16x16.png", sizes = "16x16", type = "image/png", purpose = "any" },
-                new { src = "/favicon-32x32.png", sizes = "32x32", type = "image/png", purpose = "any" },
-                new { src = "/android-chrome-192x192.png", sizes = "192x192", type = "image/png", purpose = "any" },
-                new { src = "/android-chrome-512x512.png", sizes = "512x512", type = "image/png", purpose = "any" },
-                new { src = "/apple-touch-icon.png", sizes = "180x180", type = "image/png", purpose = "any" },
+                new { src = "/favicon.svg?v=icons-v2", sizes = "any", type = "image/svg+xml", purpose = "any" },
+                new { src = "/favicon-16x16.png?v=icons-v2", sizes = "16x16", type = "image/png", purpose = "any" },
+                new { src = "/favicon-32x32.png?v=icons-v2", sizes = "32x32", type = "image/png", purpose = "any" },
+                new { src = "/android-chrome-192x192.png?v=icons-v2", sizes = "192x192", type = "image/png", purpose = "any" },
+                new { src = "/android-chrome-512x512.png?v=icons-v2", sizes = "512x512", type = "image/png", purpose = "any" },
+                new { src = "/apple-touch-icon.png?v=icons-v2", sizes = "180x180", type = "image/png", purpose = "any" },
             },
             shortcuts = new object[]
             {
                 new
                 {
                     name = "Blog", short_name = "Blog", description = "View blog posts", url = "/blog",
-                    icons = new[] { new { src = "/android-chrome-192x192.png", sizes = "192x192", type = "image/png" } },
+                    icons = new[] { new { src = "/android-chrome-192x192.png?v=icons-v2", sizes = "192x192", type = "image/png" } },
                 },
                 new
                 {
                     name = "Gists", short_name = "Gists", description = "View coding gists and tutorials", url = "/gist",
-                    icons = new[] { new { src = "/android-chrome-192x192.png", sizes = "192x192", type = "image/png" } },
+                    icons = new[] { new { src = "/android-chrome-192x192.png?v=icons-v2", sizes = "192x192", type = "image/png" } },
                 },
                 new
                 {
                     name = "CV", short_name = "CV", description = "View curriculum vitae", url = "/cv",
-                    icons = new[] { new { src = "/android-chrome-192x192.png", sizes = "192x192", type = "image/png" } },
+                    icons = new[] { new { src = "/android-chrome-192x192.png?v=icons-v2", sizes = "192x192", type = "image/png" } },
                 },
             },
             prefer_related_applications = false,

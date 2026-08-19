@@ -166,7 +166,7 @@ if ($favicon.Headers["Content-Type"] -notlike "image/svg+xml*") {
     throw "Favicon must be served as SVG"
 }
 
-foreach ($marker in @("64", "SC", "#c89a49", "#0d0e0c", "#7f9870")) {
+foreach ($marker in @("64", "M29 25H22", "M45 25H40", "#c89a49", "#0d0e0c", "#7f9870")) {
     if ($faviconBody -notlike "*$marker*") {
         throw "Favicon SVG is missing '$marker'"
     }
