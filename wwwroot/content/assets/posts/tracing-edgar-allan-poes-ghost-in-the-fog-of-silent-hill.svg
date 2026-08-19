@@ -7,11 +7,6 @@
       <stop offset="0.55" stop-color="#151613"/>
       <stop offset="1" stop-color="#25231d"/>
     </linearGradient>
-    <radialGradient id="moon" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#eee9dc" stop-opacity="0.95"/>
-      <stop offset="0.72" stop-color="#c89a49" stop-opacity="0.72"/>
-      <stop offset="1" stop-color="#c89a49" stop-opacity="0"/>
-    </radialGradient>
     <linearGradient id="mist" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#aaa99e" stop-opacity="0"/>
       <stop offset="0.45" stop-color="#aaa99e" stop-opacity="0.18"/>
@@ -28,12 +23,11 @@
 
   <rect width="1200" height="675" fill="url(#night)"/>
   <rect x="48" y="48" width="1104" height="579" rx="14" fill="none" stroke="#303129" stroke-width="2"/>
-  <rect x="48" y="48" width="1104" height="5" rx="2.5" fill="#a96752"/>
+  <rect x="48" y="48" width="1104" height="5" rx="2.5" fill="#e0b661"/>
 
-  <!-- moonlit Otherworld sky -->
-  <circle cx="878" cy="178" r="142" fill="url(#moon)" opacity="0.42"/>
-  <circle cx="878" cy="178" r="64" fill="#eee9dc" opacity="0.9"/>
-  <path d="M850 151C870 132 900 132 918 149C900 154 886 166 879 186C871 174 862 163 850 151Z" fill="#c7b98e" opacity="0.22"/>
+  <!-- dark crescent moon; no solar disk or bright circular glow -->
+  <path d="M925 108C881 126 858 168 870 211C882 253 924 276 966 257C934 253 908 232 898 202C885 164 896 132 925 108Z" fill="#aaa99e" opacity="0.42"/>
+  <path d="M908 151C918 145 929 143 940 145M894 180C903 175 913 174 922 176M911 217C920 214 929 214 937 217" fill="none" stroke="#7f786d" stroke-width="3" opacity="0.38"/>
 
   <!-- haunted mansion / psychological architecture -->
   <path d="M520 494V302L625 199L730 302V494Z" fill="#090a09" stroke="#aaa99e" stroke-width="4" opacity="0.95"/>
@@ -45,7 +39,7 @@
   <path d="M590 338V374H612V338ZM638 338V374H660V338Z" fill="#a96752" opacity="0.66"/>
   <path d="M605 494V410H645V494" fill="#141512" stroke="#c89a49" stroke-width="4" opacity="0.85"/>
   <path d="M625 430V494" stroke="#aaa99e" stroke-width="2" opacity="0.5"/>
-  <path d="M520 494H730" stroke="#eee9dc" stroke-width="3" opacity="0.42"/>
+  <path d="M520 494H730" stroke="#aaa99e" stroke-width="3" opacity="0.42"/>
 
   <!-- broken reflection: House of Usher / Silent Hill doubling -->
   <path d="M520 500L730 500L786 614H466Z" fill="url(#reflection)" opacity="0.55"/>
@@ -58,7 +52,7 @@
   <path d="M40 530C180 482 300 562 460 520S700 500 860 540S1030 570 1160 520" fill="none" stroke="#aaa99e" stroke-width="7" opacity="0.2"/>
 
   <!-- Poe's raven on the foreground branch -->
-  <path d="M168 350C142 324 112 320 82 337C108 338 124 348 134 364C108 366 86 380 72 405C106 394 134 398 158 416C180 432 210 426 224 405C238 384 226 356 201 347C212 333 226 326 242 322C218 310 190 319 168 350Z" fill="#070807" stroke="#eee9dc" stroke-width="3" opacity="0.96"/>
+  <path d="M168 350C142 324 112 320 82 337C108 338 124 348 134 364C108 366 86 380 72 405C106 394 134 398 158 416C180 432 210 426 224 405C238 384 226 356 201 347C212 333 226 326 242 322C218 310 190 319 168 350Z" fill="#070807" stroke="#aaa99e" stroke-width="3" opacity="0.96"/>
   <path d="M156 366C180 340 211 345 236 370C212 364 192 376 176 394" fill="none" stroke="#c89a49" stroke-width="4" opacity="0.65"/>
   <circle cx="191" cy="350" r="3" fill="#e0b661"/>
   <path d="M72 425C180 408 282 430 392 414S570 424 690 410" fill="none" stroke="#303129" stroke-width="9" opacity="0.95"/>
@@ -73,11 +67,11 @@
   <path d="M1010 386L1040 348" stroke="#a96752" stroke-width="4" opacity="0.8"/>
 
   <!-- ink and book: Poe's medium -->
-  <path d="M116 542C182 514 248 514 310 542V604C246 576 180 576 116 604Z" fill="#141512" stroke="#eee9dc" stroke-width="3" opacity="0.86"/>
-  <path d="M310 542C370 512 424 514 478 542V604C422 576 368 576 310 604Z" fill="#141512" stroke="#eee9dc" stroke-width="3" opacity="0.86"/>
+  <path d="M116 542C182 514 248 514 310 542V604C246 576 180 576 116 604Z" fill="#141512" stroke="#aaa99e" stroke-width="3" opacity="0.86"/>
+  <path d="M310 542C370 512 424 514 478 542V604C422 576 368 576 310 604Z" fill="#141512" stroke="#aaa99e" stroke-width="3" opacity="0.86"/>
   <path d="M144 548L278 548M144 570L260 570M338 548L450 548M338 570L430 570" stroke="#aaa99e" stroke-width="3" opacity="0.5"/>
   <path d="M480 576C496 552 522 552 538 576C522 590 496 590 480 576Z" fill="#a96752" opacity="0.75"/>
-  <path d="M512 560C528 536 548 536 562 554" fill="none" stroke="#eee9dc" stroke-width="3" opacity="0.55"/>
+  <path d="M512 560C528 536 548 536 562 554" fill="none" stroke="#aaa99e" stroke-width="3" opacity="0.55"/>
 
   <!-- controlled vignette / editorial frame -->
   <path d="M60 580H1140" stroke="#303129" stroke-width="2" opacity="0.7"/>

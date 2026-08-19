@@ -69,3 +69,6 @@ personal-website-blazor.csproj.user
 # Frontend build output and dependencies
 node_modules/
 wwwroot/dist/
+
+# Local documentation and planning notes
+/docs/
