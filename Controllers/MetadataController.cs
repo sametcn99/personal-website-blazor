@@ -402,9 +402,9 @@ public class MetadataController : ControllerBase
     {
         var manifest = new
         {
-            name = "Samet Can Cıncık | Web Developer",
+            name = "Samet Can Cıncık | Software Developer",
             short_name = "Samet Can",
-            description = "Web Developer passionate about creating compelling and user-friendly web experiences.",
+            description = "Software Developer passionate about creating compelling and user-friendly software experiences.",
             start_url = "/",
             display = "standalone",
             background_color = "#0c0c0cff",
@@ -462,7 +462,7 @@ public class MetadataController : ControllerBase
     </defs>
     <rect width="1200" height="630" fill="url(#bg)" />
     <text x="80" y="270" fill="#ffffff" font-size="64" font-family="Arial, Helvetica, sans-serif" font-weight="700">Samet Can Cıncık</text>
-    <text x="80" y="340" fill="#90caf9" font-size="40" font-family="Arial, Helvetica, sans-serif">Web Developer</text>
+    <text x="80" y="340" fill="#90caf9" font-size="40" font-family="Arial, Helvetica, sans-serif">Software Developer</text>
     <text x="80" y="410" fill="#b0b0b0" font-size="28" font-family="Arial, Helvetica, sans-serif">sametcc.me</text>
 </svg>
 """;

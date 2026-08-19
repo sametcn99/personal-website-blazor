@@ -36,9 +36,22 @@ else
         <meta property="og:type" content="article" />
         <meta property="og:title" content="@Post.Title" />
         <meta property="og:description" content="@Post.Description" />
+        <meta property="og:locale" content="@GetOpenGraphLocale()" />
         <meta property="og:url" content="@GetCanonicalUrl()" />
         <meta property="og:image" content="@GetOgImageUrl()" />
         <link rel="canonical" href="@GetCanonicalUrl()" />
+        @if (Post.PublishDate.HasValue)
+        {
+            <meta property="article:published_time" content="@GetIsoDate(Post.PublishDate)" />
+        }
+        @if (Post.UpdatedAt.HasValue)
+        {
+            <meta property="article:modified_time" content="@GetIsoDate(Post.UpdatedAt)" />
+        }
+        @foreach (var keyword in GetMetadataKeywords())
+        {
+            <meta property="article:tag" content="@keyword" />
+        }
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:title" content="@Post.Title" />
         <meta property="twitter:description" content="@Post.Description" />
@@ -154,6 +167,18 @@ else
         return Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
     }
 
+    private string GetOpenGraphLocale() =>
+        string.Equals(Post?.Language, "tr", StringComparison.OrdinalIgnoreCase) ? "tr_TR" : "en_US";
+
+    private static string GetIsoDate(DateTime? value) => value?.ToString("O") ?? string.Empty;
+
+    private IEnumerable<string> GetMetadataKeywords() =>
+        (Post?.Tags ?? Array.Empty<string>())
+            .Concat(Post?.Technologies ?? Array.Empty<string>())
+            .Concat(Post?.Topics ?? Array.Empty<string>())
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
     private object? ArticleStructuredData => Post is null
         ? null
         : new Dictionary<string, object?>
@@ -164,15 +189,17 @@ else
             ["description"] = Post.Description,
             ["url"] = GetCanonicalUrl(),
             ["mainEntityOfPage"] = GetCanonicalUrl(),
+            ["image"] = GetOgImageUrl(),
+            ["articleSection"] = Post.ContentType,
             ["datePublished"] = Post.PublishDate?.ToString("O"),
             ["dateModified"] = (Post.UpdatedAt ?? Post.PublishDate)?.ToString("O"),
             ["inLanguage"] = Post.Language,
-            ["keywords"] = Post.Tags,
+            ["keywords"] = GetMetadataKeywords().ToArray(),
             ["author"] = new Dictionary<string, object?>
             {
                 ["@type"] = "Person",
                 ["@id"] = "https://sametcc.me/#samet-can-cincik",
-                ["name"] = "Samet Can Cıncık",
+                ["name"] = string.IsNullOrWhiteSpace(Post.Author) ? "Samet Can Cıncık" : Post.Author,
                 ["url"] = "https://sametcc.me/about",
             },
         };

@@ -77,10 +77,10 @@
                                     <h2>@post.Title</h2>
                                 </div>
                                 <p class="content-list-summary">@post.Description</p>
-                                @if (post.Tags.Length > 0)
+                                @if (GetMetadataLabels(post).Any())
                                 {
                                     <div class="content-list-tags" aria-label="Tags">
-                                        @foreach (var tag in post.Tags.Take(3))
+                                        @foreach (var tag in GetMetadataLabels(post))
                                         {
                                             <span>#@tag</span>
                                         }
@@ -126,7 +126,7 @@
             filtered = filtered.Where(p =>
                 p.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
+                GetMetadataLabels(p).Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
                 p.SearchableText.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
@@ -164,6 +164,14 @@
     }
 
     private static DateTime? GetSortDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static IEnumerable<string> GetMetadataLabels(PostModel post) =>
+        post.Tags
+            .Concat(post.Technologies)
+            .Concat(post.Topics)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(3);
 
     private static string GetDateLabel(PostModel post)
     {

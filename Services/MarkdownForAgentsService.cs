@@ -546,6 +546,12 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
                 metadata.Add($"Published: {content.PublishedAt}");
             if (!string.IsNullOrWhiteSpace(content.UpdatedAt))
                 metadata.Add($"Updated: {content.UpdatedAt}");
+            if (!string.IsNullOrWhiteSpace(content.ContentType))
+                metadata.Add($"Type: {content.ContentType}");
+            if (!string.IsNullOrWhiteSpace(content.Language))
+                metadata.Add($"Language: {content.Language}");
+            if (!string.IsNullOrWhiteSpace(content.Status))
+                metadata.Add($"Status: {content.Status}");
             if (content.Tags.Length > 0)
                 metadata.Add($"Tags: {string.Join(", ", content.Tags)}");
             if (content.Technologies.Length > 0)
@@ -554,6 +560,8 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
                 metadata.Add($"Topics: {string.Join(", ", content.Topics)}");
             if (content.RelatedProjects.Length > 0)
                 metadata.Add($"Related projects: {string.Join(", ", content.RelatedProjects)}");
+            if (content.RelatedPosts.Length > 0)
+                metadata.Add($"Related posts: {string.Join(", ", content.RelatedPosts)}");
 
             sb.Append($"- [{title}]({baseUrl}{content.Href}.md)");
             if (!string.IsNullOrWhiteSpace(description))

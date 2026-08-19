@@ -93,7 +93,7 @@
                                     <p class="content-list-summary">@entry.Post.Description</p>
                                     <div class="content-list-tags" aria-label="Content type and tags">
                                         <span class="content-type-label">#@entry.Label</span>
-                                        @foreach (var tag in entry.Post.Tags.Take(2))
+                                        @foreach (var tag in GetMetadataLabels(entry.Post).Take(2))
                                         {
                                             <span>#@tag</span>
                                         }
@@ -135,7 +135,7 @@
                 entries = entries.Where(entry =>
                     entry.Post.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     entry.Post.Description.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                    entry.Post.Tags.Any(tag => tag.Contains(query, StringComparison.OrdinalIgnoreCase)));
+                    GetMetadataLabels(entry.Post).Any(tag => tag.Contains(query, StringComparison.OrdinalIgnoreCase)));
             }
 
             entries = _sortBy switch
@@ -197,6 +197,13 @@
         });
 
     private static DateTime? GetEffectiveDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static IEnumerable<string> GetMetadataLabels(PostModel post) =>
+        post.Tags
+            .Concat(post.Technologies)
+            .Concat(post.Topics)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
 
     private static string GetDateLabel(PostModel post) =>
         GetEffectiveDate(post)?.ToString("yyyy-MM-dd") ?? string.Empty;

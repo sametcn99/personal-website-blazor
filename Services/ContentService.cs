@@ -44,6 +44,10 @@ public class ContentService : IContentService
     private static bool IsValidSlug(string? slug) =>
         slug is not null && ValidSlugRegex.IsMatch(slug);
 
+    private static bool IsPublished(PostModel post) =>
+        string.IsNullOrWhiteSpace(post.Status)
+        || string.Equals(post.Status, "published", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     /// Resolves a content file path with path traversal protection.
     /// Returns null if the section/slug is invalid or escapes the content directory.
@@ -148,6 +152,9 @@ public class ContentService : IContentService
                     post.Language = "tr";
             }
 
+            if (!IsPublished(post))
+                return null;
+
             post.Content = Markdown.ToHtml(content, _pipeline);
             post.SearchableText = HtmlUtility.StripHtml(post.Content);
             post.TocItems = HtmlUtility.ExtractHeadings(post.Content).ToArray();
@@ -180,7 +187,8 @@ public class ContentService : IContentService
 
             var post = await GetPostAsync(section, slug);
             if (post != null)
-                posts.Add(post);
+                if (IsPublished(post))
+                    posts.Add(post);
         }
 
         return posts.OrderByDescending(p => p.PublishDate).ToList();
@@ -334,7 +342,10 @@ public class ContentService : IContentService
             {
                 var matchTitle = post.Title.Contains(q, StringComparison.OrdinalIgnoreCase);
                 var matchDesc = post.Description is not null && post.Description.Contains(q, StringComparison.OrdinalIgnoreCase);
-                var matchTags = post.Tags.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase));
+                var searchableMetadata = post.Tags
+                    .Concat(post.Technologies)
+                    .Concat(post.Topics);
+                var matchTags = searchableMetadata.Any(t => t.Contains(q, StringComparison.OrdinalIgnoreCase));
                 var matchContent = post.SearchableText is not null && post.SearchableText.Contains(q, StringComparison.OrdinalIgnoreCase);
 
                 if (!matchTitle && !matchDesc && !matchTags && !matchContent)
@@ -343,7 +354,7 @@ public class ContentService : IContentService
                 var snippet = matchContent
                     ? HtmlUtility.GetSnippet(post.SearchableText, q)
                     : matchTags
-                        ? $"Tags: {string.Join(", ", post.Tags)}"
+                        ? $"Metadata: {string.Join(", ", searchableMetadata)}"
                         : post.Description;
 
                 var typeLabel = urlPrefix switch
@@ -422,7 +433,7 @@ public class ContentService : IContentService
                             post.Image = img.ToString();
                         if (metadata.TryGetValue("author", out var author))
                             post.Author = author.ToString();
-                    if (metadata.TryGetValue("tags", out var tags) && tags is List<object> tagsList)
+                        if (metadata.TryGetValue("tags", out var tags))
                             post.Tags = ReadStringArray(tags);
                         if (metadata.TryGetValue("technologies", out var technologies))
                             post.Technologies = ReadStringArray(technologies);
@@ -452,6 +463,9 @@ public class ContentService : IContentService
                     if (TurkishChars.IsMatch(content))
                         post.Language = "tr";
                 }
+
+                if (!IsPublished(post))
+                    continue;
 
                 post.Content = Markdown.ToHtml(content, _pipeline);
                 post.SearchableText = HtmlUtility.StripHtml(post.Content);
