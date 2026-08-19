@@ -138,6 +138,35 @@ public class MetadataController : ControllerBase
         return Content(json, "application/json");
     }
 
+    [HttpGet(".well-known/http-message-signatures-directory")]
+    public ActionResult GetHttpMessageSignaturesDirectory()
+    {
+        var directory = new
+        {
+            keys = new[]
+            {
+                new
+                {
+                    kty = "EC",
+                    crv = "P-256",
+                    alg = "ecdsa-p256-sha256",
+                    use = "sig",
+                    kid = "0FFqT73VjKb0pLWYRfpYhJSxa9xFwoYM5EwLpCbFMyk",
+                    x = "92ftNJjulJPwDi0PD_ONad9HmQYD7npZhEr45JCbLtA",
+                    y = "H3LBSSbNuVXp9PaA57tPVnb35TOBEf1s8MJ25Wm26SY",
+                },
+            },
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(directory, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/http-message-signatures-directory+json");
+    }
+
     [HttpGet(".well-known/oauth-authorization-server")]
     public ActionResult GetOAuthAuthorizationServer()
     {
@@ -219,6 +248,55 @@ public class MetadataController : ControllerBase
 
         Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
         var json = JsonSerializer.Serialize(discovery, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
+    [HttpGet(".well-known/agent-card.json")]
+    public ActionResult GetA2aAgentCard()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var card = new
+        {
+            name = "Samet Can Cıncık Agent",
+            version = "1.0.0",
+            description = "An agent for discovering Samet Can Cıncık's public profile, technical writing, projects, and repository context.",
+            supportedInterfaces = new[]
+            {
+                new
+                {
+                    url = $"{baseUrl}/a2a",
+                    protocolBinding = "JSONRPC",
+                    protocolVersion = "1.0.0",
+                },
+            },
+            capabilities = new
+            {
+                streaming = false,
+                pushNotifications = false,
+            },
+            skills = new[]
+            {
+                new
+                {
+                    id = "profile-discovery",
+                    name = "Profile discovery",
+                    description = "Discover the author's public identity, experience, education, skills, and professional timeline.",
+                },
+                new
+                {
+                    id = "content-discovery",
+                    name = "Content discovery",
+                    description = "Find and retrieve public blog posts, technical gists, project documentation, and repository context.",
+                },
+            },
+        };
+
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(card, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

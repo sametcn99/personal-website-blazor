@@ -40,6 +40,14 @@ The authorization endpoint is `/agent/auth` and the token endpoint is
 - **Registration URI:** `/agent/register`
 - **Authorization server metadata:** `/.well-known/oauth-authorization-server`
 - **Protected resource metadata:** `/.well-known/oauth-protected-resource`
+- **Web Bot Auth key directory:** `/.well-known/http-message-signatures-directory`
+
+### Web Bot Auth Request Signing
+
+The site publishes its HTTP Message Signatures verification key as a JWKS at
+`/.well-known/http-message-signatures-directory`. Agents that send signed requests
+can advertise this directory with the `Signature-Agent` header and use the matching
+private key outside this repository.
 
 The profile claim URI contains public identity and professional context for the
 website owner. It is not an authorization decision and must not be treated as a

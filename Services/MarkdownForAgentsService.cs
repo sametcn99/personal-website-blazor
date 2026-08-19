@@ -338,8 +338,10 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
             ($"{normalizedBaseUrl}/sitemap.xml", "Sitemap", "XML sitemap containing public site URLs."),
             ($"{normalizedBaseUrl}/.well-known/api-catalog", "API catalog", "Linkset metadata connecting API resources to OpenAPI and human documentation."),
             ($"{normalizedBaseUrl}/.well-known/acp.json", "ACP discovery", "Agent Communication Protocol discovery metadata."),
+            ($"{normalizedBaseUrl}/.well-known/agent-card.json", "A2A Agent Card", "Agent-to-agent discovery metadata for the public profile and content agent."),
             ($"{normalizedBaseUrl}/.well-known/mcp/server-card.json", "MCP Server Card", "MCP HTTP server discovery metadata."),
             ($"{normalizedBaseUrl}/.well-known/agent-skills/index.json", "Agent skills index", "Discoverable agent skill metadata for reading website content."),
+            ($"{normalizedBaseUrl}/.well-known/http-message-signatures-directory", "Web Bot Auth key directory", "Public JWK directory for HTTP Message Signatures request signing."),
             ($"{normalizedBaseUrl}/auth.md", "Agent authentication documentation", "Authentication and agent access documentation."),
             ($"{normalizedBaseUrl}/llms-full.txt", "Full agent context", "Full Markdown context containing profile, published content, and a GitHub repository snapshot."),
         });

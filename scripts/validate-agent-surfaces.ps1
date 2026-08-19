@@ -32,6 +32,8 @@ $github = Assert-Status "/api/profile/github"
 $auth = Assert-Status "/auth.md"
 $protectedResource = Assert-Status "/.well-known/oauth-protected-resource"
 $authorizationServer = Assert-Status "/.well-known/oauth-authorization-server"
+$webBotAuthDirectory = Assert-Status "/.well-known/http-message-signatures-directory"
+$a2aCard = Assert-Status "/.well-known/agent-card.json"
 $mcpCard = Assert-Status "/.well-known/mcp/server-card.json"
 $openApi = Assert-Status "/openapi.json"
 $sitemap = Assert-Status "/sitemap.xml"
@@ -41,6 +43,8 @@ $profileBody = Get-Body "/api/profile"
 $openApiBody = Get-Body "/openapi.json"
 $sitemapBody = Get-Body "/sitemap.xml"
 $authorizationServerBody = Get-Body "/.well-known/oauth-authorization-server"
+$webBotAuthDirectoryBody = Get-Body "/.well-known/http-message-signatures-directory"
+$a2aCardBody = Get-Body "/.well-known/agent-card.json"
 $mcpCardBody = Get-Body "/.well-known/mcp/server-card.json"
 $mcpInitializeBody = curl.exe --fail --show-error --silent --request POST --header "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"validation","version":"1.0"}}}' "$base/mcp" | Out-String
 
@@ -72,6 +76,31 @@ if ($null -eq $authorizationServerDocument.agent_auth -or
     [string]::IsNullOrWhiteSpace($authorizationServerDocument.agent_auth.register_uri) -or
     $authorizationServerDocument.agent_auth.identity_types_supported.Count -eq 0) {
     throw "Authorization server metadata is missing agent_auth registration metadata"
+}
+
+$webBotAuthDirectoryDocument = $webBotAuthDirectoryBody | ConvertFrom-Json
+if ($null -eq $webBotAuthDirectoryDocument.keys -or
+    $webBotAuthDirectoryDocument.keys.Count -eq 0 -or
+    $webBotAuthDirectoryDocument.keys[0].kty -ne "EC" -or
+    [string]::IsNullOrWhiteSpace($webBotAuthDirectoryDocument.keys[0].kid)) {
+    throw "Web Bot Auth directory is missing a valid public signing key"
+}
+
+$a2aCardDocument = $a2aCardBody | ConvertFrom-Json
+if ([string]::IsNullOrWhiteSpace($a2aCardDocument.name) -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.version) -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.description) -or
+    $null -eq $a2aCardDocument.supportedInterfaces -or
+    $a2aCardDocument.supportedInterfaces.Count -eq 0 -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.supportedInterfaces[0].url) -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.supportedInterfaces[0].protocolBinding) -or
+    $null -eq $a2aCardDocument.capabilities -or
+    $null -eq $a2aCardDocument.skills -or
+    $a2aCardDocument.skills.Count -eq 0 -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.skills[0].id) -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.skills[0].name) -or
+    [string]::IsNullOrWhiteSpace($a2aCardDocument.skills[0].description)) {
+    throw "A2A Agent Card is missing required discovery metadata"
 }
 
 $mcpCardDocument = $mcpCardBody | ConvertFrom-Json
