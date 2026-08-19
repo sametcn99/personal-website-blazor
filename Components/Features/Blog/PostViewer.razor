@@ -64,6 +64,16 @@ else
     </HeadContent>
 
     <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost" RandomPost="RandomPost">
+        @if (string.IsNullOrWhiteSpace(Post.Image))
+        {
+            <figure class="content-detail-art">
+                <img src="@GetContentAssetUrl()"
+                     alt=""
+                     aria-hidden="true"
+                     loading="eager"
+                     decoding="async" />
+            </figure>
+        }
         <div class="article-content">
             <HtmlRenderer HtmlContent="@Post.Content" />
         </div>
@@ -170,6 +180,9 @@ else
 
         return Navigation.ToAbsoluteUri($"/{UrlSection}/{Slug}").ToString();
     }
+
+    private string GetContentAssetUrl() =>
+        $"/content/assets/{FsSection}/{Slug}.svg";
 
     private string GetOpenGraphLocale() =>
         string.Equals(Post?.Language, "tr", StringComparison.OrdinalIgnoreCase) ? "tr_TR" : "en_US";

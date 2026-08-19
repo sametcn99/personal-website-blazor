@@ -85,6 +85,12 @@
                         <a class="content-list-card-link" href="@entry.Href"
                            data-umami-event='@UmamiEvent.ClickValue(entry.Post.Title, "all-content")'>
                             <article class="content-list-card">
+                                <img class="content-list-card-art"
+                                     src="@GetContentAssetUrl(entry.Post)"
+                                     alt=""
+                                     aria-hidden="true"
+                                     loading="lazy"
+                                     decoding="async" />
                                 <div class="content-list-card-main">
                                     <div class="content-list-title-row">
                                         <span class="content-list-number">@((index + 1).ToString("00"))</span>
@@ -197,6 +203,9 @@
         });
 
     private static DateTime? GetEffectiveDate(PostModel post) => post.UpdatedAt ?? post.PublishDate;
+
+    private static string GetContentAssetUrl(PostModel post) =>
+        $"/content/assets/{post.Section}/{post.Slug}.svg";
 
     private static IEnumerable<string> GetMetadataLabels(PostModel post) =>
         post.Tags

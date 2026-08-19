@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>GitHub Repo TUI Cloner (PowerShell)</title>
+<!-- semantic content asset: gists/git-clone-repo-tui -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#6f8fa3" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><rect x="120" y="150" width="740" height="390" rx="10" fill="#0d0e0c" stroke="#eee9dc" stroke-width="4" opacity="1"/><rect x="120" y="150" width="740" height="54" rx="10" fill="#141512" stroke="#303129" stroke-width="3" opacity="1"/><circle cx="152" cy="178" r="7" fill="#a96752" opacity="0.9"/><circle cx="178" cy="178" r="7" fill="#c89a49" opacity="0.9"/><circle cx="204" cy="178" r="7" fill="#7f9870" opacity="0.9"/><path d="M220 350H330V270H440V410H560V300H690" fill="none" stroke="#e0b661" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><circle cx="220" cy="350" r="12" fill="#c89a49" opacity="0.9"/><circle cx="330" cy="270" r="12" fill="#eee9dc" opacity="0.9"/><circle cx="440" cy="410" r="12" fill="#6f8fa3" opacity="0.9"/><circle cx="560" cy="300" r="12" fill="#7f9870" opacity="0.9"/><path d="M930 220L1000 290L930 360" fill="none" stroke="#c89a49" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><line x1="890" y1="290" x2="1000" y2="290" stroke="#c89a49" stroke-width="5" opacity="0.8" stroke-linecap="round"/><line x1="850" y1="455" x2="1010" y2="455" stroke="#aaa99e" stroke-width="5" opacity="0.55" stroke-linecap="round"/></g>
+</svg>

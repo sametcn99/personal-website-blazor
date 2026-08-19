@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>Rendering HTML Details/Summary in MDX with Custom Components</title>
+<!-- semantic content asset: gists/mdx-details-custom-components -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#6f8fa3" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><rect x="152" y="170" width="500" height="350" rx="10" fill="#0d0e0c" stroke="#eee9dc" stroke-width="4" opacity="1"/><rect x="152" y="170" width="500" height="64" rx="10" fill="#141512" stroke="#303129" stroke-width="3" opacity="1"/><path d="M200 216L222 238L244 216" fill="none" stroke="#c89a49" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><line x1="282" y1="218" x2="560" y2="218" stroke="#aaa99e" stroke-width="5" opacity="0.8" stroke-linecap="round"/><rect x="208" y="286" width="388" height="166" rx="8" fill="#141512" stroke="#9587a9" stroke-width="4" opacity="1"/><path d="M252 326L290 364L252 402" fill="none" stroke="#e0b661" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><line x1="330" y1="326" x2="540" y2="326" stroke="#aaa99e" stroke-width="4" opacity="0.8" stroke-linecap="round"/><line x1="330" y1="366" x2="520" y2="366" stroke="#aaa99e" stroke-width="4" opacity="0.65" stroke-linecap="round"/><line x1="330" y1="406" x2="468" y2="406" stroke="#aaa99e" stroke-width="4" opacity="0.5" stroke-linecap="round"/><path d="M760 220V480M760 220H930M760 480H930" fill="none" stroke="#7f9870" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M690 280H730M690 360H730M690 440H730" fill="none" stroke="#6f8fa3" stroke-width="4" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /></g>
+</svg>

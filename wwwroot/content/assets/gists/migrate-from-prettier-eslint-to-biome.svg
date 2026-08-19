@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>Migrate from prettier-eslint to Biome</title>
+<!-- semantic content asset: gists/migrate-from-prettier-eslint-to-biome -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#6f8fa3" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><circle cx="380" cy="330" r="150" fill="#141512" stroke="#9587a9" stroke-width="7" opacity="0.9"/><path d="M280 350C300 260 390 220 470 270C540 316 526 420 430 442C350 460 282 426 280 350Z" fill="none" stroke="#c89a49" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M336 348C354 306 394 286 430 306C462 324 458 370 424 386C386 404 346 388 336 348Z" fill="none" stroke="#7f9870" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><rect x="700" y="218" width="250" height="234" rx="10" fill="#0d0e0c" stroke="#303129" stroke-width="4" opacity="1"/><line x1="738" y1="270" x2="894" y2="270" stroke="#aaa99e" stroke-width="5" opacity="0.8" stroke-linecap="round"/><line x1="738" y1="316" x2="862" y2="316" stroke="#aaa99e" stroke-width="5" opacity="0.7" stroke-linecap="round"/><line x1="738" y1="362" x2="914" y2="362" stroke="#aaa99e" stroke-width="5" opacity="0.5" stroke-linecap="round"/><path d="M676 492H980" fill="none" stroke="#e0b661" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><circle cx="676" cy="492" r="8" fill="#e0b661" opacity="0.9"/><circle cx="980" cy="492" r="8" fill="#7f9870" opacity="0.9"/></g>
+</svg>

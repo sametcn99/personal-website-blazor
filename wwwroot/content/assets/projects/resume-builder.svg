@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>Resume Builder</title>
+<!-- semantic content asset: projects/resume-builder -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#7f9870" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><rect x="170" y="140" width="440" height="410" rx="4" fill="#0d0e0c" stroke="#eee9dc" stroke-width="4" opacity="1"/><line x1="230" y1="218" x2="520" y2="218" stroke="#e0b661" stroke-width="8" opacity="0.8" stroke-linecap="round"/><line x1="230" y1="270" x2="500" y2="270" stroke="#aaa99e" stroke-width="5" opacity="0.8" stroke-linecap="round"/><line x1="230" y1="310" x2="470" y2="310" stroke="#aaa99e" stroke-width="5" opacity="0.6" stroke-linecap="round"/><rect x="710" y="190" width="250" height="120" rx="8" fill="#141512" stroke="#c89a49" stroke-width="4" opacity="1"/><rect x="710" y="350" width="250" height="120" rx="8" fill="#141512" stroke="#7f9870" stroke-width="4" opacity="1"/><path d="M760 250H910M760 410H900" fill="none" stroke="#aaa99e" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M660 270H680M660 430H680" fill="none" stroke="#6f8fa3" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><circle cx="1020" cy="260" r="12" fill="#c89a49" opacity="0.9"/><circle cx="1020" cy="420" r="12" fill="#7f9870" opacity="0.9"/></g>
+</svg>

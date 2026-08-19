@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>DreamTUI</title>
+<!-- semantic content asset: projects/dreamtui -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#7f9870" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><rect x="130" y="170" width="760" height="350" rx="10" fill="#0d0e0c" stroke="#9587a9" stroke-width="4" opacity="1"/><rect x="130" y="170" width="760" height="52" rx="10" fill="#141512" stroke="#303129" stroke-width="3" opacity="1"/><circle cx="780" cy="258" r="58" fill="#141512" stroke="#e0b661" stroke-width="5" opacity="0.9"/><path d="M248 420L320 340L378 392L470 280L560 380L660 300L770 420" fill="none" stroke="#6f8fa3" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M228 440C300 390 360 490 430 440S560 390 630 440S760 490 820 440" fill="none" stroke="#7f9870" stroke-width="5" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M272 240L290 274L328 278L300 300L306 338L272 318L238 338L244 300L216 278L254 274Z" fill="#eee9dc" stroke="#eee9dc" stroke-width="3" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /></g>
+</svg>

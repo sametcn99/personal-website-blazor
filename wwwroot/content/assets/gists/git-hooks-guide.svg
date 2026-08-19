@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>Git Hooks: A Comprehensive Guide</title>
+<!-- semantic content asset: gists/git-hooks-guide -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#6f8fa3" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#303129" stroke-width="2" opacity="0.75" stroke-linecap="round"/>
+<g opacity="1"><path d="M180 260H300C336 260 344 306 382 306H430C466 306 474 350 510 350H550" fill="none" stroke="#c89a49" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M180 440H300C336 440 344 394 382 394H430C466 394 474 350 510 350H550" fill="none" stroke="#6f8fa3" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M550 350H680V260H850" fill="none" stroke="#7f9870" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M550 350H680V440H850" fill="none" stroke="#a96752" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><circle cx="550" cy="350" r="18" fill="#141512" stroke="#eee9dc" stroke-width="5" opacity="0.9"/><rect x="850" y="225" width="130" height="70" rx="8" fill="#141512" stroke="#7f9870" stroke-width="4" opacity="1"/><rect x="850" y="405" width="130" height="70" rx="8" fill="#141512" stroke="#a96752" stroke-width="4" opacity="1"/><path d="M884 260L912 288L948 244" fill="none" stroke="#7f9870" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><path d="M884 422L948 458M948 422L884 458" fill="none" stroke="#a96752" stroke-width="6" opacity="0.9" stroke-linecap="round" stroke-linejoin="round" /><line x1="180" y1="180" x2="180" y2="225" stroke="#303129" stroke-width="3" opacity="0.8" stroke-linecap="round"/><line x1="180" y1="475" x2="180" y2="520" stroke="#303129" stroke-width="3" opacity="0.8" stroke-linecap="round"/></g>
+</svg>

@@ -202,18 +202,40 @@
   border-top: 1px solid var(--color-divider-strong);
 }
 
-.register-entry {
+.writing-folio-list {
+  border-top: 1px solid var(--color-divider-strong);
+}
+
+.writing-folio-entry {
   display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 0.95fr) minmax(0, 1.05fr);
   gap: 1.5rem;
-  align-items: start;
+  align-items: stretch;
   padding-block: 1.25rem;
   border-bottom: 1px solid var(--color-divider);
   text-decoration: none;
 }
 
-.register-entry time,
-.register-entry small,
+.writing-folio-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 1px solid var(--color-divider);
+  background: var(--color-background);
+}
+
+.writing-folio-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.writing-folio-copy time,
+.writing-folio-copy small,
 .field-note-list time,
 .project-register-grid small {
   color: var(--color-text-secondary);
@@ -222,27 +244,22 @@
   font-variant-numeric: tabular-nums;
 }
 
-.register-entry > span {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 0.3rem;
+.writing-folio-copy time {
+  color: var(--color-primary-strong);
 }
 
-.register-entry strong {
-  font-size: 1.08rem;
-  line-height: 1.3;
+.writing-folio-copy strong {
+  font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+  line-height: 1.2;
 }
 
-.register-entry small {
-  overflow: hidden;
+.writing-folio-copy small {
   font-family: var(--font-sans);
-  font-size: 0.88rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-.register-entry:hover strong {
+.writing-folio-entry:hover strong {
   color: var(--color-primary-strong);
 }
 
@@ -252,24 +269,46 @@
 }
 
 .field-note-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
   border-top: 1px solid var(--color-divider-strong);
 }
 
-.field-note-list a {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-block: 0.9rem;
+.field-note-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.7rem;
+  min-width: 0;
+  padding-block: 1rem 1.15rem;
   border-bottom: 1px solid var(--color-divider);
   text-decoration: none;
 }
 
-.field-note-list a:hover span {
+.field-note-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: 1px solid var(--color-divider);
+  background: var(--color-background);
+}
+
+.field-note-copy {
+  color: var(--color-text-primary);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.field-note-card:hover .field-note-copy {
   color: var(--color-primary-strong);
 }
 
 .field-note-list time {
-  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  font-family: var(--font-measure);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .project-register {
@@ -299,11 +338,21 @@
 .project-register-mark {
   width: 4rem;
   height: 0.28rem;
-  margin-bottom: 3.5rem;
+  margin-bottom: 1.25rem;
   background: var(--color-primary);
   transform: scaleX(0.45);
   transform-origin: left center;
   transition: transform 260ms var(--ease-out);
+}
+
+.project-register-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 1.25rem;
+  object-fit: cover;
+  border: 1px solid var(--color-divider);
+  background: var(--color-background);
 }
 
 .project-register-grid strong {
@@ -385,17 +434,16 @@
     height: 1.2rem;
   }
 
-  .register-entry {
+  .writing-folio-entry {
     grid-template-columns: 1fr;
-    gap: 0.4rem;
+    gap: 0.85rem;
   }
 
-  .register-entry time,
-  .register-entry > span {
-    grid-column: 1;
+  .writing-folio-art {
+    width: 100%;
   }
 
-  .register-entry small {
-    white-space: normal;
+  .field-note-list {
+    grid-template-columns: 1fr;
   }
 }

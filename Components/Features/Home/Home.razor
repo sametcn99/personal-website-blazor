@@ -72,12 +72,18 @@
                         <h2 id="recent-writing-title">Recent writing</h2>
                         <a href="/blog">Writing index</a>
                     </div>
-                    <div class="register-list">
+                    <div class="register-list writing-folio-list">
                         @foreach (var post in MoreBlogPosts)
                         {
-                            <a class="register-entry" href="@post.Href">
-                                <time>@GetShortDate(post)</time>
-                                <span>
+                            <a class="writing-folio-entry" href="@post.Href">
+                                <img class="writing-folio-art"
+                                     src="@GetContentAssetUrl(post)"
+                                     alt=""
+                                     aria-hidden="true"
+                                     loading="lazy"
+                                     decoding="async" />
+                                <span class="writing-folio-copy">
+                                    <time>@GetShortDate(post)</time>
                                     <strong>@post.Title</strong>
                                     <small>@post.Summary</small>
                                 </span>
@@ -94,8 +100,14 @@
                     <div class="field-note-list">
                         @foreach (var gist in _gistPosts.Take(5))
                         {
-                            <a href="@gist.Href">
-                                <span>@gist.Title</span>
+                            <a class="field-note-card" href="@gist.Href">
+                                <img class="field-note-art"
+                                     src="@GetContentAssetUrl(gist)"
+                                     alt=""
+                                     aria-hidden="true"
+                                     loading="lazy"
+                                     decoding="async" />
+                                <span class="field-note-copy">@gist.Title</span>
                                 <time>@GetShortDate(gist)</time>
                             </a>
                         }
@@ -115,6 +127,12 @@
                     @foreach (var project in _projectPosts.Take(3))
                     {
                         <a href="@project.Href">
+                            <img class="project-register-art"
+                                 src="@GetContentAssetUrl(project)"
+                                 alt=""
+                                 aria-hidden="true"
+                                 loading="lazy"
+                                 decoding="async" />
                             <span class="project-register-mark"></span>
                             <strong>@project.Title</strong>
                             <p>@project.Summary</p>
@@ -144,6 +162,20 @@ _projectPosts.FirstOrDefault() }
         .OrderByDescending(post => GetEffectiveDate(post!))
         .FirstOrDefault();
     private IEnumerable<ContentMetadata> MoreBlogPosts => _blogPosts.Take(5);
+
+    private static string GetContentAssetUrl(ContentMetadata post)
+    {
+        var parts = post.Href.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var section = parts.FirstOrDefault() switch
+        {
+            "blog" => "posts",
+            "gist" => "gists",
+            "project" => "projects",
+            _ => "projects",
+        };
+        var slug = parts.LastOrDefault() ?? string.Empty;
+        return $"/content/assets/{section}/{slug}.svg";
+    }
 
     protected override void OnInitialized()
     {

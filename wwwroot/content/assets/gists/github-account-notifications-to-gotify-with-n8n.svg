@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-hidden="true">
+<title>GitHub Account Notifications to Gotify with n8n</title>
+<!-- semantic content asset: gists/github-account-notifications-to-gotify-with-n8n -->
+<rect x="0" y="0" width="1200" height="675" rx="0" fill="#0d0e0c" opacity="1"/>
+<rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" opacity="1"/>
+<rect x="48" y="48" width="1104" height="6" rx="3" fill="#6f8fa3" opacity="1"/>
+<line x1="96" y1="76" x2="96" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="192" y1="76" x2="192" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="288" y1="76" x2="288" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="384" y1="76" x2="384" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="480" y1="76" x2="480" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="576" y1="76" x2="576" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="672" y1="76" x2="672" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="768" y1="76" x2="768" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="864" y1="76" x2="864" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="960" y1="76" x2="960" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="1056" y1="76" x2="1056" y2="603" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="120" x2="1128" y2="120" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="192" x2="1128" y2="192" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="264" x2="1128" y2="264" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="336" x2="1128" y2="336" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="408" x2="1128" y2="408" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="480" x2="1128" y2="480" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<line x1="72" y1="552" x2="1128" y2="552" stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round"/>
+<circle cx="230" cy="300" r="58" fill="#141512" stroke="#eee9dc" stroke-width="5" opacity="0.9"/>
+<path d="M200 300C200 250 260 238 278 278C314 276 332 308 310 334C292 366 236 364 220 338C212 326 204 314 200 300Z" fill="#6f8fa3" stroke="#6f8fa3" stroke-width="4" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="176" cy="458" r="18" fill="#c89a49" opacity="0.9"/>
+<circle cx="290" cy="468" r="18" fill="#c89a49" opacity="0.9"/>
+<circle cx="400" cy="438" r="18" fill="#c89a49" opacity="0.9"/>
+<line x1="230" y1="358" x2="176" y2="440" stroke="#6f8fa3" stroke-width="5" opacity="0.8" stroke-linecap="round"/>
+<line x1="254" y1="358" x2="290" y2="450" stroke="#6f8fa3" stroke-width="5" opacity="0.8" stroke-linecap="round"/>
+<line x1="278" y1="352" x2="400" y2="420" stroke="#6f8fa3" stroke-width="5" opacity="0.8" stroke-linecap="round"/>
+<circle cx="520" cy="330" r="22" fill="#e0b661" opacity="0.9"/>
+<line x1="328" y1="300" x2="498" y2="330" stroke="#e0b661" stroke-width="6" opacity="0.8" stroke-linecap="round"/>
+<rect x="575" y="205" width="270" height="250" rx="14" fill="#0d0e0c" stroke="#c89a49" stroke-width="4" opacity="1"/>
+<circle cx="620" cy="250" r="9" fill="#7f9870" opacity="0.9"/>
+<circle cx="650" cy="250" r="9" fill="#c89a49" opacity="0.9"/>
+<circle cx="680" cy="250" r="9" fill="#6f8fa3" opacity="0.9"/>
+<line x1="620" y1="300" x2="796" y2="300" stroke="#aaa99e" stroke-width="5" opacity="0.8" stroke-linecap="round"/>
+<line x1="620" y1="344" x2="760" y2="344" stroke="#aaa99e" stroke-width="5" opacity="0.65" stroke-linecap="round"/>
+<line x1="620" y1="388" x2="710" y2="388" stroke="#aaa99e" stroke-width="5" opacity="0.45" stroke-linecap="round"/>
+<path d="M845 330H930L900 300M930 330L900 360" fill="none" stroke="#e0b661" stroke-width="7" opacity="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="952" y="225" width="128" height="210" rx="20" fill="#141512" stroke="#7f9870" stroke-width="4" opacity="1"/>
+<circle cx="1016" cy="278" r="18" fill="#141512" stroke="#eee9dc" stroke-width="4" opacity="0.9"/>
+<line x1="980" y1="338" x2="1052" y2="338" stroke="#aaa99e" stroke-width="5" opacity="0.8" stroke-linecap="round"/>
+<line x1="980" y1="374" x2="1030" y2="374" stroke="#aaa99e" stroke-width="5" opacity="0.6" stroke-linecap="round"/>
+<circle cx="1016" cy="410" r="8" fill="#7f9870" opacity="0.9"/>
+</svg>
