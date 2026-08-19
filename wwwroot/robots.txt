@@ -4,3 +4,4 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Sitemap: https://sametcc.me/sitemap.xml
 # Agent context: https://sametcc.me/llms.txt
 # Full agent context: https://sametcc.me/llms-full.txt
+Agentmap: https://sametcc.me/.well-known/ai-catalog.json

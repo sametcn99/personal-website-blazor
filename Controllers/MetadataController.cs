@@ -114,6 +114,87 @@ public class MetadataController : ControllerBase
         return Content(json, "application/linkset+json; profile=\"https://www.rfc-editor.org/info/rfc9727\"");
     }
 
+    [HttpGet(".well-known/ai-catalog.json")]
+    public ActionResult GetAiCatalog()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+        var catalog = new
+        {
+            specVersion = "1.0",
+            host = new
+            {
+                displayName = "Samet Can Cıncık Personal Website",
+                identifier = "sametcc.me",
+                documentationUrl = $"{baseUrl}/llms.txt",
+            },
+            entries = new[]
+            {
+                new
+                {
+                    identifier = "urn:air:sametcc.me:mcp:personal-website",
+                    displayName = "Personal Website MCP Server",
+                    type = "application/mcp-server-card+json",
+                    url = $"{baseUrl}/.well-known/mcp/server-card.json",
+                    description = "Read-only MCP tools for discovering the public profile, content, projects, taxonomy, and related resources.",
+                    representativeQueries = new[]
+                    {
+                        "find projects that use Blazor or .NET",
+                        "search the author's technical writing about Docker",
+                    },
+                },
+                new
+                {
+                    identifier = "urn:air:sametcc.me:a2a:personal-website",
+                    displayName = "Personal Website A2A Agent",
+                    type = "application/a2a-agent-card+json",
+                    url = $"{baseUrl}/.well-known/agent-card.json",
+                    description = "An agent for public profile, technical writing, project documentation, and repository discovery.",
+                    representativeQueries = new[]
+                    {
+                        "tell me about Samet Can Cıncık's software development experience",
+                        "find the author's project documentation about agent discovery",
+                    },
+                },
+                new
+                {
+                    identifier = "urn:air:sametcc.me:api:public-openapi",
+                    displayName = "Public Website HTTP API",
+                    type = "application/json",
+                    url = $"{baseUrl}/openapi.json",
+                    description = "OpenAPI schema for the public profile, content, repository, and discovery HTTP endpoints.",
+                    representativeQueries = new[]
+                    {
+                        "what HTTP endpoints expose the author's profile and skills",
+                        "how can I search the site's public content API",
+                    },
+                },
+                new
+                {
+                    identifier = "urn:air:sametcc.me:skill:website-content",
+                    displayName = "Website Content Agent Skill",
+                    type = "application/json",
+                    url = $"{baseUrl}/.well-known/agent-skills/index.json",
+                    description = "Discoverable skill metadata for reading and using the site's public content.",
+                    representativeQueries = new[]
+                    {
+                        "how should an agent navigate this website's content",
+                        "where can an agent find the full public context for this site",
+                    },
+                },
+            },
+        };
+
+        Response.Headers["Access-Control-Allow-Origin"] = "*";
+        Response.Headers.CacheControl = $"public, max-age={_cacheOptions.Value.StaticAssetsMaxAgeSeconds}";
+        var json = JsonSerializer.Serialize(catalog, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        });
+        return Content(json, "application/json");
+    }
+
     [HttpGet(".well-known/oauth-protected-resource")]
     public ActionResult GetOAuthProtectedResource()
     {

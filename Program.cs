@@ -162,7 +162,10 @@ app.Use(async (context, next) =>
                 };
 
                 if (path == "/")
+                {
+                    links.Insert(2, "</.well-known/ai-catalog.json>; rel=\"ai-catalog\"; type=\"application/json\"");
                     links.Insert(2, "</.well-known/api-catalog>; rel=\"api-catalog\"");
+                }
 
                 var existing = context.Response.Headers.Link.ToString();
                 context.Response.Headers.Link = string.IsNullOrWhiteSpace(existing)
@@ -235,6 +238,7 @@ app.Use(async (context, next) =>
             || path.Equals("/sitemap.xml", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/feed.json", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/manifest.webmanifest", StringComparison.OrdinalIgnoreCase)
+            || path.Equals("/.well-known/ai-catalog.json", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/llms.txt", StringComparison.OrdinalIgnoreCase)
             || path.Equals("/llms-full.txt", StringComparison.OrdinalIgnoreCase))
         {

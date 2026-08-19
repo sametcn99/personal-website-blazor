@@ -35,6 +35,7 @@ $authorizationServer = Assert-Status "/.well-known/oauth-authorization-server"
 $webBotAuthDirectory = Assert-Status "/.well-known/http-message-signatures-directory"
 $a2aCard = Assert-Status "/.well-known/agent-card.json"
 $mcpCard = Assert-Status "/.well-known/mcp/server-card.json"
+$aiCatalog = Assert-Status "/.well-known/ai-catalog.json"
 $openApi = Assert-Status "/openapi.json"
 $sitemap = Assert-Status "/sitemap.xml"
 $llmsBody = Get-Body "/llms.txt"
@@ -46,6 +47,7 @@ $authorizationServerBody = Get-Body "/.well-known/oauth-authorization-server"
 $webBotAuthDirectoryBody = Get-Body "/.well-known/http-message-signatures-directory"
 $a2aCardBody = Get-Body "/.well-known/agent-card.json"
 $mcpCardBody = Get-Body "/.well-known/mcp/server-card.json"
+$aiCatalogBody = Get-Body "/.well-known/ai-catalog.json"
 $mcpInitializeBody = curl.exe --fail --show-error --silent --request POST --header "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"validation","version":"1.0"}}}' "$base/mcp" | Out-String
 
 function Invoke-Mcp {
@@ -129,6 +131,42 @@ if ([string]::IsNullOrWhiteSpace($mcpCardDocument.serverInfo.name) -or
     [string]::IsNullOrWhiteSpace($mcpCardDocument.serverInfo.version) -or
     [string]::IsNullOrWhiteSpace($mcpCardDocument.transport.endpoint)) {
     throw "MCP Server Card is missing serverInfo or transport endpoint"
+}
+
+if ($aiCatalog.Headers["Content-Type"] -notlike "application/json*") {
+    throw "AI Catalog must be served as application/json"
+}
+
+if ($aiCatalog.Headers["Access-Control-Allow-Origin"] -ne "*") {
+    throw "AI Catalog must allow cross-origin reads"
+}
+
+$aiCatalogDocument = $aiCatalogBody | ConvertFrom-Json
+if ([string]::IsNullOrWhiteSpace($aiCatalogDocument.specVersion) -or
+    $null -eq $aiCatalogDocument.host -or
+    [string]::IsNullOrWhiteSpace($aiCatalogDocument.host.displayName) -or
+    [string]::IsNullOrWhiteSpace($aiCatalogDocument.host.identifier) -or
+    $null -eq $aiCatalogDocument.entries -or
+    $aiCatalogDocument.entries.Count -eq 0) {
+    throw "AI Catalog is missing specVersion, host, or entries"
+}
+
+foreach ($entry in @($aiCatalogDocument.entries)) {
+    $hasUrl = -not [string]::IsNullOrWhiteSpace($entry.url)
+    $hasData = $null -ne $entry.data
+    if ([string]::IsNullOrWhiteSpace($entry.identifier) -or
+        [string]::IsNullOrWhiteSpace($entry.displayName) -or
+        [string]::IsNullOrWhiteSpace($entry.type) -or
+        ($hasUrl -eq $hasData) -or
+        $null -eq $entry.representativeQueries -or
+        $entry.representativeQueries.Count -lt 2 -or
+        $entry.representativeQueries.Count -gt 5) {
+        throw "AI Catalog entry is missing required fields or has invalid url/data/query cardinality"
+    }
+
+    if ($entry.identifier -notlike "urn:air:sametcc.me:*") {
+        throw "AI Catalog entry identifier must use the sametcc.me ARD URN namespace"
+    }
 }
 
 $mcpInitializeDocument = $mcpInitializeBody | ConvertFrom-Json
