@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using personal_website_blazor.Interfaces;
 using personal_website_blazor.Models;
+using personal_website_blazor.Services;
 
 namespace personal_website_blazor.Controllers;
 
@@ -478,6 +479,42 @@ public class MetadataController : ControllerBase
         return $"sha256:{Convert.ToHexString(hash).ToLowerInvariant()}";
     }
 
+    [HttpGet("favicon.svg")]
+    public ActionResult GetFavicon()
+    {
+        Response.Headers.CacheControl = "public, max-age=86400, stale-while-revalidate=604800";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return Content(FaviconSvgBuilder.Build(), "image/svg+xml; charset=utf-8");
+    }
+
+    [HttpGet("favicon.ico")]
+    public ActionResult GetFaviconIco() => RasterIcon(FaviconRasterizer.GetIco(), "image/x-icon");
+
+    [HttpGet("favicon.png")]
+    public ActionResult GetFaviconPng() => RasterIcon(FaviconRasterizer.GetPng(64), "image/png");
+
+    [HttpGet("favicon-16x16.png")]
+    public ActionResult GetFavicon16Png() => RasterIcon(FaviconRasterizer.GetPng(16), "image/png");
+
+    [HttpGet("favicon-32x32.png")]
+    public ActionResult GetFavicon32Png() => RasterIcon(FaviconRasterizer.GetPng(32), "image/png");
+
+    [HttpGet("android-chrome-192x192.png")]
+    public ActionResult GetAndroidChrome192Png() => RasterIcon(FaviconRasterizer.GetPng(192), "image/png");
+
+    [HttpGet("android-chrome-512x512.png")]
+    public ActionResult GetAndroidChrome512Png() => RasterIcon(FaviconRasterizer.GetPng(512), "image/png");
+
+    [HttpGet("apple-touch-icon.png")]
+    public ActionResult GetAppleTouchIconPng() => RasterIcon(FaviconRasterizer.GetPng(180), "image/png");
+
+    private ActionResult RasterIcon(byte[] content, string contentType)
+    {
+        Response.Headers.CacheControl = "public, max-age=86400, stale-while-revalidate=604800";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(content, contentType);
+    }
+
     [HttpGet("manifest.webmanifest")]
     public ActionResult GetManifest()
     {
@@ -496,6 +533,7 @@ public class MetadataController : ControllerBase
             categories = new[] { "education", "productivity", "developer" },
             icons = new[]
             {
+                new { src = "/favicon.svg", sizes = "any", type = "image/svg+xml", purpose = "any" },
                 new { src = "/favicon-16x16.png", sizes = "16x16", type = "image/png", purpose = "any" },
                 new { src = "/favicon-32x32.png", sizes = "32x32", type = "image/png", purpose = "any" },
                 new { src = "/android-chrome-192x192.png", sizes = "192x192", type = "image/png", purpose = "any" },
@@ -533,20 +571,15 @@ public class MetadataController : ControllerBase
     [HttpGet("opengraph-image")]
     public ActionResult GetOpenGraphImage()
     {
-        const string svg = """
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-    <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#0c0c0c" />
-            <stop offset="100%" stop-color="#151515" />
-        </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#bg)" />
-    <text x="80" y="270" fill="#ffffff" font-size="64" font-family="Arial, Helvetica, sans-serif" font-weight="700">Samet Can Cıncık</text>
-    <text x="80" y="340" fill="#90caf9" font-size="40" font-family="Arial, Helvetica, sans-serif">Software Developer</text>
-    <text x="80" y="410" fill="#b0b0b0" font-size="28" font-family="Arial, Helvetica, sans-serif">sametcc.me</text>
-</svg>
-""";
-        return Content(svg, "image/svg+xml");
+        var svg = OpenGraphImageBuilder.Build(
+            Request.Query["title"].ToString(),
+            Request.Query["description"].ToString(),
+            Request.Query["type"].ToString(),
+            Request.Query["date"].ToString(),
+            Request.Query["path"].ToString());
+
+        Response.Headers.CacheControl = "public, max-age=900, stale-while-revalidate=86400";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return Content(svg, "image/svg+xml; charset=utf-8");
     }
 }

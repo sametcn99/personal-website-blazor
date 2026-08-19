@@ -39,6 +39,10 @@ else
         <meta property="og:locale" content="@GetOpenGraphLocale()" />
         <meta property="og:url" content="@GetCanonicalUrl()" />
         <meta property="og:image" content="@GetOgImageUrl()" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/svg+xml" />
+        <meta property="og:image:alt" content="@Post.Title" />
         <link rel="canonical" href="@GetCanonicalUrl()" />
         @if (Post.PublishDate.HasValue)
         {
@@ -233,7 +237,14 @@ else
                 : Navigation.ToAbsoluteUri(Post.Image!).ToString();
         }
 
-        return Navigation.ToAbsoluteUri("/opengraph-image").ToString();
+        var imagePath = $"/{UrlSection}/{Slug}";
+        return Navigation.ToAbsoluteUri(
+            "/opengraph-image"
+            + $"?title={Uri.EscapeDataString(Post?.Title ?? string.Empty)}"
+            + $"&description={Uri.EscapeDataString(Post?.Description ?? string.Empty)}"
+            + $"&type={Uri.EscapeDataString(UrlSection)}"
+            + $"&date={Uri.EscapeDataString(Post?.PublishDate?.ToString("yyyy-MM-dd") ?? string.Empty)}"
+            + $"&path={Uri.EscapeDataString(imagePath)}").ToString();
     }
 
     public async ValueTask DisposeAsync()

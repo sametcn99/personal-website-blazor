@@ -38,6 +38,15 @@ $mcpCard = Assert-Status "/.well-known/mcp/server-card.json"
 $aiCatalog = Assert-Status "/.well-known/ai-catalog.json"
 $openApi = Assert-Status "/openapi.json"
 $sitemap = Assert-Status "/sitemap.xml"
+$ogImage = Assert-Status "/opengraph-image?title=Dynamic%20field%20note%20%26%20tests&description=Graphite%20and%20brass%20theme&type=gist&date=2026-08-19&path=%2Fgist%2Fdynamic-field-note"
+$favicon = Assert-Status "/favicon.svg"
+$faviconIco = Assert-Status "/favicon.ico"
+$faviconPng = Assert-Status "/favicon.png"
+$favicon16 = Assert-Status "/favicon-16x16.png"
+$favicon32 = Assert-Status "/favicon-32x32.png"
+$android192 = Assert-Status "/android-chrome-192x192.png"
+$android512 = Assert-Status "/android-chrome-512x512.png"
+$appleTouchIcon = Assert-Status "/apple-touch-icon.png"
 $llmsBody = Get-Body "/llms.txt"
 $fullBody = Get-Body "/llms-full.txt"
 $profileBody = Get-Body "/api/profile"
@@ -48,6 +57,8 @@ $webBotAuthDirectoryBody = Get-Body "/.well-known/http-message-signatures-direct
 $a2aCardBody = Get-Body "/.well-known/agent-card.json"
 $mcpCardBody = Get-Body "/.well-known/mcp/server-card.json"
 $aiCatalogBody = Get-Body "/.well-known/ai-catalog.json"
+$ogImageBody = Get-Body "/opengraph-image?title=Dynamic%20field%20note%20%26%20tests&description=Graphite%20and%20brass%20theme&type=gist&date=2026-08-19&path=%2Fgist%2Fdynamic-field-note"
+$faviconBody = Get-Body "/favicon.svg"
 $mcpInitializeBody = curl.exe --fail --show-error --silent --request POST --header "Content-Type: application/json" --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"validation","version":"1.0"}}}' "$base/mcp" | Out-String
 
 function Invoke-Mcp {
@@ -139,6 +150,40 @@ if ($aiCatalog.Headers["Content-Type"] -notlike "application/json*") {
 
 if ($aiCatalog.Headers["Access-Control-Allow-Origin"] -ne "*") {
     throw "AI Catalog must allow cross-origin reads"
+}
+
+if ($ogImage.Headers["Content-Type"] -notlike "image/svg+xml*") {
+    throw "OpenGraph image must be served as SVG"
+}
+
+foreach ($marker in @("1200", "630", "Dynamic field note", "FIELD NOTE", "#c89a49", "#0d0e0c")) {
+    if ($ogImageBody -notlike "*$marker*") {
+        throw "OpenGraph SVG is missing '$marker'"
+    }
+}
+
+if ($favicon.Headers["Content-Type"] -notlike "image/svg+xml*") {
+    throw "Favicon must be served as SVG"
+}
+
+foreach ($marker in @("64", "SC", "#c89a49", "#0d0e0c", "#7f9870")) {
+    if ($faviconBody -notlike "*$marker*") {
+        throw "Favicon SVG is missing '$marker'"
+    }
+}
+
+foreach ($icon in @(
+    @{ Name = "/favicon.ico"; Response = $faviconIco; Type = "image/x-icon" },
+    @{ Name = "/favicon.png"; Response = $faviconPng; Type = "image/png" },
+    @{ Name = "/favicon-16x16.png"; Response = $favicon16; Type = "image/png" },
+    @{ Name = "/favicon-32x32.png"; Response = $favicon32; Type = "image/png" },
+    @{ Name = "/android-chrome-192x192.png"; Response = $android192; Type = "image/png" },
+    @{ Name = "/android-chrome-512x512.png"; Response = $android512; Type = "image/png" },
+    @{ Name = "/apple-touch-icon.png"; Response = $appleTouchIcon; Type = "image/png" }
+)) {
+    if ($icon.Response.Headers["Content-Type"] -notlike "$($icon.Type)*") {
+        throw "$($icon.Name) must be served as $($icon.Type)"
+    }
 }
 
 $aiCatalogDocument = $aiCatalogBody | ConvertFrom-Json
