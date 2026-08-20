@@ -165,7 +165,7 @@ public sealed class McpController : ControllerBase
     private async Task<IActionResult> GetTimelineToolAsync(JsonElement? requestId)
     {
         var result = await _queryService.GetTimelineAsync();
-        return ToolResult(requestId, result, $"Found {result.Count} timeline entries.");
+        return ToolResult(requestId, new { items = result }, $"Found {result.Count} timeline entries.");
     }
 
     private async Task<IActionResult> GetSkillsToolAsync(JsonElement? requestId)
@@ -234,7 +234,7 @@ public sealed class McpController : ControllerBase
         Tool("list_projects", "List Projects", "List public projects with optional query, technology, topic, tag, language, and pagination filters.", ProjectSchema(), PageSchema(), ReadOnlyAnnotations()),
         Tool("get_content", "Get Content", "Get one public post, gist, or project by section and slug.", ContentSchema(), ObjectSchema(), ReadOnlyAnnotations()),
         Tool("search_content", "Search Content", "Search public content and filter results by section, type, language, tags, technologies, topics, status, and pagination.", SearchSchema(), PageSchema(), ReadOnlyAnnotations()),
-        Tool("get_timeline", "Get Timeline", "Return public work experience and education timeline entries.", EmptySchema(), ArraySchema(), ReadOnlyAnnotations()),
+        Tool("get_timeline", "Get Timeline", "Return public work experience and education timeline entries.", EmptySchema(), TimelineSchema(), ReadOnlyAnnotations()),
         Tool("get_skills", "Get Skills", "Return public technical skills, areas of interest, languages, and public notes.", EmptySchema(), ObjectSchema(), ReadOnlyAnnotations()),
         Tool("list_taxonomy", "List Taxonomy", "Return available tags, technologies, topics, content types, and languages with usage counts.", TaxonomySchema(), ObjectSchema(), ReadOnlyAnnotations()),
         Tool("get_related_content", "Get Related Content", "Resolve related project and post metadata for one public content item.", RelatedSchema(), ObjectSchema(), ReadOnlyAnnotations()),
@@ -253,7 +253,48 @@ public sealed class McpController : ControllerBase
 
     private static object EmptySchema() => new { type = "object", properties = new { } };
     private static object ObjectSchema() => new { type = "object" };
-    private static object ArraySchema() => new { type = "array" };
+    private static object TimelineSchema() => new
+    {
+        type = "object",
+        properties = new
+        {
+            items = new
+            {
+                type = "array",
+                items = new
+                {
+                    type = "object",
+                    properties = new
+                    {
+                        type = new { type = "string" },
+                        organization = new { type = "string" },
+                        role = new { type = "string" },
+                        level = new { type = "string" },
+                        location = new { type = "string" },
+                        startDate = new { type = "string" },
+                        endDate = new { type = "string" },
+                        highlights = new
+                        {
+                            type = "array",
+                            items = new { type = "string" },
+                        },
+                    },
+                    required = new[]
+                    {
+                        "type",
+                        "organization",
+                        "role",
+                        "level",
+                        "location",
+                        "startDate",
+                        "endDate",
+                        "highlights",
+                    },
+                },
+            },
+        },
+        required = new[] { "items" },
+    };
     private static object PageSchema() => new { type = "object", properties = new { items = new { type = "array" }, total = new { type = "integer" }, nextCursor = new { type = new[] { "string", "null" } } } };
 
     private static object ProjectSchema() => new

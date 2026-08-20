@@ -5,4 +5,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="personal-website-blazor.csproj" />
+  <Project Path="tests/personal-website-blazor.IntegrationTests/personal-website-blazor.IntegrationTests.csproj" />
 </Solution>
