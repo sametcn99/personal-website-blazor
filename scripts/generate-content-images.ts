@@ -21,6 +21,11 @@
  *   bun run generate:images -- --content posts/arcdrop # tek bir içerik (göreli yol)
  *   bun run generate:images -- --content arcdrop       # tek bir içerik (sadece slug)
  *   bun run generate:images -- --dry-run                # context'i yazdır, API çağırma, dosya yazma
+ *
+ *   # --prompt verilirse metin modeli adımı tamamen atlanır, verilen prompt
+ *   # doğrudan görsel üretme modeline gönderilir. --content ile hedef içerik
+ *   # (dolayısıyla çıktı yolu) belirtilmesi zorunludur.
+ *   bun run generate:images -- --content projects/arcdrop --prompt "..."
  */
 
 import { parseArgs } from "util";
@@ -44,7 +49,10 @@ const OPENROUTER_IMAGE_MODEL =
   process.env.OPENROUTER_IMAGE_MODEL ?? "REPLACE_ME/choose-an-image-model";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions";
+// Görsel üretimi chat completions üzerinden değil, OpenRouter'ın ayrı
+// Image Generation API'sinden yapılır (bkz. openrouter.ai/docs/guides/overview/multimodal/image-generation).
+const OPENROUTER_IMAGES_URL = "https://openrouter.ai/api/v1/images";
 
 // Sabit stil talimatı: her içerik için aynı kalır, prompt yazan modele de,
 // (fallback olarak) doğrudan görsel modele de bu stil iletilir.
@@ -94,6 +102,7 @@ function parseCliArgs() {
     args: Bun.argv.slice(2),
     options: {
       content: { type: "string" },
+      prompt: { type: "string" },
       force: { type: "boolean", default: false },
       "dry-run": { type: "boolean", default: false },
     },
@@ -102,6 +111,7 @@ function parseCliArgs() {
 
   return {
     contentFilter: values.content?.trim() || null,
+    promptOverride: values.prompt?.trim() || null,
     force: values.force ?? false,
     dryRun: values["dry-run"] ?? false,
   };
@@ -167,7 +177,7 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function callOpenRouter(payload: Record<string, unknown>): Promise<any> {
+async function callOpenRouter(url: string, payload: Record<string, unknown>): Promise<any> {
   if (!OPENROUTER_API_KEY) {
     throw new Error("OPENROUTER_API_KEY tanımlı değil (.env içinde bekleniyor)");
   }
@@ -176,7 +186,7 @@ async function callOpenRouter(payload: Record<string, unknown>): Promise<any> {
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const response = await fetch(OPENROUTER_URL, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${OPENROUTER_API_KEY}`,
@@ -215,7 +225,7 @@ async function writeImagePrompt(context: ContentContext): Promise<string> {
     .filter(Boolean)
     .join("\n");
 
-  const json = await callOpenRouter({
+  const json = await callOpenRouter(OPENROUTER_CHAT_URL, {
     model: OPENROUTER_TEXT_MODEL,
     messages: [
       { role: "system", content: PROMPT_WRITER_INSTRUCTION },
@@ -231,23 +241,21 @@ async function writeImagePrompt(context: ContentContext): Promise<string> {
   return text;
 }
 
-/** Görsel üretme aracı: yazılmış prompt'u OpenRouter'a gönderir, ham görsel verisini döner. */
+/** Görsel üretme aracı: yazılmış prompt'u OpenRouter'ın Image Generation API'sine gönderir, ham görsel verisini döner. */
 async function generateImage(prompt: string): Promise<Buffer> {
-  const json = await callOpenRouter({
+  const json = await callOpenRouter(OPENROUTER_IMAGES_URL, {
     model: OPENROUTER_IMAGE_MODEL,
-    modalities: ["image", "text"],
-    messages: [{ role: "user", content: prompt }],
+    prompt,
+    output_format: "png",
   });
 
-  const images = json?.choices?.[0]?.message?.images;
-  const dataUrl: string | undefined = images?.[0]?.image_url?.url;
+  const b64: string | undefined = json?.data?.[0]?.b64_json;
 
-  if (!dataUrl) {
+  if (!b64) {
     throw new Error("OpenRouter yanıtında görsel bulunamadı");
   }
 
-  const base64 = dataUrl.includes(",") ? dataUrl.split(",", 2)[1] : dataUrl;
-  return Buffer.from(base64, "base64");
+  return Buffer.from(b64, "base64");
 }
 
 /** Ham görseli 960x540'a normalize edip hedef yola atomik olarak yazar. */
@@ -265,7 +273,7 @@ async function saveImage(raw: Buffer, targetPath: string): Promise<void> {
 
 async function processContent(
   file: ContentFile,
-  opts: { force: boolean; dryRun: boolean },
+  opts: { force: boolean; dryRun: boolean; promptOverride: string | null },
   summary: RunSummary,
 ): Promise<void> {
   const label = file.relativePath;
@@ -274,6 +282,35 @@ async function processContent(
   if (!opts.force && existsSync(targetPath)) {
     console.log(`skip  ${label} (zaten var)`);
     summary.skipped.push(label);
+    return;
+  }
+
+  // --prompt verildiyse metin modeli adımı tamamen atlanır: içerik okunmaz,
+  // context çıkarılmaz, doğrudan verilen prompt görsel modeline gider.
+  if (opts.promptOverride) {
+    if (opts.dryRun) {
+      console.log(
+        `dry-run ${label}\n` +
+          `  prompt (verilen): ${opts.promptOverride}\n` +
+          `  -> ${targetPath}\n` +
+          `  (metin modeli adımı atlanıyor)`,
+      );
+      return;
+    }
+
+    console.log(`gen   ${label} (verilen prompt ile, metin modeli atlanıyor)`);
+
+    try {
+      const raw = await generateImage(opts.promptOverride);
+      await saveImage(raw, targetPath);
+
+      console.log(`done  ${label} -> ${path.relative(ROOT, targetPath)}`);
+      summary.generated.push(label);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`fail  ${label}: ${message}`);
+      summary.failed.push({ item: label, error: message });
+    }
     return;
   }
 
@@ -320,7 +357,13 @@ function resolveContentFilter(files: ContentFile[], filter: string): ContentFile
 }
 
 async function main() {
-  const { contentFilter, force, dryRun } = parseCliArgs();
+  const { contentFilter, promptOverride, force, dryRun } = parseCliArgs();
+
+  if (promptOverride && !contentFilter) {
+    console.error("--prompt verildiğinde hangi içerik için üretileceğini belirtmek için --content de gerekli.");
+    process.exitCode = 1;
+    return;
+  }
 
   if (!dryRun && !OPENROUTER_API_KEY) {
     console.error("OPENROUTER_API_KEY tanımlı değil. Çalıştırmadan önce .env içine ekleyin.");
@@ -340,10 +383,19 @@ async function main() {
     return;
   }
 
+  if (promptOverride && files.length > 1) {
+    console.error(
+      `"${contentFilter}" birden fazla içerikle eşleşti (${files.map((f) => f.relativePath).join(", ")}). ` +
+        "--prompt yalnızca tek bir hedef içerikle kullanılabilir.",
+    );
+    process.exitCode = 1;
+    return;
+  }
+
   const summary: RunSummary = { generated: [], skipped: [], failed: [] };
 
   for (const file of files) {
-    await processContent(file, { force, dryRun }, summary);
+    await processContent(file, { force, dryRun, promptOverride }, summary);
   }
 
   if (dryRun) return;
