@@ -1,5 +1,6 @@
 ﻿@page "/Error"
 @using System.Diagnostics
+@inject IStringLocalizer<SharedResources> Localizer
 
 <PageTitle>Error | Samet Can Cıncık</PageTitle>
 
@@ -11,19 +12,19 @@
     <BackToHome />
 
     <div class="flow-sm">
-        <h1 class="text-page-title">Error.</h1>
-        <p class="text-body text-muted">An error occurred while processing your request.</p>
+        <h1 class="text-page-title">@Localizer["ErrorPage_Title"]</h1>
+        <p class="text-body text-muted">@Localizer["ErrorPage_Description"]</p>
     </div>
 
     @if (ShowRequestId)
     {
         <div class="card card-soft flow-sm">
-            <p class="text-body"><strong>Request ID:</strong> <code>@RequestId</code></p>
+            <p class="text-body"><strong>@Localizer["ErrorPage_RequestId"]</strong> <code>@RequestId</code></p>
         </div>
     }
 
     <section class="flow-sm">
-        <h2 class="text-section-title">Development Mode</h2>
+        <h2 class="text-section-title">@Localizer["ErrorPage_DevMode"]</h2>
         <p class="text-body text-muted">
             Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
         </p>

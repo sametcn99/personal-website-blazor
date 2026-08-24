@@ -1,8 +1,9 @@
 @using personal_website_blazor.Models
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Localizer
 @if (Items is { Length: > 0 })
 {
-    <nav class="toc-rail" aria-label="On this page">
+    <nav class="toc-rail" aria-label="@Localizer["Toc_OnThisPage"]">
         @foreach (var item in Items)
         {
             <a class="toc-rail-item toc-rail-level-@item.Level"
@@ -16,7 +17,7 @@
     </nav>
 
     <details class="toc">
-        <summary class="toc-summary">Table of Contents</summary>
+        <summary class="toc-summary">@Localizer["Toc_TableOfContents"]</summary>
         <nav class="toc-nav">
             @foreach (var item in Items)
             {

@@ -1,4 +1,5 @@
 @* ContentListPage.razor - Reusable content listing with search and sort *@
+@inject IStringLocalizer<SharedResources> Localizer
 
 @{
     var visiblePosts = FilteredPosts;
@@ -12,9 +13,9 @@
             <header class="content-index-header">
                 <h1>@Title</h1>
                 <p>@Description</p>
-                <div class="content-index-tally" aria-label="@($"{Posts.Count} entries")">
+                <div class="content-index-tally" aria-label="@string.Format(Localizer["List_EntriesAriaLabelFormat"], Posts.Count)">
                     <strong>@Posts.Count.ToString("00")</strong>
-                    <span>records</span>
+                    <span>@Localizer["List_RecordsLabel"]</span>
                 </div>
             </header>
 
@@ -25,15 +26,15 @@
                            @bind="_searchQuery"
                            @bind:event="oninput"
                            @bind:after="OnSearchChanged"
-                           placeholder="@($"Search {Title.ToLowerInvariant()}...")"
+                           placeholder="@string.Format(Localizer["List_SearchPlaceholderFormat"], Title.ToLowerInvariant())"
                            data-umami-event='@UmamiEvent.Click("content-list-search", Title)' />
                 </div>
                 <div class="content-index-selects">
                     <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
-                                  Options="@(new[] { new CustomSelectOption("date", "Date"), new CustomSelectOption("title", "Title") })"
+                                  Options="@(new[] { new CustomSelectOption("date", Localizer["Sort_Date"]), new CustomSelectOption("title", Localizer["Sort_Title"]) })"
                                   data-umami-event='@UmamiEvent.Click("content-list-sort-by", Title)' />
                     <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
-                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? "Newest" : "Z → A"), new CustomSelectOption("asc", _sortBy == "date" ? "Oldest" : "A → Z") })"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? Localizer["Sort_Newest"] : Localizer["Sort_ZtoA"]), new CustomSelectOption("asc", _sortBy == "date" ? Localizer["Sort_Oldest"] : Localizer["Sort_AtoZ"]) })"
                                   data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)' />
                 </div>
             </div>
@@ -41,7 +42,7 @@
             @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
             {
                 <p class="text-caption text-muted content-list-result-row">
-                    @visiblePosts.Count result@(visiblePosts.Count != 1 ? "s" : "") found
+                    @string.Format(Localizer["List_ResultsFoundFormat"], visiblePosts.Count)
                 </p>
             }
         </aside>
@@ -59,7 +60,7 @@
             else if (visiblePosts.Count == 0)
             {
                 <div class="content-index-empty">
-                    <p>No posts found@(!string.IsNullOrWhiteSpace(_searchQuery) ? $" for \"{_searchQuery}\"" : "").</p>
+                    <p>@(!string.IsNullOrWhiteSpace(_searchQuery) ? string.Format(Localizer["List_NoPostsFoundForFormat"], _searchQuery) : (string)Localizer["List_NoPostsFound"])</p>
                 </div>
             }
             else
@@ -85,7 +86,7 @@
                                 <p class="content-list-summary">@post.Description</p>
                                 @if (GetMetadataLabels(post).Any())
                                 {
-                                    <div class="content-list-tags" aria-label="Tags">
+                                    <div class="content-list-tags" aria-label="@Localizer["List_TagsAriaLabel"]">
                                         @foreach (var tag in GetMetadataLabels(post))
                                         {
                                             <span>#@tag</span>

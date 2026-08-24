@@ -1,4 +1,5 @@
 @page "/not-found"
+@inject IStringLocalizer<SharedResources> Localizer
 
 <PageTitle>404 | Samet Can Cıncık</PageTitle>
 
@@ -9,9 +10,9 @@
 <div class="center-stack status-page">
     <AppIcon Name="report-problem" Class="status-icon text-muted" Decorative="true" />
     <h1 class="text-display">404</h1>
-    <h2 class="text-section-title">Page Not Found</h2>
+    <h2 class="text-section-title">@Localizer["NotFound_Title"]</h2>
     <p class="text-body text-muted status-copy">
-        The page you are looking for does not exist or may have been moved.
+        @Localizer["NotFound_Description"]
     </p>
-    <a class="button button-outline" href="/" data-umami-event="not-found-home-click">Return to Home Page</a>
+    <a class="button button-outline" href="/" data-umami-event="not-found-home-click">@Localizer["NotFound_ReturnHome"]</a>
 </div>

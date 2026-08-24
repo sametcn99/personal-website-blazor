@@ -104,6 +104,12 @@
     color 150ms ease;
 }
 
+/* Cards with no art thumbnail (repositories, links) drop the art column
+   entirely instead of leaving it empty. */
+.content-list-card-no-art {
+  grid-template-columns: minmax(0, 1fr) 8rem;
+}
+
 .content-list-card-link:hover .content-list-card {
   background: rgba(238, 233, 220, 0.018);
 }
@@ -128,11 +134,29 @@
   align-items: baseline;
 }
 
+.content-list-title-row-with-icon {
+  grid-template-columns: 2.25rem 1.5rem minmax(0, 1fr);
+  align-items: center;
+}
+
 .content-list-number {
   color: #74746b;
   font-family: var(--font-measure);
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
+}
+
+.content-list-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.content-list-item-icon .app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 .content-list-card-main h2 {

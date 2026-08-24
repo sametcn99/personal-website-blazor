@@ -1,5 +1,6 @@
 @using personal_website_blazor.Models
 @using personal_website_blazor.Utilities
+@inject IStringLocalizer<SharedResources> Localizer
 
 @code {
     [Parameter] public List<GitHubRepository> Repos { get; set; } = new();
@@ -66,7 +67,7 @@
         return date.Value.UtcDateTime.ToString("yyyy-MM-dd");
     }
 
-    private static string FormatUpdatedDate(DateTimeOffset date)
+    private string FormatUpdatedDate(DateTimeOffset date)
     {
         var now = DateTimeOffset.UtcNow;
         var value = date.ToUniversalTime();
@@ -79,15 +80,15 @@
         var elapsed = now - value;
         if (elapsed.TotalMinutes < 1)
         {
-            return "just now";
+            return Localizer["Repo_JustNow"];
         }
 
         if (elapsed.TotalHours < 1)
         {
-            return $"{Math.Floor(elapsed.TotalMinutes)}m ago";
+            return string.Format(Localizer["Repo_MinutesAgoFormat"], Math.Floor(elapsed.TotalMinutes));
         }
 
-        return $"{Math.Floor(elapsed.TotalHours)}h ago";
+        return string.Format(Localizer["Repo_HoursAgoFormat"], Math.Floor(elapsed.TotalHours));
     }
 }
 
@@ -101,11 +102,11 @@
             <BackToHome />
 
             <header class="content-index-header">
-                <h1>Repositories</h1>
-                <p>A live list of my public GitHub repositories.</p>
-                <div class="content-index-tally" aria-label="@($"{Repos.Count} entries")">
+                <h1>@Localizer["Page_Repo_Title"]</h1>
+                <p>@Localizer["Page_Repo_Description"]</p>
+                <div class="content-index-tally" aria-label="@string.Format(Localizer["List_EntriesAriaLabelFormat"], Repos.Count)">
                     <strong>@Repos.Count.ToString("00")</strong>
-                    <span>records</span>
+                    <span>@Localizer["List_RecordsLabel"]</span>
                 </div>
             </header>
 
@@ -115,21 +116,21 @@
                     <input class="input-native"
                            @bind="_search"
                            @bind:event="oninput"
-                           placeholder="Search repositories..."
+                           placeholder="@Localizer["Repo_SearchPlaceholder"]"
                            data-umami-event="repo-search-input-click" />
                 </div>
                 <div class="content-index-selects">
                     <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
-                                  Options="@(new[] { new CustomSelectOption("updated", "Updated"), new CustomSelectOption("created", "Created"), new CustomSelectOption("stars", "Stars"), new CustomSelectOption("name", "Name") })"
+                                  Options="@(new[] { new CustomSelectOption("updated", Localizer["Sort_Updated"]), new CustomSelectOption("created", Localizer["Sort_Created"]), new CustomSelectOption("stars", Localizer["Sort_Stars"]), new CustomSelectOption("name", Localizer["Sort_Name"]) })"
                                   data-umami-event='@UmamiEvent.Click("repo-sort-by", _sortBy)' />
                     <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
-                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "name" ? "Z → A" : "Newest"), new CustomSelectOption("asc", _sortBy == "name" ? "A → Z" : "Oldest") })"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "name" ? Localizer["Sort_ZtoA"] : Localizer["Sort_Newest"]), new CustomSelectOption("asc", _sortBy == "name" ? Localizer["Sort_AtoZ"] : Localizer["Sort_Oldest"]) })"
                                   data-umami-event='@UmamiEvent.Click("repo-sort-order", _sortOrder)' />
                 </div>
                 @if (AvailableLanguages.Count > 1)
                 {
                     <CustomSelect Value="@_languageFilter" ValueChanged="value => _languageFilter = value"
-                                  Options="@(new[] { new CustomSelectOption("", "All languages") }.Concat(AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase).Select(lang => new CustomSelectOption(lang, lang))).ToArray())"
+                                  Options="@(new[] { new CustomSelectOption("", Localizer["Repo_AllLanguages"]) }.Concat(AvailableLanguages.OrderBy(l => l, StringComparer.OrdinalIgnoreCase).Select(lang => new CustomSelectOption(lang, lang))).ToArray())"
                                   data-umami-event='@UmamiEvent.Click("repo-language-filter", _languageFilter)' />
                 }
             </div>
@@ -137,7 +138,7 @@
             @if ((!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrEmpty(_languageFilter)) && !IsLoading)
             {
                 <p class="text-caption text-muted content-list-result-row">
-                    @visibleRepos.Count result@(visibleRepos.Count != 1 ? "s" : "") found
+                    @string.Format(Localizer["List_ResultsFoundFormat"], visibleRepos.Count)
                 </p>
             }
         </aside>
@@ -159,7 +160,7 @@
             else if (visibleRepos.Count == 0)
             {
                 <div class="content-index-empty">
-                    <p>No repositories found@(!string.IsNullOrWhiteSpace(_search) ? $" for \"{_search}\"" : "").</p>
+                    <p>@(!string.IsNullOrWhiteSpace(_search) ? string.Format(Localizer["Repo_NoResultsFoundForFormat"], _search) : (string)Localizer["Repo_NoResultsFound"])</p>
                 </div>
             }
             else
@@ -169,7 +170,7 @@
                     {
                         var repo = visibleRepos[index];
                         <a class="content-list-card-link" href="@($"/repo/{repo.Name}")" data-umami-event='@UmamiEvent.Click("repo-list", repo.Name)'>
-                            <article class="content-list-card">
+                            <article class="content-list-card content-list-card-no-art">
                                 <div class="content-list-card-main">
                                     <div class="content-list-title-row">
                                         <span class="content-list-number">@((index + 1).ToString("00"))</span>
@@ -179,29 +180,29 @@
                                     {
                                         <p class="content-list-summary">@repo.Description</p>
                                     }
-                                    <div class="content-list-tags" aria-label="Repository details">
+                                    <div class="content-list-tags" aria-label="@Localizer["Repo_DetailsAriaLabel"]">
                                         @if (!string.IsNullOrEmpty(repo.Language))
                                         {
                                             <span>@repo.Language</span>
                                         }
                                         @if (repo.Fork)
                                         {
-                                            <span>Fork</span>
+                                            <span>@Localizer["Repo_Fork"]</span>
                                         }
                                         @if (repo.StargazersCount > 0)
                                         {
-                                            <span>@repo.StargazersCount stars</span>
+                                            <span>@string.Format(Localizer["Repo_StarsFormat"], repo.StargazersCount)</span>
                                         }
                                     </div>
                                 </div>
                                 <div class="content-list-card-date">
                                     @if (GetActivityDate(repo) != DateTimeOffset.MinValue)
                                     {
-                                        <span>Updated @FormatUpdatedDate(GetActivityDate(repo))</span>
+                                        <span>@Localizer["Common_Updated"] @FormatUpdatedDate(GetActivityDate(repo))</span>
                                     }
                                     @if (repo.CreatedAt.HasValue)
                                     {
-                                        <span>Created @FormatDate(repo.CreatedAt)</span>
+                                        <span>@Localizer["Repo_CreatedLabel"] @FormatDate(repo.CreatedAt)</span>
                                     }
                                 </div>
                             </article>

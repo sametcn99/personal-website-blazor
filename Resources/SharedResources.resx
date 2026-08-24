@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Nav_Writing" xml:space="preserve"><value>Writing</value></data>
+  <data name="Nav_Gists" xml:space="preserve"><value>Gists</value></data>
+  <data name="Nav_Projects" xml:space="preserve"><value>Projects</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>About</value></data>
+  <data name="Nav_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Nav_SearchArchiveAriaLabel" xml:space="preserve"><value>Search the archive</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="Nav_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Nav_Navigation" xml:space="preserve"><value>Navigation</value></data>
+  <data name="Nav_CloseNavigationAriaLabel" xml:space="preserve"><value>Close navigation</value></data>
+  <data name="Nav_PrimaryNavigationAriaLabel" xml:space="preserve"><value>Primary navigation</value></data>
+
+  <data name="Lang_Turkish" xml:space="preserve"><value>TR</value></data>
+  <data name="Lang_English" xml:space="preserve"><value>EN</value></data>
+  <data name="Lang_SwitchAriaLabel" xml:space="preserve"><value>Switch language</value></data>
+
+  <data name="Footer_Tagline" xml:space="preserve"><value>Notes, references, and software</value></data>
+  <data name="Footer_ArchiveNote" xml:space="preserve"><value>An independently published archive.</value></data>
+  <data name="Footer_AgentNote" xml:space="preserve"><value>This site is optimized for AI agents. Share the link with your favorite AI tool to explore the content and learn more about me.</value></data>
+  <data name="Footer_AgentReportLink" xml:space="preserve"><value>View the agent readiness report.</value></data>
+  <data name="Footer_SocialLinksAriaLabel" xml:space="preserve"><value>Social links</value></data>
+  <data name="Footer_GitHubProfile" xml:space="preserve"><value>GitHub profile</value></data>
+  <data name="Footer_LinkedInProfile" xml:space="preserve"><value>LinkedIn profile</value></data>
+  <data name="Footer_NavAriaLabel" xml:space="preserve"><value>Footer navigation</value></data>
+  <data name="Footer_Explore" xml:space="preserve"><value>Explore</value></data>
+  <data name="Footer_ProfileAndWork" xml:space="preserve"><value>Profile &amp; work</value></data>
+  <data name="Footer_Site" xml:space="preserve"><value>Site</value></data>
+  <data name="Footer_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Footer_AllContent" xml:space="preserve"><value>All content</value></data>
+  <data name="Footer_Writing" xml:space="preserve"><value>Writing</value></data>
+  <data name="Footer_Gists" xml:space="preserve"><value>Gists</value></data>
+  <data name="Footer_Projects" xml:space="preserve"><value>Projects</value></data>
+  <data name="Footer_About" xml:space="preserve"><value>About</value></data>
+  <data name="Footer_Timeline" xml:space="preserve"><value>Timeline</value></data>
+  <data name="Footer_Skills" xml:space="preserve"><value>Skills</value></data>
+  <data name="Footer_GitHubReadme" xml:space="preserve"><value>GitHub README</value></data>
+  <data name="Footer_Cv" xml:space="preserve"><value>CV</value></data>
+  <data name="Footer_Repositories" xml:space="preserve"><value>Repositories</value></data>
+  <data name="Footer_Links" xml:space="preserve"><value>Links</value></data>
+  <data name="Footer_Rss" xml:space="preserve"><value>RSS</value></data>
+  <data name="Footer_Support" xml:space="preserve"><value>Support</value></data>
+  <data name="Footer_Privacy" xml:space="preserve"><value>Privacy</value></data>
+  <data name="Footer_HireMeAriaLabel" xml:space="preserve"><value>Show hire me message</value></data>
+  <data name="Footer_HireMeBubble" xml:space="preserve"><value>HIRE ME!</value></data>
+
+  <data name="Error_Unhandled" xml:space="preserve"><value>An unhandled error has occurred.</value></data>
+  <data name="Error_Reload" xml:space="preserve"><value>Reload</value></data>
+  <data name="Error_DismissAriaLabel" xml:space="preserve"><value>Dismiss error</value></data>
+
+  <data name="Loading_Page" xml:space="preserve"><value>Loading page...</value></data>
+
+  <data name="ErrorPage_Title" xml:space="preserve"><value>Error.</value></data>
+  <data name="ErrorPage_Description" xml:space="preserve"><value>An error occurred while processing your request.</value></data>
+  <data name="ErrorPage_RequestId" xml:space="preserve"><value>Request ID:</value></data>
+  <data name="ErrorPage_DevMode" xml:space="preserve"><value>Development Mode</value></data>
+
+  <data name="NotFound_Title" xml:space="preserve"><value>Page Not Found</value></data>
+  <data name="NotFound_Description" xml:space="preserve"><value>The page you are looking for does not exist or may have been moved.</value></data>
+  <data name="NotFound_ReturnHome" xml:space="preserve"><value>Return to Home Page</value></data>
+
+  <data name="Home_Heading" xml:space="preserve"><value>Building software,&lt;br /&gt;keeping notes.</value></data>
+  <data name="Home_Intro" xml:space="preserve"><value>I’m Samet. This is where I publish essays, practical references, thoughts and records from the software I build.</value></data>
+  <data name="Home_ReadLatest" xml:space="preserve"><value>Read the latest content</value></data>
+  <data name="Home_BrowseAll" xml:space="preserve"><value>Browse all content</value></data>
+  <data name="Home_ArchiveContentsLabel" xml:space="preserve"><value>Archive contents</value></data>
+  <data name="Home_AllContent" xml:space="preserve"><value>All content</value></data>
+  <data name="Home_BlogPosts" xml:space="preserve"><value>Blog Posts</value></data>
+  <data name="Home_TechnicalGists" xml:space="preserve"><value>Technical gists</value></data>
+  <data name="Home_BuiltProjects" xml:space="preserve"><value>Built projects</value></data>
+  <data name="Home_UpdatedStatus" xml:space="preserve"><value>Updated as the work changes</value></data>
+  <data name="Home_SearchLauncherTitle" xml:space="preserve"><value>Search the archive</value></data>
+  <data name="Home_SearchLauncherSubtitle" xml:space="preserve"><value>Posts, gists, projects, repositories, and links in one index.</value></data>
+  <data name="Home_OpenSearch" xml:space="preserve"><value>Open search</value></data>
+  <data name="Home_LoadingRecentAriaLabel" xml:space="preserve"><value>Loading recent entries</value></data>
+  <data name="Home_RecentWriting" xml:space="preserve"><value>Recent writing</value></data>
+  <data name="Home_WritingIndex" xml:space="preserve"><value>Writing index</value></data>
+  <data name="Home_FieldNotes" xml:space="preserve"><value>Field notes</value></data>
+  <data name="Home_GistIndex" xml:space="preserve"><value>Gist index</value></data>
+  <data name="Home_BuiltWork" xml:space="preserve"><value>Built work</value></data>
+  <data name="Home_BuiltWorkSubtitle" xml:space="preserve"><value>Experiments and tools documented from the inside.</value></data>
+  <data name="Home_ProjectIndex" xml:space="preserve"><value>Project index</value></data>
+
+  <data name="Search_CloseDialogAriaLabel" xml:space="preserve"><value>Close search dialog</value></data>
+  <data name="Search_Placeholder" xml:space="preserve"><value>Search posts, links, and repositories...</value></data>
+  <data name="Search_Searching" xml:space="preserve"><value>Searching...</value></data>
+  <data name="Search_NoResults" xml:space="preserve"><value>No results found.</value></data>
+
+  <data name="List_RecordsLabel" xml:space="preserve"><value>records</value></data>
+  <data name="List_EntriesAriaLabelFormat" xml:space="preserve"><value>{0} entries</value></data>
+  <data name="List_SearchPlaceholderFormat" xml:space="preserve"><value>Search {0}...</value></data>
+  <data name="List_ResultsFoundFormat" xml:space="preserve"><value>{0} results found</value></data>
+  <data name="List_NoPostsFound" xml:space="preserve"><value>No posts found.</value></data>
+  <data name="List_NoPostsFoundForFormat" xml:space="preserve"><value>No posts found for "{0}".</value></data>
+  <data name="List_TagsAriaLabel" xml:space="preserve"><value>Tags</value></data>
+  <data name="Sort_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Sort_Title" xml:space="preserve"><value>Title</value></data>
+  <data name="Sort_Newest" xml:space="preserve"><value>Newest</value></data>
+  <data name="Sort_Oldest" xml:space="preserve"><value>Oldest</value></data>
+  <data name="Sort_ZtoA" xml:space="preserve"><value>Z → A</value></data>
+  <data name="Sort_AtoZ" xml:space="preserve"><value>A → Z</value></data>
+  <data name="Sort_Updated" xml:space="preserve"><value>Updated</value></data>
+  <data name="Sort_Created" xml:space="preserve"><value>Created</value></data>
+  <data name="Sort_Stars" xml:space="preserve"><value>Stars</value></data>
+  <data name="Sort_Name" xml:space="preserve"><value>Name</value></data>
+
+  <data name="Page_Blog_Title" xml:space="preserve"><value>Blog Posts</value></data>
+  <data name="Page_Blog_Description" xml:space="preserve"><value>A collection of my thoughts on development and the passions that keep me inspired.</value></data>
+  <data name="Page_Gist_Title" xml:space="preserve"><value>Gists</value></data>
+  <data name="Page_Gist_Description" xml:space="preserve"><value>Quick notes and useful scripts.</value></data>
+  <data name="Page_Project_Title" xml:space="preserve"><value>Projects</value></data>
+  <data name="Page_Project_Description" xml:space="preserve"><value>My experiments and side projects.</value></data>
+  <data name="Page_AllContent_Title" xml:space="preserve"><value>All content</value></data>
+  <data name="Page_AllContent_Description" xml:space="preserve"><value>Writing, field notes, and built work in one searchable archive.</value></data>
+  <data name="AllContent_SearchPlaceholder" xml:space="preserve"><value>Search all content...</value></data>
+  <data name="AllContent_NoResults" xml:space="preserve"><value>No content matched the current filters.</value></data>
+  <data name="AllContent_TypeAll" xml:space="preserve"><value>All types</value></data>
+  <data name="AllContent_TypeWriting" xml:space="preserve"><value>Writing</value></data>
+  <data name="AllContent_TypeGist" xml:space="preserve"><value>Gists</value></data>
+  <data name="AllContent_TypeProject" xml:space="preserve"><value>Projects</value></data>
+  <data name="AllContent_TagsAriaLabel" xml:space="preserve"><value>Content type and tags</value></data>
+
+  <data name="Page_Repo_Title" xml:space="preserve"><value>Repositories</value></data>
+  <data name="Page_Repo_Description" xml:space="preserve"><value>A live list of my public GitHub repositories.</value></data>
+  <data name="Repo_SearchPlaceholder" xml:space="preserve"><value>Search repositories...</value></data>
+  <data name="Repo_AllLanguages" xml:space="preserve"><value>All languages</value></data>
+  <data name="Repo_NoResultsFound" xml:space="preserve"><value>No repositories found.</value></data>
+  <data name="Repo_NoResultsFoundForFormat" xml:space="preserve"><value>No repositories found for "{0}".</value></data>
+  <data name="Repo_DetailsAriaLabel" xml:space="preserve"><value>Repository details</value></data>
+  <data name="Repo_Fork" xml:space="preserve"><value>Fork</value></data>
+  <data name="Repo_StarsFormat" xml:space="preserve"><value>{0} stars</value></data>
+  <data name="Repo_CreatedLabel" xml:space="preserve"><value>Created</value></data>
+  <data name="Repo_JustNow" xml:space="preserve"><value>just now</value></data>
+  <data name="Repo_MinutesAgoFormat" xml:space="preserve"><value>{0}m ago</value></data>
+  <data name="Repo_HoursAgoFormat" xml:space="preserve"><value>{0}h ago</value></data>
+  <data name="Repo_LoadFailedPrefix" xml:space="preserve"><value>Failed to load repositories:</value></data>
+
+  <data name="Page_Links_Title" xml:space="preserve"><value>Links</value></data>
+  <data name="Page_Links_Description" xml:space="preserve"><value>Short routes to my profiles, platforms, and other resources.</value></data>
+  <data name="Links_SearchPlaceholder" xml:space="preserve"><value>Search links...</value></data>
+  <data name="Links_AllCategories" xml:space="preserve"><value>All categories</value></data>
+  <data name="Sort_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Links_NoResultsFound" xml:space="preserve"><value>No links found.</value></data>
+  <data name="Links_NoResultsFoundForFormat" xml:space="preserve"><value>No links found for "{0}".</value></data>
+  <data name="Links_DetailsAriaLabel" xml:space="preserve"><value>Link details</value></data>
+  <data name="Links_External" xml:space="preserve"><value>External</value></data>
+  <data name="Links_AliasesFormat" xml:space="preserve"><value>Aliases: {0}</value></data>
+
+  <data name="Rss_Title" xml:space="preserve"><value>Subscribe to updates</value></data>
+  <data name="Rss_Intro" xml:space="preserve"><value>Follow the latest blog posts, gists, and projects from a feed reader instead of checking the archive manually.</value></data>
+  <data name="Rss_IntroNote" xml:space="preserve"><value>Two machine-readable formats, one quiet way to keep up with new work.</value></data>
+  <data name="Rss_ChooseFormat" xml:space="preserve"><value>Choose a feed format</value></data>
+  <data name="Rss_FormatsCount" xml:space="preserve"><value>2 formats</value></data>
+  <data name="Rss_RssFeedTitle" xml:space="preserve"><value>RSS Feed</value></data>
+  <data name="Rss_RssFeedDescription" xml:space="preserve"><value>A standard format compatible with Feedly, Inoreader, and most classic feed readers.</value></data>
+  <data name="Rss_OpenRssFeed" xml:space="preserve"><value>Open RSS feed</value></data>
+  <data name="Rss_JsonFeedDescription" xml:space="preserve"><value>A modern JSON format for developers and programmatic consumption of the content.</value></data>
+  <data name="Rss_OpenJsonFeed" xml:space="preserve"><value>Open JSON feed</value></data>
+  <data name="Rss_AddToReader" xml:space="preserve"><value>Add it to your reader</value></data>
+  <data name="Rss_QuickStart" xml:space="preserve"><value>Quick start</value></data>
+  <data name="Rss_GuideStep1" xml:space="preserve"><value>Open a feed above to preview it in your browser, then copy the URL from the address bar.</value></data>
+  <data name="Rss_GuideStep2" xml:space="preserve"><value>Paste the URL into your preferred feed reader, such as Feedly, Inoreader, or NetNewsWire.</value></data>
+
+  <data name="Cv_DownloadCv" xml:space="preserve"><value>Download CV</value></data>
+  <data name="Cv_Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Cv_Download" xml:space="preserve"><value>Download</value></data>
+  <data name="Cv_Preparing" xml:space="preserve"><value>Preparing your download...</value></data>
+  <data name="Cv_ManualDownloadPrefix" xml:space="preserve"><value>If the download doesn't start automatically,</value></data>
+  <data name="Cv_ManualDownloadLink" xml:space="preserve"><value>click here</value></data>
+
+  <data name="Common_ReturnToHome" xml:space="preserve"><value>Return to Home</value></data>
+
+  <data name="Common_Published" xml:space="preserve"><value>Published</value></data>
+  <data name="Common_Updated" xml:space="preserve"><value>Updated</value></data>
+  <data name="Common_Technologies" xml:space="preserve"><value>Technologies</value></data>
+  <data name="Common_Topics" xml:space="preserve"><value>Topics</value></data>
+  <data name="Article_Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Article_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Article_Random" xml:space="preserve"><value>Random</value></data>
+  <data name="Article_Share" xml:space="preserve"><value>Share</value></data>
+  <data name="Article_SharePage" xml:space="preserve"><value>Share this page</value></data>
+  <data name="Article_LinkCopied" xml:space="preserve"><value>Link copied</value></data>
+
+  <data name="Toc_OnThisPage" xml:space="preserve"><value>On this page</value></data>
+  <data name="Toc_TableOfContents" xml:space="preserve"><value>Table of Contents</value></data>
+
+  <data name="Support_Title" xml:space="preserve"><value>Support the archive</value></data>
+  <data name="Support_Intro" xml:space="preserve"><value>If the writing, projects, or references here have been useful, you can help keep this independent archive moving.</value></data>
+  <data name="Support_IntroNote" xml:space="preserve"><value>The support goes toward the time behind open-source projects, technical writing, and shared references.</value></data>
+  <data name="Support_ChoosePath" xml:space="preserve"><value>Choose a support path</value></data>
+  <data name="Support_OptionsCount" xml:space="preserve"><value>2 options</value></data>
+  <data name="Support_ThankYouLabel" xml:space="preserve"><value>A simple thank you</value></data>
+  <data name="Support_BuyMeACoffeeDescription" xml:space="preserve"><value>Support the time behind the next coding session with a simple thank you.</value></data>
+  <data name="Support_BuyMeACoffeeAction" xml:space="preserve"><value>Support on Buy Me a Coffee</value></data>
+  <data name="Support_OpenSourceLabel" xml:space="preserve"><value>Open-source support</value></data>
+  <data name="Support_GitHubSponsorsDescription" xml:space="preserve"><value>Support the open-source work directly through GitHub with monthly or one-time sponsorship.</value></data>
+  <data name="Support_GitHubSponsorsAction" xml:space="preserve"><value>Sponsor on GitHub</value></data>
+  <data name="Support_LinkOpenedNotice" xml:space="preserve"><value>Support page opened in a new tab.</value></data>
+  <data name="Support_ImpactTitle" xml:space="preserve"><value>What support makes possible</value></data>
+  <data name="Support_OngoingWork" xml:space="preserve"><value>Ongoing work</value></data>
+  <data name="Support_OpenSourceProjects" xml:space="preserve"><value>Open-source projects</value></data>
+  <data name="Support_OpenSourceProjectsDescription" xml:space="preserve"><value>Software experiments and tools that stay available to the community.</value></data>
+  <data name="Support_TechnicalWriting" xml:space="preserve"><value>Technical writing</value></data>
+  <data name="Support_TechnicalWritingDescription" xml:space="preserve"><value>Practical articles that turn solved problems into reusable notes.</value></data>
+  <data name="Support_SharedReferences" xml:space="preserve"><value>Shared references</value></data>
+  <data name="Support_SharedReferencesDescription" xml:space="preserve"><value>A maintained archive of guides, links, and working examples.</value></data>
+</root>

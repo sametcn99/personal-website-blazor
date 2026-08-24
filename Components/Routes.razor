@@ -1,4 +1,5 @@
 ﻿@rendermode InteractiveServer
+@inject IStringLocalizer<SharedResources> Localizer
 
 <Router AppAssembly="typeof(Routes).Assembly" OnNavigateAsync="HandleNavigateAsync">
     <Found Context="routeData">
@@ -8,7 +9,7 @@
         <div class="page-container route-loading-shell">
             <div class="center-stack route-loading-state">
                 <div class="spinner spinner-lg"></div>
-                <p class="text-caption text-muted">Loading page...</p>
+                <p class="text-caption text-muted">@Localizer["Loading_Page"]</p>
             </div>
         </div>
     </Navigating>

@@ -1,4 +1,5 @@
 @inject ISocialLinkProvider SocialLinks
+@inject IStringLocalizer<SharedResources> Localizer
 
 @{
     var visibleLinks = FilteredLinks.ToList();
@@ -10,11 +11,11 @@
             <BackToHome />
 
             <header class="content-index-header">
-                <h1>Links</h1>
-                <p>Short routes to my profiles, platforms, and other resources.</p>
-                <div class="content-index-tally" aria-label="@($"{SocialLinks.Links.Count} entries")">
+                <h1>@Localizer["Page_Links_Title"]</h1>
+                <p>@Localizer["Page_Links_Description"]</p>
+                <div class="content-index-tally" aria-label="@string.Format(Localizer["List_EntriesAriaLabelFormat"], SocialLinks.Links.Count)">
                     <strong>@SocialLinks.Links.Count.ToString("00")</strong>
-                    <span>records</span>
+                    <span>@Localizer["List_RecordsLabel"]</span>
                 </div>
             </header>
 
@@ -24,15 +25,15 @@
                     <input class="input-native"
                            @bind="_search"
                            @bind:event="oninput"
-                           placeholder="Search links..."
+                           placeholder="@Localizer["Links_SearchPlaceholder"]"
                            data-umami-event="links-search-input-click" />
                 </div>
                 <div class="content-index-selects">
                     <CustomSelect Value="@_selectedCategory" ValueChanged="value => _selectedCategory = value"
-                                  Options="@(new[] { new CustomSelectOption("", "All categories") }.Concat(_categories.Select(category => new CustomSelectOption(category, category))).ToArray())"
+                                  Options="@(new[] { new CustomSelectOption("", Localizer["Links_AllCategories"]) }.Concat(_categories.Select(category => new CustomSelectOption(category, category))).ToArray())"
                                   data-umami-event="links-category-select" />
                     <CustomSelect Value="@_sort" ValueChanged="value => _sort = value"
-                                  Options="@(new[] { new CustomSelectOption("category", "Category"), new CustomSelectOption("asc", "A → Z"), new CustomSelectOption("desc", "Z → A") })"
+                                  Options="@(new[] { new CustomSelectOption("category", Localizer["Sort_Category"]), new CustomSelectOption("asc", Localizer["Sort_AtoZ"]), new CustomSelectOption("desc", Localizer["Sort_ZtoA"]) })"
                                   data-umami-event="links-sort-select" />
                 </div>
             </div>
@@ -40,7 +41,7 @@
             @if (!string.IsNullOrWhiteSpace(_search) || !string.IsNullOrWhiteSpace(_selectedCategory))
             {
                 <p class="text-caption text-muted content-list-result-row">
-                    @visibleLinks.Count result@(visibleLinks.Count != 1 ? "s" : "") found
+                    @string.Format(Localizer["List_ResultsFoundFormat"], visibleLinks.Count)
                 </p>
             }
         </aside>
@@ -49,7 +50,7 @@
             @if (visibleLinks.Count == 0)
             {
                 <div class="content-index-empty">
-                    <p>No links found@(!string.IsNullOrWhiteSpace(_search) ? $" for \"{_search}\"" : "").</p>
+                    <p>@(!string.IsNullOrWhiteSpace(_search) ? string.Format(Localizer["Links_NoResultsFoundForFormat"], _search) : (string)Localizer["Links_NoResultsFound"])</p>
                 </div>
             }
             else
@@ -61,22 +62,25 @@
                         var slug = link.Type[0];
                         var aliases = link.Type.Length > 1 ? string.Join(", ", link.Type.Skip(1)) : null;
                         <a class="content-list-card-link" href="@($"/link/{slug}")" data-umami-event='@UmamiEvent.Click("links-list", link.Label)'>
-                            <article class="content-list-card">
+                            <article class="content-list-card content-list-card-no-art">
                                 <div class="content-list-card-main">
-                                    <div class="content-list-title-row">
+                                    <div class="content-list-title-row content-list-title-row-with-icon">
                                         <span class="content-list-number">@((index + 1).ToString("00"))</span>
+                                        <span class="content-list-item-icon" style="color: @(link.IconColor ?? "var(--color-primary-strong)")" aria-hidden="true">
+                                            <AppIcon Name="@GetIconName(link)" />
+                                        </span>
                                         <h2>@link.Label</h2>
                                     </div>
                                     <p class="content-list-summary">/link/@slug</p>
-                                    <div class="content-list-tags" aria-label="Link details">
+                                    <div class="content-list-tags" aria-label="@Localizer["Links_DetailsAriaLabel"]">
                                         <span class="content-type-label">@link.Category</span>
                                         @if (link.External)
                                         {
-                                            <span>External</span>
+                                            <span>@Localizer["Links_External"]</span>
                                         }
                                         @if (aliases is not null)
                                         {
-                                            <span>Aliases: @aliases</span>
+                                            <span>@string.Format(Localizer["Links_AliasesFormat"], aliases)</span>
                                         }
                                     </div>
                                 </div>
@@ -104,6 +108,27 @@
             .OrderBy(c => SocialLinks.GetCategoryOrder(c))
             .ToList();
     }
+
+    private static string GetIconName(SocialMediaLink link) =>
+        link.Type.FirstOrDefault()?.ToLowerInvariant() switch
+        {
+            "linkedin" => "linkedin",
+            "github" => "github",
+            "repositories" => "code",
+            "vscode-extensions" => "terminal",
+            "npm" => "package",
+            "leetcode" => "code",
+            "telegram" => "send",
+            "mail" => "mail",
+            "cv" => "file-text",
+            "readme" => "file-text",
+            "support" => "heart",
+            "whatsapp" => "message-circle",
+            "youtube" => "play-circle",
+            "youtubemusic" => "music",
+            "letterboxd" => "film",
+            _ => "link",
+        };
 
     private IEnumerable<SocialMediaLink> FilteredLinks
     {

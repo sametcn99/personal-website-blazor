@@ -98,6 +98,37 @@
   cursor: pointer;
 }
 
+.site-lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+}
+
+.site-header ::deep .site-lang-option {
+  display: inline-flex;
+  min-width: 2rem;
+  min-height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--radius-sm) - 2px);
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.site-header ::deep .site-lang-option:hover {
+  color: var(--color-text-primary);
+}
+
+.site-header ::deep .site-lang-option.active {
+  background: rgba(200, 154, 73, 0.16);
+  color: var(--color-primary-strong);
+}
+
 @media (max-width: 1023px) {
   .site-header {
     backdrop-filter: none;

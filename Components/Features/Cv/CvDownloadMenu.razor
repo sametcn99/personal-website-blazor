@@ -1,11 +1,12 @@
 @inject IJSRuntime Js
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IAsyncDisposable
 
 <div class="row-end d-print-none">
     <div class="download-menu">
         <button type="button" class="download-trigger" @onclick="ToggleMenu">
             <AppIcon Name="download" />
-            <span>Download CV</span>
+            <span>@Localizer["Cv_DownloadCv"]</span>
             <AppIcon Name="chevron-down" />
         </button>
 
@@ -15,11 +16,11 @@
                 <div class="menu-item-row">
                     <span class="menu-item-label">TR</span>
                     <span class="menu-item-actions">
-                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" title="Preview"
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_TR.pdf" title="@Localizer["Cv_Preview"]"
                            data-umami-event="cv-preview-tr-click">
                             <AppIcon Name="eye" />
                         </a>
-                        <button type="button" class="icon-btn" title="Download" data-umami-event="cv-download-tr-click"
+                        <button type="button" class="icon-btn" title="@Localizer["Cv_Download"]" data-umami-event="cv-download-tr-click"
                                 @onclick="DownloadTrCv">
                             <AppIcon Name="download" />
                         </button>
@@ -28,11 +29,11 @@
                 <div class="menu-item-row">
                     <span class="menu-item-label">EN</span>
                     <span class="menu-item-actions">
-                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" title="Preview"
+                        <a class="icon-btn" target="_blank" href="/Samet_Can_Cincik_CV_EN.pdf" title="@Localizer["Cv_Preview"]"
                            data-umami-event="cv-preview-en-click">
                             <AppIcon Name="eye" />
                         </a>
-                        <button type="button" class="icon-btn" title="Download" data-umami-event="cv-download-en-click"
+                        <button type="button" class="icon-btn" title="@Localizer["Cv_Download"]" data-umami-event="cv-download-en-click"
                                 @onclick="DownloadEnCv">
                             <AppIcon Name="download" />
                         </button>

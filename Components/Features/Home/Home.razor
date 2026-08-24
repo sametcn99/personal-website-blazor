@@ -3,6 +3,7 @@
 @inject personal_website_blazor.Interfaces.IProfileService ProfileService
 @inject PersistentComponentState ApplicationState
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IAsyncDisposable
 
 <PageTitle>Samet Can Cıncık — Software Developer Notes &amp; Projects</PageTitle>
@@ -18,47 +19,45 @@
 <div class="page-container home-shell">
     <section class="home-intro" aria-labelledby="home-title">
         <div class="home-intro-copy">
-            <h1 id="home-title">Building software,<br />keeping notes.</h1>
+            <h1 id="home-title">@((MarkupString)Localizer["Home_Heading"].Value)</h1>
             <p>
-                I’m Samet. This is where I publish essays, practical references, thoughts
-                and records from the software I build.
+                @Localizer["Home_Intro"]
             </p>
             <div class="home-actions">
                 @if (LatestContent is not null)
                 {
-                    <a class="button button-solid" href="@LatestContent.Href" data-umami-event="home-latest-click">Read the
-                        latest content</a>
+                    <a class="button button-solid" href="@LatestContent.Href" data-umami-event="home-latest-click">@Localizer["Home_ReadLatest"]</a>
                     }
-                    <a class="text-link" href="/content" data-umami-event="home-archive-click">Browse all content</a>
+                    <a class="text-link" href="/content" data-umami-event="home-archive-click">@Localizer["Home_BrowseAll"]</a>
                 </div>
             </div>
 
-            <aside class="archive-ledger" aria-label="Archive contents">
-                <p class="archive-ledger-title">Archive contents</p>
-                <a href="/content"><span>All content</span><strong>@(_blogTotal + _gistTotal + _projectTotal)</strong></a>
-                <a href="/blog"><span>Blog Posts</span><strong>@_blogTotal</strong></a>
-                <a href="/gist"><span>Technical gists</span><strong>@_gistTotal</strong></a>
-                <a href="/project"><span>Built projects</span><strong>@_projectTotal</strong></a>
-                <p class="archive-ledger-status"><span class="status-mark"></span> Updated as the work changes</p>
+            <aside class="archive-ledger" aria-label="@Localizer["Home_ArchiveContentsLabel"]">
+                <p class="archive-ledger-title">@Localizer["Home_ArchiveContentsLabel"]</p>
+                <a href="/content"><span>@Localizer["Home_AllContent"]</span><strong>@(_blogTotal + _gistTotal + _projectTotal)</strong></a>
+                <a href="/blog"><span>@Localizer["Home_BlogPosts"]</span><strong>@_blogTotal</strong></a>
+                <a href="/gist"><span>@Localizer["Home_TechnicalGists"]</span><strong>@_gistTotal</strong></a>
+                <a href="/project"><span>@Localizer["Home_BuiltProjects"]</span><strong>@_projectTotal</strong></a>
+                <p class="archive-ledger-status"><span class="status-mark"></span> @Localizer["Home_UpdatedStatus"]</p>
             </aside>
         </section>
 
         <section id="search" class="home-search-launcher" aria-labelledby="home-search-launcher-title">
             <button type="button" @onclick="OpenSearchAsync" data-umami-event="home-search-open-click">
                 <span class="home-search-launcher-copy">
-                    <strong id="home-search-launcher-title">Search the archive</strong>
-                    <small>Posts, gists, projects, repositories, and links in one index.</small>
+                    <strong id="home-search-launcher-title">@Localizer["Home_SearchLauncherTitle"]</strong>
+                    <small>@Localizer["Home_SearchLauncherSubtitle"]</small>
                 </span>
                 <span class="home-search-launcher-action">
                     <AppIcon Name="search" />
-                    Open search
+                    @Localizer["Home_OpenSearch"]
                 </span>
             </button>
         </section>
 
         @if (_isLoading)
         {
-            <div class="home-loading" aria-label="Loading recent entries">
+            <div class="home-loading" aria-label="@Localizer["Home_LoadingRecentAriaLabel"]">
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
                 <div class="skeleton"></div>
@@ -69,8 +68,8 @@
             <div class="home-register">
                 <section class="register-section" aria-labelledby="recent-writing-title">
                     <div class="register-heading">
-                        <h2 id="recent-writing-title">Recent writing</h2>
-                        <a href="/blog">Writing index</a>
+                        <h2 id="recent-writing-title">@Localizer["Home_RecentWriting"]</h2>
+                        <a href="/blog">@Localizer["Home_WritingIndex"]</a>
                     </div>
                     <div class="register-list writing-folio-list">
                         @foreach (var post in MoreBlogPosts)
@@ -94,8 +93,8 @@
 
                 <aside class="register-section field-notes" aria-labelledby="field-notes-title">
                     <div class="register-heading">
-                        <h2 id="field-notes-title">Field notes</h2>
-                        <a href="/gist">Gist index</a>
+                        <h2 id="field-notes-title">@Localizer["Home_FieldNotes"]</h2>
+                        <a href="/gist">@Localizer["Home_GistIndex"]</a>
                     </div>
                     <div class="field-note-list">
                         @foreach (var gist in _gistPosts.Take(5))
@@ -118,10 +117,10 @@
             <section class="project-register" aria-labelledby="project-register-title">
                 <div class="register-heading">
                     <div>
-                        <h2 id="project-register-title">Built work</h2>
-                        <p>Experiments and tools documented from the inside.</p>
+                        <h2 id="project-register-title">@Localizer["Home_BuiltWork"]</h2>
+                        <p>@Localizer["Home_BuiltWorkSubtitle"]</p>
                     </div>
-                    <a href="/project">Project index</a>
+                    <a href="/project">@Localizer["Home_ProjectIndex"]</a>
                 </div>
                 <div class="project-register-grid">
                     @foreach (var project in _projectPosts.Take(3))

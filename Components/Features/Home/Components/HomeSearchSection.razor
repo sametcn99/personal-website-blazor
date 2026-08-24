@@ -4,15 +4,16 @@
 @inject ISocialLinkProvider SocialLinks
 @inject IJSRuntime JS
 @inject ILogger<HomeSearchSection> Logger
+@inject IStringLocalizer<SharedResources> Localizer
 
 <dialog id="archive-search-dialog" class="search-dialog" aria-labelledby="home-search-title">
     <div class="search-dialog-panel">
         <div class="search-dialog-header">
             <div>
-                <h2 id="home-search-title">Search the archive</h2>
-                <p>Posts, gists, projects, repositories, and links in one index.</p>
+                <h2 id="home-search-title">@Localizer["Home_SearchLauncherTitle"]</h2>
+                <p>@Localizer["Home_SearchLauncherSubtitle"]</p>
             </div>
-            <button type="button" class="icon-button" @onclick="CloseSearchAsync" aria-label="Close search dialog">
+            <button type="button" class="icon-button" @onclick="CloseSearchAsync" aria-label="@Localizer["Search_CloseDialogAriaLabel"]">
                 <AppIcon Name="close" />
             </button>
         </div>
@@ -25,7 +26,7 @@
                    @bind="_searchQuery"
                    @bind:event="oninput"
                    @bind:after="HandleSearchInputChanged"
-                   placeholder="Search posts, links, and repositories..."
+                   placeholder="@Localizer["Search_Placeholder"]"
                    data-umami-event="home-search-input-click" />
         </div>
 
@@ -33,7 +34,7 @@
         {
             <div class="search-status text-muted">
                 <div class="spinner"></div>
-                <span class="text-caption">Searching...</span>
+                <span class="text-caption">@Localizer["Search_Searching"]</span>
             </div>
         }
 
@@ -69,7 +70,7 @@
             }
             else
             {
-                <p class="text-body text-muted search-empty-state">No results found.</p>
+                <p class="text-body text-muted search-empty-state">@Localizer["Search_NoResults"]</p>
             }
         }
         </div>

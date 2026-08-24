@@ -1,20 +1,21 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject IStringLocalizer<SharedResources> Localizer
 
 <div class="article-share">
     <button type="button"
             class="icon-button article-share-button"
             @onclick="ShareAsync"
             data-umami-event="article-share-click"
-            title="Share this page"
-            aria-label="Share this page">
+            title="@Localizer["Article_SharePage"]"
+            aria-label="@Localizer["Article_SharePage"]">
         <AppIcon Name="share" />
-        <span>Share</span>
+        <span>@Localizer["Article_Share"]</span>
     </button>
 
     @if (_linkCopied)
     {
-        <div class="article-share-toast" role="status" aria-live="polite">Link copied</div>
+        <div class="article-share-toast" role="status" aria-live="polite">@Localizer["Article_LinkCopied"]</div>
     }
 </div>
 

@@ -1,5 +1,6 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
 @using personal_website_blazor.Models
+@inject IStringLocalizer<SharedResources> Localizer
 
 <div class="page-container article-shell">
     <BackToHome />
@@ -13,13 +14,13 @@
                         @if (Post.PublishDate.HasValue)
                         {
                             <span>
-                                @PublishedLabel: @FormatDate(Post.PublishDate)
+                                @EffectivePublishedLabel: @FormatDate(Post.PublishDate)
                             </span>
                         }
                         @if (HasDistinctUpdatedDate(Post))
                         {
                             <span>
-                                @UpdatedLabel: @FormatDate(Post.UpdatedAt)
+                                @EffectiveUpdatedLabel: @FormatDate(Post.UpdatedAt)
                             </span>
                         }
                         @if (!string.IsNullOrEmpty(Post.Language))
@@ -42,13 +43,13 @@
                     @if (Post.Technologies.Length > 0)
                     {
                         <div class="text-caption text-muted">
-                            <strong>Technologies:</strong> @string.Join(", ", Post.Technologies)
+                            <strong>@Localizer["Common_Technologies"]:</strong> @string.Join(", ", Post.Technologies)
                         </div>
                     }
                     @if (Post.Topics.Length > 0)
                     {
                         <div class="text-caption text-muted">
-                            <strong>Topics:</strong> @string.Join(", ", Post.Topics)
+                            <strong>@Localizer["Common_Topics"]:</strong> @string.Join(", ", Post.Topics)
                         </div>
                     }
                 </div>
@@ -65,8 +66,8 @@
             @ChildContent
         </article>
 
-        <ArticleNavigation PrevArticle="@PrevArticleRef" NextArticle="@NextArticleRef" RandomArticle="@RandomArticleRef" PrevLabel="@PrevLabel"
-                           NextLabel="@NextLabel" />
+        <ArticleNavigation PrevArticle="@PrevArticleRef" NextArticle="@NextArticleRef" RandomArticle="@RandomArticleRef" PrevLabel="@EffectivePrevLabel"
+                           NextLabel="@EffectiveNextLabel" />
     }
 </div>
 
@@ -75,13 +76,18 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public bool ShowSkeleton { get; set; }
     [Parameter] public string ContentType { get; set; } = "blog";
-    [Parameter] public string PublishedLabel { get; set; } = "Published";
-    [Parameter] public string UpdatedLabel { get; set; } = "Updated";
-    [Parameter] public string PrevLabel { get; set; } = "Previous";
-    [Parameter] public string NextLabel { get; set; } = "Next";
+    [Parameter] public string? PublishedLabel { get; set; }
+    [Parameter] public string? UpdatedLabel { get; set; }
+    [Parameter] public string? PrevLabel { get; set; }
+    [Parameter] public string? NextLabel { get; set; }
     [Parameter] public PostModel? PrevPost { get; set; }
     [Parameter] public PostModel? NextPost { get; set; }
     [Parameter] public PostModel? RandomPost { get; set; }
+
+    private string EffectivePublishedLabel => PublishedLabel ?? Localizer["Common_Published"];
+    private string EffectiveUpdatedLabel => UpdatedLabel ?? Localizer["Common_Updated"];
+    private string EffectivePrevLabel => PrevLabel ?? Localizer["Article_Previous"];
+    private string EffectiveNextLabel => NextLabel ?? Localizer["Article_Next"];
 
     private ArticleNavigation.ArticleRef? PrevArticleRef => PrevPost == null ? null : new()
     {

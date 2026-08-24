@@ -1,4 +1,5 @@
 @page "/support"
+@inject IStringLocalizer<SharedResources> Localizer
 
 <PageTitle>Support Me | Samet Can Cıncık</PageTitle>
 
@@ -11,22 +12,20 @@
 
     <header class="support-intro">
         <div class="support-intro-copy">
-            <h1 class="text-page-title">Support the archive</h1>
+            <h1 class="text-page-title">@Localizer["Support_Title"]</h1>
             <p class="text-body text-muted">
-                If the writing, projects, or references here have been useful,
-                you can help keep this independent archive moving.
+                @Localizer["Support_Intro"]
             </p>
         </div>
         <p class="support-intro-note text-caption">
-            The support goes toward the time behind open-source projects,
-            technical writing, and shared references.
+            @Localizer["Support_IntroNote"]
         </p>
     </header>
 
     <section class="support-options" aria-labelledby="support-options-title">
         <div class="support-section-heading">
-            <h2 id="support-options-title" class="text-section-title">Choose a support path</h2>
-            <span class="text-caption text-muted">2 options</span>
+            <h2 id="support-options-title" class="text-section-title">@Localizer["Support_ChoosePath"]</h2>
+            <span class="text-caption text-muted">@Localizer["Support_OptionsCount"]</span>
         </div>
 
         <div class="support-ledger">
@@ -36,12 +35,12 @@
                     <AppIcon Name="coffee" />
                 </span>
                 <div class="support-option-copy">
-                    <p class="support-option-type">A simple thank you</p>
+                    <p class="support-option-type">@Localizer["Support_ThankYouLabel"]</p>
                     <h3 class="text-heading">Buy Me a Coffee</h3>
-                    <p class="text-body text-muted">Support the time behind the next coding session with a simple thank you.</p>
+                    <p class="text-body text-muted">@Localizer["Support_BuyMeACoffeeDescription"]</p>
                 </div>
                 <a class="button button-solid support-option-action" href="https://buymeacoffee.com/sametcn99" target="_blank" rel="noreferrer noopener" @onclick="NoteExternalSupportLink" data-umami-event="support-buymeacoffee-click">
-                    <span>Support on Buy Me a Coffee</span>
+                    <span>@Localizer["Support_BuyMeACoffeeAction"]</span>
                     <AppIcon Name="external-link" />
                 </a>
             </article>
@@ -52,12 +51,12 @@
                     <AppIcon Name="heart" />
                 </span>
                 <div class="support-option-copy">
-                    <p class="support-option-type">Open-source support</p>
+                    <p class="support-option-type">@Localizer["Support_OpenSourceLabel"]</p>
                     <h3 class="text-heading">GitHub Sponsors</h3>
-                    <p class="text-body text-muted">Support the open-source work directly through GitHub with monthly or one-time sponsorship.</p>
+                    <p class="text-body text-muted">@Localizer["Support_GitHubSponsorsDescription"]</p>
                 </div>
                 <a class="button button-solid support-option-action" href="https://github.com/sponsors/sametcn99" target="_blank" rel="noreferrer noopener" @onclick="NoteExternalSupportLink" data-umami-event="support-github-sponsor-click">
-                    <span>Sponsor on GitHub</span>
+                    <span>@Localizer["Support_GitHubSponsorsAction"]</span>
                     <AppIcon Name="external-link" />
                 </a>
             </article>
@@ -66,28 +65,28 @@
         @if (supportLinkOpened)
         {
             <p class="support-link-notice text-caption" role="status">
-                <AppIcon Name="external-link" /> Support page opened in a new tab.
+                <AppIcon Name="external-link" /> @Localizer["Support_LinkOpenedNotice"]
             </p>
         }
     </section>
 
     <section class="support-impact" aria-labelledby="support-impact-title">
         <div class="support-section-heading">
-            <h2 id="support-impact-title" class="text-section-title">What support makes possible</h2>
-            <span class="text-caption text-muted">Ongoing work</span>
+            <h2 id="support-impact-title" class="text-section-title">@Localizer["Support_ImpactTitle"]</h2>
+            <span class="text-caption text-muted">@Localizer["Support_OngoingWork"]</span>
         </div>
         <ul class="support-impact-list">
             <li class="support-impact-item">
-                <h3 class="text-heading">Open-source projects</h3>
-                <p class="text-body text-muted">Software experiments and tools that stay available to the community.</p>
+                <h3 class="text-heading">@Localizer["Support_OpenSourceProjects"]</h3>
+                <p class="text-body text-muted">@Localizer["Support_OpenSourceProjectsDescription"]</p>
             </li>
             <li class="support-impact-item">
-                <h3 class="text-heading">Technical writing</h3>
-                <p class="text-body text-muted">Practical articles that turn solved problems into reusable notes.</p>
+                <h3 class="text-heading">@Localizer["Support_TechnicalWriting"]</h3>
+                <p class="text-body text-muted">@Localizer["Support_TechnicalWritingDescription"]</p>
             </li>
             <li class="support-impact-item">
-                <h3 class="text-heading">Shared references</h3>
-                <p class="text-body text-muted">A maintained archive of guides, links, and working examples.</p>
+                <h3 class="text-heading">@Localizer["Support_SharedReferences"]</h3>
+                <p class="text-body text-muted">@Localizer["Support_SharedReferencesDescription"]</p>
             </li>
         </ul>
     </section>

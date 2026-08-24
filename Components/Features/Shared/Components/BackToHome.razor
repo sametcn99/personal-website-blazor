@@ -1,2 +1,3 @@
 @* BackToHome.razor - Back navigation link *@
-<a class="back-link" href="/" data-umami-event="back-to-home-click">Return to Home</a>
+@inject IStringLocalizer<SharedResources> Localizer
+<a class="back-link" href="/" data-umami-event="back-to-home-click">@Localizer["Common_ReturnToHome"]</a>

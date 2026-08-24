@@ -1,6 +1,7 @@
 @page "/cv/download/{Language}"
 @inject IJSRuntime Js
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IAsyncDisposable
 
 <PageTitle>Downloading CV... | Samet Can Cıncık</PageTitle>
@@ -10,9 +11,9 @@
 </HeadContent>
 
 <div class="page-container center-stack status-page">
-    <h1 class="text-section-title">Preparing your download...</h1>
+    <h1 class="text-section-title">@Localizer["Cv_Preparing"]</h1>
     <div class="spinner spinner-lg"></div>
-    <p class="text-body text-muted">If the download doesn't start automatically, <a class="link-muted" href="@_fileUrl" download="@_fileName">click here</a>.</p>
+    <p class="text-body text-muted">@Localizer["Cv_ManualDownloadPrefix"] <a class="link-muted" href="@_fileUrl" download="@_fileName">@Localizer["Cv_ManualDownloadLink"]</a>.</p>
 </div>
 
 @code {

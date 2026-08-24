@@ -1,19 +1,21 @@
+@inject IStringLocalizer<SharedResources> Localizer
+
 <footer class="site-footer">
     <div class="page-container site-footer-inner">
         <div class="footer-statement">
             <div class="footer-statement-identity">
                 <div class="footer-statement-copy">
-                    <p>Notes, references, and software</p>
-                    <p class="text-caption text-muted">An independently published archive.</p>
-                    <p class="text-caption text-muted">This site is optimized for AI agents. Share the link with your favorite AI tool to explore the content and learn more about me.<br /><a href="https://isitagentready.com/sametcc.me" target="_blank" rel="noopener noreferrer">View the agent readiness report.</a></p>
+                    <p>@Localizer["Footer_Tagline"]</p>
+                    <p class="text-caption text-muted">@Localizer["Footer_ArchiveNote"]</p>
+                    <p class="text-caption text-muted">@Localizer["Footer_AgentNote"]<br /><a href="https://isitagentready.com/sametcc.me" target="_blank" rel="noopener noreferrer">@Localizer["Footer_AgentReportLink"]</a></p>
                 </div>
-                <nav class="footer-social-links" aria-label="Social links">
+                <nav class="footer-social-links" aria-label="@Localizer["Footer_SocialLinksAriaLabel"]">
                     <a class="footer-social-link"
                        href="https://github.com/sametcn99"
                        target="_blank"
                        rel="noopener noreferrer"
-                       aria-label="GitHub profile"
-                       title="GitHub profile"
+                       aria-label="@Localizer["Footer_GitHubProfile"]"
+                       title="@Localizer["Footer_GitHubProfile"]"
                        data-umami-event="footer-github-click">
                         <AppIcon Name="github" />
                     </a>
@@ -21,8 +23,8 @@
                        href="https://linkedin.com/in/sametc0"
                        target="_blank"
                        rel="noopener noreferrer"
-                       aria-label="LinkedIn profile"
-                       title="LinkedIn profile"
+                       aria-label="@Localizer["Footer_LinkedInProfile"]"
+                       title="@Localizer["Footer_LinkedInProfile"]"
                        data-umami-event="footer-linkedin-click">
                         <AppIcon Name="linkedin" />
                     </a>
@@ -30,30 +32,30 @@
                 <FooterHireMe />
             </div>
         </div>
-        <nav class="footer-sitemap" aria-label="Footer navigation">
+        <nav class="footer-sitemap" aria-label="@Localizer["Footer_NavAriaLabel"]">
             <div class="footer-link-group">
-                <p>Explore</p>
-                <a href="/">Home</a>
-                <a href="/content">All content</a>
-                <a href="/blog">Writing</a>
-                <a href="/gist">Gists</a>
-                <a href="/project">Projects</a>
+                <p>@Localizer["Footer_Explore"]</p>
+                <a href="/">@Localizer["Footer_Home"]</a>
+                <a href="/content">@Localizer["Footer_AllContent"]</a>
+                <a href="/blog">@Localizer["Footer_Writing"]</a>
+                <a href="/gist">@Localizer["Footer_Gists"]</a>
+                <a href="/project">@Localizer["Footer_Projects"]</a>
             </div>
             <div class="footer-link-group">
-                <p>Profile &amp; work</p>
-                <a href="/about">About</a>
-                <a href="/timeline">Timeline</a>
-                <a href="/skills">Skills</a>
-                <a href="/readme">GitHub README</a>
-                <a href="/cv">CV</a>
-                <a href="/repo">Repositories</a>
-                <a href="/link">Links</a>
+                <p>@Localizer["Footer_ProfileAndWork"]</p>
+                <a href="/about">@Localizer["Footer_About"]</a>
+                <a href="/timeline">@Localizer["Footer_Timeline"]</a>
+                <a href="/skills">@Localizer["Footer_Skills"]</a>
+                <a href="/readme">@Localizer["Footer_GitHubReadme"]</a>
+                <a href="/cv">@Localizer["Footer_Cv"]</a>
+                <a href="/repo">@Localizer["Footer_Repositories"]</a>
+                <a href="/link">@Localizer["Footer_Links"]</a>
             </div>
             <div class="footer-link-group">
-                <p>Site</p>
-                <a href="/rss">RSS</a>
-                <a href="/support">Support</a>
-                <a href="/privacy-policy">Privacy</a>
+                <p>@Localizer["Footer_Site"]</p>
+                <a href="/rss">@Localizer["Footer_Rss"]</a>
+                <a href="/support">@Localizer["Footer_Support"]</a>
+                <a href="/privacy-policy">@Localizer["Footer_Privacy"]</a>
             </div>
         </nav>
     </div>

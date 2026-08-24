@@ -1,4 +1,7 @@
+@using System.Globalization
 @inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IAsyncDisposable
 
 <header class="site-header">
@@ -9,36 +12,66 @@
 
         <button type="button" class="site-menu-toggle" @onclick="ToggleMenu" aria-expanded="@isMenuOpen" aria-controls="site-navigation">
             <AppIcon Name="@(isMenuOpen ? "close" : "menu")" />
-            <span>@(isMenuOpen ? "Close" : "Menu")</span>
+            <span>@(isMenuOpen ? Localizer["Nav_Close"] : Localizer["Nav_Menu"])</span>
         </button>
 
-        <nav id="site-navigation" class="site-nav @(isMenuOpen ? "site-nav-open" : null)" aria-label="Primary navigation">
+        <nav id="site-navigation" class="site-nav @(isMenuOpen ? "site-nav-open" : null)" aria-label="@Localizer["Nav_PrimaryNavigationAriaLabel"]">
             <div class="site-nav-panel-header">
-                <span>Navigation</span>
-                <button type="button" class="site-nav-close" @onclick="CloseMenu" aria-label="Close navigation">
+                <span>@Localizer["Nav_Navigation"]</span>
+                <button type="button" class="site-nav-close" @onclick="CloseMenu" aria-label="@Localizer["Nav_CloseNavigationAriaLabel"]">
                     <AppIcon Name="close" />
                 </button>
             </div>
-            <NavLink href="/blog" @onclick="CloseMenu" data-umami-event="header-writing-click">Writing</NavLink>
-            <NavLink href="/gist" @onclick="CloseMenu" data-umami-event="header-gists-click">Gists</NavLink>
-            <NavLink href="/project" @onclick="CloseMenu" data-umami-event="header-projects-click">Projects</NavLink>
-            <NavLink href="/readme" @onclick="CloseMenu" data-umami-event="header-about-click">About</NavLink>
-            <button type="button" class="site-search-link" @onclick="OpenSearch" aria-label="Search the archive" data-umami-event="header-search-click">
+            <NavLink href="/blog" @onclick="CloseMenu" data-umami-event="header-writing-click">@Localizer["Nav_Writing"]</NavLink>
+            <NavLink href="/gist" @onclick="CloseMenu" data-umami-event="header-gists-click">@Localizer["Nav_Gists"]</NavLink>
+            <NavLink href="/project" @onclick="CloseMenu" data-umami-event="header-projects-click">@Localizer["Nav_Projects"]</NavLink>
+            <NavLink href="/readme" @onclick="CloseMenu" data-umami-event="header-about-click">@Localizer["Nav_About"]</NavLink>
+            <button type="button" class="site-search-link" @onclick="OpenSearch" aria-label="@Localizer["Nav_SearchArchiveAriaLabel"]" data-umami-event="header-search-click">
                 <AppIcon Name="search" />
-                <span>Search</span>
+                <span>@Localizer["Nav_Search"]</span>
             </button>
+            <div class="site-lang-switch" role="group" aria-label="@Localizer["Lang_SwitchAriaLabel"]">
+                <a class="site-lang-option @(IsCurrentCulture("tr") ? "active" : null)"
+                   href="@BuildSetLanguageUrl("tr")"
+                   aria-current="@(IsCurrentCulture("tr") ? "true" : null)"
+                   data-enhance-nav="false"
+                   onclick="@ScrollCaptureOnClick"
+                   data-umami-event="header-lang-tr-click">@Localizer["Lang_Turkish"]</a>
+                <a class="site-lang-option @(IsCurrentCulture("en") ? "active" : null)"
+                   href="@BuildSetLanguageUrl("en")"
+                   aria-current="@(IsCurrentCulture("en") ? "true" : null)"
+                   data-enhance-nav="false"
+                   onclick="@ScrollCaptureOnClick"
+                   data-umami-event="header-lang-en-click">@Localizer["Lang_English"]</a>
+            </div>
         </nav>
 
         @if (isMenuOpen)
         {
-            <button type="button" class="site-nav-backdrop" @onclick="CloseMenu" aria-label="Close navigation"></button>
+            <button type="button" class="site-nav-backdrop" @onclick="CloseMenu" aria-label="@Localizer["Nav_CloseNavigationAriaLabel"]"></button>
         }
     </div>
 </header>
 
 @code {
+    // Plain native onclick (not Blazor's @onclick) so the scroll position is captured
+    // synchronously before the browser follows the link — avoids a race with the
+    // Blazor Server round trip, and data-enhance-nav="false" forces a real full page
+    // reload so the new culture cookie is actually picked up by the interactive circuit.
+    private const string ScrollCaptureOnClick =
+        "try{sessionStorage.setItem('scroll-restore-y', String(window.scrollY))}catch(e){}";
+
     private bool isMenuOpen;
     private IJSObjectReference? _domModule;
+
+    private static bool IsCurrentCulture(string twoLetterCode) =>
+        string.Equals(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, twoLetterCode, StringComparison.OrdinalIgnoreCase);
+
+    private string BuildSetLanguageUrl(string culture)
+    {
+        var returnUrl = "/" + Navigation.ToBaseRelativePath(Navigation.Uri);
+        return $"/set-language/{culture}?returnUrl={Uri.EscapeDataString(returnUrl)}";
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

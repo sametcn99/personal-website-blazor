@@ -1,13 +1,19 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
+using personal_website_blazor;
 using personal_website_blazor.Interfaces;
 using personal_website_blazor.Middleware;
 using personal_website_blazor.Models;
 using personal_website_blazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ── Localization (UI chrome only — content stays as authored) ──────────
+var supportedUiCultures = new[] { "en", "tr" };
 
 // ── Configuration ──────────────────────────────────────────────────────
 builder.Configuration.Sources.Clear();
@@ -51,6 +57,22 @@ builder.Services
 // ── Services ───────────────────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddSingleton<IStringLocalizer<SharedResources>, SharedStringLocalizer>();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.SetDefaultCulture(supportedUiCultures[0])
+        .AddSupportedCultures(supportedUiCultures)
+        .AddSupportedUICultures(supportedUiCultures);
+    options.ApplyCurrentCultureToResponseHeaders = true;
+    // Cookie wins once the user has explicitly picked a language (set via /set-language);
+    // until then, fall back to the browser's Accept-Language header on first visit.
+    options.RequestCultureProviders = new List<IRequestCultureProvider>
+    {
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider(),
+    };
+});
 builder.Services.AddSingleton<ISocialLinkProvider, SocialLinkProvider>();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents(options =>
@@ -98,6 +120,7 @@ else
 
 // ── Pipeline ───────────────────────────────────────────────────────────
 app.UseForwardedHeaders();
+app.UseRequestLocalization();
 
 // ── Global Exception Logger ─────────────────────────────────────────────
 app.Use(async (context, next) =>
@@ -290,6 +313,29 @@ app.MapControllers();
 // ── Container Health ───────────────────────────────────────────────────
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
+// ── UI Language Switch ──────────────────────────────────────────────────
+// Blazor Server negotiates its culture once when the SignalR circuit starts,
+// so switching the UI language requires setting the cookie and doing a full
+// navigation rather than an in-place interactive update.
+app.MapGet("/set-language/{culture}", (string culture, string? returnUrl, HttpContext context) =>
+{
+    var culturesById = new HashSet<string>(supportedUiCultures, StringComparer.OrdinalIgnoreCase);
+    var targetCulture = culturesById.Contains(culture) ? culture : supportedUiCultures[0];
+
+    context.Response.Cookies.Append(
+        CookieRequestCultureProvider.DefaultCookieName,
+        CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(targetCulture)),
+        new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+        });
+
+    var target = IsSafeLocalReturnUrl(returnUrl) ? returnUrl! : "/";
+    return Results.LocalRedirect(target);
+});
+
 // ── Razor Components ──────────────────────────────────────────────────
 app.MapStaticAssets();
 app.MapRazorComponents<personal_website_blazor.Components.App>()
@@ -321,6 +367,12 @@ static bool IsAgentDiscoverablePage(PathString path)
         || value.Equals("/privacy-policy", StringComparison.OrdinalIgnoreCase)
         || value.Equals("/support", StringComparison.OrdinalIgnoreCase);
 }
+
+static bool IsSafeLocalReturnUrl(string? url) =>
+    !string.IsNullOrWhiteSpace(url)
+    && url.StartsWith('/')
+    && !url.StartsWith("//", StringComparison.Ordinal)
+    && !url.StartsWith("/\\", StringComparison.Ordinal);
 
 static bool IsStaticExtension(string ext)
     => ext.Equals(".css", StringComparison.OrdinalIgnoreCase)

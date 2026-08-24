@@ -1,7 +1,8 @@
 @implements IDisposable
+@inject IStringLocalizer<SharedResources> Localizer
 
 <span class="footer-hire-me-wrap">
-    <button type="button" class="footer-hire-me" aria-label="Show hire me message" @onclick="ShowBubbleAsync">
+    <button type="button" class="footer-hire-me" aria-label="@Localizer["Footer_HireMeAriaLabel"]" @onclick="ShowBubbleAsync">
         <span class="footer-hire-me-art">
             <img src="/uploads/media/hire-me.png"
                  width="554"
@@ -16,7 +17,7 @@
     {
         <span @key="bubble.id"
               class="footer-hire-me-bubble"
-              style="--bubble-stack-index: @bubble.index;">HIRE ME!</span>
+              style="--bubble-stack-index: @bubble.index;">@Localizer["Footer_HireMeBubble"]</span>
     }
 </span>
 

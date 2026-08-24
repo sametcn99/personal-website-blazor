@@ -1,6 +1,7 @@
 @page "/content"
 @inject IContentService ContentService
 @inject PersistentComponentState ApplicationState
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IDisposable
 
 <PageTitle>All Content | Samet Can Cıncık</PageTitle>
@@ -20,11 +21,11 @@
             <BackToHome />
 
             <header class="content-index-header">
-                <h1>All content</h1>
-                <p>Writing, field notes, and built work in one searchable archive.</p>
-                <div class="content-index-tally" aria-label="@($"{_entries.Count} entries")">
+                <h1>@Localizer["Page_AllContent_Title"]</h1>
+                <p>@Localizer["Page_AllContent_Description"]</p>
+                <div class="content-index-tally" aria-label="@string.Format(Localizer["List_EntriesAriaLabelFormat"], _entries.Count)">
                     <strong>@_entries.Count.ToString("00")</strong>
-                    <span>records</span>
+                    <span>@Localizer["List_RecordsLabel"]</span>
                 </div>
             </header>
 
@@ -34,20 +35,20 @@
                     <input class="input-native"
                            @bind="_searchQuery"
                            @bind:event="oninput"
-                           placeholder="Search all content..."
+                           placeholder="@Localizer["AllContent_SearchPlaceholder"]"
                            data-umami-event="all-content-search-click" />
                 </div>
 
                 <CustomSelect Value="@_typeFilter" ValueChanged="value => _typeFilter = value"
-                              Options="@(new[] { new CustomSelectOption("all", "All types"), new CustomSelectOption("writing", "Writing"), new CustomSelectOption("gist", "Gists"), new CustomSelectOption("project", "Projects") })"
+                              Options="@(new[] { new CustomSelectOption("all", Localizer["AllContent_TypeAll"]), new CustomSelectOption("writing", Localizer["AllContent_TypeWriting"]), new CustomSelectOption("gist", Localizer["AllContent_TypeGist"]), new CustomSelectOption("project", Localizer["AllContent_TypeProject"]) })"
                               data-umami-event="all-content-type-filter-click" />
 
                 <div class="content-index-selects">
                     <CustomSelect Value="@_sortBy" ValueChanged="value => _sortBy = value"
-                                  Options="@(new[] { new CustomSelectOption("date", "Date"), new CustomSelectOption("title", "Title") })"
+                                  Options="@(new[] { new CustomSelectOption("date", Localizer["Sort_Date"]), new CustomSelectOption("title", Localizer["Sort_Title"]) })"
                                   data-umami-event="all-content-sort-by-click" />
                     <CustomSelect Value="@_sortOrder" ValueChanged="value => _sortOrder = value"
-                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? "Newest" : "Z → A"), new CustomSelectOption("asc", _sortBy == "date" ? "Oldest" : "A → Z") })"
+                                  Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? Localizer["Sort_Newest"] : Localizer["Sort_ZtoA"]), new CustomSelectOption("asc", _sortBy == "date" ? Localizer["Sort_Oldest"] : Localizer["Sort_AtoZ"]) })"
                                   data-umami-event="all-content-sort-order-click" />
                 </div>
             </div>
@@ -55,7 +56,7 @@
             @if ((!string.IsNullOrWhiteSpace(_searchQuery) || _typeFilter != "all") && !_isLoading)
             {
                 <p class="text-caption text-muted content-list-result-row">
-                    @visibleEntries.Count result@(visibleEntries.Count != 1 ? "s" : "") found
+                    @string.Format(Localizer["List_ResultsFoundFormat"], visibleEntries.Count)
                 </p>
             }
         </aside>
@@ -73,7 +74,7 @@
             else if (visibleEntries.Count == 0)
             {
                 <div class="content-index-empty">
-                    <p>No content matched the current filters.</p>
+                    <p>@Localizer["AllContent_NoResults"]</p>
                 </div>
             }
             else
@@ -97,7 +98,7 @@
                                         <h2>@entry.Post.Title</h2>
                                     </div>
                                     <p class="content-list-summary">@entry.Post.Description</p>
-                                    <div class="content-list-tags" aria-label="Content type and tags">
+                                    <div class="content-list-tags" aria-label="@Localizer["AllContent_TagsAriaLabel"]">
                                         <span class="content-type-label">#@entry.Label</span>
                                         @foreach (var tag in GetMetadataLabels(entry.Post).Take(2))
                                         {

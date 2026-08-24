@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Nav_Writing" xml:space="preserve"><value>Yazılar</value></data>
+  <data name="Nav_Gists" xml:space="preserve"><value>Gist'ler</value></data>
+  <data name="Nav_Projects" xml:space="preserve"><value>Projeler</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>Hakkımda</value></data>
+  <data name="Nav_Search" xml:space="preserve"><value>Ara</value></data>
+  <data name="Nav_SearchArchiveAriaLabel" xml:space="preserve"><value>Arşivde ara</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Menü</value></data>
+  <data name="Nav_Close" xml:space="preserve"><value>Kapat</value></data>
+  <data name="Nav_Navigation" xml:space="preserve"><value>Navigasyon</value></data>
+  <data name="Nav_CloseNavigationAriaLabel" xml:space="preserve"><value>Navigasyonu kapat</value></data>
+  <data name="Nav_PrimaryNavigationAriaLabel" xml:space="preserve"><value>Ana navigasyon</value></data>
+
+  <data name="Lang_Turkish" xml:space="preserve"><value>TR</value></data>
+  <data name="Lang_English" xml:space="preserve"><value>EN</value></data>
+  <data name="Lang_SwitchAriaLabel" xml:space="preserve"><value>Dili değiştir</value></data>
+
+  <data name="Footer_Tagline" xml:space="preserve"><value>Notlar, referanslar ve yazılım</value></data>
+  <data name="Footer_ArchiveNote" xml:space="preserve"><value>Bağımsız yayınlanan bir arşiv.</value></data>
+  <data name="Footer_AgentNote" xml:space="preserve"><value>Bu site yapay zeka ajanları için optimize edilmiştir. Bağlantıyı favori yapay zeka aracınızla paylaşarak içeriği keşfedebilir ve hakkımda daha fazla bilgi edinebilirsiniz.</value></data>
+  <data name="Footer_AgentReportLink" xml:space="preserve"><value>Ajan uyumluluk raporunu görüntüle.</value></data>
+  <data name="Footer_SocialLinksAriaLabel" xml:space="preserve"><value>Sosyal medya bağlantıları</value></data>
+  <data name="Footer_GitHubProfile" xml:space="preserve"><value>GitHub profili</value></data>
+  <data name="Footer_LinkedInProfile" xml:space="preserve"><value>LinkedIn profili</value></data>
+  <data name="Footer_NavAriaLabel" xml:space="preserve"><value>Alt bilgi navigasyonu</value></data>
+  <data name="Footer_Explore" xml:space="preserve"><value>Keşfet</value></data>
+  <data name="Footer_ProfileAndWork" xml:space="preserve"><value>Profil ve iş</value></data>
+  <data name="Footer_Site" xml:space="preserve"><value>Site</value></data>
+  <data name="Footer_Home" xml:space="preserve"><value>Anasayfa</value></data>
+  <data name="Footer_AllContent" xml:space="preserve"><value>Tüm içerik</value></data>
+  <data name="Footer_Writing" xml:space="preserve"><value>Yazılar</value></data>
+  <data name="Footer_Gists" xml:space="preserve"><value>Gist'ler</value></data>
+  <data name="Footer_Projects" xml:space="preserve"><value>Projeler</value></data>
+  <data name="Footer_About" xml:space="preserve"><value>Hakkımda</value></data>
+  <data name="Footer_Timeline" xml:space="preserve"><value>Zaman çizelgesi</value></data>
+  <data name="Footer_Skills" xml:space="preserve"><value>Yetenekler</value></data>
+  <data name="Footer_GitHubReadme" xml:space="preserve"><value>GitHub README</value></data>
+  <data name="Footer_Cv" xml:space="preserve"><value>Özgeçmiş</value></data>
+  <data name="Footer_Repositories" xml:space="preserve"><value>Depolar</value></data>
+  <data name="Footer_Links" xml:space="preserve"><value>Bağlantılar</value></data>
+  <data name="Footer_Rss" xml:space="preserve"><value>RSS</value></data>
+  <data name="Footer_Support" xml:space="preserve"><value>Destek</value></data>
+  <data name="Footer_Privacy" xml:space="preserve"><value>Gizlilik</value></data>
+  <data name="Footer_HireMeAriaLabel" xml:space="preserve"><value>Bana iş teklifi mesajını göster</value></data>
+  <data name="Footer_HireMeBubble" xml:space="preserve"><value>BENİ İŞE AL!</value></data>
+
+  <data name="Error_Unhandled" xml:space="preserve"><value>Beklenmeyen bir hata oluştu.</value></data>
+  <data name="Error_Reload" xml:space="preserve"><value>Yeniden yükle</value></data>
+  <data name="Error_DismissAriaLabel" xml:space="preserve"><value>Hatayı kapat</value></data>
+
+  <data name="Loading_Page" xml:space="preserve"><value>Sayfa yükleniyor...</value></data>
+
+  <data name="ErrorPage_Title" xml:space="preserve"><value>Hata.</value></data>
+  <data name="ErrorPage_Description" xml:space="preserve"><value>İsteğiniz işlenirken bir hata oluştu.</value></data>
+  <data name="ErrorPage_RequestId" xml:space="preserve"><value>İstek Kimliği:</value></data>
+  <data name="ErrorPage_DevMode" xml:space="preserve"><value>Geliştirme Modu</value></data>
+
+  <data name="NotFound_Title" xml:space="preserve"><value>Sayfa Bulunamadı</value></data>
+  <data name="NotFound_Description" xml:space="preserve"><value>Aradığınız sayfa mevcut değil veya taşınmış olabilir.</value></data>
+  <data name="NotFound_ReturnHome" xml:space="preserve"><value>Anasayfaya Dön</value></data>
+
+  <data name="Home_Heading" xml:space="preserve"><value>Yazılım üretiyor,&lt;br /&gt;notlar tutuyorum.</value></data>
+  <data name="Home_Intro" xml:space="preserve"><value>Ben Samet. Burada geliştirdiğim yazılımlardan denemeler, pratik referanslar, düşünceler ve notlar yayınlıyorum.</value></data>
+  <data name="Home_ReadLatest" xml:space="preserve"><value>En son içeriği oku</value></data>
+  <data name="Home_BrowseAll" xml:space="preserve"><value>Tüm içeriğe göz at</value></data>
+  <data name="Home_ArchiveContentsLabel" xml:space="preserve"><value>Arşiv içeriği</value></data>
+  <data name="Home_AllContent" xml:space="preserve"><value>Tüm içerik</value></data>
+  <data name="Home_BlogPosts" xml:space="preserve"><value>Blog yazıları</value></data>
+  <data name="Home_TechnicalGists" xml:space="preserve"><value>Teknik gist'ler</value></data>
+  <data name="Home_BuiltProjects" xml:space="preserve"><value>Geliştirilen projeler</value></data>
+  <data name="Home_UpdatedStatus" xml:space="preserve"><value>Çalışma değiştikçe güncellenir</value></data>
+  <data name="Home_SearchLauncherTitle" xml:space="preserve"><value>Arşivde ara</value></data>
+  <data name="Home_SearchLauncherSubtitle" xml:space="preserve"><value>Yazılar, gist'ler, projeler, depolar ve bağlantılar tek bir dizinde.</value></data>
+  <data name="Home_OpenSearch" xml:space="preserve"><value>Aramayı aç</value></data>
+  <data name="Home_LoadingRecentAriaLabel" xml:space="preserve"><value>Son girişler yükleniyor</value></data>
+  <data name="Home_RecentWriting" xml:space="preserve"><value>Son yazılar</value></data>
+  <data name="Home_WritingIndex" xml:space="preserve"><value>Yazı dizini</value></data>
+  <data name="Home_FieldNotes" xml:space="preserve"><value>Saha notları</value></data>
+  <data name="Home_GistIndex" xml:space="preserve"><value>Gist dizini</value></data>
+  <data name="Home_BuiltWork" xml:space="preserve"><value>Geliştirilen çalışmalar</value></data>
+  <data name="Home_BuiltWorkSubtitle" xml:space="preserve"><value>İçeriden belgelenen denemeler ve araçlar.</value></data>
+  <data name="Home_ProjectIndex" xml:space="preserve"><value>Proje dizini</value></data>
+
+  <data name="Search_CloseDialogAriaLabel" xml:space="preserve"><value>Arama iletişim kutusunu kapat</value></data>
+  <data name="Search_Placeholder" xml:space="preserve"><value>Yazılarda, bağlantılarda ve depolarda ara...</value></data>
+  <data name="Search_Searching" xml:space="preserve"><value>Aranıyor...</value></data>
+  <data name="Search_NoResults" xml:space="preserve"><value>Sonuç bulunamadı.</value></data>
+
+  <data name="List_RecordsLabel" xml:space="preserve"><value>kayıt</value></data>
+  <data name="List_EntriesAriaLabelFormat" xml:space="preserve"><value>{0} kayıt</value></data>
+  <data name="List_SearchPlaceholderFormat" xml:space="preserve"><value>{0} içinde ara...</value></data>
+  <data name="List_ResultsFoundFormat" xml:space="preserve"><value>{0} sonuç bulundu</value></data>
+  <data name="List_NoPostsFound" xml:space="preserve"><value>Yazı bulunamadı.</value></data>
+  <data name="List_NoPostsFoundForFormat" xml:space="preserve"><value>"{0}" için yazı bulunamadı.</value></data>
+  <data name="List_TagsAriaLabel" xml:space="preserve"><value>Etiketler</value></data>
+  <data name="Sort_Date" xml:space="preserve"><value>Tarih</value></data>
+  <data name="Sort_Title" xml:space="preserve"><value>Başlık</value></data>
+  <data name="Sort_Newest" xml:space="preserve"><value>En yeni</value></data>
+  <data name="Sort_Oldest" xml:space="preserve"><value>En eski</value></data>
+  <data name="Sort_ZtoA" xml:space="preserve"><value>Z → A</value></data>
+  <data name="Sort_AtoZ" xml:space="preserve"><value>A → Z</value></data>
+  <data name="Sort_Updated" xml:space="preserve"><value>Güncellenme</value></data>
+  <data name="Sort_Created" xml:space="preserve"><value>Oluşturulma</value></data>
+  <data name="Sort_Stars" xml:space="preserve"><value>Yıldız</value></data>
+  <data name="Sort_Name" xml:space="preserve"><value>İsim</value></data>
+
+  <data name="Page_Blog_Title" xml:space="preserve"><value>Blog Yazıları</value></data>
+  <data name="Page_Blog_Description" xml:space="preserve"><value>Yazılım geliştirme ve beni ilham veren tutkularım üzerine düşüncelerimin bir derlemesi.</value></data>
+  <data name="Page_Gist_Title" xml:space="preserve"><value>Gist'ler</value></data>
+  <data name="Page_Gist_Description" xml:space="preserve"><value>Hızlı notlar ve kullanışlı script'ler.</value></data>
+  <data name="Page_Project_Title" xml:space="preserve"><value>Projeler</value></data>
+  <data name="Page_Project_Description" xml:space="preserve"><value>Denemelerim ve yan projelerim.</value></data>
+  <data name="Page_AllContent_Title" xml:space="preserve"><value>Tüm içerik</value></data>
+  <data name="Page_AllContent_Description" xml:space="preserve"><value>Yazılar, saha notları ve geliştirilen çalışmalar; tek bir aranabilir arşivde.</value></data>
+  <data name="AllContent_SearchPlaceholder" xml:space="preserve"><value>Tüm içerikte ara...</value></data>
+  <data name="AllContent_NoResults" xml:space="preserve"><value>Geçerli filtrelerle eşleşen içerik yok.</value></data>
+  <data name="AllContent_TypeAll" xml:space="preserve"><value>Tüm türler</value></data>
+  <data name="AllContent_TypeWriting" xml:space="preserve"><value>Yazılar</value></data>
+  <data name="AllContent_TypeGist" xml:space="preserve"><value>Gist'ler</value></data>
+  <data name="AllContent_TypeProject" xml:space="preserve"><value>Projeler</value></data>
+  <data name="AllContent_TagsAriaLabel" xml:space="preserve"><value>İçerik türü ve etiketler</value></data>
+
+  <data name="Page_Repo_Title" xml:space="preserve"><value>Depolar</value></data>
+  <data name="Page_Repo_Description" xml:space="preserve"><value>Herkese açık GitHub depolarımın canlı bir listesi.</value></data>
+  <data name="Repo_SearchPlaceholder" xml:space="preserve"><value>Depolarda ara...</value></data>
+  <data name="Repo_AllLanguages" xml:space="preserve"><value>Tüm diller</value></data>
+  <data name="Repo_NoResultsFound" xml:space="preserve"><value>Depo bulunamadı.</value></data>
+  <data name="Repo_NoResultsFoundForFormat" xml:space="preserve"><value>"{0}" için depo bulunamadı.</value></data>
+  <data name="Repo_DetailsAriaLabel" xml:space="preserve"><value>Depo detayları</value></data>
+  <data name="Repo_Fork" xml:space="preserve"><value>Fork</value></data>
+  <data name="Repo_StarsFormat" xml:space="preserve"><value>{0} yıldız</value></data>
+  <data name="Repo_CreatedLabel" xml:space="preserve"><value>Oluşturuldu</value></data>
+  <data name="Repo_JustNow" xml:space="preserve"><value>az önce</value></data>
+  <data name="Repo_MinutesAgoFormat" xml:space="preserve"><value>{0}dk önce</value></data>
+  <data name="Repo_HoursAgoFormat" xml:space="preserve"><value>{0}sa önce</value></data>
+  <data name="Repo_LoadFailedPrefix" xml:space="preserve"><value>Depolar yüklenemedi:</value></data>
+
+  <data name="Page_Links_Title" xml:space="preserve"><value>Bağlantılar</value></data>
+  <data name="Page_Links_Description" xml:space="preserve"><value>Profillerime, platformlara ve diğer kaynaklara kısa yollar.</value></data>
+  <data name="Links_SearchPlaceholder" xml:space="preserve"><value>Bağlantılarda ara...</value></data>
+  <data name="Links_AllCategories" xml:space="preserve"><value>Tüm kategoriler</value></data>
+  <data name="Sort_Category" xml:space="preserve"><value>Kategori</value></data>
+  <data name="Links_NoResultsFound" xml:space="preserve"><value>Bağlantı bulunamadı.</value></data>
+  <data name="Links_NoResultsFoundForFormat" xml:space="preserve"><value>"{0}" için bağlantı bulunamadı.</value></data>
+  <data name="Links_DetailsAriaLabel" xml:space="preserve"><value>Bağlantı detayları</value></data>
+  <data name="Links_External" xml:space="preserve"><value>Harici</value></data>
+  <data name="Links_AliasesFormat" xml:space="preserve"><value>Takma adlar: {0}</value></data>
+
+  <data name="Rss_Title" xml:space="preserve"><value>Güncellemelere abone ol</value></data>
+  <data name="Rss_Intro" xml:space="preserve"><value>Arşivi elle kontrol etmek yerine en son blog yazılarını, gist'leri ve projeleri bir besleme okuyucudan takip et.</value></data>
+  <data name="Rss_IntroNote" xml:space="preserve"><value>İki makine tarafından okunabilir format, yeni çalışmaları takip etmenin sessiz bir yolu.</value></data>
+  <data name="Rss_ChooseFormat" xml:space="preserve"><value>Bir besleme formatı seç</value></data>
+  <data name="Rss_FormatsCount" xml:space="preserve"><value>2 format</value></data>
+  <data name="Rss_RssFeedTitle" xml:space="preserve"><value>RSS Akışı</value></data>
+  <data name="Rss_RssFeedDescription" xml:space="preserve"><value>Feedly, Inoreader ve çoğu klasik besleme okuyucuyla uyumlu standart bir format.</value></data>
+  <data name="Rss_OpenRssFeed" xml:space="preserve"><value>RSS akışını aç</value></data>
+  <data name="Rss_JsonFeedDescription" xml:space="preserve"><value>Geliştiriciler ve içeriğin programatik olarak tüketilmesi için modern bir JSON formatı.</value></data>
+  <data name="Rss_OpenJsonFeed" xml:space="preserve"><value>JSON akışını aç</value></data>
+  <data name="Rss_AddToReader" xml:space="preserve"><value>Okuyucuna ekle</value></data>
+  <data name="Rss_QuickStart" xml:space="preserve"><value>Hızlı başlangıç</value></data>
+  <data name="Rss_GuideStep1" xml:space="preserve"><value>Önizlemek için yukarıdaki bir beslemeyi tarayıcında aç, ardından adres çubuğundan URL'yi kopyala.</value></data>
+  <data name="Rss_GuideStep2" xml:space="preserve"><value>URL'yi Feedly, Inoreader veya NetNewsWire gibi tercih ettiğin besleme okuyucusuna yapıştır.</value></data>
+
+  <data name="Cv_DownloadCv" xml:space="preserve"><value>Özgeçmişi indir</value></data>
+  <data name="Cv_Preview" xml:space="preserve"><value>Önizle</value></data>
+  <data name="Cv_Download" xml:space="preserve"><value>İndir</value></data>
+  <data name="Cv_Preparing" xml:space="preserve"><value>İndirme hazırlanıyor...</value></data>
+  <data name="Cv_ManualDownloadPrefix" xml:space="preserve"><value>İndirme otomatik başlamazsa,</value></data>
+  <data name="Cv_ManualDownloadLink" xml:space="preserve"><value>buraya tıklayın</value></data>
+
+  <data name="Common_ReturnToHome" xml:space="preserve"><value>Anasayfaya Dön</value></data>
+
+  <data name="Common_Published" xml:space="preserve"><value>Yayınlandı</value></data>
+  <data name="Common_Updated" xml:space="preserve"><value>Güncellendi</value></data>
+  <data name="Common_Technologies" xml:space="preserve"><value>Teknolojiler</value></data>
+  <data name="Common_Topics" xml:space="preserve"><value>Konular</value></data>
+  <data name="Article_Previous" xml:space="preserve"><value>Önceki</value></data>
+  <data name="Article_Next" xml:space="preserve"><value>Sonraki</value></data>
+  <data name="Article_Random" xml:space="preserve"><value>Rastgele</value></data>
+  <data name="Article_Share" xml:space="preserve"><value>Paylaş</value></data>
+  <data name="Article_SharePage" xml:space="preserve"><value>Bu sayfayı paylaş</value></data>
+  <data name="Article_LinkCopied" xml:space="preserve"><value>Bağlantı kopyalandı</value></data>
+
+  <data name="Toc_OnThisPage" xml:space="preserve"><value>Bu sayfada</value></data>
+  <data name="Toc_TableOfContents" xml:space="preserve"><value>İçindekiler</value></data>
+
+  <data name="Support_Title" xml:space="preserve"><value>Arşivi destekle</value></data>
+  <data name="Support_Intro" xml:space="preserve"><value>Buradaki yazılar, projeler veya referanslar işine yaradıysa, bu bağımsız arşivin devam etmesine yardımcı olabilirsin.</value></data>
+  <data name="Support_IntroNote" xml:space="preserve"><value>Destek, açık kaynak projelerin, teknik yazıların ve paylaşılan referansların arkasındaki zamana harcanıyor.</value></data>
+  <data name="Support_ChoosePath" xml:space="preserve"><value>Bir destek yolu seç</value></data>
+  <data name="Support_OptionsCount" xml:space="preserve"><value>2 seçenek</value></data>
+  <data name="Support_ThankYouLabel" xml:space="preserve"><value>Basit bir teşekkür</value></data>
+  <data name="Support_BuyMeACoffeeDescription" xml:space="preserve"><value>Bir sonraki kodlama seansının arkasındaki zamanı basit bir teşekkürle destekle.</value></data>
+  <data name="Support_BuyMeACoffeeAction" xml:space="preserve"><value>Buy Me a Coffee üzerinden destekle</value></data>
+  <data name="Support_OpenSourceLabel" xml:space="preserve"><value>Açık kaynak desteği</value></data>
+  <data name="Support_GitHubSponsorsDescription" xml:space="preserve"><value>Açık kaynak çalışmayı GitHub üzerinden aylık veya tek seferlik sponsorlukla doğrudan destekle.</value></data>
+  <data name="Support_GitHubSponsorsAction" xml:space="preserve"><value>GitHub'da sponsor ol</value></data>
+  <data name="Support_LinkOpenedNotice" xml:space="preserve"><value>Destek sayfası yeni bir sekmede açıldı.</value></data>
+  <data name="Support_ImpactTitle" xml:space="preserve"><value>Destek neyi mümkün kılıyor</value></data>
+  <data name="Support_OngoingWork" xml:space="preserve"><value>Devam eden çalışma</value></data>
+  <data name="Support_OpenSourceProjects" xml:space="preserve"><value>Açık kaynak projeler</value></data>
+  <data name="Support_OpenSourceProjectsDescription" xml:space="preserve"><value>Toplulukla erişilebilir kalan yazılım denemeleri ve araçlar.</value></data>
+  <data name="Support_TechnicalWriting" xml:space="preserve"><value>Teknik yazılar</value></data>
+  <data name="Support_TechnicalWritingDescription" xml:space="preserve"><value>Çözülmüş sorunları yeniden kullanılabilir notlara dönüştüren pratik makaleler.</value></data>
+  <data name="Support_SharedReferences" xml:space="preserve"><value>Paylaşılan referanslar</value></data>
+  <data name="Support_SharedReferencesDescription" xml:space="preserve"><value>Rehberlerden, bağlantılardan ve çalışan örneklerden oluşan güncel bir arşiv.</value></data>
+</root>

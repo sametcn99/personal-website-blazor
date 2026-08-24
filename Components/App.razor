@@ -1,9 +1,10 @@
-﻿@using Microsoft.AspNetCore.Components.Web
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Components.Web
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @namespace personal_website_blazor.Components
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName">
 
 <head>
     <meta charset="utf-8" />
@@ -69,6 +70,17 @@
         <Routes />
     </main>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script>
+        (function () {
+            try {
+                var y = sessionStorage.getItem("scroll-restore-y");
+                if (y !== null) {
+                    sessionStorage.removeItem("scroll-restore-y");
+                    window.scrollTo(0, parseInt(y, 10) || 0);
+                }
+            } catch (e) { }
+        })();
+    </script>
 </body>
 
 </html>

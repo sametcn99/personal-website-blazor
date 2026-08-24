@@ -1,4 +1,5 @@
 @page "/rss"
+@inject IStringLocalizer<SharedResources> Localizer
 
 <PageTitle>RSS Feed | Samet Can Cıncık</PageTitle>
 
@@ -11,21 +12,20 @@
 
     <header class="rss-intro">
         <div class="rss-intro-copy">
-            <h1 class="text-page-title">Subscribe to updates</h1>
+            <h1 class="text-page-title">@Localizer["Rss_Title"]</h1>
             <p class="text-body text-muted">
-                Follow the latest blog posts, gists, and projects from a feed reader
-                instead of checking the archive manually.
+                @Localizer["Rss_Intro"]
             </p>
         </div>
         <p class="rss-intro-note text-caption">
-            Two machine-readable formats, one quiet way to keep up with new work.
+            @Localizer["Rss_IntroNote"]
         </p>
     </header>
 
     <section class="rss-formats" aria-labelledby="rss-formats-title">
         <div class="rss-section-heading">
-            <h2 id="rss-formats-title" class="text-section-title">Choose a feed format</h2>
-            <span class="text-caption text-muted">2 formats</span>
+            <h2 id="rss-formats-title" class="text-section-title">@Localizer["Rss_ChooseFormat"]</h2>
+            <span class="text-caption text-muted">@Localizer["Rss_FormatsCount"]</span>
         </div>
 
         <div class="rss-ledger">
@@ -36,11 +36,11 @@
                 </span>
                 <div class="rss-format-copy">
                     <p class="rss-format-type">RSS 2.0</p>
-                    <h3 class="text-heading">RSS Feed</h3>
-                    <p class="text-body text-muted">A standard format compatible with Feedly, Inoreader, and most classic feed readers.</p>
+                    <h3 class="text-heading">@Localizer["Rss_RssFeedTitle"]</h3>
+                    <p class="text-body text-muted">@Localizer["Rss_RssFeedDescription"]</p>
                 </div>
                 <a class="button button-outline rss-format-action" href="/rss.xml" target="_blank" rel="noopener" data-umami-event="feed-open-rss-xml-click">
-                    <span>Open RSS feed</span>
+                    <span>@Localizer["Rss_OpenRssFeed"]</span>
                     <AppIcon Name="external-link" />
                 </a>
             </article>
@@ -53,10 +53,10 @@
                 <div class="rss-format-copy">
                     <p class="rss-format-type">JSON Feed</p>
                     <h3 class="text-heading">JSON Feed</h3>
-                    <p class="text-body text-muted">A modern JSON format for developers and programmatic consumption of the content.</p>
+                    <p class="text-body text-muted">@Localizer["Rss_JsonFeedDescription"]</p>
                 </div>
                 <a class="button button-outline rss-format-action" href="/feed.json" target="_blank" rel="noopener" data-umami-event="feed-open-feed-json-click">
-                    <span>Open JSON feed</span>
+                    <span>@Localizer["Rss_OpenJsonFeed"]</span>
                     <AppIcon Name="external-link" />
                 </a>
             </article>
@@ -65,17 +65,17 @@
 
     <section class="rss-guide" aria-labelledby="rss-guide-title">
         <div class="rss-section-heading">
-            <h2 id="rss-guide-title" class="text-section-title">Add it to your reader</h2>
-            <span class="text-caption text-muted">Quick start</span>
+            <h2 id="rss-guide-title" class="text-section-title">@Localizer["Rss_AddToReader"]</h2>
+            <span class="text-caption text-muted">@Localizer["Rss_QuickStart"]</span>
         </div>
         <ol class="rss-guide-list">
             <li class="rss-guide-item">
                 <span class="rss-guide-index" aria-hidden="true">01</span>
-                <p class="text-body text-muted">Open a feed above to preview it in your browser, then copy the URL from the address bar.</p>
+                <p class="text-body text-muted">@Localizer["Rss_GuideStep1"]</p>
             </li>
             <li class="rss-guide-item">
                 <span class="rss-guide-index" aria-hidden="true">02</span>
-                <p class="text-body text-muted">Paste the URL into your preferred feed reader, such as Feedly, Inoreader, or NetNewsWire.</p>
+                <p class="text-body text-muted">@Localizer["Rss_GuideStep2"]</p>
             </li>
         </ol>
     </section>

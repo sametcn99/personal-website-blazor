@@ -1,4 +1,5 @@
 @* ArticleNavigation.razor - Previous/Next/Random article navigation *@
+@inject IStringLocalizer<SharedResources> Localizer
 
 @if (PrevArticle != null || NextArticle != null)
 {
@@ -40,7 +41,7 @@
             <a class="article-nav-link article-nav-random-link" href="@RandomArticle.Href"
                data-umami-event='@UmamiEvent.Click("article-nav-random", RandomArticle.Title)'>
                 <AppIcon Name="shuffle" Class="text-primary" />
-                <span class="text-caption text-muted">Random</span>
+                <span class="text-caption text-muted">@Localizer["Article_Random"]</span>
                 <span class="text-body">@RandomArticle.Title</span>
             </a>
         </div>
