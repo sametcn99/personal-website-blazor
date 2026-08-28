@@ -101,8 +101,6 @@
   <data name="Footer_Rss" xml:space="preserve"><value>RSS</value></data>
   <data name="Footer_Support" xml:space="preserve"><value>Destek</value></data>
   <data name="Footer_Privacy" xml:space="preserve"><value>Gizlilik</value></data>
-  <data name="Footer_HireMeAriaLabel" xml:space="preserve"><value>Bana iş teklifi mesajını göster</value></data>
-  <data name="Footer_HireMeBubble" xml:space="preserve"><value>BENİ İŞE AL!</value></data>
 
   <data name="Error_Unhandled" xml:space="preserve"><value>Beklenmeyen bir hata oluştu.</value></data>
   <data name="Error_Reload" xml:space="preserve"><value>Yeniden yükle</value></data>

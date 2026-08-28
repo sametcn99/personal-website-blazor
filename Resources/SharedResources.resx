@@ -101,8 +101,6 @@
   <data name="Footer_Rss" xml:space="preserve"><value>RSS</value></data>
   <data name="Footer_Support" xml:space="preserve"><value>Support</value></data>
   <data name="Footer_Privacy" xml:space="preserve"><value>Privacy</value></data>
-  <data name="Footer_HireMeAriaLabel" xml:space="preserve"><value>Show hire me message</value></data>
-  <data name="Footer_HireMeBubble" xml:space="preserve"><value>HIRE ME!</value></data>
 
   <data name="Error_Unhandled" xml:space="preserve"><value>An unhandled error has occurred.</value></data>
   <data name="Error_Reload" xml:space="preserve"><value>Reload</value></data>
