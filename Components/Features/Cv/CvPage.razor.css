@@ -1,4 +1,5 @@
 .article-shell {
+  position: relative;
   width: min(calc(100% - 3rem), var(--reading-width));
 }
 

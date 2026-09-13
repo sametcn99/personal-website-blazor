@@ -3,19 +3,21 @@
 @inject IStringLocalizer<SharedResources> Localizer
 @if (Items is { Length: > 0 })
 {
-    <div class="toc-rail-slot">
-        <nav class="toc-rail" aria-label="@Localizer["Toc_OnThisPage"]">
-            @foreach (var item in Items)
-            {
-                <a class="toc-rail-item toc-rail-level-@item.Level"
-                   href="@GetHref(item.Id)"
-                   data-toc-target="@item.Id"
-                   aria-label="@item.Text">
-                    <span class="toc-rail-line" aria-hidden="true"></span>
-                    <span class="toc-rail-label">@item.Text</span>
-                </a>
-            }
-        </nav>
+    <div class="toc-rail-boundary">
+        <div class="toc-rail-slot">
+            <nav class="toc-rail" aria-label="@Localizer["Toc_OnThisPage"]">
+                @foreach (var item in Items)
+                {
+                    <a class="toc-rail-item toc-rail-level-@item.Level"
+                       href="@GetHref(item.Id)"
+                       data-toc-target="@item.Id"
+                       aria-label="@item.Text">
+                        <span class="toc-rail-line" aria-hidden="true"></span>
+                        <span class="toc-rail-label">@item.Text</span>
+                    </a>
+                }
+            </nav>
+        </div>
     </div>
 
     <details class="toc">

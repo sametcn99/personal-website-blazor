@@ -1,3 +1,4 @@
+.toc-rail-boundary,
 .toc-rail-slot,
 .toc-rail {
   display: none;
@@ -68,28 +69,34 @@
 }
 
 @media (min-width: 1366px) {
+  .toc-rail-boundary {
+    position: absolute;
+    z-index: 10;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
   .toc-rail-slot {
     position: sticky;
-    z-index: 10;
-    top: 50dvh;
-    display: block;
-    width: 0;
-    height: 0;
-    margin-left: calc(50vw + 50% - 2rem);
+    top: max(19dvh, calc(50dvh - 18rem));
+    display: flex;
+    width: 1.3rem;
+    height: min(62dvh, 36rem);
+    align-items: center;
+    margin-left: calc(50vw + 50% - 3.3rem);
+    pointer-events: none;
   }
 
   .toc-rail {
-    position: absolute;
-    top: 0;
-    right: 0;
     display: flex;
     width: 1.3rem;
-    max-height: min(62vh, 36rem);
+    max-height: 100%;
     flex-direction: column;
     justify-content: center;
     gap: 0.12rem;
     padding: 0.3rem 0;
-    transform: translateY(-50%);
+    pointer-events: auto;
   }
 
   .toc-rail-item {
