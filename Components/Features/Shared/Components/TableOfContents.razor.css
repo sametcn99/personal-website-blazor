@@ -1,3 +1,4 @@
+.toc-rail-slot,
 .toc-rail {
   display: none;
 }
@@ -67,11 +68,20 @@
 }
 
 @media (min-width: 1366px) {
-  .toc-rail {
-    position: fixed;
+  .toc-rail-slot {
+    position: sticky;
     z-index: 10;
-    top: 50%;
-    right: 2rem;
+    top: 50dvh;
+    display: block;
+    width: 0;
+    height: 0;
+    margin-left: calc(50vw + 50% - 2rem);
+  }
+
+  .toc-rail {
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
     width: 1.3rem;
     max-height: min(62vh, 36rem);
