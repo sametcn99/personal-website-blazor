@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Cloudflare Tunnel ile Local Ortamı Güvenle Paylaşmak</title>
+  <desc id="desc">İnternet trafiğinin kimlik kontrolünden ve güvenli bir tünelden geçerek yerel geliştirme ortamına ulaştığını gösteren şematik illüstrasyon.</desc>
+  <!-- semantic content asset: gists/cloudflare-tunnel-ile-local-ortami-paylasmak -->
+  <defs>
+    <linearGradient id="tunnelGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e0b661" stop-opacity="0.18" />
+      <stop offset="0.5" stop-color="#c89a49" stop-opacity="0.8" />
+      <stop offset="1" stop-color="#7f9870" stop-opacity="0.28" />
+    </linearGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="675" fill="#0d0e0c" />
+  <rect x="48" y="48" width="1104" height="579" rx="14" fill="#141512" stroke="#303129" stroke-width="2" />
+  <rect x="48" y="48" width="1104" height="6" rx="3" fill="#c89a49" />
+
+  <g stroke="#eee9dc" stroke-width="1" opacity="0.035" stroke-linecap="round">
+    <path d="M96 76V603M192 76V603M288 76V603M384 76V603M480 76V603M576 76V603M672 76V603M768 76V603M864 76V603M960 76V603M1056 76V603" />
+    <path d="M72 120H1128M72 192H1128M72 264H1128M72 336H1128M72 408H1128M72 480H1128M72 552H1128" />
+  </g>
+  <path d="M72 120H1128" stroke="#303129" stroke-width="2" opacity="0.75" />
+
+  <!-- Public internet -->
+  <g>
+    <circle cx="186" cy="336" r="72" fill="#0d0e0c" stroke="#6f8fa3" stroke-width="4" />
+    <ellipse cx="186" cy="336" rx="31" ry="72" fill="none" stroke="#6f8fa3" stroke-width="3" opacity="0.75" />
+    <path d="M114 336H258M128 300H244M128 372H244" fill="none" stroke="#6f8fa3" stroke-width="3" opacity="0.75" stroke-linecap="round" />
+    <circle cx="120" cy="233" r="9" fill="#6f8fa3" />
+    <circle cx="112" cy="441" r="7" fill="#6f8fa3" opacity="0.65" />
+    <circle cx="270" cy="244" r="7" fill="#6f8fa3" opacity="0.65" />
+  </g>
+
+  <!-- Cloud edge and access policy -->
+  <g>
+    <path d="M390 369C350 369 328 343 328 310C328 276 353 251 387 247C401 203 440 178 486 178C541 178 582 213 590 263C624 268 647 291 647 324C647 350 627 369 596 369Z" fill="#0d0e0c" stroke="#c89a49" stroke-width="5" stroke-linejoin="round" />
+    <path d="M486 221L536 241V286C536 326 515 353 486 370C457 353 436 326 436 286V241Z" fill="#141512" stroke="#e0b661" stroke-width="4" stroke-linejoin="round" />
+    <path d="M466 286L480 300L509 268" fill="none" stroke="#7f9870" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="486" cy="286" r="82" fill="#c89a49" opacity="0.09" filter="url(#softGlow)" />
+  </g>
+
+  <!-- Connections -->
+  <path d="M258 336H328" fill="none" stroke="#6f8fa3" stroke-width="6" stroke-linecap="round" />
+  <path d="M647 336H850" fill="none" stroke="url(#tunnelGlow)" stroke-width="34" stroke-linecap="round" opacity="0.38" />
+  <path d="M647 336H850" fill="none" stroke="#e0b661" stroke-width="5" stroke-dasharray="14 13" stroke-linecap="round" />
+  <path d="M816 316L850 336L816 356" fill="none" stroke="#e0b661" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Local development machine -->
+  <g>
+    <rect x="850" y="205" width="250" height="292" rx="16" fill="#0d0e0c" stroke="#7f9870" stroke-width="4" />
+    <rect x="875" y="240" width="200" height="176" rx="8" fill="#141512" stroke="#303129" stroke-width="3" />
+    <circle cx="900" cy="267" r="7" fill="#c89a49" />
+    <circle cx="924" cy="267" r="7" fill="#7f9870" />
+    <circle cx="948" cy="267" r="7" fill="#6f8fa3" />
+    <path d="M900 310L926 331L900 352M945 352H1012" fill="none" stroke="#eee9dc" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.86" />
+    <path d="M900 382H1038" stroke="#7f9870" stroke-width="5" stroke-linecap="round" opacity="0.7" />
+    <path d="M924 497V525M1026 497V525M890 525H1060" fill="none" stroke="#7f9870" stroke-width="5" stroke-linecap="round" />
+    <circle cx="975" cy="457" r="9" fill="#7f9870" />
+  </g>
+
+  <!-- Protected boundary -->
+  <rect x="810" y="166" width="330" height="400" rx="28" fill="none" stroke="#7f9870" stroke-width="2" stroke-dasharray="8 12" opacity="0.45" />
+  <path d="M856 166H928" stroke="#141512" stroke-width="8" />
+  <path d="M866 166H918" stroke="#7f9870" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+</svg>
