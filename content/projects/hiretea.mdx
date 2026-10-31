@@ -1,10 +1,11 @@
 ---
 title: Hiretea
-publishedAt: "2026-04-15"
-summary: A self-hosted platform for running technical assessments end to end, bundling
-  Gitea as the code host and PostgreSQL as the data store with no external SaaS
-  dependencies.
-tags: [TypeScript, Next.js, Prisma, PostgreSQL, Gitea, Docker, Self-Hosted, Technical Assessments, Recruiting]
+publishedAt: "2026-10-31"
+summary: A transparent, evidence-driven technical hiring platform that runs
+  applications, structured assessments, repository-based challenges, live
+  interviews and auditable decisions in one workspace, deployable self-hosted
+  or as SaaS.
+tags: [TypeScript, Next.js, NestJS, Bun, Prisma, PostgreSQL, Gitea, Docker, Self-Hosted, SaaS, Recruiting]
 language: "en"
 type: "project"
 status: "published"
@@ -12,25 +13,34 @@ status: "published"
 
 # Hiretea
 
-Hiretea is a self-hosted platform for running technical assessments end to end.
+Hiretea is a technical hiring platform that runs the whole process in one
+workspace, from first application to final offer.
 
-[GitHub Repository](https://github.com/sametcn99/hiretea) |
-[Releases](https://github.com/sametcn99/hiretea/releases)
+[Website](https://hiretea.dev)
 
 ## Overview
 
-Hiretea is a self-hosted platform for running technical assessments end to end.
-Define case templates against your own Gitea repositories, provision candidate
-accounts, assign per-candidate working repositories, capture reviewer signal,
-and keep an auditable trail of every state transition.
+Technical hiring usually lives in five disconnected tools: an ATS, an
+assessment platform, a code host, a video-call app, and a spreadsheet that
+tracks what actually happened. Hiretea consolidates applications, structured
+assessments, repository-based coding challenges, live interviews and final
+decisions onto a single connected candidate record, and records every step on
+an append-only audit trail. Candidates see the stages and the effort expected
+of them up front; reviewers decide with evidence attached.
 
-It bundles Gitea as the code host and uses PostgreSQL as the data store —
-everything runs behind your own firewall, with no external SaaS dependencies.
+- **Structured assessments**: versioned questions with auto-scoring for
+  multiple choice and human scoring for written and code answers.
+- **Repository challenges**: candidates work in a private Git copy of a real
+  repository and submit exact commits for review. No zips, no screenshots.
+- **Live interviews**: built-in encrypted HD video, screen sharing and chat,
+  so interview links never leave the platform.
+- **Transparent decisions**: stages, rubrics and reviewer notes are visible to
+  the people who need them, and every decision is recorded with evidence.
 
 ## Who Is It For?
 
-- **Hiring teams** who want full control over their technical assessment
-  pipeline without sending candidate data to third-party services.
+- **Hiring teams** who want full control over their technical hiring pipeline
+  without sending candidate data to third-party services.
 - **Engineering managers & recruiters** who need structured case assignments,
   reviewer guides, rubrics, and decision tracking in one place.
 - **Candidates** who receive a repository to work in, push code via standard
@@ -41,7 +51,7 @@ everything runs behind your own firewall, with no external SaaS dependencies.
 1. **Bootstrap** — On first boot, the stack automatically sets up PostgreSQL,
    initializes Gitea with an admin account, registers an OAuth application,
    applies the database schema, and seeds the first workspace admin. A manual
-   `/setup` page is also available as a fallback.
+   `/setup` page is available as a fallback.
 2. **Create templates** — Admins define case templates that point to Git
    repositories. A template can provision a brand-new repo, link an existing
    one, or copy from an existing repository. Each template carries reviewer
@@ -54,69 +64,63 @@ everything runs behind your own firewall, with no external SaaS dependencies.
    repository (mirrored from the template), grants the candidate write access,
    registers a webhook for status tracking, and persists the case row in
    `READY` status.
-5. **Candidate works** — The candidate pushes code to their working repository.
-   Webhook deliveries automatically advance the case status: first push →
-   `IN_PROGRESS`, review-submission PR → `REVIEWING`.
-6. **Review & decide** — Reviewers access the review workflow, see the template
-   guide and rubric, leave evaluation notes with scores and summaries, and
-   finalize the case with a decision (`ADVANCE`, `HOLD`, or `REJECT`).
-7. **Audit** — Every meaningful mutation (provisioning, status changes, access
-   grants, invite lifecycle, webhook deliveries) is recorded in an append-only
-   audit log.
+5. **Candidate works** — The candidate pushes code to their working
+   repository. Webhook deliveries automatically advance the case status: first
+   push → `IN_PROGRESS`, review-submission PR → `REVIEWING`.
+6. **Interview & review** — Reviewers meet candidates in built-in live
+   interviews, then use the review workflow with the template guide and
+   rubric, leaving evaluation notes with scores and summaries.
+7. **Decide & audit** — Cases are finalized with a decision (`ADVANCE`, `HOLD`,
+   or `REJECT`). Every meaningful mutation (provisioning, status changes,
+   access grants, invite lifecycle, webhook deliveries, AI runs) is recorded
+   in an append-only audit log.
 
-## Key Features
+## AI, With Guardrails
 
-- **Case Templates**: Create reusable challenge definitions from Git
-  repositories (provision new, link existing, or copy from existing).
-- **Candidate Provisioning**: Provision candidate accounts on Gitea, assign
-  working repositories, and manage per-permission access grants.
-- **Invitations**: Token-based invite links for candidates and recruiters, with
-  hash-at-rest tokens, expiration, revocation, and resend tracking.
-- **Review Workflow**: Assign reviewers, attach evaluation notes with rubric
-  criteria and weighted scores, and track decisions (advance / hold / reject).
-- **Webhook-Driven Status Tracking**: Candidate case statuses advance
-  automatically based on pushes and pull requests via signed Gitea webhooks.
-- **Audit Trail**: Every meaningful mutation is recorded in an append-only audit
-  log, viewable from the dashboard.
-- **Candidate Completion Tracking**: Cases can be marked complete manually or
-  automatically when deadlines pass, with observable login tracking from Gitea.
-- **Dark-Mode-First UI**: Built with Radix Themes, English-only interface.
+Hiretea's AI proposes next steps, such as
+advancing a candidate, but every proposal requires human approval. Fit review
+and code review come back with attached evidence and confidence levels, and
+every AI run is written to the audit trail. Model keys are bring-your-own, and
+an MCP server lets tools like Claude Desktop or Cursor read candidate
+snapshots and pipeline data directly.
 
-## Quick Start
+## Deployment
 
-### Prerequisites
+Two deployment modes share the same codebase:
 
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- [Bun](https://bun.sh/) (for running helper scripts)
+- **Self-host**: everything runs behind your own firewall. Gitea is bundled as
+  the code host and stays internal-only; all Gitea traffic flows through a
+  small Bun gateway with a control-plane token, and authentication uses Gitea
+  OAuth with database sessions.
+- **SaaS**: authentication uses provisioned Hiretea credentials, with JWT
+  claims carrying role and workspace access. Gitea remains the git-hosting
+  identity behind the gateway.
 
-### Setup
-
-1. Copy the sample environment file: `cp .env.example .env`
-2. Edit `.env` — at minimum, change these secrets for any non-local deployment:
-   `NEXTAUTH_SECRET`, `BOOTSTRAP_TOKEN`, `GITEA_ADMIN_PASSWORD`,
-   `GITEA_SECRET_KEY`, `GITEA_INTERNAL_TOKEN`, `GITEA_WEBHOOK_SECRET`.
-3. Start the stack: `bun run docker:up`
-4. Open [http://localhost:3000](http://localhost:3000) for Hiretea.
-5. Open [http://localhost:3001](http://localhost:3001) for Gitea.
-
-Startup is fully automatic: PostgreSQL is provisioned, Gitea is initialized
-with an admin account and OAuth application, the database schema is applied, and
-the first workspace admin is seeded.
-
-### Default Ports
-
-| Service    | URL                      | Purpose            |
-| ---------- | ------------------------ | ------------------ |
-| Hiretea    | http://localhost:3000    | Application        |
-| Gitea HTTP | http://localhost:3001    | Browser-facing Git |
-| Gitea SSH  | ssh://git@localhost:2221 | Candidate git push |
-| PostgreSQL | localhost:5432           | Shared database    |
+Object storage is S3-compatible in both modes: an in-stack SeaweedFS overlay
+for local and bundled deployments, or any external provider such as Hetzner
+Object Storage in production. Production runs multi-stage Docker images built
+in GitHub Actions and orchestrated with Docker Compose; the deploy target
+(Coolify) pulls immutable commit-SHA-tagged images from GHCR, so rollback is
+just re-pointing to an older image. Self-hosted licensing is coming soon; see
+[hiretea.dev](https://hiretea.dev) for details.
 
 ## Technology Stack
 
-- **TypeScript / Next.js**
-- **Prisma**
-- **PostgreSQL 16**
-- **Gitea** (bundled code host)
-- **Radix Themes** (UI)
-- **Docker Compose** (orchestration)
+- **Language & runtime**: TypeScript everywhere; Bun as the runtime for the
+  API, gateway, worker and tooling.
+- **Application**: Next.js 16 with React 19, Radix Themes, Monaco editor,
+  Framer Motion, dark-mode-first UI.
+- **API**: a NestJS service on the Express platform, plus a dedicated worker
+  process for background jobs.
+- **Gateway**: a small Bun service (validated with Zod) that proxies and
+  guards all Gitea traffic.
+- **Data**: PostgreSQL with Prisma; S3-compatible object storage via the AWS
+  SDK.
+- **Git**: Gitea as the bundled code host, internal-only behind the gateway.
+- **Real-time**: LiveKit for encrypted video interviews and screen sharing.
+- **AI**: Model Context Protocol SDK for tool integrations, pluggable model
+  providers, human-in-the-loop approval on every run.
+- **Delivery**: layered Docker Compose stacks for self-host and SaaS, GitHub
+  Actions CI, Vitest unit and integration tests, Playwright end-to-end tests,
+  Lighthouse CI.
+- **Admin console**: a separate Vite + React 19 application with React Query.
