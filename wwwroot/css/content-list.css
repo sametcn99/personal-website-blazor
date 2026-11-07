@@ -111,7 +111,7 @@
 }
 
 .content-list-card-link:hover .content-list-card {
-  background: rgba(238, 233, 220, 0.018);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .content-list-card-art {
@@ -140,7 +140,7 @@
 }
 
 .content-list-number {
-  color: #74746b;
+  color: #7d7d7d;
   font-family: var(--font-measure);
   font-size: 0.66rem;
   font-variant-numeric: tabular-nums;
@@ -182,7 +182,7 @@
 }
 
 .content-list-tags span {
-  color: #88887e;
+  color: #878787;
   font-family: var(--font-measure);
   font-size: 0.6rem;
 }

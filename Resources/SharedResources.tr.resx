@@ -143,6 +143,7 @@
   <data name="Search_Placeholder" xml:space="preserve"><value>Yazılarda, bağlantılarda ve depolarda ara...</value></data>
   <data name="Search_Searching" xml:space="preserve"><value>Aranıyor...</value></data>
   <data name="Search_NoResults" xml:space="preserve"><value>Sonuç bulunamadı.</value></data>
+  <data name="Search_ResultCount" xml:space="preserve"><value>{0} sonuç</value></data>
 
   <data name="List_RecordsLabel" xml:space="preserve"><value>kayıt</value></data>
   <data name="List_EntriesAriaLabelFormat" xml:space="preserve"><value>{0} kayıt</value></data>

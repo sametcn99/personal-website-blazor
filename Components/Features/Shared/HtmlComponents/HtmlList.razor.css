@@ -1,7 +1,7 @@
 .html-list {
   margin: 1rem 0 1.5rem;
   padding-left: 1.5rem;
-  color: #c4c1b6;
+  color: #cccccc;
 }
 
 .html-list ::deep li::marker {

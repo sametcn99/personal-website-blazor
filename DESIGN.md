@@ -8,10 +8,10 @@ Avoid the previous dark developer-dashboard language: repeated cards, blue accen
 
 ## Visual World
 
-- Graphite is the ambient surface used by a technical reader in low light.
-- Paper ink provides high-contrast reading text without becoming pure white.
-- Brass amber marks active controls, important entries, and physical tab-like details.
-- Muted sage identifies healthy or current state.
+The color world is a Geist-style monochrome: a pure black ground carries every surface, gray scales structure depth, and near-white ink carries all reading text and accents. White is the only accent; color appears only as semantic system feedback (error, warning, info, success). The SloppyBird easter egg shares the same monochrome world: black sky, gray parallax scenery, gray pipes with white caps, and a white bird.
+
+- Pure black is the page ground; panels step up through measured grays (#0a0a0a, #111, #1a1a1a, #1f1f1f).
+- Near-white (#ededed) is both the primary text ink and the accent. Hover states go to pure white.
 - Fine rules and measured grid lines come from field notebooks and technical drawings. Use them to organize real records, never as arbitrary decoration.
 - Surfaces remain mostly flat. Depth appears only where a physical loose sheet or floating control needs separation.
 
@@ -25,16 +25,17 @@ Avoid the previous dark developer-dashboard language: repeated cards, blue accen
 
 ## Color Tokens
 
-The source of truth is `wwwroot/css/core.css`.
+The source of truth is `wwwroot/css/core.css`. Values follow the Vercel/Geist dark scales.
 
-- Background: `#0d0e0c`
-- Surface: `#141512`
-- Primary text: `#eee9dc`
-- Secondary text: `#aaa99e`
-- Brass accent: `#c89a49`
-- Strong brass: `#e0b661`
-- Sage state: `#7f9870`
-- Divider: `#303129`
+- Background: `#000000`
+- Surface: `#0a0a0a`
+- Primary text: `#ededed`
+- Secondary text: `#a1a1a1`
+- Accent (primary): `#ededed`
+- Strong accent: `#ffffff`
+- Divider: `#1f1f1f`
+- Divider strong: `#2e2e2e`
+- Success: `#00ca50`
 
 Semantic error, warning, info, and success values remain available for system feedback. Do not repurpose them as section colors.
 
@@ -68,7 +69,7 @@ The `/content` route is the complete archive. It merges writing, gists, and proj
 
 ### Controls
 
-Buttons and inputs use small radii. Primary actions use brass fill with dark ink. Focus is always visible with a brass outline. Pills are reserved for filters and compact state choices.
+Buttons and inputs use small radii. Primary actions use a white fill with black ink. Focus is always visible with a white outline. Pills are reserved for filters and compact state choices.
 
 ### Articles
 

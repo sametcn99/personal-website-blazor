@@ -56,11 +56,14 @@ const OPENROUTER_IMAGES_URL = "https://openrouter.ai/api/v1/images";
 
 // Sabit stil talimatı: her içerik için aynı kalır, prompt yazan modele de,
 // (fallback olarak) doğrudan görsel modele de bu stil iletilir.
+// Site temasıyla uyumlu Geist/Vercel monokrom dili: saf siyah zemin, yalnızca
+// gri ölçekleri ve beyaz vurgular — hiçbir renk tonu yok.
 const STYLE_INSTRUCTION =
   "A dark, abstract, minimal cover illustration for a technical article. " +
-  "Moody near-black background, muted geometric shapes, soft olive-green and " +
-  "warm amber accent colors, subtle grid lines, restrained and professional, " +
-  "no text, no watermark, no UI chrome, 16:9 composition.";
+  "Pure black background, strictly grayscale monochrome composition, muted " +
+  "gray geometric shapes, white and light-gray accents, subtle grid lines, " +
+  "restrained and professional, absolutely no color, no text, no watermark, " +
+  "no UI chrome, 16:9 composition.";
 
 // Prompt yazan metin modeline verilen sabit talimat.
 const PROMPT_WRITER_INSTRUCTION =

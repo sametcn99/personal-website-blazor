@@ -3,10 +3,18 @@
   padding: 1rem 1.1rem;
   overflow-x: auto;
   border-radius: var(--radius-md);
-  background: #10110f;
+  background: #0a0a0a;
   box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25);
 }
 
 .html-pre-block pre {
   margin: 0;
+}
+
+/* CDN syntax themes (highlight.js / Prism) set their own darker background on
+   the code element; neutralize it so the block keeps the Geist surface. */
+.html-pre-block pre code,
+.html-pre-block pre code.hljs,
+.html-pre-block pre code[class*="language-"] {
+  background: transparent;
 }

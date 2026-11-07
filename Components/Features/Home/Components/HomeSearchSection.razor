@@ -8,33 +8,30 @@
 
 <dialog id="archive-search-dialog" class="search-dialog" aria-labelledby="home-search-title">
     <div class="search-dialog-panel">
-        <div class="search-dialog-header">
-            <div>
-                <h2 id="home-search-title">@Localizer["Home_SearchLauncherTitle"]</h2>
-                <p>@Localizer["Home_SearchLauncherSubtitle"]</p>
-            </div>
-            <button type="button" class="icon-button" @onclick="CloseSearchAsync" aria-label="@Localizer["Search_CloseDialogAriaLabel"]">
+        <h2 id="home-search-title" class="search-dialog-title">@Localizer["Home_SearchLauncherTitle"]</h2>
+
+        <div class="search-command-input-row">
+            <AppIcon Name="search" />
+            <input id="home-search-input"
+                   class="search-command-input"
+                   @bind="_searchQuery"
+                   @bind:event="oninput"
+                   @bind:after="HandleSearchInputChanged"
+                   @onkeydown="HandleInputKeydown"
+                   placeholder="@Localizer["Search_Placeholder"]"
+                   data-umami-event="home-search-input-click" />
+            <span class="search-kbd" aria-hidden="true">ESC</span>
+            <button type="button" class="icon-button search-close-button" @onclick="CloseSearchAsync" aria-label="@Localizer["Search_CloseDialogAriaLabel"]">
                 <AppIcon Name="close" />
             </button>
         </div>
 
-        <div class="home-search-panel">
-        <div class="input-shell search-input-shell">
-            <AppIcon Name="search" />
-            <input id="home-search-input"
-                   class="input-native"
-                   @bind="_searchQuery"
-                   @bind:event="oninput"
-                   @bind:after="HandleSearchInputChanged"
-                   placeholder="@Localizer["Search_Placeholder"]"
-                   data-umami-event="home-search-input-click" />
-        </div>
-
+        <div class="search-command-body">
         @if (_isSearching)
         {
-            <div class="search-status text-muted">
+            <div class="search-status">
                 <div class="spinner"></div>
-                <span class="text-caption">@Localizer["Search_Searching"]</span>
+                <span class="text-caption text-muted">@Localizer["Search_Searching"]</span>
             </div>
         }
 
@@ -42,38 +39,47 @@
         {
             @if (_filteredResults.Count > 0)
             {
-                <div class="search-result-list">
-                    @foreach (var item in _filteredResults)
+                <div class="search-result-list" role="listbox" aria-label="@Localizer["Home_SearchLauncherTitle"]">
+                    @for (var index = 0; index < _filteredResults.Count; index++)
                     {
-                        <a class="search-result-entry"
+                        var item = _filteredResults[index];
+                        var isActive = index == _selectedIndex;
+                        <a class="search-result-entry @(isActive ? "is-active" : null)"
+                           id="search-result-@index"
                            href="@item.Href"
                            target="@(item.External ? "_blank" : null)"
                            rel="@(item.External ? "noreferrer noopener" : null)"
+                           role="option"
+                           aria-selected="@(isActive ? "true" : "false")"
                            data-umami-event='@UmamiEvent.Click("search-result", item.Title)'>
-                            <article>
-                                <p class="text-heading">@item.Title</p>
-                                @if (!string.IsNullOrWhiteSpace(item.MatchSnippet))
-                                {
-                                    <p class="text-caption text-muted search-match"><i>@item.MatchSnippet</i></p>
-                                }
-                                else if (!string.IsNullOrWhiteSpace(item.Summary))
-                                {
-                                    <p class="text-body text-muted">@item.Summary</p>
-                                }
-                                <p class="text-caption text-muted">
-                                    @item.TypeLabel@GetDateSummary(item)
-                                </p>
-                            </article>
+                            <span class="search-result-main">
+                                <span class="search-result-title">@item.Title</span>
+                                <span class="search-result-snippet">@(GetRowSnippet(item))</span>
+                            </span>
+                            <span class="search-result-aside">
+                                <span class="search-result-type">@item.TypeLabel@(item.External ? " ↗" : null)</span>
+                                <span class="search-result-date">@GetDateOnly(item)</span>
+                            </span>
                         </a>
                     }
                 </div>
             }
             else
             {
-                <p class="text-body text-muted search-empty-state">@Localizer["Search_NoResults"]</p>
+                <p class="search-empty-state text-body text-muted">@Localizer["Search_NoResults"]</p>
             }
         }
         </div>
+
+        <footer class="search-command-footer">
+            <span class="search-command-status text-caption text-muted">@GetFooterStatus()</span>
+            <span class="search-command-hints" aria-hidden="true">
+                <span class="search-kbd">↑</span>
+                <span class="search-kbd">↓</span>
+                <span class="search-kbd">↵</span>
+                <span class="search-kbd">ESC</span>
+            </span>
+        </footer>
     </div>
 </dialog>
 
@@ -85,6 +91,7 @@
     private bool _repoFetchStarted;
     private bool _hotkeyRegistered;
     private string _searchQuery = string.Empty;
+    private int _selectedIndex;
     private CancellationTokenSource? _debounceCts;
     private readonly List<SearchEntry> _localSearchSource = new();
     private readonly Dictionary<string, SearchEntry> _searchIndexByHref = new(StringComparer.OrdinalIgnoreCase);
@@ -176,6 +183,55 @@
 
     private Task HandleSearchInputChanged() => OnSearchQueryChanged(_searchQuery);
 
+    private async Task HandleInputKeydown(KeyboardEventArgs e)
+    {
+        if (_filteredResults.Count == 0)
+        {
+            return;
+        }
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                _selectedIndex = (_selectedIndex + 1) % _filteredResults.Count;
+                await InvokeAsync(StateHasChanged);
+                await ScrollActiveResultIntoViewAsync();
+                break;
+            case "ArrowUp":
+                _selectedIndex = _selectedIndex <= 0 ? _filteredResults.Count - 1 : _selectedIndex - 1;
+                await InvokeAsync(StateHasChanged);
+                await ScrollActiveResultIntoViewAsync();
+                break;
+            case "Enter" when _selectedIndex >= 0 && _selectedIndex < _filteredResults.Count:
+                await ActivateSelectedResultAsync();
+                break;
+        }
+    }
+
+    private async Task ScrollActiveResultIntoViewAsync()
+    {
+        try
+        {
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("scrollIntoViewById", $"search-result-{_selectedIndex}");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    private async Task ActivateSelectedResultAsync()
+    {
+        try
+        {
+            if (_domModule is not null)
+                await _domModule.InvokeVoidAsync("clickElementById", $"search-result-{_selectedIndex}");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
     private void DebounceSearch()
     {
         _debounceCts?.Cancel();
@@ -265,6 +321,7 @@
             }
 
             _filteredResults = _localSearchSource.Take(MaxSearchResults).ToList();
+            _selectedIndex = 0;
         }
         finally
         {
@@ -277,6 +334,7 @@
     {
         _searchQuery = string.Empty;
         _filteredResults.Clear();
+        _selectedIndex = 0;
         _debounceCts?.Cancel();
         await FocusSearchInputAsync();
         await InvokeAsync(StateHasChanged);
@@ -369,6 +427,7 @@
             {
                 ApplyRepoContentFilter();
                 _filteredResults = _localSearchSource.Take(MaxSearchResults).ToList();
+                _selectedIndex = 0;
             }
 
             await InvokeAsync(StateHasChanged);
@@ -409,20 +468,21 @@
         _localSearchSource.Add(entry);
     }
 
-    private static string GetDateSummary(SearchEntry item)
-    {
-        if (!string.IsNullOrWhiteSpace(item.UpdatedAt))
-        {
-            return $" · Updated {item.UpdatedAt}";
-        }
+    private static string GetDateOnly(SearchEntry item) =>
+        !string.IsNullOrWhiteSpace(item.UpdatedAt) ? item.UpdatedAt
+        : !string.IsNullOrWhiteSpace(item.PublishedAt) ? item.PublishedAt
+        : string.Empty;
 
-        if (!string.IsNullOrWhiteSpace(item.PublishedAt))
-        {
-            return $" · Published {item.PublishedAt}";
-        }
+    private static string GetRowSnippet(SearchEntry item) =>
+        !string.IsNullOrWhiteSpace(item.MatchSnippet) ? item.MatchSnippet
+        : !string.IsNullOrWhiteSpace(item.Summary) ? item.Summary
+        : string.Empty;
 
-        return string.Empty;
-    }
+    private string GetFooterStatus() => _isSearching
+        ? Localizer["Search_Searching"]
+        : _filteredResults.Count > 0
+            ? string.Format(Localizer["Search_ResultCount"], _filteredResults.Count)
+            : Localizer["Home_SearchLauncherSubtitle"];
 
     public async ValueTask DisposeAsync()
     {

@@ -74,7 +74,7 @@
 
 .mermaid-content {
   min-height: 200px;
-  background: #10110f;
+  background: #0a0a0a;
 }
 
 .mermaid-loading {
@@ -98,7 +98,7 @@
     "Courier New", monospace;
   white-space: pre-wrap;
   word-break: break-word;
-  background: #10110f;
+  background: #0a0a0a;
   color: var(--color-text-primary);
 }
 

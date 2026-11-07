@@ -143,6 +143,7 @@
   <data name="Search_Placeholder" xml:space="preserve"><value>Search posts, links, and repositories...</value></data>
   <data name="Search_Searching" xml:space="preserve"><value>Searching...</value></data>
   <data name="Search_NoResults" xml:space="preserve"><value>No results found.</value></data>
+  <data name="Search_ResultCount" xml:space="preserve"><value>{0} results</value></data>
 
   <data name="List_RecordsLabel" xml:space="preserve"><value>records</value></data>
   <data name="List_EntriesAriaLabelFormat" xml:space="preserve"><value>{0} entries</value></data>

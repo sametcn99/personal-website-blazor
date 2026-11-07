@@ -1,32 +1,33 @@
+// Geist palette: the game world shares the site's Vercel-style monochrome
+// system (pure black sky, gray parallax scenery, white bird and pipe caps).
 const palette = {
-  skyTop: "#171914",
-  skyBottom: "#292d22",
-  haze: "#4c523d",
-  cityFar: "#1c1e19",
-  cityNear: "#24271f",
-  windows: "#75623a",
-  hillFar: "#394331",
-  hillNear: "#4f6043",
-  foliage: "#687b59",
-  foliageLight: "#7f9870",
-  ground: "#262a21",
-  groundTop: "#c89a49",
-  pipe: "#667957",
-  pipeLight: "#849775",
-  pipeDark: "#35402f",
-  pipeEdge: "#c89a49",
-  birdBody: "#a87a3f",
-  birdBack: "#735538",
-  birdChest: "#d7c28f",
-  birdLight: "#ead9aa",
-  birdWing: "#654b31",
-  birdFeather: "#3f3123",
-  birdDark: "#30251a",
-  birdCrown: "#57402b",
-  birdLeg: "#9c7548",
-  beak: "#bd9046",
-  eye: "#c9b983",
-  pupil: "#0e0f0d",
+  skyTop: "#000000",
+  skyBottom: "#0a0a0a",
+  haze: "#111111",
+  cityFar: "#141414",
+  cityNear: "#1a1a1a",
+  windows: "#ededed",
+  hillFar: "#161616",
+  hillNear: "#1c1c1c",
+  foliage: "#202020",
+  foliageLight: "#7d7d7d",
+  ground: "#0d0d0d",
+  pipe: "#2e2e2e",
+  pipeLight: "#454545",
+  pipeDark: "#1f1f1f",
+  pipeEdge: "#878787",
+  birdBody: "#c4c4c4",
+  birdBack: "#a1a1a1",
+  birdChest: "#d4d4d4",
+  birdLight: "#ededed",
+  birdWing: "#7d7d7d",
+  birdFeather: "#5e5e5e",
+  birdDark: "#3f3f3f",
+  birdCrown: "#8f8f8f",
+  birdLeg: "#7d7d7d",
+  beak: "#8f8f8f",
+  eye: "#ededed",
+  pupil: "#000000",
 }
 
 const TAU = Math.PI * 2
@@ -418,7 +419,7 @@ export function mount(host) {
         context.fillRect(x, y, item.width, item.height + 18)
         if (item.lit) {
           context.fillStyle = palette.windows
-          context.globalAlpha = 0.5
+          context.globalAlpha = 0.35
           for (let windowY = y + 13; windowY < height - groundHeight - 10; windowY += 18) {
             context.fillRect(x + 10, windowY, 4, 5)
             if (item.width > 58) context.fillRect(x + 28, windowY, 4, 5)
@@ -460,8 +461,6 @@ export function mount(host) {
 
     context.fillStyle = palette.ground
     context.fillRect(0, height - groundHeight, width, groundHeight)
-    context.fillStyle = palette.groundTop
-    context.fillRect(0, height - groundHeight, width, 3)
     context.globalAlpha = 0.22
     context.fillStyle = palette.foliageLight
     for (let x = -(sceneOffset % 28); x < width + 28; x += 28) context.fillRect(x, height - groundHeight + 9, 16, 2)

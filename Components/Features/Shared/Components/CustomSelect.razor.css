@@ -73,7 +73,7 @@
 
 .custom-select-option:hover,
 .custom-select-option-selected {
-  background: rgba(200, 154, 73, 0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--color-primary-strong);
 }
 

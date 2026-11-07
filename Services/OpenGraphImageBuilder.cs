@@ -9,8 +9,8 @@ public static class OpenGraphImageBuilder
     private const string Surface = SiteThemeSvg.Surface;
     private const string TextPrimary = SiteThemeSvg.TextPrimary;
     private const string TextSecondary = SiteThemeSvg.TextSecondary;
-    private const string Brass = SiteThemeSvg.Brass;
-    private const string Sage = SiteThemeSvg.Sage;
+    private const string Accent = SiteThemeSvg.Accent;
+    private const string Green = SiteThemeSvg.Green;
     private const string Divider = SiteThemeSvg.Divider;
     private const string FontSans = SiteThemeSvg.FontSans;
     private const string FontMeasure = SiteThemeSvg.FontMeasure;
@@ -48,11 +48,11 @@ public static class OpenGraphImageBuilder
         svg.AppendLine($"  <rect width=\"1200\" height=\"630\" fill=\"{Background}\" />");
         svg.AppendLine("  <rect x=\"42\" y=\"42\" width=\"1116\" height=\"546\" fill=\"url(#field-grid)\" opacity=\"0.42\" />");
         svg.AppendLine($"  <rect x=\"72\" y=\"72\" width=\"1056\" height=\"486\" rx=\"12\" fill=\"{Surface}\" stroke=\"{Divider}\" stroke-width=\"2\" />");
-        svg.AppendLine($"  <rect x=\"72\" y=\"72\" width=\"1056\" height=\"6\" rx=\"3\" fill=\"{Brass}\" />");
+        svg.AppendLine($"  <rect x=\"72\" y=\"72\" width=\"1056\" height=\"6\" rx=\"3\" fill=\"{Accent}\" />");
         svg.AppendLine($"  <text x=\"108\" y=\"128\" fill=\"{TextPrimary}\" font-family=\"{FontSans}\" font-size=\"21\" font-weight=\"700\" letter-spacing=\"1.5\">SAMET CAN CINCİK</text>");
         svg.AppendLine($"  <text x=\"1092\" y=\"128\" text-anchor=\"end\" fill=\"{TextSecondary}\" font-family=\"{FontMeasure}\" font-size=\"16\" letter-spacing=\"1.4\">FIELD NOTES</text>");
         svg.AppendLine($"  <line x1=\"108\" y1=\"158\" x2=\"1092\" y2=\"158\" stroke=\"{Divider}\" stroke-width=\"2\" />");
-        svg.AppendLine($"  <text x=\"108\" y=\"204\" fill=\"{Brass}\" font-family=\"{FontMeasure}\" font-size=\"17\" font-weight=\"700\" letter-spacing=\"2.4\">{Escape(kind)}</text>");
+        svg.AppendLine($"  <text x=\"108\" y=\"204\" fill=\"{Accent}\" font-family=\"{FontMeasure}\" font-size=\"17\" font-weight=\"700\" letter-spacing=\"2.4\">{Escape(kind)}</text>");
 
         for (var index = 0; index < titleLines.Count; index++)
         {
@@ -65,7 +65,7 @@ public static class OpenGraphImageBuilder
         }
 
         svg.AppendLine($"  <line x1=\"108\" y1=\"492\" x2=\"1092\" y2=\"492\" stroke=\"{Divider}\" stroke-width=\"2\" />");
-        svg.AppendLine($"  <circle cx=\"116\" cy=\"526\" r=\"6\" fill=\"{Sage}\" />");
+        svg.AppendLine($"  <circle cx=\"116\" cy=\"526\" r=\"6\" fill=\"{Green}\" />");
         svg.AppendLine($"  <text x=\"136\" y=\"532\" fill=\"{TextSecondary}\" font-family=\"{FontMeasure}\" font-size=\"16\">{Escape(safePath)}</text>");
         if (!string.IsNullOrWhiteSpace(safeDate))
         {

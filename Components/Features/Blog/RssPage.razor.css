@@ -68,7 +68,7 @@
 
 .rss-format:hover,
 .rss-format:focus-within {
-  background: rgba(200, 154, 73, 0.055);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .rss-format-index {
@@ -84,14 +84,14 @@
   height: 2.75rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(200, 154, 73, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-primary-strong);
 }
 
-.rss-format-icon-sage {
-  border-color: rgba(127, 152, 112, 0.65);
+.rss-format-icon-green {
+  border-color: rgba(0, 202, 80, 0.6);
   color: var(--color-success);
 }
 

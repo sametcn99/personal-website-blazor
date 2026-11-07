@@ -5,6 +5,14 @@ export const focusElementById = (elementId) => {
   document.getElementById(elementId)?.focus()
 }
 
+export const clickElementById = (elementId) => {
+  document.getElementById(elementId)?.click()
+}
+
+export const scrollIntoViewById = (elementId) => {
+  document.getElementById(elementId)?.scrollIntoView({ block: "nearest" })
+}
+
 export const openArchiveSearch = () => {
   const dialog = document.getElementById("archive-search-dialog")
   if (!dialog) {
