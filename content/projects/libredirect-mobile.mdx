@@ -1,0 +1,58 @@
+---
+title: "LibRedirect Mobile"
+publishedAt: "2026-08-23"
+summary: "An Android app that quietly rewrites links to YouTube, Reddit, X and other big services so they open in privacy-friendly alternative frontends instead."
+tags: [Android, Kotlin, Privacy, LibRedirect, Invidious, Redlib, URL Routing, Open Source]
+language: "en"
+type: "project"
+status: "published"
+---
+
+# LibRedirect Mobile
+
+An Android app that reroutes links from large online services to
+privacy-friendly frontends — before they ever reach your browser.
+
+[GitHub Repository](https://github.com/sametcn99/libredirect-mobile) |
+[Releases](https://github.com/sametcn99/libredirect-mobile/releases) |
+[Upstream LibRedirect](https://github.com/libredirect)
+
+## What is it?
+
+You tap a YouTube link someone sent you. Normally that opens YouTube, with
+everything that comes with it: ads, tracking, and your viewing habits tied to
+an account. LibRedirect Mobile steps in at the moment the link opens and
+rewrites it to a privacy-friendly alternative — for example an
+[Invidious](https://redirect.invidious.io) instance for YouTube or a Redlib
+instance for Reddit — and then hands the rewritten link to the browser you
+choose.
+
+It works the same way for many popular services, and it does all of this on
+your device. No account, no backend server, no analytics. If a link can't be
+routed, it simply opens normally — nothing breaks.
+
+## What can it do?
+
+- **Redirect popular services** like YouTube, Reddit, and X/Twitter to
+  community-run, privacy-friendly frontends.
+- **Strip tracking parameters** (`utm_*`, click IDs, and similar) from links
+  before they open — even for links it doesn't redirect.
+- **Unwrap redirect wrappers** like `google.com/url?q=…` and AMP pages
+  offline, so you land on the real destination.
+- **Open links your way**: in your favorite external browser, or in the
+  built-in multi-tab browser that ships with the app.
+- **The built-in browser** blocks known tracker and ad hosts, offers a clean
+  reader mode, picture-in-picture video, bookmarks, and a private start page.
+- **Fine-grained control**: enable or disable each service individually, pick
+  which frontend and instance to use, add exceptions for certain sites or
+  apps, and pause the whole thing for a while from a Quick Settings tile.
+- **A "Why?" screen** that shows, for any link you paste, exactly which rule
+  matched and what the app will do with it.
+
+## Who is it for?
+
+For anyone who wants big-platform links to open in lighter, ad-free,
+tracker-free frontends without giving up their usual browser and apps. The
+app's interface is available in English and Turkish, updates arrive as simple
+APK downloads from GitHub Releases, and settings can be backed up to a single
+file. It is released into the public domain (Unlicense).

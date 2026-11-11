@@ -1,0 +1,55 @@
+---
+title: "rcptx"
+publishedAt: "2026-11-10"
+summary: "A command-line tool that checks whether email addresses on a domain really exist — by asking the mail server directly, without sending a single email."
+tags: [Rust, CLI, SMTP, Email, Deliverability, OSINT, Networking, Security Research]
+language: "en"
+type: "project"
+status: "published"
+---
+
+# rcptx
+
+Smart, asynchronous SMTP reconnaissance and deliverability probing — without
+sending a single email.
+
+[GitHub Repository](https://github.com/sametcn99/rcptx) |
+[Documentation](https://sametcn99.github.io/rcptx/) |
+[Latest Release](https://github.com/sametcn99/rcptx/releases/latest)
+
+## What is it?
+
+Sometimes you need to know if an email address is real: a mailing list full
+of dead addresses hurts your sender reputation, and "does
+`hr@company.com` actually exist?" is a surprisingly common question. The
+usual way to find out is to send a message and see if it bounces.
+
+rcptx takes a different route. It connects to the domain's mail server and
+performs the same handshake a mail sender does — right up to the step before
+an email would actually go out — and reads the server's yes/no answer for
+each address. The recipient never receives anything, and you get a clear
+verdict per address: exists, doesn't exist, can't tell, or the domain accepts
+everything (a "catch-all").
+
+## What can it do?
+
+- **Verify addresses** across one or many domains at once, using built-in
+  name presets (hr, support, executive…) or your own candidate lists.
+- **Detect catch-all domains** up front, so you don't waste time scanning a
+  domain that says "yes" to everything.
+- **Map a domain's email setup**: which mail provider actually handles its
+  mail (Google Workspace, Microsoft 365, Proofpoint, and 40+ more), plus its
+  SPF and DMARC records — all from DNS alone if you prefer zero SMTP traffic.
+- **Play nice**: it reuses connections, paces itself with delays and jitter,
+  and retries gracefully when a server greylists you — the polite defaults
+  are on by default.
+- **Report cleanly**: a readable table for humans, or JSON/CSV output for
+  scripts, with filters like "only the addresses that exist".
+
+## Who is it for?
+
+For anyone doing legitimate deliverability work — cleaning subscriber lists
+before a campaign, checking your own domain's mail posture, or authorized
+security assessments. The README includes a clear ethical-use note: probe
+only domains you have a real reason to investigate. Prebuilt binaries are
+available for Linux, macOS, and Windows. Open source under MIT.

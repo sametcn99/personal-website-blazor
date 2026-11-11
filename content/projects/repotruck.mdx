@@ -1,0 +1,58 @@
+---
+title: "repotruck"
+publishedAt: "2026-10-24"
+summary: "One tool that mirrors your whole GitHub into a tidy local folder layout and keeps it in sync — with a built-in map for AI coding agents."
+tags: [TypeScript, CLI, Git, GitHub, Developer Tools, MCP, AI Agents, npm]
+language: "en"
+type: "project"
+status: "published"
+---
+
+# repotruck
+
+Mirrors your GitHub into a predictable local workspace: every repository
+cloned or updated in organized directory layouts, with an `AGENTS.md` map so
+coding agents can navigate it.
+
+[GitHub Repository](https://github.com/sametcn99/repotruck) |
+[Documentation](https://sametcn99.github.io/repotruck/) |
+[npm Package](https://www.npmjs.com/package/repotruck)
+
+## What is it?
+
+If you have more than a handful of repositories, your local copies tend to
+live in random folders, drift out of date, and duplicate each other.
+repotruck fixes that: point it at your GitHub account once, and it clones
+everything into a clean, consistent directory layout — and later fast-forwards
+the same clones so they stay current with one command.
+
+New machine? One `repotruck sync` and your entire GitHub presence is on disk,
+sorted by owner, category, or language using its 16 built-in presets (or your
+own custom layout). Repositories you archive on GitHub get re-filed
+automatically.
+
+## What can it do?
+
+- **Sync everything** with a single command, or cherry-pick with filters —
+  just your account, just an organization, just repos matching a pattern.
+- **Interactive dashboard**: run `repotruck` with no arguments and you get a
+  full terminal UI — browse, search, select, preview what will happen, then
+  sync. Mouse and keyboard both work.
+- **Plain CLI too**: every action is also a scriptable subcommand
+  (`clone`, `status`, `create`, `move`, `archive`, `reorganize`…) for cron
+  jobs and CI.
+- **Workspace health at a glance**: which clones have uncommitted changes,
+  which are stale, what languages you have, how much disk it all takes, and a
+  code search across every repository at once.
+- **A map for AI coding agents**: each workspace root gets a generated
+  `AGENTS.md` describing the inventory and rules, and `repotruck mcp` exposes
+  the tool to agents like Claude or Codex as an MCP server — so your assistant
+  can find and work with the right repository without guessing paths.
+
+## Who is it for?
+
+For anyone — developer or agent — who lives in a multi-repo world: keeping a
+full local mirror of your GitHub, onboarding to a new machine quickly, or
+giving AI coding assistants a tidy, documented workspace instead of a folder
+mess. Install with `npm i -g repotruck` (or try it instantly with
+`npx repotruck`). Open source under MIT.

@@ -1,0 +1,56 @@
+---
+title: "tcptui"
+publishedAt: "2026-10-12"
+summary: "A terminal version of the classic Sysinternals TCPView for Windows — see every network connection on your system, live, with the process that owns it."
+tags: [Rust, TUI, Terminal, Windows, Networking, TCPView, Ratatui, Sysinternals]
+language: "en"
+type: "project"
+status: "published"
+---
+
+# tcptui
+
+A terminal UI clone of
+[Sysinternals TCPView](https://learn.microsoft.com/en-us/sysinternals/downloads/tcpview)
+for Windows, written in Rust.
+
+[GitHub Repository](https://github.com/sametcn99/tcptui) |
+[Documentation](https://sametcn99.github.io/tcptui/) |
+[Releases](https://github.com/sametcn99/tcptui/releases)
+
+## What is it?
+
+Every program on your computer that talks to the network — your browser, your
+IDE, some background updater — opens network connections to do it. TCPView is
+the classic Windows tool for seeing them all. tcptui brings that same picture
+into the terminal: a single, live-updating table of every TCP and UDP
+connection on the system, together with the process, service, and user that
+owns each one.
+
+New connections flash green, disappeared ones red, changed ones yellow — so
+you can literally watch what your machine is connecting to, second by second.
+
+## What can it do?
+
+- **See everything at a glance**: all TCP/UDP endpoints (IPv4 and IPv6) with
+  the owning process and PID, updating live at an adjustable refresh rate.
+- **Find what you're looking for** with a simple filter language (`state=established`,
+  `process=chrome`, `port=443`…), incremental search, and sorting by any
+  column.
+- **Take action**: close a suspicious connection or end a process without
+  leaving the terminal, run a whois lookup on a remote address, or look an
+  endpoint up on VirusTotal (optional).
+- **Watch and record**: a bandwidth chart, statistics popups, alert rules that
+  flag new connections matching a pattern, and export to CSV/TSV/JSON.
+- **Extras**: a `tcpvcon` command-line companion mirroring the tool that ships
+  with TCPView, optional country flags for remote addresses, and view profiles
+  that remember your setup.
+
+## Who is it for?
+
+For developers, sysadmins, and the terminal-native curious who want
+"what is this program connecting to?" answered in one screen — no GUI
+required. It's a single small executable that runs without any special
+rights; you can install it via
+[Scoop](https://github.com/sametcn99/tcptui/releases/download/v1.3.0/scoop-tcptui.json)
+or grab a prebuilt binary from the releases page. Open source under MIT.

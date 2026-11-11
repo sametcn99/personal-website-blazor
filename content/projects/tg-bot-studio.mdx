@@ -1,0 +1,52 @@
+---
+title: "TG Bot Studio"
+publishedAt: "2026-10-12"
+summary: "A self-hosted web dashboard for running and managing multiple Telegram bots and Mini Apps from one place — flows, broadcasts, AI replies, and a shop included."
+tags: [Telegram, Bots, TypeScript, NestJS, React, Self-Hosted, Mini Apps, Automation]
+language: "en"
+type: "project"
+status: "published"
+---
+
+# TG Bot Studio
+
+A self-hosted web application for managing multiple Telegram bots and
+Telegram Mini Apps (TMAs) from a single dashboard.
+
+[GitHub Repository](https://github.com/sametcn99/tg-bot-studio)
+
+## What is it?
+
+Running more than one Telegram bot usually means a pile of scripts, config
+files, and long-running processes that you babysit by hand. TG Bot Studio
+replaces that with one web dashboard you host yourself: add your bot tokens,
+and the studio keeps the bots online, stores their settings in its own
+database, and gives you a browser interface for everything the bots do.
+
+## What can it do?
+
+- **Build conversations visually**: a drag-and-drop flow designer for
+  multi-step dialogues — messages, questions, delays, buttons — triggered by
+  commands or keywords.
+- **Reach your audience**: scheduled broadcasts with built-in A/B testing
+  (try up to three variants on a slice of users, then roll out the winner),
+  plus welcome messages, autoresponders, and drip campaigns.
+- **An AI assistant** that can answer users on the bot's behalf, and one-click
+  AI translation of your bot texts.
+- **Ready-made Mini Apps**: seven templates including an online shop with
+  Telegram Stars checkout, a loyalty hub, forms, and a prize wheel — the
+  small web apps that open inside Telegram.
+- **Practical extras**: a group file search that answers "does anyone have
+  X?"-style questions automatically, a shared media library, and bot replies
+  in 14 languages (dashboard in English, Turkish, German, and Russian).
+- **Ops included**: clone a bot's whole setup to a new one, export/import
+  configurations, automatic nightly backups, health monitoring with Telegram
+  alerts when a bot goes down, and Prometheus metrics.
+
+## Who is it for?
+
+For community managers, small businesses, and makers who run several Telegram
+bots and want one place to control them. It deploys as a single Docker
+container (a one-command `docker compose up`), works well on cheap VPS or
+home servers, and ships pre-configured for [Coolify](https://coolify.io).
+Your data stays in your own SQLite database.
