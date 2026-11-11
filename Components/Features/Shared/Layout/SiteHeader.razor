@@ -22,27 +22,32 @@
                     <AppIcon Name="close" />
                 </button>
             </div>
-            <NavLink href="/blog" @onclick="CloseMenu" data-umami-event="header-writing-click">@Localizer["Nav_Writing"]</NavLink>
-            <NavLink href="/gist" @onclick="CloseMenu" data-umami-event="header-gists-click">@Localizer["Nav_Gists"]</NavLink>
-            <NavLink href="/project" @onclick="CloseMenu" data-umami-event="header-projects-click">@Localizer["Nav_Projects"]</NavLink>
-            <NavLink href="/readme" @onclick="CloseMenu" data-umami-event="header-about-click">@Localizer["Nav_About"]</NavLink>
-            <button type="button" class="site-search-link" @onclick="OpenSearch" aria-label="@Localizer["Nav_SearchArchiveAriaLabel"]" data-umami-event="header-search-click">
-                <AppIcon Name="search" />
-                <span>@Localizer["Nav_Search"]</span>
-            </button>
-            <div class="site-lang-switch" role="group" aria-label="@Localizer["Lang_SwitchAriaLabel"]">
-                <a class="site-lang-option @(IsCurrentCulture("tr") ? "active" : null)"
-                   href="@BuildSetLanguageUrl("tr")"
-                   aria-current="@(IsCurrentCulture("tr") ? "true" : null)"
-                   data-enhance-nav="false"
-                   onclick="@ScrollCaptureOnClick"
-                   data-umami-event="header-lang-tr-click">@Localizer["Lang_Turkish"]</a>
-                <a class="site-lang-option @(IsCurrentCulture("en") ? "active" : null)"
-                   href="@BuildSetLanguageUrl("en")"
-                   aria-current="@(IsCurrentCulture("en") ? "true" : null)"
-                   data-enhance-nav="false"
-                   onclick="@ScrollCaptureOnClick"
-                   data-umami-event="header-lang-en-click">@Localizer["Lang_English"]</a>
+            <div class="site-nav-links">
+                <NavLink href="/blog" @onclick="CloseMenu" data-umami-event="header-writing-click">@Localizer["Nav_Writing"]</NavLink>
+                <NavLink href="/gist" @onclick="CloseMenu" data-umami-event="header-gists-click">@Localizer["Nav_Gists"]</NavLink>
+                <NavLink href="/project" @onclick="CloseMenu" data-umami-event="header-projects-click">@Localizer["Nav_Projects"]</NavLink>
+                <NavLink href="/readme" @onclick="CloseMenu" data-umami-event="header-about-click">@Localizer["Nav_About"]</NavLink>
+            </div>
+            <span class="site-nav-divider" aria-hidden="true"></span>
+            <div class="site-nav-utilities">
+                <button type="button" class="site-search-link" @onclick="OpenSearch" aria-label="@Localizer["Nav_SearchArchiveAriaLabel"]" data-umami-event="header-search-click">
+                    <AppIcon Name="search" />
+                    <span>@Localizer["Nav_Search"]</span>
+                </button>
+                <div class="site-lang-switch" role="group" aria-label="@Localizer["Lang_SwitchAriaLabel"]">
+                    <a class="site-lang-option @(IsCurrentCulture("tr") ? "active" : null)"
+                       href="@BuildSetLanguageUrl("tr")"
+                       aria-current="@(IsCurrentCulture("tr") ? "true" : null)"
+                       data-enhance-nav="false"
+                       onclick="@ScrollCaptureOnClick"
+                       data-umami-event="header-lang-tr-click">@Localizer["Lang_Turkish"]</a>
+                    <a class="site-lang-option @(IsCurrentCulture("en") ? "active" : null)"
+                       href="@BuildSetLanguageUrl("en")"
+                       aria-current="@(IsCurrentCulture("en") ? "true" : null)"
+                       data-enhance-nav="false"
+                       onclick="@ScrollCaptureOnClick"
+                       data-umami-event="header-lang-en-click">@Localizer["Lang_English"]</a>
+                </div>
             </div>
         </nav>
 

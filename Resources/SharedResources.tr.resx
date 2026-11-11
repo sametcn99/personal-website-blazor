@@ -126,7 +126,6 @@
   <data name="Home_BlogPosts" xml:space="preserve"><value>Blog yazıları</value></data>
   <data name="Home_TechnicalGists" xml:space="preserve"><value>Teknik gist'ler</value></data>
   <data name="Home_BuiltProjects" xml:space="preserve"><value>Geliştirilen projeler</value></data>
-  <data name="Home_UpdatedStatus" xml:space="preserve"><value>Çalışma değiştikçe güncellenir</value></data>
   <data name="Home_SearchLauncherTitle" xml:space="preserve"><value>Arşivde ara</value></data>
   <data name="Home_SearchLauncherSubtitle" xml:space="preserve"><value>Yazılar, gist'ler, projeler, depolar ve bağlantılar tek bir dizinde.</value></data>
   <data name="Home_OpenSearch" xml:space="preserve"><value>Aramayı aç</value></data>
@@ -138,6 +137,8 @@
   <data name="Home_BuiltWork" xml:space="preserve"><value>Geliştirilen çalışmalar</value></data>
   <data name="Home_BuiltWorkSubtitle" xml:space="preserve"><value>İçeriden belgelenen denemeler ve araçlar.</value></data>
   <data name="Home_ProjectIndex" xml:space="preserve"><value>Proje dizini</value></data>
+  <data name="Home_ShowMore" xml:space="preserve"><value>Daha fazla göster</value></data>
+  <data name="Home_ViewAllProjects" xml:space="preserve"><value>Tüm projelere göz at</value></data>
 
   <data name="Search_CloseDialogAriaLabel" xml:space="preserve"><value>Arama iletişim kutusunu kapat</value></data>
   <data name="Search_Placeholder" xml:space="preserve"><value>Yazılarda, bağlantılarda ve depolarda ara...</value></data>

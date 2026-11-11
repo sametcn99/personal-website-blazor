@@ -123,10 +123,9 @@
   <data name="Home_BrowseAll" xml:space="preserve"><value>Browse all content</value></data>
   <data name="Home_ArchiveContentsLabel" xml:space="preserve"><value>Archive contents</value></data>
   <data name="Home_AllContent" xml:space="preserve"><value>All content</value></data>
-  <data name="Home_BlogPosts" xml:space="preserve"><value>Blog Posts</value></data>
+  <data name="Home_BlogPosts" xml:space="preserve"><value>Blog posts</value></data>
   <data name="Home_TechnicalGists" xml:space="preserve"><value>Technical gists</value></data>
   <data name="Home_BuiltProjects" xml:space="preserve"><value>Built projects</value></data>
-  <data name="Home_UpdatedStatus" xml:space="preserve"><value>Updated as the work changes</value></data>
   <data name="Home_SearchLauncherTitle" xml:space="preserve"><value>Search the archive</value></data>
   <data name="Home_SearchLauncherSubtitle" xml:space="preserve"><value>Posts, gists, projects, repositories, and links in one index.</value></data>
   <data name="Home_OpenSearch" xml:space="preserve"><value>Open search</value></data>
@@ -138,6 +137,8 @@
   <data name="Home_BuiltWork" xml:space="preserve"><value>Built work</value></data>
   <data name="Home_BuiltWorkSubtitle" xml:space="preserve"><value>Experiments and tools documented from the inside.</value></data>
   <data name="Home_ProjectIndex" xml:space="preserve"><value>Project index</value></data>
+  <data name="Home_ShowMore" xml:space="preserve"><value>Show more</value></data>
+  <data name="Home_ViewAllProjects" xml:space="preserve"><value>Browse all projects</value></data>
 
   <data name="Search_CloseDialogAriaLabel" xml:space="preserve"><value>Close search dialog</value></data>
   <data name="Search_Placeholder" xml:space="preserve"><value>Search posts, links, and repositories...</value></data>

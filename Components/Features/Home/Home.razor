@@ -26,124 +26,200 @@
             <div class="home-actions">
                 @if (LatestContent is not null)
                 {
-                    <a class="button button-solid" href="@LatestContent.Href" data-umami-event="home-latest-click">@Localizer["Home_ReadLatest"]</a>
-                    }
-                    <a class="text-link" href="/content" data-umami-event="home-archive-click">@Localizer["Home_BrowseAll"]</a>
-                </div>
+                    <a class="home-action-primary" href="@LatestContent.Href" data-umami-event="home-latest-click">
+                        <span>@Localizer["Home_ReadLatest"]</span>
+                        <AppIcon Name="chevron-right" Class="home-action-arrow" />
+                    </a>
+                }
+                <a class="home-action-secondary" href="/content" data-umami-event="home-archive-click">
+                    <span>@Localizer["Home_BrowseAll"]</span>
+                </a>
             </div>
+        </div>
 
-            <aside class="archive-ledger" aria-label="@Localizer["Home_ArchiveContentsLabel"]">
-                <p class="archive-ledger-title">@Localizer["Home_ArchiveContentsLabel"]</p>
-                <a href="/content"><span>@Localizer["Home_AllContent"]</span><strong>@(_blogTotal + _gistTotal + _projectTotal)</strong></a>
-                <a href="/blog"><span>@Localizer["Home_BlogPosts"]</span><strong>@_blogTotal</strong></a>
-                <a href="/gist"><span>@Localizer["Home_TechnicalGists"]</span><strong>@_gistTotal</strong></a>
-                <a href="/project"><span>@Localizer["Home_BuiltProjects"]</span><strong>@_projectTotal</strong></a>
-                <p class="archive-ledger-status"><span class="status-mark"></span> @Localizer["Home_UpdatedStatus"]</p>
-            </aside>
-        </section>
+        @{
+            var totalContentCount = _blogTotal + _gistTotal + _projectTotal;
+        }
+        <aside class="archive-ledger" aria-label="@Localizer["Home_ArchiveContentsLabel"]">
+            <a class="archive-ledger-summary" href="/content" data-umami-event="home-ledger-all-click">
+                <span class="archive-ledger-head">
+                    <span class="archive-ledger-title">@Localizer["Home_ArchiveContentsLabel"]</span>
+                    <AppIcon Name="chevron-right" Class="archive-ledger-arrow" />
+                </span>
+                <span class="archive-ledger-total">
+                    <strong>@totalContentCount.ToString("00")</strong>
+                    <span>@Localizer["Home_AllContent"]</span>
+                </span>
+            </a>
 
-        <section id="search" class="home-search-launcher" aria-labelledby="home-search-launcher-title">
-            <button type="button" @onclick="OpenSearchAsync" data-umami-event="home-search-open-click">
+            <div class="archive-ledger-rows">
+                <a class="archive-ledger-row" href="/blog" data-umami-event="home-ledger-blog-click">
+                    <span class="archive-ledger-row-label">@Localizer["Home_BlogPosts"]</span>
+                    <span class="archive-ledger-row-meta">
+                        <strong>@_blogTotal.ToString("00")</strong>
+                        <AppIcon Name="chevron-right" Class="archive-ledger-arrow" />
+                    </span>
+                </a>
+                <a class="archive-ledger-row" href="/gist" data-umami-event="home-ledger-gist-click">
+                    <span class="archive-ledger-row-label">@Localizer["Home_TechnicalGists"]</span>
+                    <span class="archive-ledger-row-meta">
+                        <strong>@_gistTotal.ToString("00")</strong>
+                        <AppIcon Name="chevron-right" Class="archive-ledger-arrow" />
+                    </span>
+                </a>
+                <a class="archive-ledger-row" href="/project" data-umami-event="home-ledger-project-click">
+                    <span class="archive-ledger-row-label">@Localizer["Home_BuiltProjects"]</span>
+                    <span class="archive-ledger-row-meta">
+                        <strong>@_projectTotal.ToString("00")</strong>
+                        <AppIcon Name="chevron-right" Class="archive-ledger-arrow" />
+                    </span>
+                </a>
+            </div>
+        </aside>
+    </section>
+
+    <section id="search" class="home-search-launcher" aria-labelledby="home-search-launcher-title">
+        <button type="button" @onclick="OpenSearchAsync" data-umami-event="home-search-open-click">
+            <span class="home-search-launcher-lead">
+                <AppIcon Name="search" Class="home-search-launcher-icon" />
                 <span class="home-search-launcher-copy">
                     <strong id="home-search-launcher-title">@Localizer["Home_SearchLauncherTitle"]</strong>
                     <small>@Localizer["Home_SearchLauncherSubtitle"]</small>
                 </span>
-                <span class="home-search-launcher-action">
-                    <AppIcon Name="search" />
-                    @Localizer["Home_OpenSearch"]
-                </span>
-            </button>
-        </section>
+            </span>
+        </button>
+    </section>
 
-        @if (_isLoading)
-        {
-            <div class="home-loading" aria-label="@Localizer["Home_LoadingRecentAriaLabel"]">
-                <div class="skeleton"></div>
-                <div class="skeleton"></div>
-                <div class="skeleton"></div>
-            </div>
-        }
-        else
-        {
-            <div class="home-register">
-                <section class="register-section" aria-labelledby="recent-writing-title">
-                    <div class="register-heading">
-                        <h2 id="recent-writing-title">@Localizer["Home_RecentWriting"]</h2>
-                        <a href="/blog">@Localizer["Home_WritingIndex"]</a>
-                    </div>
-                    <div class="register-list writing-folio-list">
-                        @foreach (var post in MoreBlogPosts)
-                        {
-                            <a class="writing-folio-entry" href="@post.Href">
-                                <img class="writing-folio-art"
-                                     src="@GetContentAssetUrl(post)"
-                                     alt=""
-                                     aria-hidden="true"
-                                     loading="lazy"
-                                     decoding="async" />
-                                <span class="writing-folio-copy">
-                                    <time>@GetShortDate(post)</time>
-                                    <strong>@post.Title</strong>
-                                    <small>@post.Summary</small>
-                                </span>
-                            </a>
-                        }
-                    </div>
-                </section>
-
-                <aside class="register-section field-notes" aria-labelledby="field-notes-title">
-                    <div class="register-heading">
-                        <h2 id="field-notes-title">@Localizer["Home_FieldNotes"]</h2>
-                        <a href="/gist">@Localizer["Home_GistIndex"]</a>
-                    </div>
-                    <div class="field-note-list">
-                        @foreach (var gist in _gistPosts.Take(5))
-                        {
-                            <a class="field-note-card" href="@gist.Href">
-                                <img class="field-note-art"
-                                     src="@GetContentAssetUrl(gist)"
-                                     alt=""
-                                     aria-hidden="true"
-                                     loading="lazy"
-                                     decoding="async" />
-                                <span class="field-note-copy">@gist.Title</span>
-                                <time>@GetShortDate(gist)</time>
-                            </a>
-                        }
-                    </div>
-                </aside>
-            </div>
-
-            <section class="project-register" aria-labelledby="project-register-title">
+    @if (_isLoading)
+    {
+        <div class="home-loading" aria-label="@Localizer["Home_LoadingRecentAriaLabel"]">
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+            <div class="skeleton"></div>
+        </div>
+    }
+    else
+    {
+        <div class="home-register">
+            <section class="register-section" aria-labelledby="recent-writing-title">
                 <div class="register-heading">
-                    <div>
-                        <h2 id="project-register-title">@Localizer["Home_BuiltWork"]</h2>
-                        <p>@Localizer["Home_BuiltWorkSubtitle"]</p>
+                    <div class="register-heading-copy">
+                        <h2 id="recent-writing-title">@Localizer["Home_RecentWriting"]</h2>
                     </div>
-                    <a href="/project">@Localizer["Home_ProjectIndex"]</a>
+                    <a class="register-index-link" href="/blog">
+                        <span>@Localizer["Home_WritingIndex"]</span>
+                        <AppIcon Name="chevron-right" Class="register-index-arrow" />
+                    </a>
                 </div>
-                <div class="project-register-grid">
-                    @foreach (var project in _projectPosts.Take(3))
+                <div class="writing-folio-list">
+                    @foreach (var post in MoreBlogPosts)
                     {
-                        <a href="@project.Href">
-                            <img class="project-register-art"
-                                 src="@GetContentAssetUrl(project)"
+                        <a class="writing-folio-entry" href="@post.Href">
+                            <img class="writing-folio-art"
+                                 src="@GetContentAssetUrl(post)"
                                  alt=""
                                  aria-hidden="true"
                                  loading="lazy"
                                  decoding="async" />
-                            <span class="project-register-mark"></span>
-                            <strong>@project.Title</strong>
-                            <p>@project.Summary</p>
-                            <small>@GetShortDate(project)</small>
+                            <span class="writing-folio-copy">
+                                <time>@GetShortDate(post)</time>
+                                <strong>@post.Title</strong>
+                                <small>@post.Summary</small>
+                            </span>
+                            <AppIcon Name="chevron-right" Class="register-entry-arrow" />
                         </a>
                     }
                 </div>
             </section>
-        }
-    </div>
+
+            <aside class="register-section field-notes" aria-labelledby="field-notes-title">
+                <div class="register-heading">
+                    <div class="register-heading-copy">
+                        <h2 id="field-notes-title">@Localizer["Home_FieldNotes"]</h2>
+                    </div>
+                    <a class="register-index-link" href="/gist">
+                        <span>@Localizer["Home_GistIndex"]</span>
+                        <AppIcon Name="chevron-right" Class="register-index-arrow" />
+                    </a>
+                </div>
+                <div class="field-note-list">
+                    @foreach (var gist in _gistPosts.Take(5))
+                    {
+                        <a class="field-note-row" href="@gist.Href">
+                            <span class="field-note-main">
+                                <span class="field-note-title">@gist.Title</span>
+                                <time>@GetShortDate(gist)</time>
+                            </span>
+                            <AppIcon Name="chevron-right" Class="register-entry-arrow" />
+                        </a>
+                    }
+                </div>
+            </aside>
+        </div>
+
+        <section class="project-register" aria-labelledby="project-register-title">
+            <div class="register-heading">
+                <div class="register-heading-copy">
+                    <h2 id="project-register-title">@Localizer["Home_BuiltWork"]</h2>
+                    <p>@Localizer["Home_BuiltWorkSubtitle"]</p>
+                </div>
+                <a class="register-index-link" href="/project">
+                    <span>@Localizer["Home_ProjectIndex"]</span>
+                    <AppIcon Name="chevron-right" Class="register-index-arrow" />
+                </a>
+            </div>
+            <div class="project-register-grid">
+                @foreach (var project in _projectPosts.Take(_visibleProjectCount))
+                {
+                    <a class="project-card" href="@project.Href">
+                        <img class="project-register-art"
+                             src="@GetContentAssetUrl(project)"
+                             alt=""
+                             aria-hidden="true"
+                             loading="lazy"
+                             decoding="async" />
+                        <span class="project-card-body">
+                            <strong>@project.Title</strong>
+                            <span class="project-card-summary">@project.Summary</span>
+                            <span class="project-card-meta">
+                                <time>@GetShortDate(project)</time>
+                                <AppIcon Name="chevron-right" Class="register-entry-arrow" />
+                            </span>
+                        </span>
+                    </a>
+                }
+            </div>
+            @if (_projectPosts.Count > _visibleProjectCount)
+            {
+                <div class="project-register-footer">
+                    <button type="button"
+                            class="project-register-action"
+                            @onclick="ShowMoreProjects"
+                            data-umami-event="home-projects-show-more-click">
+                        <span>@Localizer["Home_ShowMore"]</span>
+                        <AppIcon Name="chevron-down" Class="project-register-action-icon" />
+                    </button>
+                </div>
+            }
+            else if (_projectTotal > _projectPosts.Count)
+            {
+                <div class="project-register-footer">
+                    <a class="project-register-action"
+                       href="/project"
+                       data-umami-event="home-projects-browse-all-click">
+                        <span>@Localizer["Home_ViewAllProjects"]</span>
+                        <AppIcon Name="chevron-right" Class="project-register-action-icon" />
+                    </a>
+                </div>
+            }
+        </section>
+    }
+</div>
 
 @code {
+    private const int ProjectPageSize = 3;
+    private const int MaxHomeProjects = 9;
+
     private List<ContentMetadata> _blogPosts = new();
     private List<ContentMetadata> _gistPosts = new();
     private List<ContentMetadata> _projectPosts = new();
@@ -151,6 +227,7 @@
     private int _blogTotal;
     private int _gistTotal;
     private int _projectTotal;
+    private int _visibleProjectCount = ProjectPageSize;
     private bool _isLoading = true;
     private PersistingComponentStateSubscription? _persistSubscription;
     private IJSObjectReference? _domModule;
@@ -211,7 +288,7 @@ _projectPosts.FirstOrDefault() }
 
         _blogPosts = blogs.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("blog")).ToList();
         _gistPosts = gists.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("gist")).ToList();
-        _projectPosts = projects.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("project")).ToList();
+        _projectPosts = projects.OrderByDescending(GetEffectiveDate).Take(MaxHomeProjects).Select(ToMeta("project")).ToList();
         _isLoading = false;
     }
 
@@ -289,6 +366,11 @@ _projectPosts.FirstOrDefault() }
     {
         if (_domModule is not null)
             await _domModule.InvokeVoidAsync("openArchiveSearch");
+    }
+
+    private void ShowMoreProjects()
+    {
+        _visibleProjectCount = Math.Min(_visibleProjectCount + ProjectPageSize, _projectPosts.Count);
     }
 
     public async ValueTask DisposeAsync()
