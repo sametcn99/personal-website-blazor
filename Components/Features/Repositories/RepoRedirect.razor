@@ -1,9 +1,10 @@
 @page "/repo/{Slug}"
 @inject IGitHubService GitHubService
 @inject PersistentComponentState ApplicationState
+@inject IStringLocalizer<SharedResources> Localizer
 @implements IDisposable
 
-<PageTitle>@(_repoName ?? "Redirecting") | Samet Can Cıncık</PageTitle>
+<PageTitle>@(_repoName ?? Localizer["Redirect_Title"]) | Samet Can Cıncık</PageTitle>
 
 <HeadContent>
     <meta name="description" content="@(_repoName is null ? "Redirecting to repository page." : $"Redirecting to {_repoName} on GitHub.")" />
@@ -11,20 +12,24 @@
 
 @if (_notFound)
 {
-    <div class="page-container page-section">
-        <BackToHome />
-        <div class="alert alert-warning" style="margin-top: 1rem;">Repository not found.</div>
-    </div>
+    <RedirectPage IsNotFound="true"
+                  NotFoundMessage="@Localizer["Redirect_RepoNotFound"]"
+                  BackHref="/repo"
+                  BackLabel="@Localizer["Page_Repo_Title"]" />
 }
 else if (_repoUrl != null)
 {
-    <RedirectPage TargetUrl="@_repoUrl" />
+    <RedirectPage TargetUrl="@_repoUrl"
+                  Label="@_repoName"
+                  BackHref="/repo"
+                  BackLabel="@Localizer["Page_Repo_Title"]" />
 }
 else
 {
-    <div class="page-container center-stack status-page">
-        <div class="spinner"></div>
-    </div>
+    <RedirectPage IsLoading="true"
+                  LoadingText="@Localizer["Redirect_LoadingRepo"]"
+                  BackHref="/repo"
+                  BackLabel="@Localizer["Page_Repo_Title"]" />
 }
 
 @code {
@@ -84,7 +89,9 @@ else
                 return;
             }
         }
-        catch { }
+        catch
+        {
+        }
 
         _notFound = true;
         _loadedSlug = Slug;

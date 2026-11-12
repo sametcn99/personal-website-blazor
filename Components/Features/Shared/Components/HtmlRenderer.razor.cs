@@ -226,6 +226,19 @@ public class HtmlRenderer : ComponentBase
         builder.OpenComponent<HtmlImage>(0);
         builder.AddAttribute(1, nameof(HtmlImage.Src), node.GetAttributeValue("src", string.Empty));
         builder.AddAttribute(2, nameof(HtmlImage.Alt), node.GetAttributeValue("alt", string.Empty));
+
+        var width = node.GetAttributeValue("width", string.Empty);
+        if (!string.IsNullOrWhiteSpace(width))
+        {
+            builder.AddAttribute(3, nameof(HtmlImage.Width), width);
+        }
+
+        var height = node.GetAttributeValue("height", string.Empty);
+        if (!string.IsNullOrWhiteSpace(height))
+        {
+            builder.AddAttribute(4, nameof(HtmlImage.Height), height);
+        }
+
         builder.CloseComponent();
     }
 

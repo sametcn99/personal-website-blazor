@@ -1,11 +1,14 @@
+@using System.Text.RegularExpressions
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
 <img src="@Src"
-    alt="@Alt"
-    class="html-content-image"
-    style="cursor: zoom-in;"
-    @onclick="OpenViewer" />
+     alt="@Alt"
+     width="@NormalizedWidthAttribute"
+     height="@NormalizedHeightAttribute"
+     class="html-content-image"
+     style="@GetImageStyle()"
+     @onclick="OpenViewer" />
 
 @if (_isViewerOpen)
 {
@@ -29,8 +32,8 @@
 
             <div class="image-viewer-stage"
                  @onwheel="HandleWheel"
-                  @onwheel:preventDefault="true"
-                  @onwheel:stopPropagation="true"
+                 @onwheel:preventDefault="true"
+                 @onwheel:stopPropagation="true"
                  @onmousedown="StartDrag"
                  @onmousemove="Drag"
                  @onmouseup="EndDrag"
@@ -46,8 +49,14 @@
 }
 
 @code {
+    private static readonly Regex SafeDimensionRegex = new(
+        @"^\d+(?:\.\d+)?(?:px|rem|em|%)?$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     [Parameter] public string? Src { get; set; }
     [Parameter] public string? Alt { get; set; }
+    [Parameter] public string? Width { get; set; }
+    [Parameter] public string? Height { get; set; }
 
     private bool _isViewerOpen;
     private double _zoom = 1.0;
@@ -58,6 +67,9 @@
     private double _dragStartY;
     private bool _scrollLocked;
     private IJSObjectReference? _domModule;
+
+    private string? NormalizedWidthAttribute => NormalizeHtmlDimension(Width);
+    private string? NormalizedHeightAttribute => NormalizeHtmlDimension(Height);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -175,6 +187,44 @@
 
         if (_domModule is not null)
             await _domModule.DisposeAsync();
+    }
+
+    private static string? NormalizeHtmlDimension(string? raw)
+    {
+        var trimmed = raw?.Trim();
+        return string.IsNullOrEmpty(trimmed) || !SafeDimensionRegex.IsMatch(trimmed)
+            ? null
+            : trimmed;
+    }
+
+    private static string? NormalizeCssDimension(string? raw)
+    {
+        var trimmed = NormalizeHtmlDimension(raw);
+        if (trimmed is null)
+            return null;
+
+        return char.IsDigit(trimmed[^1]) ? $"{trimmed}px" : trimmed;
+    }
+
+    private string GetImageStyle()
+    {
+        var parts = new List<string> { "cursor: zoom-in" };
+        var cssWidth = NormalizeCssDimension(Width);
+        var cssHeight = NormalizeCssDimension(Height);
+
+        if (cssWidth is not null)
+        {
+            parts.Add($"width: min(100%, {cssWidth})");
+            if (cssHeight is null)
+                parts.Add("height: auto");
+        }
+
+        if (cssHeight is not null)
+        {
+            parts.Add($"height: {cssHeight}");
+        }
+
+        return string.Join("; ", parts) + ";";
     }
 
     private string GetTransformStyle() =>

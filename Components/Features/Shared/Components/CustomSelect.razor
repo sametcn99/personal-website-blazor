@@ -1,13 +1,12 @@
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
-<div id="@selectId" class="custom-select @(isOpen ? "custom-select-open" : null)" @attributes="AdditionalAttributes">
+<div id="@selectId" class="custom-select @(isOpen ? "custom-select-open" : null)" @onkeydown="HandleKeyDown" @attributes="AdditionalAttributes">
     <button type="button"
             class="custom-select-trigger"
             aria-haspopup="listbox"
             aria-expanded="@isOpen"
-            @onclick="ToggleOpen"
-            @onkeydown="HandleKeyDown">
+            @onclick="ToggleOpen">
         <span>@SelectedOption.Label</span>
         <AppIcon Name="chevron-down" />
     </button>
@@ -43,6 +42,7 @@
     private bool isOpen;
     private readonly string selectId = $"custom-select-{Guid.NewGuid():N}";
     private IJSObjectReference? _domModule;
+    private DotNetObjectReference<CustomSelect>? _selfRef;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -51,9 +51,12 @@
 
         try
         {
-            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+            var modulePath = $"/{Assets["dist/js/dom.min.js"].TrimStart('/')}";
+            _domModule = await JS.InvokeAsync<IJSObjectReference>("import", modulePath);
+            _selfRef = DotNetObjectReference.Create(this);
+            await _domModule.InvokeVoidAsync("registerCustomSelect", selectId, _selfRef);
         }
-        catch (JSDisconnectedException)
+        catch (Exception ex) when (ex is JSDisconnectedException or JSException or ObjectDisposedException or TaskCanceledException)
         {
         }
     }
@@ -84,9 +87,20 @@
         }
     }
 
+    [JSInvokable]
+    public Task CloseAsync()
+    {
+        if (!isOpen)
+            return Task.CompletedTask;
+
+        isOpen = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
     private void HandleKeyDown(KeyboardEventArgs args)
     {
-        if (args.Key is "Escape" or "Tab")
+        if (args.Key == "Escape")
         {
             isOpen = false;
         }
@@ -95,6 +109,24 @@
     public async ValueTask DisposeAsync()
     {
         if (_domModule is not null)
-            await _domModule.DisposeAsync();
+        {
+            try
+            {
+                await _domModule.InvokeVoidAsync("unregisterCustomSelect", selectId);
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or JSException or ObjectDisposedException or TaskCanceledException)
+            {
+            }
+
+            try
+            {
+                await _domModule.DisposeAsync();
+            }
+            catch (Exception ex) when (ex is JSDisconnectedException or JSException or ObjectDisposedException or TaskCanceledException)
+            {
+            }
+        }
+
+        _selfRef?.Dispose();
     }
 }

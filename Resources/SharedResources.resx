@@ -264,4 +264,17 @@
   <data name="Support_TechnicalWritingDescription" xml:space="preserve"><value>Practical articles that turn solved problems into reusable notes.</value></data>
   <data name="Support_SharedReferences" xml:space="preserve"><value>Shared references</value></data>
   <data name="Support_SharedReferencesDescription" xml:space="preserve"><value>A maintained archive of guides, links, and working examples.</value></data>
+
+  <data name="Redirect_Badge" xml:space="preserve"><value>External redirect</value></data>
+  <data name="Redirect_Title" xml:space="preserve"><value>Redirecting shortly</value></data>
+  <data name="Redirect_DestinationTitleFormat" xml:space="preserve"><value>Redirecting to {0}</value></data>
+  <data name="Redirect_CountdownSingularFormat" xml:space="preserve"><value>You will be redirected automatically in {0} second.</value></data>
+  <data name="Redirect_CountdownPluralFormat" xml:space="preserve"><value>You will be redirected automatically in {0} seconds.</value></data>
+  <data name="Redirect_ContinueNow" xml:space="preserve"><value>Open destination</value></data>
+  <data name="Redirect_ManualNote" xml:space="preserve"><value>If the redirect does not start automatically, open the destination directly above.</value></data>
+  <data name="Redirect_DestinationAriaLabel" xml:space="preserve"><value>Destination URL</value></data>
+  <data name="Redirect_LoadingRepo" xml:space="preserve"><value>Resolving repository destination...</value></data>
+  <data name="Redirect_NotFoundTitle" xml:space="preserve"><value>Destination not found</value></data>
+  <data name="Redirect_LinkNotFound" xml:space="preserve"><value>The requested short link does not exist or may have been removed.</value></data>
+  <data name="Redirect_RepoNotFound" xml:space="preserve"><value>The requested repository could not be found on GitHub.</value></data>
 </root>

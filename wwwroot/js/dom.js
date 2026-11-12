@@ -1,4 +1,6 @@
 const archiveSearchDialogs = new WeakSet()
+const registeredCustomSelects = new Map()
+let customSelectListenersAttached = false
 let bodyScrollLockCount = 0
 
 export const focusElementById = (elementId) => {
@@ -41,10 +43,45 @@ export const closeArchiveSearch = () => {
   if (dialog?.open) dialog.close()
 }
 
+const closeCustomSelect = (id, dotNetRef) => {
+  const root = document.getElementById(id)
+  if (!root?.classList.contains("custom-select-open")) return
+  dotNetRef?.invokeMethodAsync("CloseAsync").catch(() => {})
+}
+
+const closeCustomSelectsOutside = (target) => {
+  const activeSelect = target instanceof Element ? target.closest(".custom-select") : null
+  registeredCustomSelects.forEach((dotNetRef, id) => {
+    if (activeSelect?.id === id) return
+    closeCustomSelect(id, dotNetRef)
+  })
+}
+
+const handleCustomSelectKeyDown = (event) => {
+  if (event.key !== "Escape") return
+  registeredCustomSelects.forEach((dotNetRef, id) => {
+    closeCustomSelect(id, dotNetRef)
+  })
+}
+
+export const registerCustomSelect = (selectId, dotNetRef) => {
+  registeredCustomSelects.set(selectId, dotNetRef)
+  if (customSelectListenersAttached) return
+
+  customSelectListenersAttached = true
+  document.addEventListener("pointerdown", (event) => closeCustomSelectsOutside(event.target), true)
+  document.addEventListener("focusin", (event) => closeCustomSelectsOutside(event.target), true)
+  document.addEventListener("keydown", handleCustomSelectKeyDown)
+}
+
+export const unregisterCustomSelect = (selectId) => {
+  registeredCustomSelects.delete(selectId)
+}
+
 export const closeOtherCustomSelects = (activeId) => {
-  document.querySelectorAll(".custom-select.custom-select-open").forEach((select) => {
-    if (select.id === activeId) return
-    select.querySelector(".custom-select-trigger")?.click()
+  registeredCustomSelects.forEach((dotNetRef, id) => {
+    if (id === activeId) return
+    closeCustomSelect(id, dotNetRef)
   })
 }
 

@@ -1,50 +1,151 @@
 @* RedirectPage.razor - Countdown redirect component *@
+@inject IStringLocalizer<SharedResources> Localizer
+@inject NavigationManager Navigation
 @implements IDisposable
 
-<div class="center-stack redirect-page">
-    <h2 class="text-section-title">Redirecting you shortly…</h2>
-    <p class="text-body text-muted">
-        You'll be automatically redirected in @_countdown second@(_countdown != 1 ? "s" : "").
-    </p>
-    <div class="spinner" aria-hidden="true"></div>
-
-    @if (_showManualLink)
-    {
-        <div class="center-stack redirect-page-manual">
-            <p class="text-caption text-muted">
-                If you are not redirected automatically, please click the link below:
-            </p>
-            <a class="link-muted" href="@TargetUrl"
-               data-umami-event='@UmamiEvent.Click("redirect-manual-link", TargetUrl)'>@TargetUrl</a>
+<div class="redirect-viewport">
+    <section class="redirect-card" aria-live="polite">
+        <div class="redirect-card-bar">
+            <span class="redirect-status">
+                <span class="redirect-status-dot @(IsNotFound ? "redirect-status-dot-muted" : null)" aria-hidden="true"></span>
+                <span>@Localizer["Redirect_Badge"]</span>
+            </span>
+            @if (!IsLoading && !IsNotFound)
+            {
+                <span class="redirect-countdown-pill">@($"{_countdown:00}s")</span>
+            }
         </div>
-    }
+
+        <div class="redirect-progress-track" aria-hidden="true">
+            @if (!IsLoading && !IsNotFound)
+            {
+                <div class="redirect-progress-fill"></div>
+            }
+        </div>
+
+        @if (IsNotFound)
+        {
+            <div class="redirect-card-body">
+                <h1>@Localizer["Redirect_NotFoundTitle"]</h1>
+                <p class="redirect-subtitle">@(NotFoundMessage ?? Localizer["Redirect_LinkNotFound"])</p>
+            </div>
+            <div class="redirect-card-footer">
+                <a class="redirect-btn-secondary" href="@BackHref">
+                    <AppIcon Name="chevron-left" Class="redirect-btn-icon" />
+                    <span>@(BackLabel ?? Localizer["Common_ReturnToHome"])</span>
+                </a>
+                <a class="redirect-btn-primary" href="/">
+                    <span>@Localizer["Common_ReturnToHome"]</span>
+                    <AppIcon Name="chevron-right" Class="redirect-btn-icon" />
+                </a>
+            </div>
+        }
+        else if (IsLoading)
+        {
+            <div class="redirect-card-body">
+                <div class="redirect-loading-row">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <span>@(LoadingText ?? Localizer["Redirect_LoadingRepo"])</span>
+                </div>
+            </div>
+            <div class="redirect-card-footer">
+                <a class="redirect-btn-secondary" href="@BackHref">
+                    <AppIcon Name="chevron-left" Class="redirect-btn-icon" />
+                    <span>@(BackLabel ?? Localizer["Common_ReturnToHome"])</span>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="redirect-card-body">
+                <h1>@(string.IsNullOrWhiteSpace(Label)
+                    ? Localizer["Redirect_Title"]
+                    : string.Format(Localizer["Redirect_DestinationTitleFormat"], Label))</h1>
+                <p class="redirect-subtitle">
+                    @string.Format(_countdown == 1
+                        ? Localizer["Redirect_CountdownSingularFormat"]
+                        : Localizer["Redirect_CountdownPluralFormat"], _countdown)
+                </p>
+
+                <a class="redirect-destination"
+                   href="@TargetUrl"
+                   aria-label="@Localizer["Redirect_DestinationAriaLabel"]"
+                   title="@TargetUrl"
+                   data-umami-event='@UmamiEvent.Click("redirect-manual-link", TargetUrl)'>
+                    <span class="redirect-destination-url">@TargetUrl</span>
+                    <AppIcon Name="external-link" Class="redirect-destination-icon" />
+                </a>
+
+                @if (_showManualLink)
+                {
+                    <p class="redirect-manual-note">@Localizer["Redirect_ManualNote"]</p>
+                }
+            </div>
+
+            <div class="redirect-card-footer">
+                <a class="redirect-btn-secondary" href="@BackHref">
+                    <AppIcon Name="chevron-left" Class="redirect-btn-icon" />
+                    <span>@(BackLabel ?? Localizer["Common_ReturnToHome"])</span>
+                </a>
+                <a class="redirect-btn-primary"
+                   href="@TargetUrl"
+                   data-umami-event='@UmamiEvent.Click("redirect-manual-link", TargetUrl)'>
+                    <span>@Localizer["Redirect_ContinueNow"]</span>
+                    <AppIcon Name="chevron-right" Class="redirect-btn-icon" />
+                </a>
+            </div>
+        }
+    </section>
 </div>
 
 @code {
     [Parameter] public string TargetUrl { get; set; } = string.Empty;
-    
-    [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string? LoadingText { get; set; }
+    [Parameter] public bool IsNotFound { get; set; }
+    [Parameter] public string? NotFoundMessage { get; set; }
+    [Parameter] public string BackHref { get; set; } = "/";
+    [Parameter] public string? BackLabel { get; set; }
 
     private int _countdown = 3;
     private bool _showManualLink;
+    private bool _timerStarted;
     private Timer? _timer;
+    private readonly CancellationTokenSource _cts = new();
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        _timer = new Timer(state => { _ = TickAsync(); }, null, 1000, 1000);
+        if (_timerStarted || IsLoading || IsNotFound || string.IsNullOrWhiteSpace(TargetUrl))
+        {
+            return;
+        }
 
-        // Show manual link after 5 seconds
+        _timerStarted = true;
+        _timer = new Timer(_ => { _ = TickAsync(); }, null, 1000, 1000);
+
+        // Show manual link fallback after 5 seconds if automatic navigation was blocked.
         _ = ShowManualLinkAsync();
     }
 
     private async Task TickAsync()
     {
+        if (_cts.IsCancellationRequested)
+        {
+            return;
+        }
+
         _countdown--;
         if (_countdown <= 0)
         {
             _timer?.Dispose();
             await InvokeAsync(() =>
             {
+                if (_cts.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 try
                 {
                     Navigation.NavigateTo(TargetUrl, forceLoad: true);
@@ -62,10 +163,21 @@
 
     private async Task ShowManualLinkAsync()
     {
-        await Task.Delay(5000);
-        _showManualLink = true;
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await Task.Delay(5000, _cts.Token);
+            _showManualLink = true;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
-    public void Dispose() => _timer?.Dispose();
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+        _timer?.Dispose();
+    }
 }

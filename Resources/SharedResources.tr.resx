@@ -264,4 +264,17 @@
   <data name="Support_TechnicalWritingDescription" xml:space="preserve"><value>Çözülmüş sorunları yeniden kullanılabilir notlara dönüştüren pratik makaleler.</value></data>
   <data name="Support_SharedReferences" xml:space="preserve"><value>Paylaşılan referanslar</value></data>
   <data name="Support_SharedReferencesDescription" xml:space="preserve"><value>Rehberlerden, bağlantılardan ve çalışan örneklerden oluşan güncel bir arşiv.</value></data>
+
+  <data name="Redirect_Badge" xml:space="preserve"><value>Dış yönlendirme</value></data>
+  <data name="Redirect_Title" xml:space="preserve"><value>Yönlendiriliyorsunuz</value></data>
+  <data name="Redirect_DestinationTitleFormat" xml:space="preserve"><value>{0} bağlantısına yönlendiriliyorsunuz</value></data>
+  <data name="Redirect_CountdownSingularFormat" xml:space="preserve"><value>{0} saniye içinde otomatik olarak yönlendirileceksiniz.</value></data>
+  <data name="Redirect_CountdownPluralFormat" xml:space="preserve"><value>{0} saniye içinde otomatik olarak yönlendirileceksiniz.</value></data>
+  <data name="Redirect_ContinueNow" xml:space="preserve"><value>Bağlantıyı aç</value></data>
+  <data name="Redirect_ManualNote" xml:space="preserve"><value>Yönlendirme otomatik başlamazsa yukarıdaki düğmeden hedefe geçebilirsiniz.</value></data>
+  <data name="Redirect_DestinationAriaLabel" xml:space="preserve"><value>Hedef adres</value></data>
+  <data name="Redirect_LoadingRepo" xml:space="preserve"><value>Depo adresi alınıyor...</value></data>
+  <data name="Redirect_NotFoundTitle" xml:space="preserve"><value>Hedef bulunamadı</value></data>
+  <data name="Redirect_LinkNotFound" xml:space="preserve"><value>İstenen kısa bağlantı mevcut değil veya kaldırılmış olabilir.</value></data>
+  <data name="Redirect_RepoNotFound" xml:space="preserve"><value>İstenen depo GitHub üzerinde bulunamadı.</value></data>
 </root>

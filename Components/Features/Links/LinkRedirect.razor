@@ -1,8 +1,9 @@
 @page "/link/{Slug}"
 
 @inject ISocialLinkProvider SocialLinks
+@inject IStringLocalizer<SharedResources> Localizer
 
-<PageTitle>@(_social?.Label ?? "Redirecting") | Samet Can Cıncık</PageTitle>
+<PageTitle>@(_social?.Label ?? Localizer["Redirect_Title"]) | Samet Can Cıncık</PageTitle>
 
 <HeadContent>
     <meta name="description" content="@(_social is null ? "Redirecting to selected link." : $"Redirecting to {_social.Label}.")" />
@@ -10,14 +11,17 @@
 
 @if (_social == null)
 {
-    <div class="page-container page-section">
-        <BackToHome />
-        <div class="alert alert-warning" style="margin-top: 1rem;">Link not found.</div>
-    </div>
+    <RedirectPage IsNotFound="true"
+                  NotFoundMessage="@Localizer["Redirect_LinkNotFound"]"
+                  BackHref="/link"
+                  BackLabel="@Localizer["Page_Links_Title"]" />
 }
 else
 {
-    <RedirectPage TargetUrl="@_social.Link" />
+    <RedirectPage TargetUrl="@_social.Link"
+                  Label="@_social.Label"
+                  BackHref="/link"
+                  BackLabel="@Localizer["Page_Links_Title"]" />
 }
 
 @code {
