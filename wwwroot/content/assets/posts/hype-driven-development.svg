@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" role="img" aria-label="Infographic: the model launch loop">
+  <defs>
+    <style>
+      .sans { font-family: Geist, Inter, "Segoe UI", system-ui, -apple-system, sans-serif; }
+      .mono { font-family: "Geist Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; }
+    </style>
+  </defs>
+
+  <!-- ground -->
+  <rect x="0" y="0" width="1200" height="540" fill="#000000"/>
+  <rect x="0.5" y="0.5" width="1199" height="539" fill="none" stroke="#1f1f1f"/>
+
+  <!-- title block -->
+  <text class="sans" x="70" y="294" font-size="62" font-weight="700" letter-spacing="-1.5" fill="#ededed">HYPE-DRIVEN</text>
+  <text class="sans" x="70" y="362" font-size="62" font-weight="700" letter-spacing="-1.5" fill="#ededed">DEVELOPMENT</text>
+
+  <!-- release loop -->
+  <circle cx="930" cy="305" r="150" fill="none" stroke="#1f1f1f" stroke-width="1.5"/>
+
+  <!-- clockwise direction arrows -->
+  <path d="M 7 0 L -5 5 L -5 -5 Z" fill="#a1a1a1" transform="translate(1018.2,183.6) rotate(36)"/>
+  <path d="M 7 0 L -5 5 L -5 -5 Z" fill="#a1a1a1" transform="translate(1072.7,351.4) rotate(108)"/>
+  <path d="M 7 0 L -5 5 L -5 -5 Z" fill="#a1a1a1" transform="translate(930,455) rotate(180)"/>
+  <path d="M 7 0 L -5 5 L -5 -5 Z" fill="#a1a1a1" transform="translate(787.3,351.4) rotate(252)"/>
+  <path d="M 7 0 L -5 5 L -5 -5 Z" fill="#a1a1a1" transform="translate(841.8,183.6) rotate(324)"/>
+
+  <!-- loop nodes -->
+  <rect x="866" y="138" width="128" height="34" rx="17" fill="#0f0f0f" stroke="#2e2e2e"/>
+  <text class="mono" x="930" y="160" font-size="12" fill="#ededed" text-anchor="middle">LAUNCH</text>
+
+  <rect x="1009" y="242" width="128" height="34" rx="17" fill="#0f0f0f" stroke="#2e2e2e"/>
+  <text class="mono" x="1073" y="264" font-size="11.5" fill="#ededed" text-anchor="middle">BENCHMARK BUZZ</text>
+
+  <rect x="954" y="409" width="128" height="34" rx="17" fill="#0f0f0f" stroke="#2e2e2e"/>
+  <text class="mono" x="1018" y="431" font-size="12" fill="#ededed" text-anchor="middle">QUICK TRIAL</text>
+
+  <rect x="778" y="409" width="128" height="34" rx="17" fill="#0f0f0f" stroke="#2e2e2e"/>
+  <text class="mono" x="842" y="431" font-size="11.5" fill="#ededed" text-anchor="middle">FEELS FAMILIAR</text>
+
+  <rect x="723" y="242" width="128" height="34" rx="17" fill="#0f0f0f" stroke="#2e2e2e"/>
+  <text class="mono" x="787" y="264" font-size="12" fill="#ededed" text-anchor="middle">NEXT LAUNCH</text>
+
+  <!-- loop center -->
+  <text class="mono" x="930" y="284" font-size="11" letter-spacing="2" fill="#a1a1a1" text-anchor="middle">EVERY LAP</text>
+  <text class="mono" x="930" y="318" font-size="30" font-weight="700" fill="#ededed" text-anchor="middle">23m 15s</text>
+  <text class="sans" x="930" y="342" font-size="13" fill="#a1a1a1" text-anchor="middle">to refocus</text>
+</svg>
