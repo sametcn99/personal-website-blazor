@@ -79,6 +79,43 @@
   <data name="Footer_ArchiveNote" xml:space="preserve"><value>An independently published archive.</value></data>
   <data name="Footer_AgentNote" xml:space="preserve"><value>This site is optimized for AI agents. Share the link with your favorite AI tool to explore the content and learn more about me.</value></data>
   <data name="Footer_AgentReportLink" xml:space="preserve"><value>View the agent readiness report.</value></data>
+  <data name="AgentPopup_Badge" xml:space="preserve"><value>Agent Ready</value></data>
+  <data name="AgentPopup_Title" xml:space="preserve"><value>Optimized for AI Agents</value></data>
+  <data name="AgentPopup_AriaLabel" xml:space="preserve"><value>AI Agent Optimization Notice</value></data>
+  <data name="AgentPopup_DismissAriaLabel" xml:space="preserve"><value>Dismiss agent notice for this tab</value></data>
+  <data name="AgentPopup_DontShowAgain" xml:space="preserve"><value>Don't show again</value></data>
+  <data name="AgentPopup_DontShowAgainAriaLabel" xml:space="preserve"><value>Don't show this notice again</value></data>
+  <data name="AgentPopup_ReportLink" xml:space="preserve"><value>Readiness report</value></data>
+  <data name="AgentPopup_CopyPrompt" xml:space="preserve"><value>Copy Prompt</value></data>
+  <data name="AgentPopup_PromptCopied" xml:space="preserve"><value>Prompt Copied!</value></data>
+  <data name="AgentPopup_CopyPromptAriaLabel" xml:space="preserve"><value>Copy ready-to-use prompt for AI agents</value></data>
+  <data name="AgentPopup_AgentPromptTemplate" xml:space="preserve"><value>Research and analyze Samet Can Cıncık's personal website, software projects, and technical archive at {1} (entry page: {0}). Execute this research task immediately using your web browsing, URL fetching, or MCP tools—do not treat this prompt as a template to review or ask how to use it.
+
+## 1. Sources &amp; Endpoints to Inspect
+
+This website is optimized for AI agents. Consult multiple sources together (profile, CV, timeline, skills, archive, and GitHub repositories) rather than relying on a single page:
+
+- **Entry Page**: `{0}`
+- **LLM Context Indexes**:
+  - `{1}/llms.txt` — Concise navigation index and source directory.
+  - `{1}/llms-full.txt` — Complete context containing structured profile, published articles/gists/projects, and GitHub repository snapshot.
+- **Clean Markdown Surfaces** (append `.md` to public routes or send `Accept: text/markdown`):
+  - Profile, CV &amp; Career: `{1}/about.md`, `{1}/cv.md`, `{1}/timeline.md`, `{1}/skills.md`, `{1}/readme.md`
+  - Content Archives: `{1}/content.md`, `{1}/blog.md`, `{1}/gist.md`, `{1}/project.md`, `{1}/repo.md`
+  - Individual Items: `{1}/blog/{{slug}}.md`, `{1}/gist/{{slug}}.md`, `{1}/project/{{slug}}.md`
+- **Structured JSON APIs**:
+  - `{1}/api/profile`, `{1}/api/timeline`, `{1}/api/skills`, `{1}/api/profile/github`, `{1}/api/repos`
+  - `{1}/api/content/all`, `{1}/api/content/search?q={{query}}&amp;section={{section}}`, `{1}/api/content/{{section}}/{{slug}}`, `{1}/feed.json`
+- **MCP Server &amp; Discovery Metadata** (if supported by your environment):
+  - `POST {1}/mcp` — Streamable HTTP MCP endpoint (`get_profile`, `get_timeline`, `get_skills`, `list_projects`, `get_content`, `search_content`, `list_taxonomy`, `get_related_content`)
+  - `{1}/.well-known/agent-skills/website-content/SKILL.md`, `{1}/.well-known/mcp/server-card.json`, `{1}/.well-known/agent-card.json`, `{1}/openapi.json`
+
+## 2. Research &amp; Execution Instructions
+
+1. **Multi-Source Synthesis**: Fetch `{1}/llms.txt` or `{1}/llms-full.txt` along with `{1}/about.md`, `{1}/cv.md`, `{1}/skills.md`, and `{1}/content.md` to build an accurate, complete picture of Samet Can Cıncık's background, engineering experience, certifications, technical stack, and built work.
+2. **User-Interest &amp; Context Adaptation**: If you have memory or context about me (my technical background, role, or areas of interest), perform deeper targeted research into the projects, blog posts, technical gists, and skills on the site that best match my interests.
+3. **Guided Site Discovery**: Present a clear, well-structured overview and actively guide me to explore more of the website. Include direct clickable links to relevant blog posts (`{1}/blog/...`), technical gists (`{1}/gist/...`), projects (`{1}/project/...`), and key pages, and suggest specific follow-up topics or articles on the site to check out next.
+4. **Language**: Respond in my primary or preferred language (use your user memory, account locale, or conversation context to determine my language).</value></data>
   <data name="Footer_SocialLinksAriaLabel" xml:space="preserve"><value>Social links</value></data>
   <data name="Footer_GitHubProfile" xml:space="preserve"><value>GitHub profile</value></data>
   <data name="Footer_LinkedInProfile" xml:space="preserve"><value>LinkedIn profile</value></data>

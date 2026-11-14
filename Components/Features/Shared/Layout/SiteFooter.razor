@@ -1,4 +1,7 @@
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
 @inject IStringLocalizer<SharedResources> Localizer
+@implements IAsyncDisposable
 
 <footer class="site-footer">
     <div class="page-container site-footer-inner">
@@ -8,7 +11,19 @@
                 <div class="footer-statement-copy">
                     <p>@Localizer["Footer_Tagline"]</p>
                     <p class="footer-archive-note">@Localizer["Footer_ArchiveNote"]</p>
-                    <p class="footer-agent-note">@Localizer["Footer_AgentNote"]<br /><a href="https://isitagentready.com/sametcc.me" target="_blank" rel="noopener noreferrer" data-umami-event="footer-agent-ready-click">@Localizer["Footer_AgentReportLink"]</a></p>
+                    <div class="footer-agent-section">
+                        <p class="footer-agent-note">@Localizer["Footer_AgentNote"]<br /><a href="https://isitagentready.com/sametcc.me" target="_blank" rel="noopener noreferrer" data-umami-event="footer-agent-ready-click">@Localizer["Footer_AgentReportLink"]</a></p>
+                        <div class="footer-agent-actions">
+                            <button type="button"
+                                    class="footer-agent-copy-btn @(_copied ? "is-copied" : null)"
+                                    @onclick="CopyPromptAsync"
+                                    aria-label="@Localizer["AgentPopup_CopyPromptAriaLabel"]"
+                                    data-umami-event="footer-copy-prompt-click">
+                                <AppIcon Name="@(_copied ? "check" : "copy")" />
+                                <span>@(_copied ? Localizer["AgentPopup_PromptCopied"] : Localizer["AgentPopup_CopyPrompt"])</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <nav class="footer-social-links" aria-label="@Localizer["Footer_SocialLinksAriaLabel"]">
                     <a class="footer-social-link"
@@ -63,3 +78,60 @@
     </div>
     <SloppyBird />
 </footer>
+
+@code {
+    private bool _copied;
+    private IJSObjectReference? _domModule;
+
+    private string BuildAgentPrompt()
+    {
+        const string publicBase = "https://sametcc.me";
+        var relative = Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/');
+        var targetUrl = string.IsNullOrEmpty(relative) ? publicBase : $"{publicBase}/{relative}";
+
+        return Localizer["AgentPopup_AgentPromptTemplate", targetUrl, publicBase];
+    }
+
+    private async Task CopyPromptAsync()
+    {
+        try
+        {
+            _domModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "/dist/js/dom.min.js");
+            var prompt = BuildAgentPrompt();
+            await _domModule.InvokeVoidAsync("copyToClipboard", prompt);
+            _copied = true;
+            StateHasChanged();
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(2000);
+                    _copied = false;
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch
+                {
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error copying prompt to clipboard: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_domModule is not null)
+            {
+                await _domModule.DisposeAsync();
+            }
+        }
+        catch
+        {
+        }
+    }
+}

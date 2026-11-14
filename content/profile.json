@@ -16,19 +16,32 @@
     "Next.js",
     "Node.js",
     "NestJS",
+    "Redux",
+    "Redux Toolkit",
+    "Zustand",
+    "Tailwind CSS",
+    "MUI",
     "Kotlin",
     "Android",
+    "PostgreSQL",
+    "TimescaleDB",
+    "InfluxDB",
+    "SQL Server",
+    "Jest",
+    "Docker",
+    "GitHub Actions",
+    "Prometheus",
+    "Grafana",
+    "Bun",
+    "Go",
     "OpenCV",
     "TensorFlow Lite",
     "Google ML Kit",
-    "Docker",
-    "GitHub Actions",
-    "PostgreSQL",
-    "SQL Server",
-    "Bun",
-    "Go",
     "WPF",
     "Electron",
+    "SEO",
+    "AEO",
+    "Google Ads",
     "AI-assisted development"
   ],
   "areasOfInterest": [
@@ -41,7 +54,8 @@
     "Software architecture",
     "Automation and DevOps",
     "Real-time interfaces",
-    "Developer tools"
+    "Developer tools",
+    "Digital marketing"
   ],
   "languages": ["Turkish", "English"],
   "publicNotes": [
@@ -113,5 +127,5 @@
     { "name": "C# (Basic)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/7ac7d1982705" },
     { "name": "Learning Design Thinking", "issuer": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/certificates/af61a5d6a352975bf8bccdb9b77b08034773ccfb6da5b5991448c689461617d1" }
   ],
-  "lastUpdated": "2026-08-19"
+  "lastUpdated": "2026-11-14"
 }
