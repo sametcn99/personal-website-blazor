@@ -39,7 +39,6 @@ public sealed class AgentPopupTests : IClassFixture<WebApplicationFactory<Progra
         var enTitle = localizer["AgentPopup_Title"];
         var enReport = localizer["AgentPopup_ReportLink"];
         var enCopyPrompt = localizer["AgentPopup_CopyPrompt"];
-        var enDontShow = localizer["AgentPopup_DontShowAgain"];
         var enPrompt = localizer["AgentPopup_AgentPromptTemplate", "https://sametcc.me", "https://sametcc.me"];
 
         Assert.False(enTitle.ResourceNotFound);
@@ -47,8 +46,6 @@ public sealed class AgentPopupTests : IClassFixture<WebApplicationFactory<Progra
         Assert.False(enReport.ResourceNotFound);
         Assert.False(enCopyPrompt.ResourceNotFound);
         Assert.Equal("Copy Prompt", enCopyPrompt.Value);
-        Assert.False(enDontShow.ResourceNotFound);
-        Assert.Equal("Don't show again", enDontShow.Value);
         Assert.False(enPrompt.ResourceNotFound);
         Assert.Contains("Research and analyze Samet Can Cıncık's personal website", enPrompt.Value);
         Assert.Contains("## 2. Research & Execution Instructions", enPrompt.Value);
@@ -60,7 +57,6 @@ public sealed class AgentPopupTests : IClassFixture<WebApplicationFactory<Progra
         var trTitle = localizer["AgentPopup_Title"];
         var trReport = localizer["AgentPopup_ReportLink"];
         var trCopyPrompt = localizer["AgentPopup_CopyPrompt"];
-        var trDontShow = localizer["AgentPopup_DontShowAgain"];
         var trPrompt = localizer["AgentPopup_AgentPromptTemplate", "https://sametcc.me", "https://sametcc.me"];
 
         Assert.False(trTitle.ResourceNotFound);
@@ -68,8 +64,6 @@ public sealed class AgentPopupTests : IClassFixture<WebApplicationFactory<Progra
         Assert.False(trReport.ResourceNotFound);
         Assert.False(trCopyPrompt.ResourceNotFound);
         Assert.Equal("Promptu Kopyala", trCopyPrompt.Value);
-        Assert.False(trDontShow.ResourceNotFound);
-        Assert.Equal("Tekrar gösterme", trDontShow.Value);
         Assert.False(trPrompt.ResourceNotFound);
         Assert.Contains("Research and analyze Samet Can Cıncık's personal website", trPrompt.Value);
         Assert.Contains("## 2. Research & Execution Instructions", trPrompt.Value);

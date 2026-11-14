@@ -83,8 +83,6 @@
   <data name="AgentPopup_Title" xml:space="preserve"><value>Yapay Zeka Ajanları İçin Optimize</value></data>
   <data name="AgentPopup_AriaLabel" xml:space="preserve"><value>Yapay Zeka Ajan Uyumluluk Bildirimi</value></data>
   <data name="AgentPopup_DismissAriaLabel" xml:space="preserve"><value>Bu sekme için ajan bildirimini kapat</value></data>
-  <data name="AgentPopup_DontShowAgain" xml:space="preserve"><value>Tekrar gösterme</value></data>
-  <data name="AgentPopup_DontShowAgainAriaLabel" xml:space="preserve"><value>Bu bildirimi tekrar gösterme</value></data>
   <data name="AgentPopup_ReportLink" xml:space="preserve"><value>Uyumluluk raporu</value></data>
   <data name="AgentPopup_CopyPrompt" xml:space="preserve"><value>Promptu Kopyala</value></data>
   <data name="AgentPopup_PromptCopied" xml:space="preserve"><value>Prompt Kopyalandı!</value></data>

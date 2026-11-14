@@ -28,34 +28,23 @@
                 <p class="agent-popup-desc">@Localizer["Footer_AgentNote"]</p>
             </div>
 
-            <div class="agent-popup-footer">
-                <div class="agent-popup-actions">
-                    <a href="https://isitagentready.com/sametcc.me"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="agent-popup-action-btn"
-                       data-umami-event="agent-popup-report-click">
-                        <AppIcon Name="external-link" />
-                        <span>@Localizer["AgentPopup_ReportLink"]</span>
-                    </a>
-                    <button type="button"
-                            class="agent-popup-action-btn copy-btn @(_copied ? "is-copied" : null)"
-                            @onclick="CopyPromptAsync"
-                            aria-label="@Localizer["AgentPopup_CopyPromptAriaLabel"]"
-                            data-umami-event="agent-popup-copy-prompt-click">
-                        <AppIcon Name="@(_copied ? "check" : "copy")" />
-                        <span>@(_copied ? Localizer["AgentPopup_PromptCopied"] : Localizer["AgentPopup_CopyPrompt"])</span>
-                    </button>
-                </div>
-                <div class="agent-popup-dismiss-bar">
-                    <button type="button"
-                            class="agent-popup-dont-show"
-                            @onclick="DismissPermanentlyAsync"
-                            aria-label="@Localizer["AgentPopup_DontShowAgainAriaLabel"]"
-                            data-umami-event="agent-popup-dont-show-click">
-                        @Localizer["AgentPopup_DontShowAgain"]
-                    </button>
-                </div>
+            <div class="agent-popup-actions">
+                <a href="https://isitagentready.com/sametcc.me"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="agent-popup-action-btn"
+                   data-umami-event="agent-popup-report-click">
+                    <AppIcon Name="external-link" />
+                    <span>@Localizer["AgentPopup_ReportLink"]</span>
+                </a>
+                <button type="button"
+                        class="agent-popup-action-btn copy-btn @(_copied ? "is-copied" : null)"
+                        @onclick="CopyPromptAsync"
+                        aria-label="@Localizer["AgentPopup_CopyPromptAriaLabel"]"
+                        data-umami-event="agent-popup-copy-prompt-click">
+                    <AppIcon Name="@(_copied ? "check" : "copy")" />
+                    <span>@(_copied ? Localizer["AgentPopup_PromptCopied"] : Localizer["AgentPopup_CopyPrompt"])</span>
+                </button>
             </div>
         </div>
     </aside>
@@ -63,7 +52,6 @@
 
 @code {
     private const string SessionStorageKey = "agent-popup-dismissed-session";
-    private const string PermanentStorageKey = "agent-popup-dismissed-permanent";
     private bool _isVisible;
     private bool _isExiting;
     private bool _copied;
@@ -77,12 +65,6 @@
             _cts = new CancellationTokenSource();
             try
             {
-                var permanentlyDismissed = await JS.InvokeAsync<string?>("localStorage.getItem", _cts.Token, PermanentStorageKey);
-                if (permanentlyDismissed == "true")
-                {
-                    return;
-                }
-
                 var sessionDismissed = await JS.InvokeAsync<string?>("sessionStorage.getItem", _cts.Token, SessionStorageKey);
                 if (sessionDismissed == "true")
                 {
@@ -105,11 +87,7 @@
         }
     }
 
-    private Task DismissSessionAsync() => DismissCoreAsync(permanent: false);
-
-    private Task DismissPermanentlyAsync() => DismissCoreAsync(permanent: true);
-
-    private async Task DismissCoreAsync(bool permanent)
+    private async Task DismissSessionAsync()
     {
         if (_isExiting) return;
 
@@ -121,15 +99,7 @@
             await Task.Delay(200);
             _isVisible = false;
             _isExiting = false;
-
-            if (permanent)
-            {
-                await JS.InvokeVoidAsync("localStorage.setItem", PermanentStorageKey, "true");
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("sessionStorage.setItem", SessionStorageKey, "true");
-            }
+            await JS.InvokeVoidAsync("sessionStorage.setItem", SessionStorageKey, "true");
         }
         catch (Exception)
         {
