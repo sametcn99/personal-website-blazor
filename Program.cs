@@ -94,6 +94,7 @@ builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IRssFeedService, RssFeedService>();
 builder.Services.AddScoped<ISitemapService, SitemapService>();
 builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddScoped<IProjectMetricsService, ProjectMetricsService>();
 builder.Services.AddScoped<IMarkdownForAgentsService, MarkdownForAgentsService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IMcpQueryService, McpQueryService>();
@@ -103,6 +104,13 @@ builder.Services.AddHttpClient(
     {
         client.DefaultRequestHeaders.Add("User-Agent", "personal-website-blazor");
         client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+    });
+
+builder.Services.AddHttpClient(
+    "project-metrics", client =>
+    {
+        client.DefaultRequestHeaders.Add("User-Agent", "personal-website-blazor");
+        client.Timeout = TimeSpan.FromSeconds(10);
     });
 
 // ── Build ──────────────────────────────────────────────────────────────

@@ -1,6 +1,8 @@
 @page "/{Section}/{Slug}"
 @using personal_website_blazor.Models
-@inject personal_website_blazor.Interfaces.IContentService ContentService
+@using personal_website_blazor.Interfaces
+@inject IContentService ContentService
+@inject IProjectMetricsService ProjectMetricsService
 @inject IJSRuntime Runtime
 @inject NavigationManager Navigation
 @inject PersistentComponentState ApplicationState
@@ -63,7 +65,7 @@ else
         <StructuredData Data="@ArticleStructuredData" />
     </HeadContent>
 
-    <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost" RandomPost="RandomPost">
+    <ArticleWrapper Post="Post" ContentType="@UrlSection" PrevPost="PrevPost" NextPost="NextPost" RandomPost="RandomPost" ProjectRecordMetrics="ProjectRecordMetrics">
         @if (string.IsNullOrWhiteSpace(Post.Image))
         {
             <figure class="content-detail-art">
@@ -88,6 +90,7 @@ else
     private PostModel? PrevPost;
     private PostModel? NextPost;
     private PostModel? RandomPost;
+    private ProjectMetrics? ProjectRecordMetrics;
     private bool IsLoading = true;
     private string? _initializedSlug;
     private PersistingComponentStateSubscription? _persistSubscription;
@@ -134,6 +137,7 @@ else
         IsLoading = true;
 
         Post = await ContentService.GetPostAsync(FsSection, Slug);
+        ProjectRecordMetrics = null;
 
         if (Post != null)
         {
@@ -150,6 +154,14 @@ else
             if (candidates.Count > 0)
             {
                 RandomPost = candidates[Random.Shared.Next(candidates.Count)];
+            }
+
+            if (UrlSection == "project" && (Post.Repo is not null || Post.NpmPackage is not null))
+            {
+                var metrics = await ProjectMetricsService.GetMetricsForProjectsAsync(
+                    [new ProjectMetricRequest(Post.Slug, Post.Repo, Post.NpmPackage)],
+                    "sametcn99");
+                ProjectRecordMetrics = metrics.GetValueOrDefault(Post.Slug);
             }
         }
 
@@ -196,30 +208,42 @@ else
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .Distinct(StringComparer.OrdinalIgnoreCase);
 
-    private object? ArticleStructuredData => Post is null
-        ? null
-        : new Dictionary<string, object?>
+    private object? ArticleStructuredData
+    {
+        get
         {
-            ["@context"] = "https://schema.org",
-            ["@type"] = UrlSection == "project" ? "SoftwareSourceCode" : "BlogPosting",
-            ["headline"] = Post.Title,
-            ["description"] = Post.Description,
-            ["url"] = GetCanonicalUrl(),
-            ["mainEntityOfPage"] = GetCanonicalUrl(),
-            ["image"] = GetOgImageUrl(),
-            ["articleSection"] = Post.ContentType,
-            ["datePublished"] = Post.PublishDate?.ToString("O"),
-            ["dateModified"] = (Post.UpdatedAt ?? Post.PublishDate)?.ToString("O"),
-            ["inLanguage"] = Post.Language,
-            ["keywords"] = GetMetadataKeywords().ToArray(),
-            ["author"] = new Dictionary<string, object?>
+            if (Post is null)
+                return null;
+
+            var data = new Dictionary<string, object?>
             {
-                ["@type"] = "Person",
-                ["@id"] = "https://sametcc.me/#samet-can-cincik",
-                ["name"] = string.IsNullOrWhiteSpace(Post.Author) ? "Samet Can Cıncık" : Post.Author,
-                ["url"] = "https://sametcc.me/about",
-            },
-        };
+                ["@context"] = "https://schema.org",
+                ["@type"] = UrlSection == "project" ? "SoftwareSourceCode" : "BlogPosting",
+                ["headline"] = Post.Title,
+                ["description"] = Post.Description,
+                ["url"] = GetCanonicalUrl(),
+                ["mainEntityOfPage"] = GetCanonicalUrl(),
+                ["image"] = GetOgImageUrl(),
+                ["articleSection"] = Post.ContentType,
+                ["datePublished"] = Post.PublishDate?.ToString("O"),
+                ["dateModified"] = (Post.UpdatedAt ?? Post.PublishDate)?.ToString("O"),
+                ["inLanguage"] = Post.Language,
+                ["keywords"] = GetMetadataKeywords().ToArray(),
+                ["author"] = new Dictionary<string, object?>
+                {
+                    ["@type"] = "Person",
+                    ["@id"] = "https://sametcc.me/#samet-can-cincik",
+                    ["name"] = string.IsNullOrWhiteSpace(Post.Author) ? "Samet Can Cıncık" : Post.Author,
+                    ["url"] = "https://sametcc.me/about",
+                },
+            };
+
+            if (!string.IsNullOrWhiteSpace(Post.Repo))
+                data["codeRepository"] = $"https://github.com/{Post.Repo}";
+
+            return data;
+        }
+    }
 
     private string GetStateKey() => $"{nameof(PostViewer)}:{FsSection}:{Slug}";
 

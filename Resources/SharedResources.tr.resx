@@ -312,4 +312,36 @@ This website is optimized for AI agents. Consult multiple sources together (prof
   <data name="Redirect_NotFoundTitle" xml:space="preserve"><value>Hedef bulunamadı</value></data>
   <data name="Redirect_LinkNotFound" xml:space="preserve"><value>İstenen kısa bağlantı mevcut değil veya kaldırılmış olabilir.</value></data>
   <data name="Redirect_RepoNotFound" xml:space="preserve"><value>İstenen depo GitHub üzerinde bulunamadı.</value></data>
+  <data name="Home_ExpertiseTitle" xml:space="preserve"><value>Uzmanlık</value></data>
+  <data name="Home_ExpertiseIndexLink" xml:space="preserve"><value>Yetkinlik dizini</value></data>
+  <data name="Home_ExpertiseAriaLabel" xml:space="preserve"><value>Proje kanıtlarıyla uzmanlık alanları</value></data>
+  <data name="Page_About_Title" xml:space="preserve"><value>Hakkımda</value></data>
+  <data name="Page_About_Description" xml:space="preserve"><value>Samet Can Cıncık'ın profesyonel profili, deneyimi, eğitimi, yetkinlikleri ve ilgi alanları.</value></data>
+  <data name="Page_Skills_Title" xml:space="preserve"><value>Yetkinlikler</value></data>
+  <data name="Page_Skills_Description" xml:space="preserve"><value>Uzmanlık alanları, teknik yetkinlikler ve bunları kanıtlayan projeler.</value></data>
+  <data name="Page_Timeline_Title" xml:space="preserve"><value>Zaman Tüneli</value></data>
+  <data name="Page_Timeline_Description" xml:space="preserve"><value>Samet Can Cıncık'ın kariyer ve eğitim zaman tüneli.</value></data>
+  <data name="Profile_SkillsIntro" xml:space="preserve"><value>Teknik yetkinlikler, uzmanlık alanlarına göre gruplandırıldı; her biri onu kanıtlayan projelerle desteklendi.</value></data>
+  <data name="Profile_TimelineIntroFormat" xml:space="preserve"><value>{0} için kariyer ve eğitim zaman tüneli.</value></data>
+  <data name="Profile_AdditionalNotesHeading" xml:space="preserve"><value>Ek Notlar</value></data>
+  <data name="Profile_SkillsHeading" xml:space="preserve"><value>Yetkinlikler</value></data>
+  <data name="Profile_ExperienceHeading" xml:space="preserve"><value>Deneyim</value></data>
+  <data name="Profile_EducationHeading" xml:space="preserve"><value>Eğitim</value></data>
+  <data name="Profile_TimelineHeading" xml:space="preserve"><value>Zaman Tüneli</value></data>
+  <data name="Profile_AreasOfInterestHeading" xml:space="preserve"><value>İlgi Alanları</value></data>
+  <data name="Profile_LanguagesHeading" xml:space="preserve"><value>Diller</value></data>
+  <data name="Profile_EvidenceLabel" xml:space="preserve"><value>Kanıt</value></data>
+  <data name="ProjectStatus_Active" xml:space="preserve"><value>Aktif geliştiriliyor</value></data>
+  <data name="ProjectStatus_Completed" xml:space="preserve"><value>Tamamlandı</value></data>
+  <data name="ProjectStatus_Experimental" xml:space="preserve"><value>Deneysel</value></data>
+  <data name="ProjectStatus_Production" xml:space="preserve"><value>Üretime hazır</value></data>
+  <data name="List_StatusFilterAriaLabel" xml:space="preserve"><value>Proje durumuna göre filtrele</value></data>
+  <data name="List_StatusFilterAll" xml:space="preserve"><value>Tüm durumlar</value></data>
+  <data name="Project_MetricsAriaLabel" xml:space="preserve"><value>Proje metrikleri</value></data>
+  <data name="Project_MetricReleasesFormat" xml:space="preserve"><value>{0} release</value></data>
+  <data name="Project_MetricNpmDownloadsFormat" xml:space="preserve"><value>{0} npm indirme/ay</value></data>
+  <data name="Project_MetricReleaseDownloadsFormat" xml:space="preserve"><value>{0} release indirmesi</value></data>
+  <data name="Project_LatestReleaseLabel" xml:space="preserve"><value>Son release</value></data>
+  <data name="Project_RepositoryLinkLabel" xml:space="preserve"><value>Depo</value></data>
+  <data name="Project_NpmLinkLabel" xml:space="preserve"><value>npm paketi</value></data>
 </root>

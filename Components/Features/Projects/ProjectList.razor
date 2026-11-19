@@ -1,5 +1,6 @@
 @page "/project"
 @inject personal_website_blazor.Interfaces.IContentService ContentService
+@inject personal_website_blazor.Interfaces.IProjectMetricsService ProjectMetricsService
 @inject PersistentComponentState ApplicationState
 @inject IStringLocalizer<SharedResources> Localizer
 @implements IDisposable
@@ -15,10 +16,13 @@
                  Description="@Localizer["Page_Project_Description"]"
                  Posts="_posts"
                  UrlPrefix="project"
-                 IsLoading="_loading" />
+                 IsLoading="_loading"
+                 ShowProjectStatus="true"
+                 Metrics="_metrics" />
 
 @code {
     private List<PostModel> _posts = new();
+    private Dictionary<string, ProjectMetrics?>? _metrics;
     private bool _loading = true;
     private PersistingComponentStateSubscription? _persistSubscription;
 
@@ -35,13 +39,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!_loading)
+        if (_loading)
         {
-            return;
+            _posts = await ContentService.GetPostMetadataListAsync("projects");
+            _loading = false;
         }
 
-        _posts = await ContentService.GetPostMetadataListAsync("projects");
-        _loading = false;
+        _metrics = await ProjectMetricsService.GetMetricsForProjectsAsync(
+            _posts
+                .Where(post => post.Repo is not null || post.NpmPackage is not null)
+                .Select(post => new ProjectMetricRequest(post.Slug, post.Repo, post.NpmPackage)),
+            "sametcn99");
     }
 
     private Task PersistStateAsync()

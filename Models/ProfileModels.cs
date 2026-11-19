@@ -16,7 +16,21 @@ public sealed class ProfileDocument
     public ExperienceEntry[] Experience { get; set; } = Array.Empty<ExperienceEntry>();
     public EducationEntry[] Education { get; set; } = Array.Empty<EducationEntry>();
     public CertificationEntry[] Certifications { get; set; } = Array.Empty<CertificationEntry>();
+    public ExpertisePillar[] Expertise { get; set; } = Array.Empty<ExpertisePillar>();
     public string LastUpdated { get; set; } = string.Empty;
+}
+
+public sealed class ExpertisePillar
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public ExpertiseCompetency[] Competencies { get; set; } = Array.Empty<ExpertiseCompetency>();
+}
+
+public sealed class ExpertiseCompetency
+{
+    public string Name { get; set; } = string.Empty;
+    public string[] Evidence { get; set; } = Array.Empty<string>();
 }
 
 public sealed class ProfileLink

@@ -127,5 +127,36 @@
     { "name": "C# (Basic)", "issuer": "HackerRank", "url": "https://hackerrank.com/certificates/7ac7d1982705" },
     { "name": "Learning Design Thinking", "issuer": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/certificates/af61a5d6a352975bf8bccdb9b77b08034773ccfb6da5b5991448c689461617d1" }
   ],
+  "expertise": [
+    {
+      "title": "Full-stack product engineering",
+      "description": "Shipping complete products from interface to database — web platforms, desktop apps, and self-hosted tools.",
+      "competencies": [
+        { "name": ".NET / C#", "evidence": ["htwind"] },
+        { "name": "Blazor", "evidence": ["github-profile-viewer"] },
+        { "name": "React / TypeScript", "evidence": ["resume-builder", "github-profile-viewer"] },
+        { "name": "Next.js / NestJS product delivery", "evidence": ["hiretea"] }
+      ]
+    },
+    {
+      "title": "Backend architecture and infrastructure",
+      "description": "Designing APIs, data layers, and deployment pipelines — plus system-level networking tools built in Rust and Go.",
+      "competencies": [
+        { "name": "NestJS / PostgreSQL / Prisma", "evidence": ["hiretea"] },
+        { "name": "Docker / GitHub Actions CI-CD", "evidence": ["application-tracker", "booking-calendar"] },
+        { "name": "Rust systems and networking tools", "evidence": ["tcptui", "rcptx"] },
+        { "name": "Go CLI tooling", "evidence": ["golter"] }
+      ]
+    },
+    {
+      "title": "AI-native developer tooling",
+      "description": "Building tools designed for humans and AI agents working together — MCP servers, agent-ready maps, AI-assisted workflows.",
+      "competencies": [
+        { "name": "MCP (Model Context Protocol)", "evidence": ["repotruck"] },
+        { "name": "AI-agent workspace tooling", "evidence": ["repotruck"] },
+        { "name": "AI-assisted development workflows", "evidence": ["rcptx", "tcptui"] }
+      ]
+    }
+  ],
   "lastUpdated": "2026-11-14"
 }

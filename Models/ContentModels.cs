@@ -14,6 +14,9 @@ public class PostModel
     public string? CanonicalUrl { get; set; }
     public string ContentType { get; set; } = string.Empty;
     public string Status { get; set; } = "published";
+    public string? ProjectStatus { get; set; }
+    public string? Repo { get; set; }
+    public string? NpmPackage { get; set; }
     public string Content { get; set; } = string.Empty;
     public string SearchableText { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
@@ -47,6 +50,9 @@ public class ContentMetadata
     public string? CanonicalUrl { get; set; }
     public string ContentType { get; set; } = string.Empty;
     public string Status { get; set; } = "published";
+    public string? ProjectStatus { get; set; }
+    public string? Repo { get; set; }
+    public string? NpmPackage { get; set; }
     public string Language { get; set; } = "en";
 }
 

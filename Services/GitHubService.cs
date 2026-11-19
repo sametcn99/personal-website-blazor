@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Octokit;
 using personal_website_blazor.Interfaces;
@@ -10,10 +11,12 @@ public class GitHubService : IGitHubService
 {
     private readonly GitHubClient _gitHubClient;
     private readonly IMemoryCache _cache;
+    private readonly ILogger<GitHubService> _logger;
 
-    public GitHubService(IOptions<GitHubOptions> options, IMemoryCache cache)
+    public GitHubService(IOptions<GitHubOptions> options, IMemoryCache cache, ILogger<GitHubService> logger)
     {
         _cache = cache;
+        _logger = logger;
         _gitHubClient = new GitHubClient(new ProductHeaderValue("personal-website-blazor"));
 
         var token = options.Value.Token;
@@ -107,5 +110,36 @@ public class GitHubService : IGitHubService
 
         _cache.Set(cacheKey, profile, TimeSpan.FromMinutes(15));
         return profile;
+    }
+
+    public async Task<RepositoryInsights?> GetRepositoryInsightsAsync(string owner, string name)
+    {
+        var cacheKey = $"insights:{owner}/{name}";
+        if (_cache.TryGetValue(cacheKey, out object? cached))
+            return cached as RepositoryInsights;
+
+        try
+        {
+            var releases = await _gitHubClient.Repository.Release.GetAll(owner, name);
+            var latest = releases.OrderByDescending(release => release.PublishedAt ?? release.CreatedAt).FirstOrDefault();
+            var insights = new RepositoryInsights
+            {
+                ReleaseCount = releases.Count,
+                LatestReleaseTag = latest?.TagName,
+                LatestReleaseAt = (latest?.PublishedAt ?? latest?.CreatedAt)?.UtcDateTime,
+                TotalReleaseDownloads = releases.Sum(release => release.Assets.Sum(asset => asset.DownloadCount)),
+            };
+
+            _cache.Set(cacheKey, insights, TimeSpan.FromMinutes(30));
+            return insights;
+        }
+        catch (Exception ex)
+        {
+            // Rate limit, missing repository, or network failure — cache the miss
+            // briefly so a cold page render doesn't hammer the API.
+            _logger.LogWarning(ex, "Failed to fetch repository insights for {Owner}/{Name}", owner, name);
+            _cache.Set(cacheKey, (RepositoryInsights?)null, TimeSpan.FromMinutes(5));
+            return null;
+        }
     }
 }

@@ -1,5 +1,6 @@
 @* ArticleWrapper.razor - Full article layout with metadata, navigation, and content *@
 @using personal_website_blazor.Models
+@using personal_website_blazor.Utilities
 @inject IStringLocalizer<SharedResources> Localizer
 
 <div class="page-container article-shell">
@@ -52,6 +53,51 @@
                             <strong>@Localizer["Common_Topics"]:</strong> @string.Join(", ", Post.Topics)
                         </div>
                     }
+
+                    @if (HasProjectRecord)
+                    {
+                        <div class="project-record">
+                            @if (ProjectStatusLabels.GetKey(Post.ProjectStatus) is { } statusKey)
+                            {
+                                <span class="pill project-record-status">@Localizer[statusKey]</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Post.Repo))
+                            {
+                                <a class="project-record-link" href="@($"https://github.com/{Post.Repo}")">@Localizer["Project_RepositoryLinkLabel"]</a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(Post.NpmPackage))
+                            {
+                                <a class="project-record-link" href="@($"https://www.npmjs.com/package/{Post.NpmPackage}")">@Localizer["Project_NpmLinkLabel"]</a>
+                            }
+                            @if (ProjectRecordMetrics is not null)
+                            {
+                                <span class="project-record-metrics" aria-label="@Localizer["Project_MetricsAriaLabel"]">
+                                    @if (ProjectRecordMetrics.Stars > 0)
+                                    {
+                                        <span>★ @ProjectRecordMetrics.Stars.ToString("N0")</span>
+                                    }
+                                    @if (ProjectRecordMetrics.ReleaseCount > 0)
+                                    {
+                                        <span>@string.Format(Localizer["Project_MetricReleasesFormat"], ProjectRecordMetrics.ReleaseCount)</span>
+                                    }
+                                    @if (ProjectRecordMetrics.TotalReleaseDownloads > 0)
+                                    {
+                                        <span>@string.Format(Localizer["Project_MetricReleaseDownloadsFormat"], ProjectRecordMetrics.TotalReleaseDownloads.ToString("N0"))</span>
+                                    }
+                                    @if (ProjectRecordMetrics.NpmMonthlyDownloads is > 0)
+                                    {
+                                        <span>@string.Format(Localizer["Project_MetricNpmDownloadsFormat"], ProjectRecordMetrics.NpmMonthlyDownloads.Value.ToString("N0"))</span>
+                                    }
+                                </span>
+                            }
+                            @if (ProjectRecordMetrics?.LatestReleaseTag is not null)
+                            {
+                                <span class="project-record-latest">
+                                    @Localizer["Project_LatestReleaseLabel"]: @ProjectRecordMetrics.LatestReleaseTag
+                                </span>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <ArticleShareButton Title="@Post.Title" Description="@Post.Description" />
@@ -83,6 +129,14 @@
     [Parameter] public PostModel? PrevPost { get; set; }
     [Parameter] public PostModel? NextPost { get; set; }
     [Parameter] public PostModel? RandomPost { get; set; }
+    [Parameter] public ProjectMetrics? ProjectRecordMetrics { get; set; }
+
+    private bool HasProjectRecord =>
+        Post is not null
+        && ContentType == "project"
+        && (!string.IsNullOrWhiteSpace(Post.ProjectStatus)
+            || !string.IsNullOrWhiteSpace(Post.Repo)
+            || !string.IsNullOrWhiteSpace(Post.NpmPackage));
 
     private string EffectivePublishedLabel => PublishedLabel ?? Localizer["Common_Published"];
     private string EffectiveUpdatedLabel => UpdatedLabel ?? Localizer["Common_Updated"];

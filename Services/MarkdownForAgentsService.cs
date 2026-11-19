@@ -152,13 +152,40 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
         sb.AppendLine("---");
         sb.AppendLine("title: Skills | Samet Can Cıncık");
-        sb.AppendLine("description: Technical skills, areas of interest, and languages.");
+        sb.AppendLine("description: Expertise areas, technical skills, and the projects that prove them.");
         sb.AppendLine("type: skills");
         sb.AppendLine($"lastUpdated: {profile.LastUpdated}");
         sb.AppendLine("---");
         sb.AppendLine();
         sb.AppendLine("# Skills");
         sb.AppendLine();
+
+        if (profile.Expertise.Length > 0)
+        {
+            sb.AppendLine("## Expertise");
+            sb.AppendLine();
+            foreach (var pillar in profile.Expertise)
+            {
+                sb.AppendLine($"### {pillar.Title}");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(pillar.Description))
+                {
+                    sb.AppendLine(pillar.Description);
+                    sb.AppendLine();
+                }
+
+                foreach (var competency in pillar.Competencies)
+                {
+                    var evidence = competency.Evidence.Length > 0
+                        ? $" — proven by {string.Join(", ", competency.Evidence.Select(slug => $"/project/{slug}"))}"
+                        : string.Empty;
+                    sb.AppendLine($"- {competency.Name}{evidence}");
+                }
+
+                sb.AppendLine();
+            }
+        }
+
         AppendBulletSection(sb, "Technical Skills", profile.Skills);
         AppendBulletSection(sb, "Areas Of Interest", profile.AreasOfInterest);
         AppendBulletSection(sb, "Languages", profile.Languages);
@@ -256,6 +283,12 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
 
             sb.AppendLine($"### [{content.Title}]({normalizedBaseUrl}{content.Href})");
             sb.AppendLine();
+            if (string.Equals(routeParts[0], "project", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(content.ProjectStatus))
+            {
+                sb.AppendLine($"Status: {content.ProjectStatus}");
+                sb.AppendLine();
+            }
             var markdown = await GetContentPostMarkdownAsync(routeParts[0], routeParts[1]);
             sb.AppendLine(markdown ?? content.Summary);
             sb.AppendLine();
@@ -493,6 +526,9 @@ public class MarkdownForAgentsService : IMarkdownForAgentsService
                 CanonicalUrl = post.CanonicalUrl,
                 ContentType = post.ContentType,
                 Status = post.Status,
+                ProjectStatus = post.ProjectStatus,
+                Repo = post.Repo,
+                NpmPackage = post.NpmPackage,
                 Language = post.Language,
             }));
         }

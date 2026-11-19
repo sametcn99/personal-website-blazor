@@ -67,6 +67,7 @@ public sealed class McpSkillsResult
     public string[] AreasOfInterest { get; init; } = Array.Empty<string>();
     public string[] Languages { get; init; } = Array.Empty<string>();
     public string[] PublicNotes { get; init; } = Array.Empty<string>();
+    public ExpertisePillar[] Expertise { get; init; } = Array.Empty<ExpertisePillar>();
     public string LastUpdated { get; init; } = string.Empty;
 }
 

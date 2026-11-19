@@ -312,4 +312,36 @@ This website is optimized for AI agents. Consult multiple sources together (prof
   <data name="Redirect_NotFoundTitle" xml:space="preserve"><value>Destination not found</value></data>
   <data name="Redirect_LinkNotFound" xml:space="preserve"><value>The requested short link does not exist or may have been removed.</value></data>
   <data name="Redirect_RepoNotFound" xml:space="preserve"><value>The requested repository could not be found on GitHub.</value></data>
+  <data name="Home_ExpertiseTitle" xml:space="preserve"><value>Expertise</value></data>
+  <data name="Home_ExpertiseIndexLink" xml:space="preserve"><value>Skills index</value></data>
+  <data name="Home_ExpertiseAriaLabel" xml:space="preserve"><value>Expertise areas with project evidence</value></data>
+  <data name="Page_About_Title" xml:space="preserve"><value>About</value></data>
+  <data name="Page_About_Description" xml:space="preserve"><value>Professional profile, experience, education, skills, and interests of Samet Can Cıncık.</value></data>
+  <data name="Page_Skills_Title" xml:space="preserve"><value>Skills</value></data>
+  <data name="Page_Skills_Description" xml:space="preserve"><value>Expertise areas, technical skills, and the projects that prove them.</value></data>
+  <data name="Page_Timeline_Title" xml:space="preserve"><value>Timeline</value></data>
+  <data name="Page_Timeline_Description" xml:space="preserve"><value>Career and education timeline for Samet Can Cıncık.</value></data>
+  <data name="Profile_SkillsIntro" xml:space="preserve"><value>Technical skills grouped by expertise area, each backed by the projects that prove it.</value></data>
+  <data name="Profile_TimelineIntroFormat" xml:space="preserve"><value>Career and education timeline for {0}.</value></data>
+  <data name="Profile_AdditionalNotesHeading" xml:space="preserve"><value>Additional Notes</value></data>
+  <data name="Profile_SkillsHeading" xml:space="preserve"><value>Skills</value></data>
+  <data name="Profile_ExperienceHeading" xml:space="preserve"><value>Experience</value></data>
+  <data name="Profile_EducationHeading" xml:space="preserve"><value>Education</value></data>
+  <data name="Profile_TimelineHeading" xml:space="preserve"><value>Timeline</value></data>
+  <data name="Profile_AreasOfInterestHeading" xml:space="preserve"><value>Areas Of Interest</value></data>
+  <data name="Profile_LanguagesHeading" xml:space="preserve"><value>Languages</value></data>
+  <data name="Profile_EvidenceLabel" xml:space="preserve"><value>Proven by</value></data>
+  <data name="ProjectStatus_Active" xml:space="preserve"><value>Actively developed</value></data>
+  <data name="ProjectStatus_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="ProjectStatus_Experimental" xml:space="preserve"><value>Experimental</value></data>
+  <data name="ProjectStatus_Production" xml:space="preserve"><value>Production-ready</value></data>
+  <data name="List_StatusFilterAriaLabel" xml:space="preserve"><value>Filter by project status</value></data>
+  <data name="List_StatusFilterAll" xml:space="preserve"><value>All statuses</value></data>
+  <data name="Project_MetricsAriaLabel" xml:space="preserve"><value>Project metrics</value></data>
+  <data name="Project_MetricReleasesFormat" xml:space="preserve"><value>{0} releases</value></data>
+  <data name="Project_MetricNpmDownloadsFormat" xml:space="preserve"><value>{0} npm downloads/mo</value></data>
+  <data name="Project_MetricReleaseDownloadsFormat" xml:space="preserve"><value>{0} release downloads</value></data>
+  <data name="Project_LatestReleaseLabel" xml:space="preserve"><value>Latest release</value></data>
+  <data name="Project_RepositoryLinkLabel" xml:space="preserve"><value>Repository</value></data>
+  <data name="Project_NpmLinkLabel" xml:space="preserve"><value>npm package</value></data>
 </root>

@@ -137,6 +137,12 @@ public class ContentService : IContentService
                         post.ContentType = contentType?.ToString() ?? string.Empty;
                     if (metadata.TryGetValue("status", out var status))
                         post.Status = status?.ToString() ?? "published";
+                    if (metadata.TryGetValue("projectStatus", out var projectStatus))
+                        post.ProjectStatus = projectStatus?.ToString();
+                    if (metadata.TryGetValue("repo", out var repo))
+                        post.Repo = repo?.ToString();
+                    if (metadata.TryGetValue("npm", out var npmPackage))
+                        post.NpmPackage = npmPackage?.ToString();
                     if (metadata.TryGetValue("language", out var lang))
                         post.Language = lang.ToString()!;
                 }
@@ -265,6 +271,12 @@ public class ContentService : IContentService
                             post.ContentType = contentType?.ToString() ?? string.Empty;
                         if (metadata.TryGetValue("status", out var status))
                             post.Status = status?.ToString() ?? "published";
+                        if (metadata.TryGetValue("projectStatus", out var projectStatus))
+                            post.ProjectStatus = projectStatus?.ToString();
+                        if (metadata.TryGetValue("repo", out var repo))
+                            post.Repo = repo?.ToString();
+                        if (metadata.TryGetValue("npm", out var npmPackage))
+                            post.NpmPackage = npmPackage?.ToString();
                         if (metadata.TryGetValue("language", out var lang))
                             post.Language = lang.ToString()!;
                     }
@@ -310,6 +322,9 @@ public class ContentService : IContentService
                     CanonicalUrl = p.CanonicalUrl,
                     ContentType = p.ContentType,
                     Status = p.Status,
+                    ProjectStatus = p.ProjectStatus,
+                    Repo = p.Repo,
+                    NpmPackage = p.NpmPackage,
                     Language = p.Language,
                 })
             );
@@ -449,6 +464,12 @@ public class ContentService : IContentService
                             post.ContentType = contentType?.ToString() ?? string.Empty;
                         if (metadata.TryGetValue("status", out var status))
                             post.Status = status?.ToString() ?? "published";
+                        if (metadata.TryGetValue("projectStatus", out var projectStatus))
+                            post.ProjectStatus = projectStatus?.ToString();
+                        if (metadata.TryGetValue("repo", out var repo))
+                            post.Repo = repo?.ToString();
+                        if (metadata.TryGetValue("npm", out var npmPackage))
+                            post.NpmPackage = npmPackage?.ToString();
                         if (metadata.TryGetValue("language", out var lang))
                             post.Language = lang.ToString()!;
                     }

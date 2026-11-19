@@ -443,3 +443,40 @@
     padding: 1rem;
   }
 }
+
+.content-list-status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.content-list-status-filter .pill {
+  font-size: 0.74rem;
+}
+
+.content-list-status-pill {
+  flex: 0 0 auto;
+  min-height: 1.3rem;
+  padding: 0 0.55rem;
+  color: var(--color-text-secondary);
+  font-size: 0.66rem;
+  white-space: nowrap;
+}
+
+.content-list-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  margin: 0.55rem 0 0;
+  color: var(--color-text-secondary);
+  font-family: var(--font-measure);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.content-list-metrics > span {
+  white-space: nowrap;
+}

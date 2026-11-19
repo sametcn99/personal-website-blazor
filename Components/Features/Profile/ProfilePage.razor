@@ -1,14 +1,18 @@
 @page "/about"
 @page "/timeline"
 @page "/skills"
+@using personal_website_blazor.Interfaces
 @using personal_website_blazor.Models
-@inject personal_website_blazor.Interfaces.IProfileService ProfileService
+@using personal_website_blazor.Utilities
+@inject IProfileService ProfileService
+@inject IContentService ContentService
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResources> Localizer
 
-<PageTitle>@PageTitle | Samet Can Cıncık</PageTitle>
+<PageTitle>@Localizer[PageTitleKey] | Samet Can Cıncık</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="@Description" />
+    <meta name="description" content="@Localizer[DescriptionKey]" />
     <link rel="canonical" href="@CanonicalUrl" />
     <StructuredData Data="@StructuredData" />
 </HeadContent>
@@ -28,7 +32,7 @@
 
             @if (_profile.PublicNotes.Length > 0)
             {
-                <h2>Additional Notes</h2>
+                <h2>@Localizer["Profile_AdditionalNotesHeading"]</h2>
                 <ul>
                     @foreach (var note in _profile.PublicNotes)
                     {
@@ -37,15 +41,40 @@
                 </ul>
             }
 
-            <h2>Skills</h2>
-            <ul>
-                @foreach (var skill in _profile.Skills)
-                {
-                    <li>@skill</li>
-                }
-            </ul>
+            <h2>@Localizer["Profile_SkillsHeading"]</h2>
+            @if (_profile.Expertise.Length > 0)
+            {
+                <div class="skills-expertise">
+                    @foreach (var pillar in _profile.Expertise)
+                    {
+                        <div class="skills-pillar about-pillar">
+                            <h3>@pillar.Title</h3>
+                            <ul class="skills-competency-list">
+                                @foreach (var competency in pillar.Competencies)
+                                {
+                                    <li class="skills-competency">
+                                        <span class="skills-competency-name">@competency.Name</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+                <p class="skills-index-link-row">
+                    <a href="/skills">@Localizer["Home_ExpertiseIndexLink"]</a>
+                </p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var skill in _profile.Skills)
+                    {
+                        <li>@skill</li>
+                    }
+                </ul>
+            }
 
-            <h2>Experience</h2>
+            <h2>@Localizer["Profile_ExperienceHeading"]</h2>
             @foreach (var experience in _profile.Experience)
             {
                 <h3>@experience.Role — @experience.Organization</h3>
@@ -60,10 +89,10 @@
         }
         else if (PageKind == "timeline")
         {
-            <h1>Timeline</h1>
-            <p>Career and education timeline for @_profile.Name.</p>
+            <h1>@Localizer["Profile_TimelineHeading"]</h1>
+            <p>@string.Format(Localizer["Profile_TimelineIntroFormat"], _profile.Name)</p>
 
-            <h2>Experience</h2>
+            <h2>@Localizer["Profile_ExperienceHeading"]</h2>
             @foreach (var experience in _profile.Experience)
             {
                 <h3>@experience.Role — @experience.Organization</h3>
@@ -76,7 +105,7 @@
                 </ul>
             }
 
-            <h2>Education</h2>
+            <h2>@Localizer["Profile_EducationHeading"]</h2>
             @foreach (var education in _profile.Education)
             {
                 <h3>@education.Program — @education.Institution</h3>
@@ -91,18 +120,65 @@
         }
         else
         {
-            <h1>Skills</h1>
-            <p>Technical skills, areas of interest, and languages for @_profile.Name.</p>
+            <h1>@Localizer["Profile_SkillsHeading"]</h1>
+            <p>@Localizer["Profile_SkillsIntro"]</p>
 
-            <h2>Technical Skills</h2>
-            <ul>
-                @foreach (var skill in _profile.Skills)
-                {
-                    <li>@skill</li>
-                }
-            </ul>
+            @if (_profile.Expertise.Length > 0)
+            {
+                <div class="skills-expertise">
+                    @foreach (var pillar in _profile.Expertise)
+                    {
+                        <section class="skills-pillar">
+                            <h2>@pillar.Title</h2>
+                            @if (!string.IsNullOrWhiteSpace(pillar.Description))
+                            {
+                                <p class="skills-pillar-description">@pillar.Description</p>
+                            }
+                            <ul class="skills-competency-list">
+                                @foreach (var competency in pillar.Competencies)
+                                {
+                                    var resolvedEvidence = competency.Evidence
+                                        .Where(_projectLookup.ContainsKey)
+                                        .ToList();
+                                    <li class="skills-competency">
+                                        <span class="skills-competency-name">@competency.Name</span>
+                                        @if (resolvedEvidence.Count > 0)
+                                        {
+                                            <span class="skills-competency-evidence">
+                                                <span class="skills-evidence-label">@Localizer["Profile_EvidenceLabel"]</span>
+                                                @foreach (var evidenceSlug in resolvedEvidence)
+                                                {
+                                                    var project = _projectLookup[evidenceSlug];
+                                                    var statusLabel = GetStatusLabel(project.ProjectStatus);
+                                                    <span class="skills-evidence-item">
+                                                        <a href="/project/@evidenceSlug">@project.Title</a>
+                                                        @if (statusLabel is not null)
+                                                        {
+                                                            <span class="skills-evidence-status">@statusLabel</span>
+                                                        }
+                                                    </span>
+                                                }
+                                            </span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </section>
+                    }
+                </div>
+            }
+            else
+            {
+                <h2>@Localizer["Profile_SkillsHeading"]</h2>
+                <ul>
+                    @foreach (var skill in _profile.Skills)
+                    {
+                        <li>@skill</li>
+                    }
+                </ul>
+            }
 
-            <h2>Areas Of Interest</h2>
+            <h2>@Localizer["Profile_AreasOfInterestHeading"]</h2>
             <ul>
                 @foreach (var area in _profile.AreasOfInterest)
                 {
@@ -110,7 +186,7 @@
                 }
             </ul>
 
-            <h2>Languages</h2>
+            <h2>@Localizer["Profile_LanguagesHeading"]</h2>
             <ul>
                 @foreach (var language in _profile.Languages)
                 {
@@ -123,6 +199,7 @@
 
 @code {
     private ProfileDocument? _profile;
+    private Dictionary<string, PostModel> _projectLookup = new(StringComparer.OrdinalIgnoreCase);
 
     private string PageKind => Navigation.ToBaseRelativePath(Navigation.Uri).Trim('/').ToLowerInvariant() switch
     {
@@ -131,21 +208,24 @@
         _ => "about",
     };
 
-    private string PageTitle => PageKind switch
+    private string PageTitleKey => PageKind switch
     {
-        "timeline" => "Timeline",
-        "skills" => "Skills",
-        _ => "About",
+        "timeline" => "Page_Timeline_Title",
+        "skills" => "Page_Skills_Title",
+        _ => "Page_About_Title",
     };
 
-    private string Description => PageKind switch
+    private string DescriptionKey => PageKind switch
     {
-        "timeline" => "Career and education timeline for Samet Can Cıncık.",
-        "skills" => "Technical skills, areas of interest, and languages for Samet Can Cıncık.",
-        _ => "Professional profile, experience, education, skills, and interests of Samet Can Cıncık.",
+        "timeline" => "Page_Timeline_Description",
+        "skills" => "Page_Skills_Description",
+        _ => "Page_About_Description",
     };
 
     private string CanonicalUrl => Navigation.ToAbsoluteUri($"/{PageKind}").ToString();
+
+    private LocalizedString? GetStatusLabel(string? projectStatus)
+        => ProjectStatusLabels.GetKey(projectStatus) is { } key ? Localizer[key] : null;
 
     private object? StructuredData => _profile is null
         ? null
@@ -171,5 +251,15 @@
     protected override async Task OnInitializedAsync()
     {
         _profile = await ProfileService.GetProfileAsync();
+
+        try
+        {
+            var projects = await ContentService.GetPostMetadataListAsync("projects");
+            _projectLookup = projects.ToDictionary(project => project.Slug, StringComparer.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            // Evidence links degrade gracefully when the project index is unavailable.
+        }
     }
 }

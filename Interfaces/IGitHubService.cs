@@ -6,4 +6,5 @@ public interface IGitHubService
 {
     Task<List<GitHubRepository>> GetUserRepositoriesAsync(string username, int perPage = 100);
     Task<GitHubProfile?> GetUserProfileAsync(string username);
+    Task<RepositoryInsights?> GetRepositoryInsightsAsync(string owner, string name);
 }

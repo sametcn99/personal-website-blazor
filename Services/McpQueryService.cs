@@ -92,6 +92,7 @@ public sealed class McpQueryService : IMcpQueryService
             AreasOfInterest = profile.AreasOfInterest,
             Languages = profile.Languages,
             PublicNotes = profile.PublicNotes,
+            Expertise = profile.Expertise,
             LastUpdated = profile.LastUpdated,
         };
     }

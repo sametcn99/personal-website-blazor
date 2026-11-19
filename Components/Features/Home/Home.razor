@@ -90,6 +90,54 @@
         </button>
     </section>
 
+    @if (_profile is not null && _profile.Expertise.Length > 0)
+    {
+        <section class="home-expertise" aria-labelledby="home-expertise-title">
+            <div class="register-heading">
+                <div class="register-heading-copy">
+                    <h2 id="home-expertise-title">@Localizer["Home_ExpertiseTitle"]</h2>
+                </div>
+                <a class="register-index-link" href="/skills" data-umami-event="home-expertise-index-click">
+                    <span>@Localizer["Home_ExpertiseIndexLink"]</span>
+                    <AppIcon Name="chevron-right" Class="register-index-arrow" />
+                </a>
+            </div>
+            <div class="expertise-ledger" aria-label="@Localizer["Home_ExpertiseAriaLabel"]">
+                @foreach (var pillar in _profile.Expertise)
+                {
+                    <div class="expertise-pillar">
+                        <div class="expertise-pillar-head">
+                            <h3>@pillar.Title</h3>
+                            <p>@pillar.Description</p>
+                        </div>
+                        <ul class="expertise-competencies">
+                            @foreach (var competency in pillar.Competencies)
+                            {
+                                var resolvedEvidence = competency.Evidence
+                                    .Where(_projectLookup.ContainsKey)
+                                    .ToList();
+                                if (resolvedEvidence.Count == 0)
+                                {
+                                    continue;
+                                }
+                                <li class="expertise-competency">
+                                    <span class="expertise-competency-name">@competency.Name</span>
+                                    <span class="expertise-competency-evidence">
+                                        @foreach (var evidenceSlug in resolvedEvidence)
+                                        {
+                                            <a href="/project/@evidenceSlug"
+                                               data-umami-event="home-expertise-evidence-click">@_projectLookup[evidenceSlug].Title</a>
+                                        }
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
     @if (_isLoading)
     {
         <div class="home-loading" aria-label="@Localizer["Home_LoadingRecentAriaLabel"]">
@@ -223,6 +271,7 @@
     private List<ContentMetadata> _blogPosts = new();
     private List<ContentMetadata> _gistPosts = new();
     private List<ContentMetadata> _projectPosts = new();
+    private Dictionary<string, PostModel> _projectLookup = new(StringComparer.OrdinalIgnoreCase);
     private ProfileDocument? _profile;
     private int _blogTotal;
     private int _gistTotal;
@@ -285,6 +334,7 @@ _projectPosts.FirstOrDefault() }
         _blogTotal = blogs.Count;
         _projectTotal = projects.Count;
         _gistTotal = gists.Count;
+        _projectLookup = projects.ToDictionary(project => project.Slug, StringComparer.OrdinalIgnoreCase);
 
         _blogPosts = blogs.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("blog")).ToList();
         _gistPosts = gists.OrderByDescending(GetEffectiveDate).Take(5).Select(ToMeta("gist")).ToList();

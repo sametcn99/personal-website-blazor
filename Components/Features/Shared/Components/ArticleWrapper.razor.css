@@ -18,6 +18,59 @@
   margin: 1rem 0 2rem;
 }
 
+.project-record {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.1rem;
+  margin-top: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.project-record .pill.project-record-status {
+  min-height: 1.35rem;
+  padding-inline: 0.55rem;
+  color: var(--color-text-secondary);
+  font-size: 0.66rem;
+  white-space: nowrap;
+}
+
+.project-record-link {
+  color: var(--color-text-primary);
+  font-family: var(--font-measure);
+  font-size: 0.76rem;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.project-record-link:hover,
+.project-record-link:focus-visible {
+  color: var(--color-primary-strong);
+}
+
+.project-record-metrics {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-measure);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.project-record-metrics > span,
+.project-record-latest {
+  color: var(--color-text-secondary);
+  font-family: var(--font-measure);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .article-document {
   min-width: 0;
 }

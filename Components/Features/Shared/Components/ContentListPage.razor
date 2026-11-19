@@ -1,4 +1,5 @@
 @* ContentListPage.razor - Reusable content listing with search and sort *@
+@using personal_website_blazor.Utilities
 @inject IStringLocalizer<SharedResources> Localizer
 
 @{
@@ -37,6 +38,26 @@
                                   Options="@(new[] { new CustomSelectOption("desc", _sortBy == "date" ? Localizer["Sort_Newest"] : Localizer["Sort_ZtoA"]), new CustomSelectOption("asc", _sortBy == "date" ? Localizer["Sort_Oldest"] : Localizer["Sort_AtoZ"]) })"
                                   data-umami-event='@UmamiEvent.Click("content-list-sort-order", Title)' />
                 </div>
+                @if (ShowProjectStatus)
+                {
+                    <div class="content-list-status-filter" role="group" aria-label="@Localizer["List_StatusFilterAriaLabel"]">
+                        <button type="button"
+                                class="pill @(_statusFilter is null ? "pill-active" : string.Empty)"
+                                @onclick='() => SetStatusFilter(null)'
+                                data-umami-event='@UmamiEvent.Click("content-list-status-filter", "all")'>
+                            @Localizer["List_StatusFilterAll"]
+                        </button>
+                        @foreach (var status in ProjectStatusValues)
+                        {
+                            <button type="button"
+                                    class="pill @(_statusFilter == status ? "pill-active" : string.Empty)"
+                                    @onclick='() => SetStatusFilter(status)'
+                                    data-umami-event='@UmamiEvent.Click("content-list-status-filter", status)'>
+                                @GetStatusLabel(status)
+                            </button>
+                        }
+                    </div>
+                }
             </div>
 
             @if (!string.IsNullOrWhiteSpace(_searchQuery) && !IsLoading)
@@ -82,8 +103,33 @@
                                 <div class="content-list-title-row">
                                     <span class="content-list-number">@((index + 1).ToString("00"))</span>
                                     <h2>@post.Title</h2>
+                                    @if (ShowProjectStatus && !string.IsNullOrWhiteSpace(post.ProjectStatus))
+                                    {
+                                        <span class="pill content-list-status-pill">@GetStatusLabel(post.ProjectStatus)</span>
+                                    }
                                 </div>
                                 <p class="content-list-summary">@post.Description</p>
+                                @if (Metrics is not null && Metrics.TryGetValue(post.Slug, out var metrics) && metrics is not null)
+                                {
+                                    <p class="content-list-metrics" aria-label="@Localizer["Project_MetricsAriaLabel"]">
+                                        @if (metrics.Stars > 0)
+                                        {
+                                            <span>★ @metrics.Stars.ToString("N0")</span>
+                                        }
+                                        @if (metrics.ReleaseCount > 0)
+                                        {
+                                            <span>@string.Format(Localizer["Project_MetricReleasesFormat"], metrics.ReleaseCount)</span>
+                                        }
+                                        @if (metrics.TotalReleaseDownloads > 0)
+                                        {
+                                            <span>@string.Format(Localizer["Project_MetricReleaseDownloadsFormat"], metrics.TotalReleaseDownloads.ToString("N0"))</span>
+                                        }
+                                        @if (metrics.NpmMonthlyDownloads is > 0)
+                                        {
+                                            <span>@string.Format(Localizer["Project_MetricNpmDownloadsFormat"], metrics.NpmMonthlyDownloads.Value.ToString("N0"))</span>
+                                        }
+                                    </p>
+                                }
                                 @if (GetMetadataLabels(post).Any())
                                 {
                                     <div class="content-list-tags" aria-label="@Localizer["List_TagsAriaLabel"]">
@@ -114,18 +160,34 @@
     [Parameter] public List<PostModel> Posts { get; set; } = new();
     [Parameter] public string UrlPrefix { get; set; } = "blog";
     [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public bool ShowProjectStatus { get; set; }
+    [Parameter] public Dictionary<string, ProjectMetrics?>? Metrics { get; set; }
+
+    private static readonly string[] ProjectStatusValues = ["active", "completed", "experimental", "production"];
 
     private string _searchQuery = string.Empty;
     private string _sortBy = "date";
     private string _sortOrder = "desc";
+    private string? _statusFilter;
 
     private List<PostModel> FilteredPosts => GetFilteredAndSorted();
 
     private void OnSearchChanged() => StateHasChanged();
 
+    private void SetStatusFilter(string? status) => _statusFilter = status;
+
+    private LocalizedString GetStatusLabel(string status)
+        => ProjectStatusLabels.GetKey(status) is { } key ? Localizer[key] : Localizer["List_StatusFilterAll"];
+
     private List<PostModel> GetFilteredAndSorted()
     {
         var filtered = Posts.AsEnumerable();
+
+        if (ShowProjectStatus && _statusFilter is not null)
+        {
+            filtered = filtered.Where(post =>
+                string.Equals(post.ProjectStatus, _statusFilter, StringComparison.OrdinalIgnoreCase));
+        }
 
         if (!string.IsNullOrWhiteSpace(_searchQuery))
         {
